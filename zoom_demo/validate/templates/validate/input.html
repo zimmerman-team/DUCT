@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Validate Example</title>   
+    </head>
+    <style>
+        table, th, td {
+           border: 1px solid black;
+        }
+    </style>
+    <body>
+    {% if validate == False %}
+    <div>
+    <!-- List of uploaded documents -->
+    
+        <!-- Display current templates -->
+        <form action="{{ request.build_absolute_uri }}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% if documents %}
+                <h3>Choose Template</h3>
+                <ul>
+                {% for document in documents %}
+                     <input type="radio" name="file_template" value="{{document.file}}">{{ document.file }}<br>
+                {% endfor %}
+                </ul>                
+
+                <h3>Choose CSV's to map</h3><!-- remove csv that template was choosen on  and only show this when a template has been choosen -->
+                <ul>
+                {% for document in documents %}
+                    <input type="checkbox" name="files[]" value="{{document.file}}"> {{document.file}}<br>
+                     <!--<input type="radio" name="file_template" value="{{document.file}}">{{ document.file }}<br>-->
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p>No documents stored</p>
+            {% endif %}
+            
+            <p>{{ form.file }}</p>
+            <p><input type="submit" name="upload" value="Upload" /></p>
+            {% if documents %}
+                <p><input type="submit" name="validate" value="validate" /></p>
+            {% endif %}
+        </form>
+    </div>
+    {% else %}
+        <form action="../manual_map/" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <p>Using {{template_file}}, found {{ mapped }} column </p>
+            <table>
+            <tr><th>Heading</th><th>Mapping</th><th>Datatypes</th><th>Validation Result</th></tr>
+            {% for heading, mapping, dtypes, result in found_list %}
+                <tr><td>{{ heading }}</td><td> mapped by columns {{mapping}}</td><td>{{dtypes}}</td><td>{{result}}</td> </tr>
+            {% endfor %}
+            </table>
+            <p>{{files}} missing mapping for {{ no_mapped }} columns</p>
+            <table>
+            {% for heading in missing_list %}
+                <tr><td>{{ heading }}</td></tr>
+            {% endfor %}
+            </table>
+            {% if missing_list %}
+                <!--<p><input type="submit" value="Manual Mapping" /></p>-->
+                <a href="../manual_map" class="button" style= "-webkit-appearance: button; -moz-appearance: button; appearance: button; text-decoration: none; color: initial;">Manual Mapping</a>
+            {% endif %}
+        </form>    
+    {% endif %}    
+    </body>
+</html> 
