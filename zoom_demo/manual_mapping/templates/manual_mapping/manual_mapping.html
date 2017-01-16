@@ -58,6 +58,7 @@
     $( ".ui-widget-header" ).droppable({//allow only one heading to be drpped
       drop: function( event, ui ) {
         dropped_element = event.target.id;
+        if (dict[dropped_element] != "" || dict[dropped_element] != dragged_element) { $("#" + dict[dropped_element] ).animate({ top: '230px' });} 
         dict[dropped_element] = dragged_element;
         $( this )
           .addClass( "ui-state-highlight" )
@@ -73,26 +74,31 @@
         //}
       },
       out: function (event, ui) {
-        //if(dict[dropped_element] == dragged_element || dict[dropped_element] == ""){
+        if(dict[dropped_element] == dragged_element || dict[dropped_element] == ""){
             dict[event.target.id] = "";
             $( this )
             .removeClass('ui-state-highlight')
             .find( "p" )
             .html( event.target.id );
-        //}
+        }
       }
       
     });
   } );
 
   function check_complete_mapping(){
+      var check = true
       for (var key in dict) {
         if( dict[key] == "" ) {
+            check = false
             alert("Mapping incomplete");
-            return;
+            return false;
         }
       }
-      send_mapping_data(dict);      
+      if (check){
+        send_mapping_data(dict);
+      }      
+      return true
   }
 
     //send post request
@@ -111,7 +117,7 @@
 </head>
 
 <body>
-<form action="{{ request.build_absolute_uri }}" method="post" enctype="multipart/form-data">-->
+<form action="{{ request.build_absolute_uri }}" method="post" enctype="multipart/form-data" onsubmit="return check_complete_mapping()";>
   {% csrf_token %}
     <div id="snapcontainer"><h2>Template Headings</h2>
     {% for heading in remaining_headings %}
@@ -130,7 +136,7 @@
      
     </div> 
     <input id="dict" type="hidden" name="dict" value="">
-    <div id ="submit_button"><p><input type="submit" name="map" value="map" onclick="check_complete_mapping()" /></p></div>
+    <div id ="submit_button"><p><input type="submit" name="map" value="map" onclick="" /></p></div>
 </form>
   
 </body>

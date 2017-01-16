@@ -7,6 +7,9 @@ import requests
 from django.core.files.base import ContentFile
 import rfc6266  # (content-disposition header parser)
 from django.conf import settings
+from django.utils import timezone
+import datetime
+
 CONTENT_TYPE_MAP = {
     'application/json': 'json',
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
@@ -19,6 +22,30 @@ def upload_to(instance, filename=''):
         #return os.path.join(str(instance.pk), filename)
     return os.path.join(settings.MEDIA_ROOT + "/datasets/", filename)
 
+#Basic data store for the test file being used
+class Store(models.Model):
+    file_source = models.CharField(max_length = 50)
+    date_created =  models.DateTimeField(default=timezone.now)
+    indicator_type = models.CharField(max_length=50)
+    indicator = models.CharField(max_length=40)
+    unit = models.CharField(max_length=50)
+    subgroup = models.CharField(max_length=50)
+    country = models.CharField(max_length=50)
+    country_id = models.CharField(max_length=5)
+    date = models.DateField(("Date")) # identify timezone?
+    source = models.CharField(max_length=5)
+    value = models.DecimalField(max_digits=20, decimal_places = 5) # might need more for accuracy
+    footnote = models.CharField(max_length=200)
+
+#the mapping betweeen coulmns in the datastore and HXL tags
+class HXLmapping(models.Model): #can be used for other conversions
+    column_name = models.CharField(max_length = 50)
+    HXL_tag = models.CharField(max_length = 50) #HXL tags can error tags
+
+#HXL and the corresponding value type for that tag
+class HXLtags(models.Model):
+    HXL_tag = models.CharField(max_length = 50)
+    value_type = models.CharField(max_length = 40)
 
 class File(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
