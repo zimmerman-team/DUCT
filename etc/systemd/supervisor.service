@@ -1,0 +1,13 @@
+[Unit]
+Description=django-supervisor
+After=network.target
+
+[Service]
+Type=simple
+User=zoom
+Group=zoom
+ExecStart=/bin/bash -c 'source /home/zoom/envs/zoom/bin/activate; cd /home/zoom/ZOOM-CSV-MAPPER/ZOOM/; /usr/bin/env python manage.py supervisor'
+TimeoutSec=20
+
+[Install]
+WantedBy=multi-user.target
