@@ -16,7 +16,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 
 urlpatterns = [
-	url(r'^manual_map/', include('zoom_demo.manual_mapping.urls')),
-    url(r'^validate/', include('zoom_demo.validate.urls')),
+	url(r'^manual_map/', include('manual_mapping.urls')),
+    url(r'^validate/', include('validate.urls')),
     url(r'^admin/', admin.site.urls),
 ]

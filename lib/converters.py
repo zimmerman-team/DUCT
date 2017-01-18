@@ -8,7 +8,7 @@ import json
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
-from zoom_demo.lib.exceptions import CoveInputDataError
+from lib.exceptions import CoveInputDataError
 
 logger = logging.getLogger(__name__)
 

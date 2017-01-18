@@ -13,8 +13,8 @@ from django.conf import settings
 #from myproject.myapp.models import Document
 from .forms import DocumentForm
 from .models import File
-from zoom_demo.lib.converters import convert_spreadsheet
-from zoom_demo.lib.tools import check_column_data
+from lib.converters import convert_spreadsheet
+from lib.tools import check_column_data
 import numpy as np
 import pandas as pd
 

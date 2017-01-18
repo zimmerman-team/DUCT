@@ -37,9 +37,9 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'zoom_demo.validate',
-    'zoom_demo.lib',
-    'zoom_demo.manual_mapping',
+    'validate',
+    'lib',
+    'manual_mapping',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -53,7 +53,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.security.SecurityMiddleware',
 )
 
-ROOT_URLCONF = 'zoom_demo.urls'
+ROOT_URLCONF = 'ZOOM.urls'
 
 TEMPLATES = [
     {
@@ -71,7 +71,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'zoom_demo.wsgi.application'
+WSGI_APPLICATION = 'ZOOM.wsgi.application'
 
 
 # Database
