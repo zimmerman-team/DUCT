@@ -3,6 +3,7 @@ import factory
 from geodata import models
 
 
+
 class NoDatabaseFactory(factory.django.DjangoModelFactory):
     @classmethod
     def _setup_next_sequence(cls):
