@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manual Mapping example</title>
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="/resources/demos/style.css">
+  <style>
+  html,body { 
+    height:100%;
+  }
+
+  #snapcontainer { 
+    height: 100%; 
+    width :70%;
+    float: left;
+  }
+
+  #targets { 
+    width: 30%;
+    margin-left: 70% 
+  }
+
+  #submit_button {
+    clear : both;
+  }
+  
+  .ui-widget-content {  
+    height: 10%; 
+    width :20%;
+    float: left; 
+  }
+  
+  .ui-widget-header{
+    height: 10%; 
+    width :20%;
+    float: left;
+  }
+
+
+  </style>
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script>
+  var dict = {"null":null {% for heading in remaining_headings %} ,"{{heading}}": ""{% endfor %} };
+
+  $( function() {
+    dragged_element = "";
+    dropped_element = "";
+    
+    $( ".ui-widget-content" ).draggable({ 
+      start:function(e){
+        dragged_element = e.target.id;
+      },
+      snap: ".ui-widget-header"
+    });
+    $( ".ui-widget-header" ).droppable({//allow only one heading to be drpped
+      drop: function( event, ui ) {
+        dropped_element = event.target.id;
+        if (dict[dropped_element] != "" || dict[dropped_element] != dragged_element) { $("#" + dict[dropped_element] ).animate({ top: '230px' });} 
+        dict[dropped_element] = dragged_element;
+        $( this )
+          .addClass( "ui-state-highlight" )
+          .find( "p" )
+          .html( "Mapped " + event.target.id  );    
+      },
+      over: function (event, ui) {
+        //if (dict[dropped_element] == "") {
+          $( this )
+          .addClass( "ui-state-highlight" )
+          .find( "p" )
+          .html( "Mapping " + event.target.id );
+        //}
+      },
+      out: function (event, ui) {
+        if(dict[dropped_element] == dragged_element || dict[dropped_element] == ""){
+            dict[event.target.id] = "";
+            $( this )
+            .removeClass('ui-state-highlight')
+            .find( "p" )
+            .html( event.target.id );
+        }
+      }
+      
+    });
+  } );
+
+  function check_complete_mapping(){
+      var check = true
+      for (var key in dict) {
+        if( dict[key] == "" ) {
+            check = false
+            alert("Mapping incomplete");
+            return false;
+        }
+      }
+      if (check){
+        send_mapping_data(dict);
+      }      
+      return true
+  }
+
+    //send post request
+  function send_mapping_data(data){
+    /*$.post("manual_mapping", data, function(response){
+      if(response === 'success'){ alert('Yay!'); }
+      else{ alert('Error! :('); }
+    });*/
+
+    var json_string = JSON.stringify(dict);
+    $('#dict').val( json_string );
+    //$.post( "manual_mapping", data );//where is this being sent, what field in post is it going to???
+  }
+
+  </script>
+</head>
+
+<body>
+<form action="{{ request.build_absolute_uri }}" method="post" enctype="multipart/form-data" onsubmit="return check_complete_mapping()";>
+  {% csrf_token %}
+    <div id="snapcontainer"><h2>Template Headings</h2>
+    {% for heading in remaining_headings %}
+       <div id="{{heading}}" class="ui-widget-header"><p>{{heading}}</p></div>
+    {% endfor %}
+    
+    </div>
+
+    <div id = "targets">
+    <h2>Headings Left</h2>
+    {% for heading in missing_headings %}
+      <div id="{{heading}}" class="ui-widget-content">
+        <p>{{heading}}</p>
+      </div>
+    {% endfor %} 
+     
+    </div> 
+    <input id="dict" type="hidden" name="dict" value="">
+    <div id ="submit_button"><p><input type="submit" name="map" value="map" onclick="" /></p></div>
+</form>
+  
+</body>
+</html>
