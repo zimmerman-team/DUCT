@@ -1,42 +1,17 @@
 from django.contrib.gis.db import models as gis_models
 from django.db import models
-# from iati_vocabulary.models import RegionVocabulary
 
 
-# class GeographicVocabulary(models.Model):
-#     code = models.CharField(primary_key=True, max_length=20)
-#     name = models.CharField(max_length=255)
-#     description = models.TextField(default="")
-#     url = models.URLField()
+class Codelist(models.Model):
+    name = models.CharField(primary_key=True, max_length=100)
+    description = models.TextField(max_length=1000, blank=True, null=True)
+    count = models.CharField(max_length=10, blank=True, null=True)
+    fields = models.CharField(max_length=255, blank=True, null=True)
+    date_updated = models.DateTimeField(auto_now=True, editable=False)
 
-#     def __unicode__(self,):
-#         return "%s - %s" % (self.code, self.name)
+    def __unicode__(self,):
+        return "%s" % self.name
 
-# class PolicyMarkerVocabulary(models.Model):
-#     code = models.CharField(max_length=10,  primary_key=True)
-#     name = models.CharField(max_length=200)
-#     description = models.TextField(default="")
-
-#     def __unicode__(self,):
-#         return "%s - %s" % (self.code, self.name)
-
-# class SectorVocabulary(models.Model):
-#     code = models.CharField(max_length=10,  primary_key=True)
-#     name = models.CharField(max_length=100)
-#     description = models.TextField(default="")
-#     url = models.URLField()
-
-#     def __unicode__(self,):
-#         return "%s - %s" % (self.code, self.name)
-
-
-# class BudgetIdentifierVocabulary(models.Model):
-#     code = models.CharField(primary_key=True, max_length=40)
-#     name = models.CharField(max_length=100)
-#     description = models.TextField(default="")
-
-#     def __unicode__(self,):
-#         return "%s - %s" % (self.code, self.name)
 
 class RegionVocabulary(models.Model):
     code = models.CharField(primary_key=True, max_length=40)
@@ -45,29 +20,6 @@ class RegionVocabulary(models.Model):
 
     def __unicode__(self,):
         return "%s - %s" % (self.code, self.name)
-
-# class HumanitarianScopeVocabulary(models.Model):
-#     code = models.CharField(primary_key=True, max_length=40)
-#     name = models.CharField(max_length=100)
-#     description = models.TextField(default="")
-
-#     def __unicode__(self,):
-#         return "%s - %s" % (self.code, self.name)
-
-# class IndicatorVocabulary(models.Model):
-#     code = models.CharField(primary_key=True, max_length=2)
-#     name = models.CharField(max_length=100)
-#     description = models.TextField(default="")
-#     url = models.URLField()
-
-#     def __unicode__(self,):
-#         return "%s - %s" % (self.code, self.name)
-
-#GeoAppmodels
-
-
-
-
 
 
 class Region(gis_models.Model):

@@ -127,6 +127,7 @@ INSTALLED_APPS = [
     'manual_mapping',
     'geodata.apps.GeodataConfig',
     'task_queue',
+    'djsupervisor',
     'django_extensions',
     'test_without_migrations',
     'admin_reorder',
