@@ -125,6 +125,7 @@ INSTALLED_APPS = (
     'django.contrib.gis',
     'validate',
     'lib',
+    'indicator'
     'manual_mapping',
     'geodata.apps.GeodataConfig',
     'task_queue',

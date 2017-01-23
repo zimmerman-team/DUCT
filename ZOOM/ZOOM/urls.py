@@ -11,7 +11,8 @@ urlpatterns = [
     url(r'^admin/task_queue/', include('task_queue.urls')),
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),
-	url(r'^manual_map/', include('manual_mapping.urls')),
+    url(r'^manual_map/', include('manual_mapping.urls')),
+    url(r'^scatter_demo/', include('scatter_demo.urls')),
     url(r'^validate/', include('validate.urls')),
     url(r'^admin/', admin.site.urls),
 ]

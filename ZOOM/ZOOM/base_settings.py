@@ -125,6 +125,8 @@ INSTALLED_APPS = [
     'validate',
     'lib',
     'manual_mapping',
+    'indicator',
+    'scatter_demo',
     'geodata.apps.GeodataConfig',
     'task_queue',
     'admin_reorder',

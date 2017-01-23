@@ -1,6 +1,6 @@
 
 *.sqlite3
-
+bin/
 ZOOM/.cache
 
 .idea/
