@@ -1,10 +1,9 @@
 #!/bin/bash
-# todo: peer authentication with zoom user
-sudo -u postgres bash -c "psql -c \"DROP DATABASE [IF EXISTS] 'zoom';\""
+# todo: peer authentication with oipa user
+
 sudo -u postgres bash -c "psql -c \"CREATE USER zoom WITH PASSWORD 'zoom';\""
 sudo -u postgres bash -c "psql -c \"ALTER ROLE zoom SUPERUSER;\""
 sudo -u postgres bash -c "psql -c \"CREATE DATABASE zoom;\""
 
 # Run syncdb
-print
-sudo -H -u osboxes /home/osboxes/.env/bin/python /ZOOM/manage.py migrate --noinput
+sudo -H -u vagrant /home/vagrant/.env/bin/python /vagrant/ZOOM/manage.py migrate --noinput
