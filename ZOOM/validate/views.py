@@ -2,17 +2,14 @@ from django.shortcuts import render
 from django.template import loader
 from django.http import HttpResponse
 from .models import File
-from .models import Store
-import csv
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
 from django.conf import settings
-#from myproject.myapp.models import Document
 from .forms import DocumentForm
-from .models import File
+from indicator.models import IndicatorDatapoint
 from lib.converters import convert_spreadsheet
 from lib.tools import check_column_data
 import numpy as np
@@ -75,10 +72,10 @@ def upload(request):
     #template_heading_list = Store._meta.get_fields()
     template_heading_list = []
     
-    for field in Store._meta.fields:
+    for field in IndicatorDatapoint._meta.fields:
       template_heading_list.append(field.name)#.get_attname_column())
     template_heading_list = template_heading_list[4:len(template_heading_list)]
-    
+
     count = 0# not sure if this is still needed, might need for matches
     for heading in file_heading_list:
        headings_file[heading] = count
@@ -114,7 +111,7 @@ def upload(request):
     request.session['missing_list'] = missing_mapping
     request.session['files'] = files
     #request.session['template_file'] = template_file
-    request.session['remaining_headings'] = remaining_mapping 
+    request.session['remaining_headings'] = remaining_mapping
     
     context = {'validate': validate_form, 'mapped' : count, "no_mapped" : overall_count - count, "found_list": zip_list, "missing_list" : remaining_mapping, "files" : files[0]}
     #output need to pass allignments of mapped headings

@@ -1,32 +1,84 @@
 <!doctype html>
 <html lang="en">
 <head>
+  {% load staticfiles %}
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Manual Mapping example</title>
   <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-  <link rel="stylesheet" href="/resources/demos/style.css">
+  <!--<link rel="stylesheet" href="/resources/demos/style.css">-->
   <style>
   html,body { 
     height:100%;
+    margin: 0;
+    padding: 0;
+    font: Arial;
   }
 
-  #snapcontainer { 
-    height: 100%; 
-    width :70%;
+  #wrapper{
+    width: 80%;
+    margin: 0 auto;
+  }
+
+  .heading_mapping, p {
+    display: inline;
+  }
+
+  .heading_template{
+    /*font-size: 4vw;*/
+    /*max-width: 100px;*/
+  }
+
+  .heading_template_section {
+    border: 1px solid black;
+    border-radius: 5px;
     float: left;
+    height: 120%;
+    width: 30%;
+    font-size: 153%
   }
 
-  #targets { 
-    width: 30%;
-    margin-left: 70% 
+  .heading_mapping_section{
+    border: 1px solid black;
+    border-radius: 5px;
+    width: 70%;
+    margin-left: 30%;
+    height: 120%;
   }
+
+  .heading_mapping{
+     border: 1px solid black;
+     font-size: 153%;
+  }
+
+  .heading_section {
+    clear: both;
+    /*border: 1px solid black;
+    border-radius: 5px;*/
+  }
+  /*#snapcontainer {
+    border: 1px solid black;
+    border-radius: 5px;
+    margin: 0;
+    padding: 0;
+    height: 100%; 
+    width :60%;
+    float: left;
+  }*/
+
+  /*<#heading_section {
+    border: 1px solid black;
+    border-radius: 5px;
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+  }*/
 
   #submit_button {
     clear : both;
   }
   
-  .ui-widget-content {  
+  /*.ui-widget-content {  
     height: 10%; 
     width :20%;
     float: left; 
@@ -36,16 +88,55 @@
     height: 10%; 
     width :20%;
     float: left;
+  }*/
+
+  .color {
+    background-color: yellow;
   }
+
+  .tl-selected{
+    background: white;
+    border:3px solid orange;
+    width:179px;
+    height:80px;
+    position: relative;
+}
 
 
   </style>
-  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="{% static "jquery-3.1.1.js" %}"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-  <script>
+  <script type="text/javascript">
   var dict = {"null":null {% for heading in remaining_headings %} ,"{{heading}}": ""{% endfor %} };
+  var reverse_dict = {"null":null {% for heading in missing_headings %} ,"{{heading}}": ""{% endfor %} };
 
-  $( function() {
+  function perform_map(elem_id){
+    var element = document.getElementById(elem_id);
+    var ids = element.split("_");
+    var old_element = "";
+
+    if(dict[ids[0]] != ids[1]){
+      reverse_dict[dict[ids[0]]] = "";
+      if(reverse_dict[ids[1]] != ""){
+        old_element = document.getElementById(reverse_dict[ids[1]] + "_" + ids[1]);
+        element.style.backgroundColor = "white";
+        
+      }
+      //change reverse dict to blank
+      //chaange current one
+      //check that new one is not assigned
+      //if so remove coolouring
+
+    }
+
+    dict[id[0]] = id[1];
+    element.style.backgroundColor = "yellow";
+  }
+
+  /*$(".heading_mapping").click(function() {
+    $(this).css("background-color", "red"); 
+  });*/
+  /*$( function() {
     dragged_element = "";
     dropped_element = "";
     
@@ -84,7 +175,7 @@
       }
       
     });
-  } );
+  } );*/
 
   function check_complete_mapping(){
       var check = true
@@ -108,8 +199,8 @@
       else{ alert('Error! :('); }
     });*/
 
-    var json_string = JSON.stringify(dict);
-    $('#dict').val( json_string );
+   /*var json_string = JSON.stringify(dict);
+    $('#dict').val( json_string );*/
     //$.post( "manual_mapping", data );//where is this being sent, what field in post is it going to???
   }
 
@@ -117,27 +208,31 @@
 </head>
 
 <body>
+<div id="wrapper">
+<h1>ZOOM</h1>
 <form action="{{ request.build_absolute_uri }}" method="post" enctype="multipart/form-data" onsubmit="return check_complete_mapping()";>
   {% csrf_token %}
-    <div id="snapcontainer"><h2>Template Headings</h2>
-    {% for heading in remaining_headings %}
-       <div id="{{heading}}" class="ui-widget-header"><p>{{heading}}</p></div>
-    {% endfor %}
-    
-    </div>
-
+       
     <div id = "targets">
-    <h2>Headings Left</h2>
-    {% for heading in missing_headings %}
-      <div id="{{heading}}" class="ui-widget-content">
-        <p>{{heading}}</p>
-      </div>
-    {% endfor %} 
-     
+      {% for heading_template in remaining_headings %}
+        <div id="{{heading_template}}" class="heading_section">
+            <div class="heading_template_section">
+              <p>{{heading_template}}</p>
+            </div>
+            <div class="heading_mapping_section">
+            {% for heading_mapping in missing_headings %}
+              <div id="{{heading_template}}_{{heading_mapping}}" class="heading_mapping" onclick="perform_map('{{heading_template}}_{{heading_mapping}}')">
+                <p>{{heading_mapping}}</p>
+              </div>
+            {% endfor %}
+            </div>
+          
+       </div>
+      {% endfor %}
     </div> 
     <input id="dict" type="hidden" name="dict" value="">
     <div id ="submit_button"><p><input type="submit" name="map" value="map" onclick="" /></p></div>
 </form>
-  
+</div>
 </body>
 </html>
