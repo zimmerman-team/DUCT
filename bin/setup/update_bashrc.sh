@@ -1,11 +1,12 @@
 #!/bin/bash
 
-if grep -Fxq "cd /osboxes/ZOOM" /home/osboxes/.bashrc; then
+if grep -Fxq "cd /vagrant/ZOOM" /home/vagrant/.bashrc; then
     echo "bashrc already updated"
 else
     echo "Updating ~/.bashrc..."
-    sudo -u osboxes echo "cd /ZOOM" >> /home/osboxes/.bashrc
-    sudo -u osboxes echo "echo 'Starting supervisor...'"
-    sudo -u osboxes echo "python ./manage.py supervisor --daemonize" >> /home/osboxes/.bashrc
-    sudo -u osboxes echo "echo 'Started.'"
+    sudo -u vagrant echo "cd /vagrant/ZOOM" >> /home/vagrant/.bashrc
+    sudo -u vagrant echo "echo 'Starting supervisor...'"
+    sudo -u vagrant echo "python ./manage.py supervisor --daemonize" >> /home/vagrant/.bashrc
+    sudo -u vagrant echo "echo 'Started.'"
 fi
+

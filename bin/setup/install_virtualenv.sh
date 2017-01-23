@@ -1,12 +1,12 @@
 #!/bin/bash
 
-if [ ! -d "/home/osboxes/.env/" ]; then
+if [ ! -d "/home/vagrant/.env/" ]; then
     echo "Creating virtualenv..."
-    sudo -H -u osboxes virtualenv /home/osboxes/.env
-    sudo -H -u osboxes /home/osboxes/.env/bin/pip install --upgrade pip
-    sudo -H -u osboxes /home/osboxes/.env/bin/pip install -r /home/osboxes/Documents/Zimmerman/ZOOM/requirements.txt
+    sudo -H -u vagrant virtualenv /home/vagrant/.env
+    sudo -H -u vagrant /home/vagrant/.env/bin/pip install --upgrade pip
+    sudo -H -u vagrant /home/vagrant/.env/bin/pip install -r /vagrant/ZOOM/requirements.txt
 
-    sudo -H -u osboxes echo "source ~/.env/bin/activate" >> /home/osboxes/.bashrc
+    sudo -H -u vagrant echo "source ~/.env/bin/activate" >> /home/vagrant/.bashrc
 else
     echo "Virtualenv already created."
 fi
