@@ -1,0 +1,69 @@
+{
+  "data" : {
+    "source" : "Stata Data",
+    "name" : "DataSet",
+    "data" : [ 
+      {
+            "mic": 1,
+            "hivPrevalence" : 0.1,
+            "totalPopulation" : 3000000,
+            "country" : "Zimbabwe"
+      },
+      {
+            "mic": 3.0,
+            "hivPrevalence" : 0.3,
+            "totalPopulation" : 4000000,
+            "country" : "Congo"
+      },
+      {
+            "mic": 2.0,
+            "hivPrevalence" : 2.1,
+            "totalPopulation" : 5000000,
+            "country" : "Country 3"
+      },
+      {
+            "mic": 2.0,
+            "hivPrevalence" : 0.2,
+            "totalPopulation" : 13000000,
+            "country" : "Country 4"
+      },
+      {
+            "mic": 1.0, 
+            "hivPrevalence" : 0.9,
+            "totalPopulation" : 6600000,
+            "country" : "Country 5"
+      }
+  ]},
+  "firstRecordId" : 1,
+  "lastRecordId" : 5,
+  "variableIndices" : [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21 ],
+  "variableIsString" : {
+    "mic" : false,
+    "hivPrevalence" : false,
+    "totalPopulation" : false
+  },
+  "variableNames" : [ "hivPrevalence", "totalPopulation" ],
+  "variableLabels" : {
+    "hivPrevalence" : "hivPrevalence",
+    "totalPopulation" : "totalPopulation",
+    "country" : "Country Name"
+  },
+  "valueLabelNames" : {
+    "mic" : "mic",
+    "micrank" : "micrank"
+  },
+  "valueLabels" : {
+    "mic" : {
+      "1" : "Mic status 1",
+      "2" : "Mic status 2",
+      "3" : "Mic status 3"
+    },
+    "micrank" : {
+      "1" : "1",
+      "2" : "2",
+      "3" : "3"
+    }
+  },
+  "numberOfRecords" : 1,
+  "numberOfVariables" : 2
+}

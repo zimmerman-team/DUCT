@@ -5,6 +5,8 @@ import shutil
 import warnings
 import flattentool
 import json
+import pandas as pd
+from indicator.models import *
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
@@ -12,7 +14,64 @@ from lib.exceptions import CoveInputDataError
 
 logger = logging.getLogger(__name__)
 
+#recieved data as pandas dataframe
+def convert_to_JSON(indicator1, indicator2):
+    query1 = IndicatorDatapoint.objects.filter(indicator_id=indicator1)
+    #indicator1_id = Indicator.objects.get(pk=indicator1) # identify which manager you want
+    #query1  = indicator1_id.IndicatorDatapoint_set.all()  # retrieve all related HostData objects
+    #query2 = IndicatorDatapoint.objects.get(indicator=inidcator2)
+    json_str = """{
+                    "data" : {
+                    "source" : "Stata Data",
+                    "name" : "DataSet",
+                    "data" : [ \n"""
+    #include population
+    counter = 0
 
+    for query in query1:
+        country_id = query.country_id
+        query2 = IndicatorDatapoint.objects.filter(indicator_id=indicator2, country_id = country_id)
+
+        if query2:
+            if counter == len(query1) - 1:
+                break
+            counter += 1
+            json_str += """{ "%s" : %s, """ % (query.indicator_id.id, query.measure_value)
+            json_str += """ "%s" : %s, """ % (query2[0].indicator_id.id, query2[0].measure_value)
+            json_str += """ "country" : "%s" }, \n""" % (country_id.id)
+        counter +=1
+            #json_str += 
+            #json_str += """ "%s" : %d, """ % (query2.indicator, query2.measure_value)
+    json_str += """{ "%s" : %s, """ % (query1[counter - 1].indicator_id.id, query1[counter - 1].measure_value)
+    json_str += """ "%s" : %s, """ % (query2[0].indicator_id.id, query2[0].measure_value)
+    json_str += """ "country" : "%s" } \n""" % (country_id.id)
+
+    json_str += """ ]}, "firstRecordId" : 1,
+                   "lastRecordId" : %d, """ % (counter)
+    json_str += """ "variableIndices" : [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21 ], """ #not sure about these
+    json_str += """ "variableIsString" : {
+                "%s" : false,
+                "%s" : false """ % (indicator1, indicator2) 
+    json_str += """ },
+                  "variableNames" : [ "%s", "%s" ],
+                  "variableLabels" : {
+                    "%s" : "%s",
+                    "%s" : "%s",
+                    "country" : "Country Name"
+                  }, """ % ( indicator1, indicator2, indicator1, indicator1, indicator2, indicator2,   )
+                  
+    json_str += """ "numberOfRecords" : 1,
+                  "numberOfVariables" : 2 }"""
+
+    f = open(os.getcwd() + '/static/data/msas.json', 'w')
+    f.write(json_str)  # python will convert \n to os.linesep
+    f.close()  # you can omit in most cases as the destructor will call it
+    #with open(os.getcwd() + "/msas(copy).json", 'w') as file: #'../static/data/msas(copy).json'
+    #    file.write("here")
+        #file.write(json_str)
+
+  
+#cover methods
 def convert_spreadsheet(request, data, file_type):
     context = {}
     converted_path = os.path.join(data.upload_dir(), 'unflattened.json')

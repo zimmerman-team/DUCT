@@ -40,11 +40,11 @@ class IndicatorSource(models.Model):
     code = models.CharField(max_length=50)
     indicator = models.ForeignKey(Indicator,null=False, blank=False)
     
-class IndicatorSubgroup(models.Model):
+"""class IndicatorSubgroup(models.Model):
     id = models.CharField(max_length=255, primary_key=True)
     #indicator = ForeignKey
     code = models.CharField(max_length=50)
-    indicator = models.ForeignKey(Indicator, null=False, blank=False)
+    indicator = models.ForeignKey(Indicator, null=False, blank=False)"""
 
 class FileSource(models.Model):
     file_name = models.CharField(max_length = 100)
@@ -82,17 +82,17 @@ class MeasureValue(models.Model):
 #other
 
 class IndicatorDatapoint(models.Model):
-    file_source = models.ForeignKey(FileSource,null= False, blank=False)
+    file_source_id = models.ForeignKey(FileSource, db_column='file_source_id')
     date_created =  models.DateTimeField(default=timezone.now)
-    date_format = models.ForeignKey(Time)
-    indicator_category = models.ForeignKey(IndicatorCategory)
-    indicator = models.ForeignKey(Indicator)
-    subgroup = models.ForeignKey(IndicatorSubgroup)
-    country = models.ForeignKey(Country)
-    date_value = models.DecimalField(max_digits=20, decimal_places = 5) # identify timezone?
-    source = models.ForeignKey(IndicatorSource)
-    measure_value = models.ForeignKey(MeasureValue) # might need more for accuracy
-    other = models.CharField(max_length=200)
+    date_format_id = models.ForeignKey(Time, db_column='date_format_id')
+    indicator_category_id = models.ForeignKey(IndicatorCategory, db_column='indicator_category_id')
+    indicator_id = models.ForeignKey(Indicator, db_column='indicator_id')
+    #unit_of_measure = models.ForeignKey(IndicatorSubgroup)
+    country_id = models.ForeignKey(Country, db_column='country_id')
+    date_value = models.CharField(max_length=20) #models.DecimalField(max_digits=20, decimal_places = 5) # identify timezone?
+    source_id = models.ForeignKey(IndicatorSource, db_column='source_id')
+    measure_value = models.CharField(max_length=20) #models.DecimalField(max_digits=20, decimal_places = 5)#for now leave as char #models.ForeignKey(MeasureValue) # might need more for accuracy
+    other = models.CharField(max_length=500)
 
 #the mapping betweeen coulmns in the datastore and HXL tags
 """class HXLmapping(models.Model): #can be used for other conversions

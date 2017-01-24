@@ -76,6 +76,7 @@ def upload(request):
       template_heading_list.append(field.name)#.get_attname_column())
     template_heading_list = template_heading_list[4:len(template_heading_list)]
 
+    template_heading_list.append("unit_measure")
     count = 0# not sure if this is still needed, might need for matches
     for heading in file_heading_list:
        headings_file[heading] = count
