@@ -6,6 +6,7 @@ import warnings
 import flattentool
 import json
 import pandas as pd
+import numpy as np
 from indicator.models import *
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
@@ -27,31 +28,36 @@ def convert_to_JSON(indicator1, indicator2):
                     "data" : [ \n"""
     #include population
     counter = 0
+    cat = []
 
     for query in query1:
         country_id = query.country_id
         query2 = IndicatorDatapoint.objects.filter(indicator_id=indicator2, country_id = country_id)
 
-        if query2:
-            if counter == len(query1) - 1:
-                break
+        if query2 and not (">" in query.indicator_category_id.id):
             counter += 1
-            json_str += """{ "%s" : %s, """ % (query.indicator_id.id, query.measure_value)
+            json_str += """{ "Category" : "%s", """ % (query.indicator_category_id.id)
+            json_str += """ "%s" : %s, """ % (query.indicator_id.id, query.measure_value)
             json_str += """ "%s" : %s, """ % (query2[0].indicator_id.id, query2[0].measure_value)
-            json_str += """ "country" : "%s" }, \n""" % (country_id.id)
+            json_str += """ "country" : "%s" },\n""" % (country_id.id)
+            cat.append(query.indicator_category_id.id)
         counter +=1
+    json_str = json_str[:-2]
+    
             #json_str += 
             #json_str += """ "%s" : %d, """ % (query2.indicator, query2.measure_value)
-    json_str += """{ "%s" : %s, """ % (query1[counter - 1].indicator_id.id, query1[counter - 1].measure_value)
-    json_str += """ "%s" : %s, """ % (query2[0].indicator_id.id, query2[0].measure_value)
-    json_str += """ "country" : "%s" } \n""" % (country_id.id)
+    #json_str += """{ Category : %s, """ % (query1[counter-1].indicator_category_id.id)
+    #json_str += """{ "%s" : %s, """ % (query1[counter - 1].indicator_id.id, query1[counter - 1].measure_value)
+    #json_str += """ "%s" : %s, """ % (query2[0].indicator_id.id, query2[0].measure_value)
+    #json_str += """ "country" : "%s" } \n""" % (country_id.id)
 
     json_str += """ ]}, "firstRecordId" : 1,
                    "lastRecordId" : %d, """ % (counter)
     json_str += """ "variableIndices" : [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21 ], """ #not sure about these
     json_str += """ "variableIsString" : {
                 "%s" : false,
-                "%s" : false """ % (indicator1, indicator2) 
+                "%s" : false,
+                "%s" : false """ % ("Category", indicator1, indicator2) 
     json_str += """ },
                   "variableNames" : [ "%s", "%s" ],
                   "variableLabels" : {
@@ -59,7 +65,37 @@ def convert_to_JSON(indicator1, indicator2):
                     "%s" : "%s",
                     "country" : "Country Name"
                   }, """ % ( indicator1, indicator2, indicator1, indicator1, indicator2, indicator2,   )
-                  
+    
+    cat = np.unique(cat)
+    json_str += """ "valueLabelNames" : {
+                    "Category" : "Category",
+                    "micrank" : "micrank"
+                  },
+                  "valueLabels" : { "Category" : {"""
+    counter = 0
+    for item in cat:
+        json_str += """ "%s" : "%s",""" % (item, item)
+        counter += 1
+    json_str = json_str[:-1]
+    json_str += "}," 
+    json_str += """ "micrank" : {"""
+    counter = 0
+    for item in cat:
+        json_str += """ "%d" : "%d",""" % (counter + 1, counter + 1)
+        counter += 1
+    json_str = json_str[:-1]
+    json_str += "} }," 
+
+
+
+
+    #},"   
+                  #  },
+   #                 "micrank" : {
+   #                   "1" : "1",
+   #                   "2" : "2",
+    #                  "3" : "3"
+    #                } """              
     json_str += """ "numberOfRecords" : 1,
                   "numberOfVariables" : 2 }"""
 
