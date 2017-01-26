@@ -129,6 +129,9 @@ INSTALLED_APPS = [
     'scatter_demo',
     'geodata.apps.GeodataConfig',
     'task_queue',
+    'djsupervisor',
+    'django_extensions',
+    'test_without_migrations',
     'admin_reorder',
 ]
 
