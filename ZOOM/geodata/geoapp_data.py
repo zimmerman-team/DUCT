@@ -7,12 +7,8 @@ from django.db import IntegrityError
 from django.apps import apps
 from django.core.exceptions import FieldDoesNotExist
 
-# from iati.models import *
 from geodata.models import Country, Region, RegionVocabulary, Codelist
-# from iati_vocabulary.models import RegionVocabulary
-# from iati_synchroniser.models import Codelist
-# from iati_synchroniser.dac_sector_importer import DacSectorImporter
-# from iati_synchroniser.sdg_sector_importer import SdgSectorImporter
+
 
 
 logger = logging.getLogger(__name__)
@@ -25,17 +21,7 @@ class CodeListImporter():
         self.iati_versions = ["2.02",]
 
     def synchronise_with_codelists(self):
-        # Do categories first
-        # self.get_codelist_data(name="SectorCategory")
-        # self.get_codelist_data(name="SectorVocabulary")
         self.get_codelist_data(name="RegionVocabulary")
-        # self.get_codelist_data(name="PolicyMarkerVocabulary")
-        # self.get_codelist_data(name="IndicatorVocabulary")
-        # self.get_codelist_data(name="BudgetIdentifierSector-category")
-        # self.get_codelist_data(name="LocationType-category")
-        # self.get_codelist_data(name="FinanceType-category")
-        # self.get_codelist_data(name="AidType-category")
-        # self.get_codelist_data(name="DocumentCategory-category")
 
         for version in self.iati_versions:
             self.looping_through_version = version
@@ -71,55 +57,9 @@ class CodeListImporter():
             name = name.lower().capitalize()
             item = Country(language=language_name, data_source="IATI")
 
-        # elif tag == "DocumentCategory-category":
-        #     model_name = 'DocumentCategoryCategory'
-
-        # elif tag == "FileFormat":
-        #     FileFormat(category=category)
-        #     category = None
-
-        # elif tag == "OrganisationRegistrationAgency":
-        #     OrganisationRegistrationAgency(category=category)
-
-        # elif tag == "LocationType-category":
-        #     model_name = 'LocationTypeCategory'
-
-        # elif tag == "OrganisationIdentifier":
-        #     item = OrganisationIdentifier(abbreviation=None)
-
-        # elif tag == "IATIOrganisationIdentifier":
-        #     model_name = 'OrganisationIdentifier'
-        #     item = OrganisationIdentifier(abbreviation=None)
-
-        # elif tag == "SectorCategory":
-        #     name = name.lower().capitalize()
-
-        # elif tag == "BudgetIdentifierSector-category":
-        #     model_name = 'BudgetIdentifierSectorCategory'
-
-        # elif tag == "FinanceType-category":
-        #     model_name = 'FinanceTypeCategory'
-
         elif tag == "Region":
             region_voc = RegionVocabulary.objects.get(code=1)
             item = Region(region_vocabulary=region_voc)
-
-        # elif tag == "Sector":
-        #     sector_vocabulary = SectorVocabulary.objects.get(code=1)
-        #     item = Sector(vocabulary=sector_vocabulary)
-
-        # elif tag == "AidType-category":
-        #     model_name = 'AidTypeCategory'
-
-        # elif tag == "CRSAddOtherFlags":
-        #     model_name = 'OtherFlags'
-
-        # elif tag == "CRSChannelCode":
-        #     name = name[:255]
-
-        # elif tag == "Version":
-        #     if url is None:
-        #         url = 'http://iatistandard.org/'+self.looping_through_version.replace('.','')
 
         if name is None or name == '':
             logger.log(0, 'name is null in '+tag)
@@ -238,9 +178,3 @@ class CodeListImporter():
         context = etree.iterparse(xml_file, tag='codelist')
         self.fast_iter(context, self.get_codelist_data)
         self.add_missing_items()
-
-        # dsi = DacSectorImporter()
-        # dsi.update()
-
-        # ssi = SdgSectorImporter()
-        # ssi.update() 

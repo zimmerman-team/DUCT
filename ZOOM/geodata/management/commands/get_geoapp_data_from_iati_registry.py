@@ -1,9 +1,9 @@
 from django.core.management.base import BaseCommand
-from iati_synchroniser.dataset_syncer import DatasetSyncer
+from geodata.geoapp_data import CodeListImporter
 
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        ds = DatasetSyncer()
-        ds.synchronize_with_iati_api()
+        cl = CodeListImporter()
+        cl.synchronise_with_codelists()

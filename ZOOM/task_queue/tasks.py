@@ -23,13 +23,10 @@ def update_all_geo_data():
     queue.enqueue(update_city_data)
 
 
-
-
 @job
 def get_new_geoapp_data_from_iati_api():
     from django.core import management
     management.call_command('get_geoapp_data_from_iati_registry', verbosity=0, interactive=False)
-
 
 
 @job
