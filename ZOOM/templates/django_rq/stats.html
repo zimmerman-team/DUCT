@@ -37,34 +37,13 @@
                 <h1>Add new task</h1>
 
                 <select name="add-task-select-default">
-                    <optgroup label="Registry synchronization tasks">
-                        <option value="update_iati_codelists">Update codelists from IATI registry</option>
-                        <option value="get_new_sources_from_iati_api">Add new sources from IATI registry</option>
-                    </optgroup>
-                    <optgroup label="Parse tasks">
-                        <option value="add_new_sources_from_registry_and_parse_all">Add new sources from IATI registry and parse all sources</option>
-                        <option value="parse_all_existing_sources">Parse all IATI source currently in OIPA</option>
-                        <option value="parse_all_sources_by_publisher_ref">Parse all sources from a publisher</option>
-                    </optgroup>
-                    <optgroup label="Force parse tasks">
-                        <option value="force_parse_all_existing_sources">Force parse all IATI sources currently in OIPA</option>
-                        <option value="force_parse_by_publisher_ref">Force parse all sources from a publisher</option>
-                    </optgroup>
 
                     <optgroup label="Geographic data tasks">
+                        <option value="get_new_geoapp_data_from_iati_api">Add/update GeoApp data from IATI API</option>
                         <option value="update_region_data">Add/update region data</option>
                         <option value="update_city_data">Add/update city data</option>
                         <option value="update_country_data">Add/update country data</option>
                         <option value="update_adm1_region_data">Add/update adm1 region data</option>
-                    </optgroup>
-
-                    <optgroup label="Currency conversion tasks">
-                        <option value="update_exchange_rates">Update currency exchange rates</option>
-                        <option value="force_update_exchange_rates">Force update currency exchange rates</option>
-                    </optgroup>
-
-                    <optgroup label="Root traceable activities tasks">
-                        <option value="update_searchable_activities">Update root (traceable) activities</option>
                     </optgroup>
 
                     <optgroup label="Dummy test tasks">
@@ -290,34 +269,14 @@
                         <label for="new-schedule-task">Task to be performed:</label>
 
                         <select name="new-schedule-task">
-                            <optgroup label="Registry synchronization tasks">
-                                <option value="update_iati_codelists">Update codelists from IATI registry</option>
-                                <option value="get_new_sources_from_iati_api">Add new sources from IATI registry</option>
-                            </optgroup>
-                            <optgroup label="Parse tasks">
-                                <option value="add_new_sources_from_registry_and_parse_all">Add new sources from IATI registry and parse all sources</option>
-                                <option value="parse_all_existing_sources">Parse all IATI source currently in OIPA</option>
-                                <option value="parse_all_sources_by_publisher_ref">Parse all sources from a publisher</option>
-                            </optgroup>
-                            <optgroup label="Force parse tasks">
-                                <option value="force_parse_all_existing_sources">Force parse all IATI sources currently in OIPA</option>
-                                <option value="force_parse_by_publisher_ref">Force parse all sources from a publisher</option>
-                            </optgroup>
+
 
                             <optgroup label="Geographic data tasks">
+                                <option value="get_new_geoapp_data_from_iati_api">Add/update GeoApp data from IATI API</option>
                                 <option value="update_region_data">Add/update region data</option>
                                 <option value="update_city_data">Add/update city data</option>
                                 <option value="update_country_data">Add/update country data</option>
                                 <option value="update_adm1_region_data">Add/update adm1 region data</option>
-                            </optgroup>
-
-                            <optgroup label="Currency conversion tasks">
-                                <option value="update_exchange_rates">Update currency exchange rates</option>
-                                <option value="force_update_exchange_rates">Force update currency exchange rates</option>
-                            </optgroup>
-
-                            <optgroup label="FTS searchable activities tasks">
-                                <option value="update_searchable_activities">Update (FTS searchable) activities (from ROOT_ORGANISATIONS)</option>
                             </optgroup>
 
                             <optgroup label="Dummy test tasks">
