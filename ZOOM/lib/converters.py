@@ -18,9 +18,7 @@ logger = logging.getLogger(__name__)
 #recieved data as pandas dataframe
 def convert_to_JSON(indicator1, indicator2):
     query1 = IndicatorDatapoint.objects.filter(indicator_id=indicator1)
-    #indicator1_id = Indicator.objects.get(pk=indicator1) # identify which manager you want
-    #query1  = indicator1_id.IndicatorDatapoint_set.all()  # retrieve all related HostData objects
-    #query2 = IndicatorDatapoint.objects.get(indicator=inidcator2)
+    
     json_str = """{
                     "data" : {
                     "source" : "Stata Data",
@@ -32,24 +30,17 @@ def convert_to_JSON(indicator1, indicator2):
 
     for query in query1:
         country_id = query.country_id
-        query2 = IndicatorDatapoint.objects.filter(indicator_id=indicator2, country_id = country_id)
+        query2 = IndicatorDatapoint.objects.filter(indicator_id=indicator2, country_id = country_id)#could be multiple subgroups depending on indicators chosen
 
-        if query2 and not (">" in query.indicator_category_id.id):
+        if query2 and not (">" in query.indicator_category_id.id): #fix this as ">" causes error
             counter += 1
             json_str += """{ "Category" : "%s", """ % (query.indicator_category_id.id)
             json_str += """ "%s" : %s, """ % (query.indicator_id.id, query.measure_value)
             json_str += """ "%s" : %s, """ % (query2[0].indicator_id.id, query2[0].measure_value)
-            json_str += """ "country" : "%s" },\n""" % (country_id.id)
+            json_str += """ "country" : "%s" },\n""" % (country_id.name)#name not appearing
             cat.append(query.indicator_category_id.id)
         counter +=1
     json_str = json_str[:-2]
-    
-            #json_str += 
-            #json_str += """ "%s" : %d, """ % (query2.indicator, query2.measure_value)
-    #json_str += """{ Category : %s, """ % (query1[counter-1].indicator_category_id.id)
-    #json_str += """{ "%s" : %s, """ % (query1[counter - 1].indicator_id.id, query1[counter - 1].measure_value)
-    #json_str += """ "%s" : %s, """ % (query2[0].indicator_id.id, query2[0].measure_value)
-    #json_str += """ "country" : "%s" } \n""" % (country_id.id)
 
     json_str += """ ]}, "firstRecordId" : 1,
                    "lastRecordId" : %d, """ % (counter)
@@ -87,8 +78,6 @@ def convert_to_JSON(indicator1, indicator2):
     json_str += "} }," 
 
 
-
-
     #},"   
                   #  },
    #                 "micrank" : {
@@ -99,16 +88,13 @@ def convert_to_JSON(indicator1, indicator2):
     json_str += """ "numberOfRecords" : 1,
                   "numberOfVariables" : 2 }"""
 
-    f = open(os.getcwd() + '/static/data/msas.json', 'w')
-    f.write(json_str)  # python will convert \n to os.linesep
-    f.close()  # you can omit in most cases as the destructor will call it
-    #with open(os.getcwd() + "/msas(copy).json", 'w') as file: #'../static/data/msas(copy).json'
-    #    file.write("here")
-        #file.write(json_str)
+    f = open(os.getcwd() + '/static/data/msas.json', 'w')#shouldn't be hardcodded
+    f.write(json_str)
+    f.close()
 
   
 #cover methods
-def convert_spreadsheet(request, data, file_type):
+def convert_spreadsheet(request, data, file_type):#use for JSON and XLSX uploads??
     context = {}
     converted_path = os.path.join(data.upload_dir(), 'unflattened.json')
 
@@ -122,7 +108,7 @@ def convert_spreadsheet(request, data, file_type):
         # If only one upload file is specified, we rename it and move into
         # a new directory, such that it fits this pattern.
         input_name = os.path.join(data.upload_dir(), 'csv_dir')
-        os.makedirs(input_name) ##Making directory here
+        os.makedirs(input_name)
         destination = input_name #os.path.join(input_name, request.cove_config['root_list_path'] + '.csv')
         #destination = os.path.join(input_name, request.cove_config['root_list_path'] + '.csv')#request.cove_config??
         shutil.copy(data.file.name, destination) # not sure what this is for

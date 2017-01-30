@@ -119,97 +119,26 @@
     var element = document.getElementById(elem_id);
     var ids = elem_id.split("|");
     var old_element = "";
-    /*alert("heading_template: " + ids[0]);
-    alert("heading_mapping: " + ids[1]);
-    alert("dict: " + dict[ids[0]]);
-    alert("reverse_dict: " + reverse_dict[ids[1]]);*/
 
     if(dict[ids[0]] != "" ){//template headings
-      /*alert("here");
-      alert("heading_template: " + ids[0]);
-      alert("heading_mapping: " + ids[1]);
-      alert("dict["+ ids[0] + "] " + dict[ids[0]]);
-      alert("reverse_dict[" + dict[ids[0]] + "] "+ reverse_dict[dict[ids[0]]]);*/
-      //alert("reverse_dict: " + reverse_dict[ids[1]]);
+
       old_element = document.getElementById(ids[0] + "|" + dict[ids[0]]);
-      //alert(ids[0] + "|" + dict[ids[0]]);
       old_element.style.backgroundColor = "white";
       reverse_dict[dict[ids[0]]] = "";
-      
       dict[ids[0]] = "";
-      //alert(dict[ids[0]]);
-      //what is it mapped to
     }
-      //reverse_dict[dict[ids[0]]] = "";
+    
     if(reverse_dict[ids[1]] != ""){//mapping_ headings
-      /*alert("here2");
-      alert("heading_template: " + ids[0]);
-      alert("heading_mapping: " + ids[1]);
-      alert("dict[" + reverse_dict[ids[1]] + "] " + dict[reverse_dict[ids[1]]]);
-      alert("reverse_dict[" + ids[1]+ "] " + reverse_dict[ids[1]]);*/
       old_element = document.getElementById(reverse_dict[ids[1]] + "|" + dict[reverse_dict[ids[1]]]);
-      //old_element = document.getElementById(reverse_dict[ids[1]] + "|" + ids[1]);
-      //alert(reverse_dict[ids[1]] + "|" + ids[1]);
       old_element.style.backgroundColor = "white";
       dict[reverse_dict[ids[1]]] = "";
       reverse_dict[ids[1]] = "";
-      //dict[reverse_dict[ids[1]]] = "";
     }
-      //change reverse dict to blank
-      //chaange current one
-      //check that new one is not assigned
-      //if so remove coolouring
-
-    //alert()
+    
     reverse_dict[ids[1]] = ids[0];
     dict[ids[0]] = ids[1];
-    element.style.backgroundColor = "yellow";
-  
+    element.style.backgroundColor = "yellow";  
   }
-
-  /*$(".heading_mapping").click(function() {
-    $(this).css("background-color", "red"); 
-  });*/
-  /*$( function() {
-    dragged_element = "";
-    dropped_element = "";
-    
-    $( ".ui-widget-content" ).draggable({ 
-      start:function(e){
-        dragged_element = e.target.id;
-      },
-      snap: ".ui-widget-header"
-    });
-    $( ".ui-widget-header" ).droppable({//allow only one heading to be drpped
-      drop: function( event, ui ) {
-        dropped_element = event.target.id;
-        if (dict[dropped_element] != "" || dict[dropped_element] != dragged_element) { $("#" + dict[dropped_element] ).animate({ top: '230px' });} 
-        dict[dropped_element] = dragged_element;
-        $( this )
-          .addClass( "ui-state-highlight" )
-          .find( "p" )
-          .html( "Mapped " + event.target.id  );    
-      },
-      over: function (event, ui) {
-        //if (dict[dropped_element] == "") {
-          $( this )
-          .addClass( "ui-state-highlight" )
-          .find( "p" )
-          .html( "Mapping " + event.target.id );
-        //}
-      },
-      out: function (event, ui) {
-        if(dict[dropped_element] == dragged_element || dict[dropped_element] == ""){
-            dict[event.target.id] = "";
-            $( this )
-            .removeClass('ui-state-highlight')
-            .find( "p" )
-            .html( event.target.id );
-        }
-      }
-      
-    });
-  } );*/
 
   function check_complete_mapping(){
       var check = true
@@ -229,14 +158,9 @@
 
     //send post request
   function send_mapping_data(data){
-    /*$.post("manual_mapping", data, function(response){
-      if(response === 'success'){ alert('Yay!'); }
-      else{ alert('Error! :('); }
-    });*/
 
     var json_string = JSON.stringify(dict);
     $('#dict').val( json_string );
-    //$.post( "manual_mapping", data );//where is this being sent, what field in post is it going to???
   }
 
   </script>

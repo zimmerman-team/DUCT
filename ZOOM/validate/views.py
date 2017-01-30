@@ -11,7 +11,8 @@ from django.conf import settings
 from .forms import DocumentForm
 from indicator.models import IndicatorDatapoint
 from lib.converters import convert_spreadsheet
-from lib.tools import check_column_data
+from lib.tools import check_column_data, identify_col_dtype
+from geodata.importer.country import CountryImport
 import numpy as np
 import pandas as pd
 
@@ -20,7 +21,13 @@ def index(request):
     context = {}
     request.session['test'] = "test" # create test user session if it doesnt exist
     cache.clear() #???
-
+    ci = CountryImport()
+    #ci.update_country_center()
+    ci.update_polygon()
+    #ci.update_regions()
+    #country_data.update_polygon()
+    #CountryImport.update_polygon()
+    
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
         #if request.POST.has_key("upload"):#True: #form.is_valid(): change!!!!
@@ -39,19 +46,18 @@ def index(request):
         return render(request, 'validate/input.html', context)
    
         
-#
+#need to clean this up
 def upload(request):
     newdoc = []
     count = 0
-
     #look for HXL tags
-
     for filename, file in request.FILES.iteritems():
         #name = request.FILES[filename].name
         newdoc.append(File(file = request.FILES[filename]))
         newdoc[count].save()
         count += 1
 
+    sample_amount = 3
     validate_form = True
     #exampleFile = open(settings.MEDIA_ROOT + "/" + request.POST['file_template'])#fix this
     headings_template = {}
@@ -63,8 +69,9 @@ def upload(request):
     missing_datatypes = []
     found_mapping = []
     mapping = []
-    validation_on_types = []
-    data_types = []
+    validation_results = []
+    dtypes_list = []
+    dtypes_dict = {}
 
     #loop here for multiple files
     df_file = pd.read_csv(newdoc[0].get_file_path()) 
@@ -73,14 +80,17 @@ def upload(request):
     template_heading_list = []
     
     for field in IndicatorDatapoint._meta.fields:
-      template_heading_list.append(field.name)#.get_attname_column())
+        template_heading_list.append(field.name)#.get_attname_column())
     template_heading_list = template_heading_list[4:len(template_heading_list)]
-
-    template_heading_list.append("unit_measure")
-    count = 0# not sure if this is still needed, might need for matches
+    template_heading_list.append("unit_measure") #needed?
+    #count = 0# not sure if this is still needed, might need for matches
     for heading in file_heading_list:
-       headings_file[heading] = count
-       count += 1
+        headings_file[heading] = count
+        prob_list = identify_col_dtype(df_file[heading].sample(n=sample_amount), heading)
+        dtypes_dict[heading] = prob_list
+        validation_results.append(df_file[heading].isnull().sum())
+        dtypes_list.append(prob_list) 
+        #count += 1
 
     count = 0 #count matching
     overall_count = len(template_heading_list)
@@ -105,16 +115,17 @@ def upload(request):
     #serach for missing ones
     files = []
     files.append(newdoc[0].get_file_path())   
-    zip_list = zip(found_mapping, mapping, data_types, validation_on_types)
+    #dtypes['Unit'] = ["Found"]
+    zip_list = zip(file_heading_list, dtypes_list, validation_results)#zip(found_mapping, mapping, data_types, validation_on_types)
     missing_mapping = list(headings_file.keys())
-
-    request.session['found_mapping'] = zip_list
+    request.session['found_mapping'] = []#file_heading_list#zip_list
     request.session['missing_list'] = missing_mapping
     request.session['files'] = files
+    request.session['dtypes'] = dtypes_dict
     #request.session['template_file'] = template_file
     request.session['remaining_headings'] = remaining_mapping
     
-    context = {'validate': validate_form, 'mapped' : count, "no_mapped" : overall_count - count, "found_list": zip_list, "missing_list" : remaining_mapping, "files" : files[0]}
+    context = {'validate': validate_form, 'mapped' : count, "no_mapped" : overall_count - count, "found_list": zip_list, "missing_list" : remaining_mapping, "files" : files[0]}#reorganise messy
     #output need to pass allignments of mapped headings
     return render(request, 'validate/input.html', context)
     #return HttpResponse("hey")
@@ -185,11 +196,12 @@ def validate(request):
 
     for key in template_heading_list:
       if key in headings_file:
+        ##if 
         found_mapping.append(key)
         mapping.append(str(headings_template[key]) + " to " + str(headings_file[key]))
         headings_file.pop(key, None)
-        #if validation false then add to missing column
-        validation_on_column, dtype_template, dtype_file = check_column_data(df_template[key], df_file[key])
+        #if validation false then add to missing column 
+        validation_on_column, dtype_template, dtype_file = check_column_data(df_template[key], df_file[key]) # use 
         validation_on_types.append(validation_on_column)
         data_types.append((dtype_template, dtype_file))
         #check data_types
