@@ -4,4 +4,5 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
+    url(r'^selector/', views.data_selector, name='data_selector'),
 ]
