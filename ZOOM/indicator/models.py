@@ -8,6 +8,8 @@ from django.core.files.base import ContentFile
 import rfc6266  # (content-disposition header parser)
 from django.conf import settings
 from django.utils import timezone
+from geodata import models as geo_models
+
 import datetime
 
 CONTENT_TYPE_MAP = {
@@ -54,17 +56,17 @@ class Time(models.Model):
     date_type = models.CharField(max_length = 100, primary_key=True)
     #date = models.DateField(("Date")) # mapping time format, timezone?
 
-class City(models.Model):
-    id = models.CharField(max_length=255, primary_key=True)
-    name = models.CharField(max_length = 100)
+#class City(models.Model):
+#    id = models.CharField(max_length=255, primary_key=True)
+#    name = models.CharField(max_length = 100)
 
-class Country(models.Model):
-    id = models.CharField(max_length=10, primary_key=True)
-    name = models.CharField(max_length = 100)
+#class Country(models.Model):
+#    id = models.CharField(max_length=10, primary_key=True)
+#    name = models.CharField(max_length = 100)
 
-class Region(models.Model):
-    id = models.CharField(max_length=10, primary_key=True) 
-    name = models.CharField(max_length = 100)
+#class Region(models.Model):
+#    id = models.CharField(max_length=10, primary_key=True) 
+#    name = models.CharField(max_length = 100)
 
 class Sector(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
@@ -88,11 +90,13 @@ class IndicatorDatapoint(models.Model):
     indicator_category_id = models.ForeignKey(IndicatorCategory, db_column='indicator_category_id')
     indicator_id = models.ForeignKey(Indicator, db_column='indicator_id')
     #unit_of_measure = models.ForeignKey(IndicatorSubgroup)
-    country_id = models.ForeignKey(Country, db_column='country_id')
-    date_value = models.CharField(max_length=20) #models.DecimalField(max_digits=20, decimal_places = 5) # identify timezone?
+    country_id = models.ForeignKey(geo_models.Country, db_column='country_id')#should be a foreign key to GeoData
+    date_value = models.CharField(max_length=20) #changed from DecimalField #models.DecimalField(max_digits=20, decimal_places = 5) # identify timezone?
     source_id = models.ForeignKey(IndicatorSource, db_column='source_id')
+    #changed from foreign key to  Decimal and then to CharField as Pandas.to_sql didn't save properly
     measure_value = models.CharField(max_length=20) #models.DecimalField(max_digits=20, decimal_places = 5)#for now leave as char #models.ForeignKey(MeasureValue) # might need more for accuracy
     other = models.CharField(max_length=500)
+
 
 #the mapping betweeen coulmns in the datastore and HXL tags
 """class HXLmapping(models.Model): #can be used for other conversions
