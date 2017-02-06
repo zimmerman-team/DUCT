@@ -124,6 +124,7 @@ INSTALLED_APPS = [
     'django.contrib.gis',
     'validate',
     'lib',
+    'error_correct',
     'manual_mapping',
     'indicator',
     'scatter_demo',

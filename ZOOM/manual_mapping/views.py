@@ -50,7 +50,14 @@ def index(request):
             #df_data['mAP']# MISTAKE
 
             if len(error_message) > 0:
-                return HttpResponse(error_message)
+                #cache.clear() # check if necessary for ctrf token?   
+                context = {}
+                missing = []
+                for heading in request.session['missing_list']: #why not just pass missing list instead of missing
+                    missing.append(heading.replace(" ", "_"))
+                context = {"files" : request.session['files'], "missing_headings" : missing, "remaining_headings" : request.session['remaining_headings'], "error_messages" : error_message}
+                return render(request, 'manual_mapping/manual_mapping.html', context)
+                #return HttpResponse(error_message)
 
 
             df_data = correct_data(df_data, correction_mappings)
@@ -159,7 +166,7 @@ def index(request):
         convert_to_JSON("Transgender people: HIV prevalence", "Transgender people: Population size estimate")#allow user to choose these
         return HttpResponseRedirect('/scatter_demo/')
     else:
-        cache.clear() # check if necessary for ctrf token?   
+        #cache.clear() # check if necessary for ctrf token?   
         context = {}
         missing = []
         for heading in request.session['missing_list']: #why not just pass missing list instead of missing

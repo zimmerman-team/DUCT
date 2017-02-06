@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+ {% load staticfiles %}
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Error Correct Example</title>   
+    </head>
+    <style>
+        table, th, td {
+           border: 1px solid black;
+        }
+
+        body {
+            font: 12px Arial;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+        }
+
+        /* Tooltip text */
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 120px;
+            background-color: black;
+            color: #fff;
+            text-align: center;
+            padding: 5px 0;
+            border-radius: 6px;
+         
+            /* Position the tooltip text - see examples below! */
+            position: absolute;
+            z-index: 1;
+        }
+
+        /* Show the tooltip text when you mouse over the tooltip container */
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+        }
+
+        /* Show the tooltip text when you mouse over the tooltip container */
+
+    </style>
+
+    <script src="{% static "jquery-3.1.1.js" %}"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script type="text/javascript">
+
+        function send_data(){
+
+            var oTable = document.getElementById('data_table');
+            //gets rows of table
+            var rowLength = oTable.rows.length;
+            //alert(rowLength);
+
+            data_dict = {};
+
+            //skip heading row    
+            for (i = 1; i < rowLength; i++){
+                //gets cells of current row
+                var oCells = oTable.rows.item(i).cells;
+                temp = [];
+                //gets amount of cells of current row
+                var cellLength = oCells.length;
+                //loops through each cell in current row
+                for(var j = 1; j < cellLength - 1; j++){
+                  temp[j-1] = oCells[j].firstChild.firstChild.value; // td,div,input
+                  //alert(temp[j-1])
+                  /* get your cell info here */
+                  /* var cellVal = oCells.item(j).innerHTML; */
+                }
+                data_dict[oCells[0].innerHTML] = temp;
+            }
+            var json_string = JSON.stringify(data_dict);
+            $('#dict').val(json_string);
+            return true;
+        }
+
+        function load__error_highlighting(){
+            {% for id, message in found_error_ids %}
+                var element = document.getElementById("{{id}}")
+                element.style.backgroundColor = "red";
+                document.getElementById('{{id}}_popup').innerHTML = document.getElementById('{{id}}_popup').innerHTML + "<p class='tooltiptext'>{{message}}</p>";
+                document.getElementById('{{id}}_popup').className = "tooltip";
+            {% endfor %}
+        }
+    </script>
+
+    <body onload="load__error_highlighting()"">
+    <h1>ZOOM</h1>
+        <form action="{{ request.build_absolute_uri }}../validate/" method="post" enctype="multipart/form-data" onsubmit="return send_data()">
+            {% csrf_token %}
+            <table id="data_table">
+                <tr>
+                <th>Line No.</th>
+                {% for data in column_headings %}
+                    <th>{{data}}</th>
+                {% endfor %}
+                    <th>Delete</th>
+                </tr>
+                {% for line_no, data_line in df_data %}
+                <tr>
+                    <td>{{line_no}}</td>
+                    {% for data, error_id in data_line %}
+                        <td><div id="{{error_id}}_popup"  class="tooltip"><input id="{{error_id}}" type="text" name="{{data}}" value="{{data}}" size="10"></div></td>
+                    {% endfor %}
+                    <td></td>
+                </tr>
+                {% endfor %}
+            </table>
+            <input id="dict" type="hidden" name="dict" value="">
+            <div id ="submit_button"><p><input type="submit" name="validate" value="validate" onclick="/validate" /></p></div>
+        </form>        
+    </body>
+</html> 

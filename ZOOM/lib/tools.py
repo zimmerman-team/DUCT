@@ -50,7 +50,13 @@ def datetime_or_date(instance):
     return datetime.datetime.strptime(instance, "%Y-%m-%d")
 
 #serach for columns that map together, look for specific vlaues such as time
-def identify_col_dtype(column_values, file_heading): #only takle a sample of three value and serach for data type
+#assume whole column is uploaded, the full length
+def identify_col_dtype(column_values, file_heading, sample=None): #only takle a sample of three value and serach for data type
+    #if sample != "None":
+        #provide sample data with indexes
+        #df_file[heading].sample(n=sample_amount)
+
+    # take sample here id need be
     #check hxl tag
     #   if so narrow down data types
     #check if numeric or not
@@ -67,21 +73,26 @@ def identify_col_dtype(column_values, file_heading): #only takle a sample of thr
     prob_list = []
     fields_in_datamodel = []
     prob_threshold = 0.6
-   
+    counter = 0
+    error_counter = []
+
     for value in column_values:
         #if string
         try:#change to if statements, expections more costly than ifs
             check_dtype = Country.objects.get(code=value)
+            error_counter.append(("iso2",counter))
             dtypes_found.append("iso2")
         except Country.DoesNotExist: # check name
             check_dtype = None
             try: 
                 check_dtype = Country.objects.get(name=value)
+                error_counter.append(("country_name", counter))
                 dtypes_found.append("country_name")
             except Country.DoesNotExist: # check name
                 check_dtype = None
                 try: 
                     check_dtype = Country.objects.get(iso3=value)
+                    error_counter.append(("iso3", counter))
                     dtypes_found.append("iso3")
                 except Country.DoesNotExist: # check name
                     check_dtype = None
@@ -91,21 +102,26 @@ def identify_col_dtype(column_values, file_heading): #only takle a sample of thr
             if "time" in file_heading.lower() or "date" in file_heading.lower():# assuming time or date will have appropiate heading
                 try: 
                     check_dtype = parse(str(value))
+                    error_counter.append(("date", counter))
                     dtypes_found.append("date")
                 except ValueError:
                     dtypes_found.append("possiblly date")
-                #check if string value is a formula
+                    error_counter.append(("possiblly date", counter))
+                    
+                #check if string value is a formula     
                 #try convert to number
                 #use complier to compler equation # might have to change equation syntax to match python's syntax
             else:
                 try:
                     float(value) 
                     check_dtype = "numeric"
+                    error_counter.append(("numeric", counter))
                     dtypes_found.append("numeric")
                 except ValueError:
                     check_dtype = "str"
+                    error_counter.append(("str",counter))
                     dtypes_found.append("str")
-
+        counter += 1
             #else isinstance(value, basestring):
             #    check_dtype = "str"
             #    dtypes_found.append("str")
@@ -122,7 +138,7 @@ def identify_col_dtype(column_values, file_heading): #only takle a sample of thr
     #and nan null etc, can increase probability needed, perhaps based on size of dataset?
     #if highest_found[0][1]/len(column_values) >= prob_threshold:
     #    return highest_found #return datatype and value
-    return prob_list
+    return prob_list, error_counter
     #return "DTNF"#DTNF = Data Type Not Found #might be better to use null
 
 
@@ -156,18 +172,24 @@ def check_column_data(dtypes, column_data, model_field, file_heading):#No need f
 #should return field to map to
 def check_data_type(field, dtypes):   
     #add time
-    dtype_set = set([])
+    dtype_set = set()
+    result = False
     if field == "country_id":
         country_list = ['iso2', 'iso3', "country_name"]
         dtype_set = set(dtypes) & set(country_list)
-        dtype_set = list(dtype_set)[0]
-        
+        result = bool(dtype_set)   
+
+        if not result:
+            dtype_set = dtypes[0]
+        else:
+            dtype_set = list(dtype_set)[0]
+
         if "country_name" == dtype_set:
             dtype_set = "name"
         elif "iso2" == dtype_set:
             dtype_set = "code"
             
-        return bool(dtype_set), dtype_set, "iso2" #return type found
+        return result, dtype_set, "iso2" #return type found
     
     elif field == "measure_value":
         if "numeric" in dtypes:

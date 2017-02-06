@@ -157,7 +157,7 @@
   }
 
     //send post request
-  function send_mapping_data(data){
+  function send_mapping_data(data){//remove data
 
     var json_string = JSON.stringify(dict);
     $('#dict').val( json_string );
@@ -167,6 +167,7 @@
 </head>
 
 <body>
+<div>{{error_messages}}</div>
 <div id="wrapper">
 <h1>ZOOM</h1>
 <form action="{{ request.build_absolute_uri }}" method="post" enctype="multipart/form-data" onsubmit="return check_complete_mapping()";>
