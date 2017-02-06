@@ -68,7 +68,7 @@ class Time(models.Model):
 #    id = models.CharField(max_length=10, primary_key=True) 
 #    name = models.CharField(max_length = 100)
 
-class Sector(models.Model):
+class Sector(models.Model):#what is this for?
     id = models.CharField(max_length=50, primary_key=True)
     name = models.CharField(max_length = 100)
 
@@ -96,7 +96,6 @@ class IndicatorDatapoint(models.Model):
     #changed from foreign key to  Decimal and then to CharField as Pandas.to_sql didn't save properly
     measure_value = models.CharField(max_length=20) #models.DecimalField(max_digits=20, decimal_places = 5)#for now leave as char #models.ForeignKey(MeasureValue) # might need more for accuracy
     other = models.CharField(max_length=500)
-
 
 #the mapping betweeen coulmns in the datastore and HXL tags
 """class HXLmapping(models.Model): #can be used for other conversions
