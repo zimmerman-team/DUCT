@@ -122,6 +122,8 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'autocomplete_light',
     'django.contrib.gis',
+    'rest_framework',
+    'api',
     'validate',
     'lib',
     'error_correct',
@@ -145,22 +147,21 @@ RQ_SHOW_ADMIN_LINK = True
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
-# REST_FRAMEWORK = {
-#     'DEFAULT_PAGINATION_CLASS': 'api.pagination.CustomPagination',
-#     'PAGE_SIZE': 10,
-#     'DEFAULT_FILTER_BACKENDS': (
-#         'rest_framework.filters.DjangoFilterBackend',
-#     ),
-#     'DEFAULT_PARSER_CLASSES': (
-#         'rest_framework.parsers.JSONParser',
-#     ),
-#     'DEFAULT_RENDERER_CLASSES': (
-#         'rest_framework.renderers.BrowsableAPIRenderer',
-#         'rest_framework.renderers.JSONRenderer',
-#         'api.renderers.PaginatedCSVRenderer',
-#         # 'rest_framework_csv.renderers.CSVRenderer',
-#     ),
-# }
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'api.pagination.CustomPagination',
+    'PAGE_SIZE': 10,
+    'DEFAULT_FILTER_BACKENDS': (
+        'rest_framework.filters.DjangoFilterBackend',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.BrowsableAPIRenderer',
+        'rest_framework.renderers.JSONRenderer',
+        'api.renderers.PaginatedCSVRenderer',
+    ),
+}
 
 RQ_QUEUES = {
     'default': {
