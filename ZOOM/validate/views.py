@@ -1,17 +1,20 @@
 from django.shortcuts import render
 from django.template import loader
 from django.http import HttpResponse
-from .models import File
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
 from django.conf import settings
-from .forms import DocumentForm
 from indicator.models import IndicatorDatapoint
 from lib.converters import convert_spreadsheet
-from lib.tools import check_column_data
+from lib.tools import check_column_data, identify_col_dtype
+from geodata.importer.country import CountryImport
+from geodata.models import get_dictionaries
+from .models import File
+from .forms import DocumentForm
+import json
 import numpy as np
 import pandas as pd
 
@@ -19,19 +22,42 @@ import pandas as pd
 def index(request):
     context = {}
     request.session['test'] = "test" # create test user session if it doesnt exist
-    cache.clear() #???
-
+    #cache.clear() #???
+    #ci = CountryImport()
+    #ci.update_country_center()
+    #ci.update_polygon()
+    #ci.update_regions()
+    #country_data.update_polygon()
+    #CountryImport.update_polygon()
+    
     if request.method == 'POST':
+
         form = DocumentForm(request.POST, request.FILES)
-        #if request.POST.has_key("upload"):#True: #form.is_valid(): change!!!!
-        return upload(request)
-        #else:#validate
-        #    return validate(request)
+        if request.session['checked_error']:
+            #get from seetion
+            #makes changes in csv file
+            newdoc = request.session['files']#use loop here to loop through file/locations
+
+            if 'dict' in request.POST:#user has corrected csv file
+                df_data = pd.read_csv(newdoc[0])
+                corrections = json.loads(request.POST['dict']) 
+                
+                for line_no in corrections:
+                    for i in range(1, len(corrections[line_no])): 
+                        df_data.iloc[int(line_no) - 1, i] = corrections[line_no][i] #line[0]-1 cause started at 1 for visual design 
+                
+                df_data.to_csv(newdoc[0],  mode = 'w', index=False)
+            request.session['checked_error'] = False
+        else:
+            newdoc = upload(request)
+
+        return validate(request, newdoc)
     else:
         form = DocumentForm() # Allow multiple csv entries
         documents = File.objects.all() #load templates only
         template = loader.get_template('validate/input.html')
         validate_form = False
+        request.session['checked_error'] = False
         context = {
           'validate': validate_form,
           'documents': documents,
@@ -39,178 +65,87 @@ def index(request):
         return render(request, 'validate/input.html', context)
    
         
-#
+#need to clean this up
 def upload(request):
     newdoc = []
     count = 0
-
-    #look for HXL tags
-
+    #save uploaded files # look for HXL tags
     for filename, file in request.FILES.iteritems():
         #name = request.FILES[filename].name
-        newdoc.append(File(file = request.FILES[filename]))
-        newdoc[count].save()
+        instance = File(file = request.FILES[filename])
+        instance.save()
+        newdoc.append(instance.get_file_path())
         count += 1
 
+    #return render(request, 'validate/asinput.html', {})
+    return newdoc
+
+def validate(request, newdoc):
     validate_form = True
-    #exampleFile = open(settings.MEDIA_ROOT + "/" + request.POST['file_template'])#fix this
-    headings_template = {}
-    headings_file = {}
-    count = 0 #count matching
+    count = 0
     overall_count = 0
-    missing_mapping = []  
-    remaining_mapping = []
+    
+    missing_mapping = [] #change name -> doesn't make sense 
+    remaining_mapping = []#also doesn't make sense any more
     missing_datatypes = []
     found_mapping = []
-    mapping = []
-    validation_on_types = []
-    data_types = []
+    mapping = [] # what does this mean????
+    validation_results = []
+    dtypes_list = []
+    error_lines = []
 
+    dtypes_dict = {}
+    headings_template = {}
+    headings_file = {}
+
+    count = 0
     #loop here for multiple files
-    df_file = pd.read_csv(newdoc[0].get_file_path()) 
+    df_file = pd.read_csv(newdoc[0])#.get_file_path())
     file_heading_list = df_file.columns
-    #template_heading_list = Store._meta.get_fields()
+    #sample_amount = len(df_file[file_heading_list[0]]) # might be too big, might take too long
     template_heading_list = []
     
+    #Get datapoint headings
     for field in IndicatorDatapoint._meta.fields:
-      template_heading_list.append(field.name)#.get_attname_column())
-    template_heading_list = template_heading_list[4:len(template_heading_list)]
-
-    template_heading_list.append("unit_measure")
-    count = 0# not sure if this is still needed, might need for matches
+        template_heading_list.append(field.name)#.get_attname_column())
+    
+    template_heading_list = template_heading_list[4:len(template_heading_list)]#skip first four headings as irrelevant to user input
+    template_heading_list.append("unit_measure") #needed? 
+    
+    #count = 0# not sure if this is still needed, might need for matches
+    dicts = get_dictionaries()#get dicts for country
     for heading in file_heading_list:
-       headings_file[heading] = count
-       count += 1
+        headings_file[heading] = count
+        prob_list, error_count = identify_col_dtype(df_file[heading], heading, dicts)
+        dtypes_dict[heading] = prob_list 
+        
+        error_lines.append(error_count)
+        validation_results.append(df_file[heading].isnull().sum())
+        dtypes_list.append(prob_list) 
+        #count += 1
 
     count = 0 #count matching
     overall_count = len(template_heading_list)
 
     for key in template_heading_list:
-      """if key in headings_file: #for validation if headings found and matched
-        found_mapping.append(key)
-        mapping.append(str(key) + " to " + str(headings_file[key]))
-        headings_file.pop(key, None)
-        #if validation false then add to missing column
-        #validation_on_column, dtype_template, dtype_file = check_column_data(df_template[key], df_file[key])
-        #validation_on_types.append(validation_on_column)
-        validation_on_types.append(True)
-        data_types.append((dtype_file,dtype_file))#dtype_template, dtype_file))
-        #check data_types
-        #data_types.append(key)
-        #check data_types_check
-        count += 1
-        
-      else:"""
       remaining_mapping.append(key)
-    #serach for missing ones
+    
     files = []
-    files.append(newdoc[0].get_file_path())   
-    zip_list = zip(found_mapping, mapping, data_types, validation_on_types)
+    files_id = []
+    files.append(newdoc[0])#.get_file_path())   
+    zip_list = zip(file_heading_list, dtypes_list, validation_results)#zip(found_mapping, mapping, data_types, validation_on_types)
     missing_mapping = list(headings_file.keys())
-
-    request.session['found_mapping'] = zip_list
-    request.session['missing_list'] = missing_mapping
+    
+    #check this, see if these are relevant 
+    request.session['missing_dtypes_list'] = error_lines #change name # error per column, error[0][0] => 1st column 1st line
+    request.session['found_mapping'] = []#file_heading_list#zip_list
+    request.session['missing_list'] = missing_mapping#change name -> silly
     request.session['files'] = files
+    request.session['dtypes'] = dtypes_dict
     #request.session['template_file'] = template_file
     request.session['remaining_headings'] = remaining_mapping
     
-    context = {'validate': validate_form, 'mapped' : count, "no_mapped" : overall_count - count, "found_list": zip_list, "missing_list" : remaining_mapping, "files" : files[0]}
-    #output need to pass allignments of mapped headings
-    return render(request, 'validate/input.html', context)
-    #return HttpResponse("hey")
-    #form = DocumentForm() # Allow multiple csv entries
-    #documents = File.objects.all() #load templates only
-    #template = loader.get_template('validate/input.html')
-    #validate_form = True
-    #context = {
-    #   'validate': validate_form,
-    #   'documents': documents,
-    #   'form' : form}
-    
-    #return render(request, 'validate/input.html', context)
-
-def validate(request):
-  
-    validate_form = True
-    #exampleFile = open(settings.MEDIA_ROOT + "/" + request.POST['file_template'])#fix this
-    headings_template = {}
-    headings_file = {}
-    count = 0 #count matching
-    overall_count = 0
-    missing_mapping = []  
-    remaining_mapping = []
-    missing_datatypes = []
-    found_mapping = []
-    mapping = []
-    validation_on_types = []
-    data_types = []
-
-
-    if not request.POST.has_key('file_template'):
-        return HttpResponse("Need to select template for validation")
-    template_file = request.POST['file_template']
-    
-    files = request.POST.getlist('files[]')
-    if len(files) < 1:
-        return HttpResponse("Need to select at least one csv file for mapping") # use better error handling
-
-    df_template = pd.read_csv(template_file)
-    template_heading_list = df_template.columns
-
-    #loop here for multiple files
-    df_file = pd.read_csv(files[0]) 
-    file_heading_list = df_file.columns
-    #with open(template_file, 'rb') as f:#use loop for this
-    #   reader = csv.reader(f)
-    #   template_file_content  = pd.Series(list(reader)[1:])
-    
-
-    for heading in template_heading_list:
-       headings_template[heading] = count
-       count += 1 #using count for mapping
-
-    count = 0
-    #apply loop here for headings
-    #count = 0
-    #with open(files[0], 'rb') as f2:
-    #   reader = csv.reader(f2)
-    #   file_heading_list = list(reader)[0]
-
-    for heading in file_heading_list:
-       headings_file[heading] = count
-       count += 1
-
-    count = 0 #count matching
-    overall_count = len(template_heading_list)
-
-    for key in template_heading_list:
-      if key in headings_file:
-        found_mapping.append(key)
-        mapping.append(str(headings_template[key]) + " to " + str(headings_file[key]))
-        headings_file.pop(key, None)
-        #if validation false then add to missing column
-        validation_on_column, dtype_template, dtype_file = check_column_data(df_template[key], df_file[key])
-        validation_on_types.append(validation_on_column)
-        data_types.append((dtype_template, dtype_file))
-        #check data_types
-        #data_types.append(key)
-        #check data_types_check
-        count += 1
-        
-      else:
-        remaining_mapping.append(key)
-    #serach for missing ones
-       
-    zip_list = zip(found_mapping, mapping, data_types, validation_on_types)
-    missing_mapping = list(headings_file.keys())
-
-    request.session['found_mapping'] = zip_list
-    request.session['missing_list'] = missing_mapping
-    request.session['files'] = files
-    request.session['template_file'] = template_file
-    request.session['remaining_headings'] = remaining_mapping 
-    
-    context = {'validate': validate_form, 'mapped' : count, "no_mapped" : overall_count - count, "found_list": zip_list, "missing_list" : remaining_mapping, "template_file" : template_file, "files" : files[0]}
+    context = {'validate': validate_form, 'mapped' : count, "no_mapped" : overall_count - count, "found_list": zip_list, "missing_list" : remaining_mapping, "files" : files[0]}#reorganise messy
     #output need to pass allignments of mapped headings
     return render(request, 'validate/input.html', context)
 

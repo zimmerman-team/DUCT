@@ -124,11 +124,15 @@ INSTALLED_APPS = [
     'django.contrib.gis',
     'validate',
     'lib',
+    'error_correct',
     'manual_mapping',
     'indicator',
     'scatter_demo',
     'geodata.apps.GeodataConfig',
     'task_queue',
+    'djsupervisor',
+    'django_extensions',
+    'test_without_migrations',
     'admin_reorder',
 ]
 

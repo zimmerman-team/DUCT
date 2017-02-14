@@ -55,19 +55,26 @@
             {% csrf_token %}
             <p>Using {{template_file}}, found {{ mapped }} column </p>
             <table>
-            <tr><th>Heading</th><th>Mapping</th><th>Datatypes</th><th>Validation Result</th></tr>
-            {% for heading, mapping, dtypes, result in found_list %}
-                <tr><td>{{ heading }}</td><td> mapped by columns {{mapping}}</td><td>{{dtypes}}</td><td>{{result}}</td> </tr>
-            {% endfor %}
+            <tr><th>Heading</th><th>Mapping</th><th>Datatypes</th><th>Missing Results</th></tr>
+            
+                {% for heading, dtypes, val_results in found_list %}
+                    <tr><td>{{ heading }}</td><td> mapped by columns</td><td>{{dtypes}}</td><td>{{val_results}}</td> </tr>
+                {% endfor %}
+            
             </table>
             <p>{{files}} missing mapping for {{ no_mapped }} columns</p>
             <table>
-            {% for heading in missing_list %}
-                <tr><td>{{ heading }}</td></tr>
-            {% endfor %}
+                
+                {% for heading in missing_list %}
+                    <tr><td>{{ heading }}</td></tr>
+                {% endfor %}
+            
             </table>
             {% if missing_list %}
                 <!--<p><input type="submit" value="Manual Mapping" /></p>-->
+                <!-- if missing data and unidentified types -->
+                <a href="../validate" class="button" style= "-webkit-appearance: button; -moz-appearance: button; appearance: button; text-decoration: none; color: initial;">Reupload</a>
+                <a href="../error_correct" class="button" style= "-webkit-appearance: button; -moz-appearance: button; appearance: button; text-decoration: none; color: initial;">Correct Error</a>
                 <a href="../manual_map" class="button" style= "-webkit-appearance: button; -moz-appearance: button; appearance: button; text-decoration: none; color: initial;">Manual Mapping</a>
             {% endif %}
         </form>    
