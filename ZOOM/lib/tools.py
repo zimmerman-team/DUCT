@@ -51,8 +51,8 @@ def datetime_or_date(instance):
 
 #serach for columns that map together, look for specific vlaues such as time
 #assume whole column is uploaded, the full length
-def identify_col_dtype(column_values, file_heading, sample=None): #only takle a sample of three value and serach for data type
-    #if sample != "None":
+def identify_col_dtype(column_values, file_heading, dicts,sample=None): #only takle a sample of three value and serach for data type
+    #   if sample != "None":
         #provide sample data with indexes
         #df_file[heading].sample(n=sample_amount)
 
@@ -76,25 +76,32 @@ def identify_col_dtype(column_values, file_heading, sample=None): #only takle a 
     counter = 0
     error_counter = []
 
+    iso2_codes_dict = dicts[0]
+    iso3_codes_dict = dicts[1]
+    country_names_dict = dicts[2]
+
+    temp = iso2_codes_dict['BG']
+
     for value in column_values:
         #if string
-        try:#change to if statements, expections more costly than ifs
-            check_dtype = Country.objects.get(code=value)
+        if value in iso2_codes_dict:#try:#change to if statements, expections more costly than ifs
+            check_dtype = "iso2"
+            #check_dtype = iso2_codes_dict[value]#Country.objects.get(code=value)#exists django
             error_counter.append(("iso2",counter))
             dtypes_found.append("iso2")
-        except Country.DoesNotExist: # check name
+        else:#except ValueError:#Country.DoesNotExist: # check name
             check_dtype = None
-            try: 
-                check_dtype = Country.objects.get(name=value)
+            if value in country_names_dict:#try: 
+                check_dtype = "country_name"#country_names_dict[value]#Country.objects.get(name=value)
                 error_counter.append(("country_name", counter))
                 dtypes_found.append("country_name")
-            except Country.DoesNotExist: # check name
+            else:#except ValueError:#Country.DoesNotExist: # check name
                 check_dtype = None
-                try: 
-                    check_dtype = Country.objects.get(iso3=value)
+                if value in iso3_codes_dict:#try: 
+                    check_dtype="iso3"#check_dtype = iso3_codes_dict[value]#Country.objects.get(iso3=value)
                     error_counter.append(("iso3", counter))
                     dtypes_found.append("iso3")
-                except Country.DoesNotExist: # check name
+                else:#except ValueError:#Country.DoesNotExist: # check name
                     check_dtype = None
         #check for country codes
 
