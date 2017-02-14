@@ -1,18 +1,19 @@
 from django.shortcuts import render
 from django.template import loader
 from django.http import HttpResponse
-from .models import File
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
 from django.conf import settings
-from .forms import DocumentForm
 from indicator.models import IndicatorDatapoint
 from lib.converters import convert_spreadsheet
 from lib.tools import check_column_data, identify_col_dtype
 from geodata.importer.country import CountryImport
+from geodata.models import get_dictionaries
+from .models import File
+from .forms import DocumentForm
 import json
 import numpy as np
 import pandas as pd
@@ -21,7 +22,7 @@ import pandas as pd
 def index(request):
     context = {}
     request.session['test'] = "test" # create test user session if it doesnt exist
-    cache.clear() #???
+    #cache.clear() #???
     #ci = CountryImport()
     #ci.update_country_center()
     #ci.update_polygon()
@@ -37,7 +38,7 @@ def index(request):
             #makes changes in csv file
             newdoc = request.session['files']#use loop here to loop through file/locations
 
-            if 'dict' in request.POST:
+            if 'dict' in request.POST:#user has corrected csv file
                 df_data = pd.read_csv(newdoc[0])
                 corrections = json.loads(request.POST['dict']) 
                 
@@ -112,9 +113,10 @@ def validate(request, newdoc):
     template_heading_list.append("unit_measure") #needed? 
     
     #count = 0# not sure if this is still needed, might need for matches
+    dicts = get_dictionaries()#get dicts for country
     for heading in file_heading_list:
         headings_file[heading] = count
-        prob_list, error_count = identify_col_dtype(df_file[heading], heading)
+        prob_list, error_count = identify_col_dtype(df_file[heading], heading, dicts)
         dtypes_dict[heading] = prob_list 
         
         error_lines.append(error_count)

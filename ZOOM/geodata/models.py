@@ -1,6 +1,23 @@
 from django.contrib.gis.db import models as gis_models
 from django.db import models
 
+def get_dictionaries():#might be better to use a set
+        iso2_dict = {}
+        iso3_dict = {}
+        country_name_dict = {}
+        iso2_codes = Country.objects.values_list('code')
+        iso3_codes = Country.objects.values_list('iso3')
+        country_names = Country.objects.values_list('name')
+        dicts = [iso2_dict, iso3_dict, country_name_dict] #0 iso2, 1 iso3, 2 name
+        data_lists = [iso2_codes, iso3_codes, country_names]
+
+        for i in range(len(data_lists)):
+            counter = 0
+ 
+            for j in range(len(data_lists[i])):
+                dicts[i][data_lists[i][j][0]] = 1 #change this to return the data related to that country, iso2, iso3, country name etc  
+        return dicts
+
 
 class Codelist(models.Model):
     name = models.CharField(primary_key=True, max_length=100)
@@ -52,7 +69,7 @@ class Country(gis_models.Model):
     center_longlat = gis_models.PointField(null=True, blank=True)
     polygon = gis_models.TextField(null=True, blank=True)
     data_source = gis_models.CharField(max_length=20, null=True, blank=True)
-    objects = gis_models.GeoManager()
+    objects = gis_models.GeoManager()        
 
     class Meta:
         verbose_name_plural = "countries"

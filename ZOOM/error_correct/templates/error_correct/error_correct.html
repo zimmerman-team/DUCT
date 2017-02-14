@@ -4,8 +4,80 @@
     <head>
         <meta charset="utf-8">
         <title>Error Correct Example</title>   
-    </head>
-    <style>
+        <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css">
+        <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.2.min.js"></script>
+        <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
+        <script>
+        $(document).ready(function() {
+            $('#data_table')
+            .on('stateLoaded.dt',   function () { eventFired( 'state' ); } )
+            .DataTable();
+
+            var eventFired = function ( type ) {
+                load__error_highlighting();      
+            }
+        } );
+
+        </script>
+        
+        <script type="text/javascript">
+
+        function send_data(){
+            
+            //getTable[][] oTbble alight asts asa
+            var oTable = $('#data_table').DataTable(); //document.getElementById('data_table');
+            
+            var data = table.rows().data();
+            
+            var table = $('#example').DataTable();
+ 
+            data.each(function (value, index) {
+                 alert(value + " value");
+                 alert(index + " index");
+                 console.log('Data in index: ' + index + ' is: ' + value);
+            });
+            
+            //gets rows of table
+            var rowLength = oTable.rows.length;
+            //alert(rowLength);
+
+            data_dict = {};
+
+            //skip heading row    
+            for (i = 1; i < rowLength; i++){
+                //gets cells of current row
+                var oCells = oTable.rows.item(i).cells;
+                temp = [];
+                //gets amount of cells of current row
+                var cellLength = oCells.length;
+
+
+                //loops through each cell in current row
+                for(var j = 1; j < cellLength - 1; j++){
+                  temp[j-1] = oCells[j].firstChild.firstChild.value; // td,div,input
+                  //alert(temp[j-1])
+                  
+                  /* get your cell info here */
+                  /* var cellVal = oCells.item(j).innerHTML; */
+                }
+                data_dict[oCells[0].innerHTML] = temp;
+            }
+
+            var json_string = JSON.stringify(data_dict);
+            $('#dict').val(json_string);
+            return true;
+        }
+
+        function load__error_highlighting(){
+            {% for id, message in found_error_ids %}
+                var element = document.getElementById("{{id}}")
+                element.style.backgroundColor = "red";
+                document.getElementById('{{id}}_popup').innerHTML = document.getElementById('{{id}}_popup').innerHTML + "<p class='tooltiptext'>{{message}}</p>";
+                document.getElementById('{{id}}_popup').className = "tooltip";
+            {% endfor %}
+        }
+        </script>
+        <style>
         table, th, td {
            border: 1px solid black;
         }
@@ -42,57 +114,19 @@
 
         /* Show the tooltip text when you mouse over the tooltip container */
 
-    </style>
-
-    <script src="{% static "jquery-3.1.1.js" %}"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-    <script type="text/javascript">
-
-        function send_data(){
-
-            var oTable = document.getElementById('data_table');
-            //gets rows of table
-            var rowLength = oTable.rows.length;
-            //alert(rowLength);
-
-            data_dict = {};
-
-            //skip heading row    
-            for (i = 1; i < rowLength; i++){
-                //gets cells of current row
-                var oCells = oTable.rows.item(i).cells;
-                temp = [];
-                //gets amount of cells of current row
-                var cellLength = oCells.length;
-                //loops through each cell in current row
-                for(var j = 1; j < cellLength - 1; j++){
-                  temp[j-1] = oCells[j].firstChild.firstChild.value; // td,div,input
-                  //alert(temp[j-1])
-                  /* get your cell info here */
-                  /* var cellVal = oCells.item(j).innerHTML; */
-                }
-                data_dict[oCells[0].innerHTML] = temp;
-            }
-            var json_string = JSON.stringify(data_dict);
-            $('#dict').val(json_string);
-            return true;
-        }
-
-        function load__error_highlighting(){
-            {% for id, message in found_error_ids %}
-                var element = document.getElementById("{{id}}")
-                element.style.backgroundColor = "red";
-                document.getElementById('{{id}}_popup').innerHTML = document.getElementById('{{id}}_popup').innerHTML + "<p class='tooltiptext'>{{message}}</p>";
-                document.getElementById('{{id}}_popup').className = "tooltip";
-            {% endfor %}
-        }
-    </script>
-
-    <body onload="load__error_highlighting()"">
+        </style>
+    </head>
+    
+    <body onload="load__error_highlighting()">
     <h1>ZOOM</h1>
         <form action="{{ request.build_absolute_uri }}../validate/" method="post" enctype="multipart/form-data" onsubmit="return send_data()">
             {% csrf_token %}
-            <table id="data_table">
+             {% if error_count %}
+                <p>{{error_count}} line have errors. File has too many errors for error correction</p>
+                <p>{{list_errors}}</p>
+             {% else %}
+            <table id="data_table" class="table table-bordered table-hover">
+                <thead>
                 <tr>
                 <th>Line No.</th>
                 {% for data in column_headings %}
@@ -100,6 +134,9 @@
                 {% endfor %}
                     <th>Delete</th>
                 </tr>
+                </thead>
+                
+                <tbody>
                 {% for line_no, data_line in df_data %}
                 <tr>
                     <td>{{line_no}}</td>
@@ -109,9 +146,11 @@
                     <td></td>
                 </tr>
                 {% endfor %}
-            </table>
+                </tbody>
+            </table> 
+            {% endif %}       
             <input id="dict" type="hidden" name="dict" value="">
             <div id ="submit_button"><p><input type="submit" name="validate" value="validate" onclick="/validate" /></p></div>
-        </form>        
+        </form>   
     </body>
 </html> 
