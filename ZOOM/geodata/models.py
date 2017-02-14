@@ -1,42 +1,34 @@
 from django.contrib.gis.db import models as gis_models
 from django.db import models
-# from iati_vocabulary.models import RegionVocabulary
+
+def get_dictionaries():#might be better to use a set
+        iso2_dict = {}
+        iso3_dict = {}
+        country_name_dict = {}
+        iso2_codes = Country.objects.values_list('code')
+        iso3_codes = Country.objects.values_list('iso3')
+        country_names = Country.objects.values_list('name')
+        dicts = [iso2_dict, iso3_dict, country_name_dict] #0 iso2, 1 iso3, 2 name
+        data_lists = [iso2_codes, iso3_codes, country_names]
+
+        for i in range(len(data_lists)):
+            counter = 0
+ 
+            for j in range(len(data_lists[i])):
+                dicts[i][data_lists[i][j][0]] = 1 #change this to return the data related to that country, iso2, iso3, country name etc  
+        return dicts
 
 
-# class GeographicVocabulary(models.Model):
-#     code = models.CharField(primary_key=True, max_length=20)
-#     name = models.CharField(max_length=255)
-#     description = models.TextField(default="")
-#     url = models.URLField()
+class Codelist(models.Model):
+    name = models.CharField(primary_key=True, max_length=100)
+    description = models.TextField(max_length=1000, blank=True, null=True)
+    count = models.CharField(max_length=10, blank=True, null=True)
+    fields = models.CharField(max_length=255, blank=True, null=True)
+    date_updated = models.DateTimeField(auto_now=True, editable=False)
 
-#     def __unicode__(self,):
-#         return "%s - %s" % (self.code, self.name)
+    def __unicode__(self,):
+        return "%s" % self.name
 
-# class PolicyMarkerVocabulary(models.Model):
-#     code = models.CharField(max_length=10,  primary_key=True)
-#     name = models.CharField(max_length=200)
-#     description = models.TextField(default="")
-
-#     def __unicode__(self,):
-#         return "%s - %s" % (self.code, self.name)
-
-# class SectorVocabulary(models.Model):
-#     code = models.CharField(max_length=10,  primary_key=True)
-#     name = models.CharField(max_length=100)
-#     description = models.TextField(default="")
-#     url = models.URLField()
-
-#     def __unicode__(self,):
-#         return "%s - %s" % (self.code, self.name)
-
-
-# class BudgetIdentifierVocabulary(models.Model):
-#     code = models.CharField(primary_key=True, max_length=40)
-#     name = models.CharField(max_length=100)
-#     description = models.TextField(default="")
-
-#     def __unicode__(self,):
-#         return "%s - %s" % (self.code, self.name)
 
 class RegionVocabulary(models.Model):
     code = models.CharField(primary_key=True, max_length=40)
@@ -45,28 +37,6 @@ class RegionVocabulary(models.Model):
 
     def __unicode__(self,):
         return "%s - %s" % (self.code, self.name)
-
-# class HumanitarianScopeVocabulary(models.Model):
-#     code = models.CharField(primary_key=True, max_length=40)
-#     name = models.CharField(max_length=100)
-#     description = models.TextField(default="")
-
-#     def __unicode__(self,):
-#         return "%s - %s" % (self.code, self.name)
-
-# class IndicatorVocabulary(models.Model):
-#     code = models.CharField(primary_key=True, max_length=2)
-#     name = models.CharField(max_length=100)
-#     description = models.TextField(default="")
-#     url = models.URLField()
-
-#     def __unicode__(self,):
-#         return "%s - %s" % (self.code, self.name)
-
-#GeoAppmodels
-
-
-
 
 
 
@@ -83,7 +53,7 @@ class Region(gis_models.Model):
 
 
 class Country(gis_models.Model):
-    code = gis_models.CharField(primary_key=True, max_length=2)
+    code = gis_models.CharField(primary_key=True, max_length=2) #iso2
     numerical_code_un = gis_models.IntegerField(null=True, blank=True)
     name = gis_models.CharField(max_length=100, db_index=True)
     alt_name = gis_models.CharField(max_length=100, null=True, blank=True)
@@ -99,7 +69,7 @@ class Country(gis_models.Model):
     center_longlat = gis_models.PointField(null=True, blank=True)
     polygon = gis_models.TextField(null=True, blank=True)
     data_source = gis_models.CharField(max_length=20, null=True, blank=True)
-    objects = gis_models.GeoManager()
+    objects = gis_models.GeoManager()        
 
     class Meta:
         verbose_name_plural = "countries"
