@@ -17,8 +17,16 @@ class IndicatorDataList(DynamicListView):
 
     fields = (
         'id',
+        'file_source_id',
+        'date_format_id',
+        'indicator_category_id',
+        'indicator_id',
+        'country_id',
+        'date_value',
+        'source_id',
         'measure_value',
-        #'unique_id',
+        'other',
+        # 'unique_id',
         # 'full_date',
         # 'name', 
         # 'value',
