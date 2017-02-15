@@ -93,7 +93,7 @@ STATICFILES_FINDERS = (
 )
 
 MIDDLEWARE_CLASSES = [
-    # 'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -118,6 +118,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'grappelli',
     'django.contrib.admin',
     'autocomplete_light',
@@ -182,9 +183,9 @@ GRAPPELLI_ADMIN_TITLE = 'ZOOM admin'
 # ADMINFILES_UPLOAD_TO = 'csv_files'
 LOGIN_REDIRECT_URL = '/admin/'
 
-# CORS_ORIGIN_ALLOW_ALL = True
-# CORS_URLS_REGEX = r'^/api/.*$'
-# CORS_ALLOW_METHODS = ('GET',)
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_URLS_REGEX = r'^/api/.*$'
+CORS_ALLOW_METHODS = ('GET',)
 
 # IATI_PARSER_DISABLED = False
 # CONVERT_CURRENCIES = True
