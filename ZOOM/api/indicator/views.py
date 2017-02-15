@@ -26,6 +26,7 @@ class IndicatorDataList(DynamicListView):
         'source_id',
         'measure_value',
         'other',
+        # 'country_name',
         # 'unique_id',
         # 'full_date',
         # 'name', 

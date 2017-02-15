@@ -4,19 +4,33 @@ from geodata import models as geo_models
 from api.generics.serializers import DynamicFieldsModelSerializer
 
 
+
+class IndicatorCategoryIdSerializer(DynamicFieldsModelSerializer):
+
+	class Meta:
+		model = indicator_models.IndicatorCategory
+		fields = (
+        	'id',
+        	'code'
+        	)		
+		
+
+
+
 class CountryIdSerializer(DynamicFieldsModelSerializer):
 	# name = serializers.CharField()
 	class Meta:
 		model = geo_models.Country
 		fields = (
-        	# 'id',
+        	'code',
         	'name'
         	)
 
 
 class IndicatorSerializer(DynamicFieldsModelSerializer):
 
-	# country_id = CountryIdSerializer(many=True)
+	country_id = CountryIdSerializer()
+	# indicator_category_id = IndicatorCategoryIdSerializer()
 	class Meta:
 		model = indicator_models.IndicatorDatapoint
 		fields = (
@@ -29,5 +43,5 @@ class IndicatorSerializer(DynamicFieldsModelSerializer):
         	'date_value',
         	'source_id',
         	"measure_value",
-        	'other'
+        	'other',
         	)
