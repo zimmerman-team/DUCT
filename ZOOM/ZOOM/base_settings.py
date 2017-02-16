@@ -93,7 +93,7 @@ STATICFILES_FINDERS = (
 )
 
 MIDDLEWARE_CLASSES = [
-    # 'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -118,10 +118,13 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'grappelli',
     'django.contrib.admin',
     'autocomplete_light',
     'django.contrib.gis',
+    'rest_framework',
+    'api',
     'validate',
     'lib',
     'error_correct',
@@ -145,22 +148,21 @@ RQ_SHOW_ADMIN_LINK = True
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
-# REST_FRAMEWORK = {
-#     'DEFAULT_PAGINATION_CLASS': 'api.pagination.CustomPagination',
-#     'PAGE_SIZE': 10,
-#     'DEFAULT_FILTER_BACKENDS': (
-#         'rest_framework.filters.DjangoFilterBackend',
-#     ),
-#     'DEFAULT_PARSER_CLASSES': (
-#         'rest_framework.parsers.JSONParser',
-#     ),
-#     'DEFAULT_RENDERER_CLASSES': (
-#         'rest_framework.renderers.BrowsableAPIRenderer',
-#         'rest_framework.renderers.JSONRenderer',
-#         'api.renderers.PaginatedCSVRenderer',
-#         # 'rest_framework_csv.renderers.CSVRenderer',
-#     ),
-# }
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'api.pagination.CustomPagination',
+    'PAGE_SIZE': 10,
+    'DEFAULT_FILTER_BACKENDS': (
+        'rest_framework.filters.DjangoFilterBackend',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.BrowsableAPIRenderer',
+        'rest_framework.renderers.JSONRenderer',
+        'api.renderers.PaginatedCSVRenderer',
+    ),
+}
 
 RQ_QUEUES = {
     'default': {
@@ -181,9 +183,9 @@ GRAPPELLI_ADMIN_TITLE = 'ZOOM admin'
 # ADMINFILES_UPLOAD_TO = 'csv_files'
 LOGIN_REDIRECT_URL = '/admin/'
 
-# CORS_ORIGIN_ALLOW_ALL = True
-# CORS_URLS_REGEX = r'^/api/.*$'
-# CORS_ALLOW_METHODS = ('GET',)
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_URLS_REGEX = r'^/api/.*$'
+CORS_ALLOW_METHODS = ('GET',)
 
 # IATI_PARSER_DISABLED = False
 # CONVERT_CURRENCIES = True
