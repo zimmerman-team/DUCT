@@ -108,3 +108,18 @@ class HXLtags(models.Model):
     id = models.CharField(max_length = 50, primary_key=True)
     value_type = models.CharField(max_length = 40)"""
 
+
+class ScatterData(models.Model):
+    Category = models.CharField(max_length=255)
+    Indicator_1 = models.CharField(max_length=255)
+    Indicator_1_value = models.CharField(max_length=20)
+    Indicator_2 = models.CharField(max_length=255)
+    Indicator_2_value = models.CharField(max_length=20)
+    Country = models.CharField(max_length=100)
+
+
+# Data Example 
+# "Category":"< 25",
+# "Transgender people: HIV prevalence":0.0,
+# "Transgender people: Population size estimate":12227.0,
+# "country":"Colombia"
