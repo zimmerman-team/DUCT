@@ -7,6 +7,7 @@ var margin = {top: 20, right: 20, bottom: 30, left: 80},
     height = 500 - margin.top - margin.bottom;
 
 var yaya;
+var display = 1;
 var global_data = [];
 var data_api = {};
 data_api.data = {};
@@ -25,9 +26,11 @@ data_api.variableIsString = {
 
 $(document).ready(function(){
     $("#ajaxBtn").click(function(){
+        if (display ===1) {
         $("#itemContainer").html("<h1>Data Loaded</h1>");
         // var data_api = {};
         data_api.data = {};
+        display = 0;
         var p = 1;
         do {
          $.ajax({
@@ -53,6 +56,7 @@ $(document).ready(function(){
        });
      } while (p!==1);
         plot_api(data_api);
+    }
     });
 });
 // console.log(yaya);
