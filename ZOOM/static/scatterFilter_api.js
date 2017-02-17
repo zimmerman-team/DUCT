@@ -8,11 +8,25 @@ var margin = {top: 20, right: 20, bottom: 30, left: 80},
 
 var yaya;
 var global_data = [];
+var data_api = {};
+data_api.data = {};
+data_api.variableNames = [];
+data_api.variableLabels = {};
+data_api.valueLabels = {};
+data_api.valueLabels.Category = {};
+data_api.valueLabels.micrank = {};
+var counter = 1;
+data_api.variableIsString = {
+    "Category": false,
+    "Transgender people: HIV prevalence": false,
+    "Transgender people: Population size estimate": false
+}
+
 
 $(document).ready(function(){
     $("#ajaxBtn").click(function(){
         $("#itemContainer").html("<h1>Data Loaded</h1>");
-        var data_api = {};
+        // var data_api = {};
         data_api.data = {};
         var p = 1;
         do {
@@ -24,8 +38,8 @@ $(document).ready(function(){
             // 
           },
           success: function(data){
-            var data_api = {};
-            data_api.data = {};
+            // var data_api = {};
+            // data_api.data = {};
             data_api.data.data = global_data.concat(adjust_data(data));
             // data_api.data.data = adjust_data(data);
             global_data = data_api.data.data;
@@ -38,10 +52,11 @@ $(document).ready(function(){
           },
        });
      } while (p!==1);
-    //     plot_api(data_api);
+        plot_api(data_api);
     });
 });
 // console.log(yaya);
+// arrhaystack.indexOf(needle) > -1
 
 function adjust_data(data){
     var data_updated = [];
@@ -52,8 +67,26 @@ function adjust_data(data){
         data_updated[i][obj.Indicator_1] = obj.Indicator_1_value;
         data_updated[i][obj.Indicator_2] = obj.Indicator_2_value;
         data_updated[i].country = obj.Country;
+        if (get_keys_list(data_api.valueLabels.Category).indexOf(obj.Category) === -1 ) {
+            data_api.valueLabels.Category[obj.Category] = obj.Category;
+            data_api.valueLabels.micrank[counter] = counter;
+            counter++;
+        }
+    }
+    if (data.results.length > 0) {
+        data_api.variableNames[0] = data.results[0].Indicator_1;
+        data_api.variableNames[1] = data.results[0].Indicator_2;
+        data_api.variableLabels[obj.Indicator_1] = obj.Indicator_1;
+        data_api.variableLabels[obj.Indicator_2] = obj.Indicator_2;
+        data_api.variableLabels.country = "Country Name";
     }
     return data_updated;
+}
+
+function get_keys_list(obj) {
+    var keys = [];
+    for(var k in obj) keys.push(k);
+    return keys;
 }
 
 
