@@ -7,33 +7,59 @@ var margin = {top: 20, right: 20, bottom: 30, left: 80},
     height = 500 - margin.top - margin.bottom;
 
 var yaya;
+var global_data = [];
+
 $(document).ready(function(){
     $("#ajaxBtn").click(function(){
         $("#itemContainer").html("<h1>Data Loaded</h1>");
+        var data_api = {};
+        data_api.data = {};
+        var p = 1;
+        do {
          $.ajax({
           type: "GET",
-          url: "http://127.0.0.1:8000/api/scatter/?format=json",
+          async: false,
+          url: "http://127.0.0.1:8000/api/scatter/?format=json&page="+p,
           data: {
             // 
           },
           success: function(data){
-            console.log(data);
-            plot_api();
+            var data_api = {};
+            data_api.data = {};
+            data_api.data.data = global_data.concat(adjust_data(data));
+            // data_api.data.data = adjust_data(data);
+            global_data = data_api.data.data;
             yaya = data;
+            papa = data_api.data.data;
+            if (data.next === null) { p = 1; } else { p++; }
           },
           error: function(data){
             console.log(data);
           },
        });
+     } while (p!==1);
+    //     plot_api(data_api);
     });
 });
-console.log(yaya);
+// console.log(yaya);
+
+function adjust_data(data){
+    var data_updated = [];
+    for (var i = 0; i < data.results.length; i++){
+        var obj = data.results[i];
+        data_updated[i] = {};
+        data_updated[i].Category = obj.Category;
+        data_updated[i][obj.Indicator_1] = obj.Indicator_1_value;
+        data_updated[i][obj.Indicator_2] = obj.Indicator_2_value;
+        data_updated[i].country = obj.Country;
+    }
+    return data_updated;
+}
 
 
-
-function plot_api(){
-d3.json("/static/data/msas.json", function(error, data) {
-    if (error) throw error;
+function plot_api(data){
+// d3.json("/static/data/msas.json", function(error, data) {
+    // if (error) throw error;
     dataSet = data.data.data;
     varnames = data.variableNames;
     varlabs = d3.map(data.variableLabels);
@@ -68,7 +94,7 @@ d3.json("/static/data/msas.json", function(error, data) {
         .text(function(d) { return varlabs.get(d); });
 
     scatter();
-});
+// });
 }
 
 function scatter() {
