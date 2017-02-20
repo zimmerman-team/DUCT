@@ -25,6 +25,10 @@ def welcome(request, format=None):
                 'indicators:indicator-list',
                 request=request,
                 format=format),
+            'scatter': reverse(
+                'scatter:scatter-list',
+                request=request,
+                format=format),
         }
     })
 
