@@ -92,6 +92,24 @@ def convert_to_JSON(indicator1, indicator2):
     f.write(json_str)
     f.close()
 
+#recieved data as pandas dataframe
+def convert_to_model(indicator1, indicator2):
+    query1 = IndicatorDatapoint.objects.filter(indicator_id=indicator1)
+
+    for query in query1:
+        country_id = query.country_id
+        query2 = IndicatorDatapoint.objects.filter(indicator_id=indicator2, country_id = country_id)#could be multiple subgroups depending on indicators chosen
+
+        if query2 and not (">" in query.indicator_category_id.id): #fix this as ">" causes error
+            scatter_data = ScatterData.objects.create()
+            scatter_data.Category = query.indicator_category_id.id
+            scatter_data.Indicator_1 = query.indicator_id.id
+            scatter_data.Indicator_1_value= query.measure_value
+            scatter_data.Indicator_2 = query2[0].indicator_id.id
+            scatter_data.Indicator_2_value= query2[0].measure_value
+            scatter_data.Country = country_id.name
+            scatter_data.save()
+
   
 #cover methods
 def convert_spreadsheet(request, data, file_type):#use for JSON and XLSX uploads??
