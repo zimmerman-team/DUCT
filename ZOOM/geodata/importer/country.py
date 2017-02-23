@@ -18,13 +18,13 @@ class CountryImport():
 
         for k in admin_countries.get('features'):
             country_iso2 = k.get('properties').get('iso2')
-            #name = k.get('properties').get('name')
-            #country_iso3 = k.get('id')
+            name = k.get('properties').get('name')
+            country_iso3 = k.get('id')
             if not country_iso2:
                 continue
-            #Country(code=country_iso2, iso3=country_iso3, name=name).save()
-            the_country = Country.objects.get(code=country_iso2)
-            the_country.polygon = ujson.dumps(k.get('geometry'))
+            Country(code=country_iso2, iso3=country_iso3, name=name).save()
+            #the_country = Country.objects.get(code=country_iso2)
+            #the_country.polygon = ujson.dumps(k.get('geometry'))
 
     def update_country_center(self):
         country_centers = self.get_json_data("/../data_backup/country_center.json")

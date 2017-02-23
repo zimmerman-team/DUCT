@@ -6,7 +6,7 @@ from geodata.models import Country
 from lib.converters import convert_to_JSON # check if this works
 from django.conf import settings
 from sqlalchemy import create_engine
-from lib.tools import check_column_data, correct_data
+from lib.tools import check_column_data, correct_data, convert_df
 import numpy as np
 import pandas as pd
 import json
@@ -29,36 +29,51 @@ def index(request):
             convert_to_dtype = []
             error_message = []
             correction_mappings = {}
+            #correct csv mappings
+            if 'empty_indicator' in mappings:
+                indicator_value = mappings.pop("empty_indicator")
+                mappings['indicator_id'] = ['indicator_id']
+                df_data['indicator_id'] = indicator_value
+                request.session["dtypes"][mappings['indicator_id'][0]] = ('str', 'str')
+                #add indicator value as column 
 
+            if "relationship" in mappings:
+                relationship_dict = mappings.pop("relationship")
+                left_over_dict = mappings.pop("left_over")
+
+                df_data = convert_df(relationship_dict, left_over_dict, df_data, request) 
+                #for each line in df data
+            #column_check = df_data.columns#   
+
+            #Validation
             for key in mappings:
                 #return HttpResponse(key)
-                if not mappings[key] in df_data.columns:
-                    mappings[key] = mappings[key].replace("_", " ")
-                
-                correction_mappings[mappings[key]] = []    
-                temp_results_check_dtype, temp_found_dtype, temp_convert_dtype = check_column_data(request.session["dtypes"][mappings[key]], df_data[mappings[key]], key, mappings[key])
+                if mappings[key]:
 
-                
-                if temp_results_check_dtype != False:
-                    #found_dtype.append(temp_found_dtype)
-                    #convert_to_dtype.append(temp_convert_dtype)
-                    correction_mappings[mappings[key]] = (temp_found_dtype, temp_convert_dtype) 
-                else:
-                    error_message.append(mappings[key] + " to " + key + ", found " + temp_found_dtype + ", needed " + temp_convert_dtype + ". ")#datatype blah blah 
-                    ###
-            
+                    if not mappings[key][0] in df_data.columns:
+                        temp = mappings[key][0]
+                        mappings[key][0] = mappings[key][0].replace("~", " ")
+                    
+                    correction_mappings[mappings[key][0]] = []
+                    temp_results_check_dtype, temp_found_dtype, temp_convert_dtype = check_column_data(request.session["dtypes"][mappings[key][0]], df_data[mappings[key][0]], key, mappings[key][0])
+
+                    if temp_results_check_dtype != False:
+                        #found_dtype.append(temp_found_dtype)
+                        #convert_to_dtype.append(temp_convert_dtype)
+                        correction_mappings[mappings[key][0]] = (temp_found_dtype, temp_convert_dtype) 
+                    else:
+                        error_message.append(mappings[key][0] + " to " + key + ", found " + temp_found_dtype + ", needed " + temp_convert_dtype + ". ")#datatype blah blah 
+                        ###
             #df_data['mAP']# MISTAKE
-
             if len(error_message) > 0:
                 #cache.clear() # check if necessary for ctrf token?   
                 context = {}
                 missing = []
                 for heading in request.session['missing_list']: #why not just pass missing list instead of missing
-                    missing.append(heading.replace(" ", "_"))
+                    missing.append(heading.replace(" ", "~"))
                 context = {"files" : request.session['files'], "missing_headings" : missing, "remaining_headings" : request.session['remaining_headings'], "error_messages" : error_message}
                 return render(request, 'manual_mapping/manual_mapping.html', context)
                 #return HttpResponse(error_message)
-
 
             df_data = correct_data(df_data, correction_mappings)
 
@@ -81,47 +96,69 @@ def index(request):
 
             for key in mappings:
                 #if (not key == "file_name") or (not key == "indicator_category"):
-                if mappings[key] in df_data.columns:
-                    index_order[key] = mappings[key]
-                else:
-                    index_order[key] = mappings[key].replace("_", " ") # kind of a stupid way to handle this
+                if mappings[key]:
+                    if mappings[key][0] in df_data.columns:
+                        index_order[key] = mappings[key][0]
+                    else:
+                        index_order[key] = mappings[key][0].replace("~", " ") # kind of a stupid way to handle this
             count  = 0
 
             ind_dict = {}
             ind_cat_dict = {}
             ind_source_dict = {}
             ind_country_dict = {}
+            unique_indicator = [] 
+            unique_indicator_cat = [] 
+            unique_indicator_source = [] 
+            unique_country = []
 
-            unique_indicator = df_data[index_order["indicator_id"]].unique()
-            unique_indicator_cat = df_data.groupby([index_order["indicator_id"],index_order["indicator_category_id"]]).size().reset_index()
-            unique_indicator_source = df_data.groupby([index_order["indicator_id"],index_order["source_id"]]).size().reset_index()
+            if "indicator_id" in index_order:
+                unique_indicator = df_data[index_order["indicator_id"]].unique()
+            if "indicator_category_id" in index_order:
+                #search for indicator
+                unique_indicator_cat = df_data.groupby([index_order["indicator_id"],index_order["indicator_category_id"]]).size().reset_index()
+            if "source_id" in index_order:
+                #get indicator if not present
+                unique_indicator_source = df_data.groupby([index_order["indicator_id"],index_order["source_id"]]).size().reset_index()
             #unique_subgroup = index_order['subgroup'].unique()
-            unique_country = df_data[index_order['country_id']].unique()
+            if "country_id" in index_order:
+                unique_country = df_data[index_order['country_id']].unique()
             unique_lists = [unique_indicator, unique_indicator_cat, unique_indicator_source, unique_country]
-            
+            #need to fix this in case indicator missing #
+            count = 0
+
             for unique_list in unique_lists:
                 for i in range(len(unique_list)):
+                    
                     if(count == 0):#indicator
-                        instance = Indicator(id = unique_list[i])
-                        instance.save()
+                        instance = Indicator.objects.filter(id=unique_list[i]).first()
+                        if not instance:
+                            instance = Indicator(id = unique_list[i])
+                            instance.save()
                         ind_dict[unique_list[i]] = instance
                     elif(count == 1):#indicator_cat
-                        instance = IndicatorCategory(id = unique_list[index_order['indicator_category_id']][i], indicator = ind_dict[unique_list[index_order['indicator_id']][i]])
-                        instance.save()
+                        instance = IndicatorCategory.objects.filter(id=unique_list[index_order['indicator_category_id']][i], indicator = ind_dict[unique_list[index_order['indicator_id']][i]]).first()
+                        if not instance:
+                            instance = IndicatorCategory(id = unique_list[index_order['indicator_category_id']][i], indicator = ind_dict[unique_list[index_order['indicator_id']][i]])
+                            instance.save()
                         ind_cat_dict[unique_list[index_order['indicator_id']][i] + unique_list[index_order['indicator_category_id']][i]] = instance
                     elif(count == 2):#ind_source
-                        instance = IndicatorSource(id = unique_list[index_order['source_id']][i], indicator = ind_dict[unique_list[index_order['indicator_id']][i]])
-                        instance.save()
+                        instance = IndicatorSource.objects.filter(id = unique_list[index_order['source_id']][i], indicator = ind_dict[unique_list[index_order['indicator_id']][i]]).first() 
+                        if not instance:
+                            instance = IndicatorSource(id = unique_list[index_order['source_id']][i], indicator = ind_dict[unique_list[index_order['indicator_id']][i]])
+                            instance.save()
                         ind_source_dict[unique_list[index_order['indicator_id']][i] + unique_list[index_order['source_id']][i]] = instance
-                    else:#indicator_sub
                         
+                    else:#indicator_sub
                         instance = Country.objects.filter(code = unique_list[i])
                         if instance.count() > 0:
                     #    instance.save()
                             ind_country_dict[unique_list[i]] = instance[0]
                         else:
                             instance = Country(code = unique_list[i])
+                            check = unique_list[i]
                             instance.save()
+                            ind_country_dict[unique_list[i]]
                 count += 1
 
             count = 0
@@ -141,11 +178,11 @@ def index(request):
 
             for count in range(len(df_data)):
                 for key in mappings:
-                    if (not key == "file_name") or (not key == "indicator_category"):
-                        if mappings[key] in df_data.columns:
-                           order[key] = df_data[mappings[key]][count]
+                    if mappings[key]:
+                        if mappings[key][0] in df_data.columns:
+                           order[key] = df_data[mappings[key][0]][count]
                         else:
-                           order[key] = df_data[mappings[key].replace("_", " ")][count] # kind of a stupid way to handle this 
+                           order[key] = df_data[mappings[key][0].replace("~", " ")][count] # kind of a stupid way to handle this 
 
                 #instance = MeasureValue(value = order['measure_value'], value_type =order['unit_measure'], name="")
                 #bulk_measure_value.append(instance)
@@ -153,10 +190,15 @@ def index(request):
                 #add measure unit
                 #order['measure_value'] = instance
                 #add foreign keys to indicator datapoint model
-                order['indicator_category_id'] = ind_cat_dict[order['indicator_id'] + order['indicator_category_id']]
-                order['source_id'] = ind_source_dict[order['indicator_id'] + order['source_id']]
-                order['indicator_id'] = ind_dict[order['indicator_id']]
-                order['country_id'] = ind_country_dict[order['country_id']]
+                
+                if 'indicator_category_id' in order:
+                    order['indicator_category_id'] = ind_cat_dict[order['indicator_id'] + order['indicator_category_id']] # why +??
+                if 'source_id' in order:
+                    order['source_id'] = ind_source_dict[order['indicator_id'] + order['source_id']]
+                if 'indicator_id' in order:
+                    order['indicator_id'] = ind_dict[order['indicator_id']]
+                if 'country_id' in order:
+                    order['country_id'] = ind_country_dict[order['country_id']]
                 instance = IndicatorDatapoint(**order)
                 bulk_list.append(instance)
             
@@ -169,7 +211,9 @@ def index(request):
         #cache.clear() # check if necessary for ctrf token?   
         context = {}
         missing = []
+        dict_values = []
         for heading in request.session['missing_list']: #why not just pass missing list instead of missing
-            missing.append(heading.replace(" ", "_"))
-        context = {"files" : request.session['files'], "missing_headings" : missing, "remaining_headings" : request.session['remaining_headings']}
+            missing.append(heading.replace(" ", "~"))
+            dict_values.append(heading)
+        context = {"files" : request.session['files'], "missing_headings" : missing, "remaining_headings" : request.session['remaining_headings'], "dict_values" : dict_values}
         return render(request, 'manual_mapping/manual_mapping.html', context)       
