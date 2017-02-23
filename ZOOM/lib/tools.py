@@ -3,6 +3,7 @@ import datetime
 from functools import wraps  # use this to preserve function signatures and docstrings
 from geodata.models import Country
 from indicator.models import IndicatorDatapoint
+from geodata.models import get_dictionaries
 from collections import Counter
 from dateutil.parser import parse
 import pandas as pd
@@ -79,8 +80,6 @@ def identify_col_dtype(column_values, file_heading, dicts,sample=None): #only ta
     iso2_codes_dict = dicts[0]
     iso3_codes_dict = dicts[1]
     country_names_dict = dicts[2]
-
-    temp = iso2_codes_dict['BG']
 
     for value in column_values:
         #if string
@@ -212,25 +211,32 @@ def check_data_type(field, dtypes):
     else:#string
         return True, "str", "str" 
 
+
 def correct_data(df_data, correction_data):#correction_data ["country_name, iso2, iso3 etc"]
     
     value = {}
+    dicts = get_dictionaries()
+
     for key in correction_data:
         #decide what format to goive it too #also check date
         if correction_data[key][1] == "iso2":
-            model = Country.objects.all()
+            #model = Country.objects.all()
+            if correction_data[key][0] == "country_name":
+                curr_dicts = dicts[2]
+            elif correction_data[key][0] =="iso3":#not needed??
+                curr_dicts = dicts[1] 
         #elif date
         #elif measure value etc
-            
-            for i in range(len(df_data[key])):
+            df_data.replace({key : curr_dicts})
+            """for i in range(len(df_data[key])):
                 value[correction_data[key][0]] = df_data[key][i] #might not work?
-                query_result = model.filter(**value)
+                #query_result = model.filter(**value)
                 
-                if  query_result.count() > 0:
-                    model_value = query_result[0].code
+                if  df_data[key][i] in curr_dicts:
+                    model_value = curr_dicts[df_data[key][i]][0]#query_result[0].code
                 else:
                     model_value = "NA"
-                df_data[key][i] = model_value
+                df_data[key][i] = model_value"""
 
     return df_data
         #elif correction_data[key][1] == "numeric":

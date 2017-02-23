@@ -1,6 +1,7 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.core.cache import cache
+from django.db import connection,transaction
 from indicator.models import *
 from geodata.models import Country
 from lib.converters import convert_to_JSON # check if this works
@@ -29,7 +30,7 @@ def index(request):
             convert_to_dtype = []
             error_message = []
             correction_mappings = {}
-            #correct csv mappings
+
             if 'empty_indicator' in mappings:
                 indicator_value = mappings.pop("empty_indicator")
                 mappings['indicator_id'] = ['indicator_id']
@@ -47,8 +48,8 @@ def index(request):
 
             #Validation
             for key in mappings:
-                #return HttpResponse(key)
-                if mappings[key]:
+                    #return HttpResponse(key)
+                    #if mappings[key]:
 
                     if not mappings[key][0] in df_data.columns:
                         temp = mappings[key][0]
@@ -94,15 +95,18 @@ def index(request):
             instance.save()
             order['date_format_id'] = instance  
 
+            datapoint_headings = []
             for key in mappings:
                 #if (not key == "file_name") or (not key == "indicator_category"):
                 if mappings[key]:
                     if mappings[key][0] in df_data.columns:
                         index_order[key] = mappings[key][0]
+                        datapoint_headings.append(mappings[key][0])
                     else:
                         index_order[key] = mappings[key][0].replace("~", " ") # kind of a stupid way to handle this
-            count  = 0
+                        datapoint_headings.append(mappings[key][0]).replace("~", " ")
 
+            count  = 0
             ind_dict = {}
             ind_cat_dict = {}
             ind_source_dict = {}
@@ -152,17 +156,35 @@ def index(request):
                     else:#indicator_sub
                         instance = Country.objects.filter(code = unique_list[i])
                         if instance.count() > 0:
-                    #    instance.save()
+                            #instance.save()
                             ind_country_dict[unique_list[i]] = instance[0]
                         else:
                             instance = Country(code = unique_list[i])
-                            check = unique_list[i]
-                            instance.save()
-                            ind_country_dict[unique_list[i]]
+                            #check = unique_list[i]
+                            try:
+                                instance.save()
+                            except Exception as e:
+                                instance = None
+                            ind_country_dict[unique_list[i]] = instance
                 count += 1
 
             count = 0
 
+            statement = "insert into indicator_IndicatorDatapoint (" + ', '.join(datapoint_headings) + ") values "
+            #cursor = connection.cursor()
+            #query=''' INSERT INTO indicator_IndicatorDatapoint 
+            #        (var1) 
+            #        VALUES ("indicator_id, testascbcs") '''
+            #queryList=buildQueryList() 
+            #here buildQueryList() represents some function to populate
+            #the list with multiple records
+            #in the tuple format (value1,value2,value3).
+            #cursor.executemany(query,queryList)
+            #transaction.commit()
+
+            #cursor = connection.cursor()
+            #statement = "insert into indicator_IndicatorDatapoint (indicator_id, date_created, file_source_id) values('test2', '%s', %s)" % (order["date_created"], order["file_source_id"].id)
+            #id = cursor.execute(statement)""" 
             """user = settings.DATABASES['default']['USER']
             password = settings.DATABASES['default']['PASSWORD']
             database_name = settings.DATABASES['default']['NAME']
@@ -175,22 +197,23 @@ def index(request):
 
             engine = create_engine(database_url, echo=False)
             df_data.to_sql("indicator_indicatordatapoint1", con=engine, if_exists='append', index=False)""" #slow, really slow....
-
+            
             for count in range(len(df_data)):
+                statement += " ("
                 for key in mappings:
                     if mappings[key]:
                         if mappings[key][0] in df_data.columns:
                            order[key] = df_data[mappings[key][0]][count]
                         else:
                            order[key] = df_data[mappings[key][0].replace("~", " ")][count] # kind of a stupid way to handle this 
-
+                        
                 #instance = MeasureValue(value = order['measure_value'], value_type =order['unit_measure'], name="")
                 #bulk_measure_value.append(instance)
                 #del order['unit_measure'] # temporary fix
                 #add measure unit
                 #order['measure_value'] = instance
                 #add foreign keys to indicator datapoint model
-                
+
                 if 'indicator_category_id' in order:
                     order['indicator_category_id'] = ind_cat_dict[order['indicator_id'] + order['indicator_category_id']] # why +??
                 if 'source_id' in order:
@@ -199,13 +222,17 @@ def index(request):
                     order['indicator_id'] = ind_dict[order['indicator_id']]
                 if 'country_id' in order:
                     order['country_id'] = ind_country_dict[order['country_id']]
+                
+                #for key in order:
+                #   statement += "'%s'," % str((order[key])).decode('utf-8')
+                #statement = statement[:-1] + ") " """
                 instance = IndicatorDatapoint(**order)
                 bulk_list.append(instance)
             
             IndicatorDatapoint.objects.bulk_create(bulk_list)
 
         #Transgender people: HIV prevalence, 
-        convert_to_JSON("Transgender people: HIV prevalence", "Transgender people: Population size estimate")#allow user to choose these
+        #convert_to_JSON("Transgender people: HIV prevalence", "Transgender people: Population size estimate")#allow user to choose these
         return HttpResponseRedirect('/scatter_demo/')
     else:
         #cache.clear() # check if necessary for ctrf token?   

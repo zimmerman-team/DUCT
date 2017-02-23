@@ -49,7 +49,7 @@ class IndicatorSource(models.Model):
     indicator = models.ForeignKey(Indicator, null=False, blank=False)"""
 
 class FileSource(models.Model):
-    file_name = models.CharField(max_length = 100)
+    file_name = models.CharField(max_length = 100)#set as primary key?
     #file_type = models.CharField(max_length = 5)
 
 class Time(models.Model):
