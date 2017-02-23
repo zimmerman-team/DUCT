@@ -106,7 +106,7 @@ def identify_col_dtype(column_values, file_heading, dicts,sample=None): #only ta
         #check for country codes
 
         if not check_dtype:
-            if "time" in file_heading.lower() or "date" in file_heading.lower():# assuming time or date will have appropiate heading
+            if "time" in file_heading.lower() or "date" in file_heading.lower() or "year" in file_heading.lower():# assuming time or date will have appropiate heading
                 try: 
                     check_dtype = parse(str(value))
                     error_counter.append(("date", counter))
@@ -202,7 +202,7 @@ def check_data_type(field, dtypes):
         if "numeric" in dtypes:
             return True, "numeric" , "numeric"#("numeric" in dtypes), ["numeric"]
         else:
-            return False, dtypes[0], "str"
+            return False, dtypes[0], "numeric"
     
     elif field == "date_value":
         if "date" in dtypes:#just return this
@@ -245,3 +245,37 @@ def correct_data(df_data, correction_data):#correction_data ["country_name, iso2
     #if numeric convert to decimal/char
     #if date convert in integer
     #if 
+
+def convert_df(relationship_dict, left_over_dict, df_data, request):
+
+    columns = []
+    for col in df_data.columns:  
+        if (col in relationship_dict):
+            if not relationship_dict[col] in columns:
+                columns.append(relationship_dict[col])
+                columns.append(left_over_dict[col])
+        else: 
+            columns.append(col)
+
+    columns_set = list(set(list(columns)) & set(list(df_data.columns))) #set(columns).intersection(set(df_data.columns)) 
+    
+    new_df = pd.DataFrame( columns = list(columns))
+
+    counter = 0
+    for i in range(len(df_data[columns_set[0]])):#columns[0] bad idea, fix
+        #for col in columns_set:
+        #    new_df[col][counter] = df_data[col][i]
+        for col in relationship_dict:
+            request.session["dtypes"][relationship_dict[col]] = [['date', "100%"]] # check type #######################check here data type
+            request.session["dtypes"][left_over_dict[col]] = [['numeric', '100%']]
+            ##loop here through the values for relationship   
+            #don't need colum//n
+            new_df.loc[counter] = df_data.iloc[i] #copy row
+            new_df[relationship_dict[col]][counter] = col
+            new_df[left_over_dict[col]][counter] = df_data[col][i]
+            #new_df  = df_data[mappings[key]]
+            #map value
+
+            counter += 1
+    
+    return new_df
