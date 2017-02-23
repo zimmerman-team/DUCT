@@ -259,14 +259,12 @@
 
   function set_indicator(){
     dict['empty_indicator'] = document.getElementById("empty_indicator").value;
-    alert(dict['empty_indicator']);
     send_mapping_data(dict);
     document.forms["map_form"].submit();
   }
 
     //send post request
   function send_mapping_data(data){//remove data
-
     var json_string = JSON.stringify(dict);
     $('#dict').val( json_string );
   }

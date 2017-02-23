@@ -22,10 +22,10 @@ import pandas as pd
 def index(request):
     context = {}
     request.session['test'] = "test" # create test user session if it doesnt exist
-    #cache.clear() #???
-    #ci = CountryImport()
+    cache.clear() #???
+    ci = CountryImport()
     ##ci.update_country_center()
-    #ci.update_polygon()
+    ci.update_polygon()
     #ci.update_regions()
     #country_data.update_polygon()
     #CountryImport.update_polygon()
