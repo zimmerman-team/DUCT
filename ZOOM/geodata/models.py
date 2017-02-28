@@ -2,21 +2,22 @@ from django.contrib.gis.db import models as gis_models
 from django.db import models
 
 def get_dictionaries():#might be better to use a set
-        iso2_dict = {}
-        iso3_dict = {}
-        country_name_dict = {}
         iso2_codes = Country.objects.values_list('code')
         iso3_codes = Country.objects.values_list('iso3')
         country_names = Country.objects.values_list('name')
-        dicts = [iso2_dict, iso3_dict, country_name_dict] #0 iso2, 1 iso3, 2 name
         data_lists = [iso2_codes, iso3_codes, country_names]
+        source = ["iso2", "iso3", "country name"]
+        country_source_dict = {}
+        country_iso2_dict = {}
+
 
         for i in range(len(data_lists)):
             counter = 0
- 
+            country_iso2_dict[source[i]] = {}
             for j in range(len(data_lists[i])):
-                dicts[i][data_lists[i][j][0]] = iso2_codes[j][0]#[ iso2_codes[j], iso3_codes[j], country_names[j]] #change this to return the data related to that country, iso2, iso3, country name etc  
-        return dicts
+                country_source_dict[data_lists[i][j][0]] = source[i] #{NL: {iso2: NL, source:iso2}}  
+                country_iso2_dict[source[i]][data_lists[i][j][0]] = iso2_codes[j][0]
+        return country_source_dict, country_iso2_dict
 
 
 class Codelist(models.Model):
@@ -52,6 +53,8 @@ class Region(gis_models.Model):
         return self.name
 
 
+
+
 class Country(gis_models.Model):
     code = gis_models.CharField(primary_key=True, max_length=2) #iso2
     numerical_code_un = gis_models.IntegerField(null=True, blank=True)
@@ -76,6 +79,11 @@ class Country(gis_models.Model):
 
     def __unicode__(self):
         return self.name
+
+
+class CountryAltNames(gis_models.Model):
+    country = gis_models.ForeignKey(Country)
+    name = gis_models.CharField(max_length=100, db_index=True)
 
 
 class City(gis_models.Model):
