@@ -113,7 +113,7 @@
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <script type="text/javascript">
   var dict = {"null":"null" {% for heading in remaining_headings %} ,"{{heading}}": []{% endfor %} };
-  var reverse_dict = {"null" : "null" {% for heading in dict_values %} ,"{{heading}}": []{% endfor %} };//check if needed anymore
+  var reverse_dict = {"null" : "null" {% for heading in missing_headings %} ,"{{heading}}": []{% endfor %} };//check if needed anymore
 
   function perform_map(elem_id){
     var element = document.getElementById(elem_id);

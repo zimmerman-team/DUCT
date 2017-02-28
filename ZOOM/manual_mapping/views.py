@@ -170,7 +170,7 @@ def index(request):
 
             count = 0
 
-            statement = "insert into indicator_IndicatorDatapoint (" + ', '.join(datapoint_headings) + ") values "
+            #statement = "insert into indicator_IndicatorDatapoint (" + ', '.join(datapoint_headings) + ") values "
             #cursor = connection.cursor()
             #query=''' INSERT INTO indicator_IndicatorDatapoint 
             #        (var1) 
@@ -199,7 +199,7 @@ def index(request):
             df_data.to_sql("indicator_indicatordatapoint1", con=engine, if_exists='append', index=False)""" #slow, really slow....
             
             for count in range(len(df_data)):
-                statement += " ("
+                #statement += " ("
                 for key in mappings:
                     if mappings[key]:
                         if mappings[key][0] in df_data.columns:
@@ -240,7 +240,7 @@ def index(request):
         missing = []
         dict_values = []
         for heading in request.session['missing_list']: #why not just pass missing list instead of missing
-            missing.append(heading.replace(" ", "~"))
             dict_values.append(heading)
+            missing.append(heading.replace(" ", "~"))
         context = {"files" : request.session['files'], "missing_headings" : missing, "remaining_headings" : request.session['remaining_headings'], "dict_values" : dict_values}
         return render(request, 'manual_mapping/manual_mapping.html', context)       
