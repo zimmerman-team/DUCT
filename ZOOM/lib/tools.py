@@ -77,34 +77,39 @@ def identify_col_dtype(column_values, file_heading, dicts,sample=None): #only ta
     counter = 0
     error_counter = []
 
-    iso2_codes_dict = dicts[0]
-    iso3_codes_dict = dicts[1]
-    country_names_dict = dicts[2]
+    #iso2_codes_dict = dicts[0]
+    #iso3_codes_dict = dicts[1]
+    #country_names_dict = dicts[2]
 
     for value in column_values:
         #if string
-        if value in iso2_codes_dict:#try:#change to if statements, expections more costly than ifs
-            check_dtype = "iso2"
-            #check_dtype = iso2_codes_dict[value]#Country.objects.get(code=value)#exists django
-            error_counter.append(("iso2",counter))
-            dtypes_found.append("iso2")
-        else:#except ValueError:#Country.DoesNotExist: # check name
-            check_dtype = None
-            if value in country_names_dict:#try: 
-                check_dtype = "country_name"#country_names_dict[value]#Country.objects.get(name=value)
-                error_counter.append(("country_name", counter))
-                dtypes_found.append("country_name")
+        if value in dicts:
+            error_counter.append((dicts[value],counter))
+            dtypes_found.append(dicts[value])
+        else:
+
+            """if value in iso2_codes_dict:#try:#change to if statements, expections more costly than ifs
+                check_dtype = "iso2"
+                #check_dtype = iso2_codes_dict[value]#Country.objects.get(code=value)#exists django
+                error_counter.append(("iso2",counter))
+                dtypes_found.append("iso2")
             else:#except ValueError:#Country.DoesNotExist: # check name
                 check_dtype = None
-                if value in iso3_codes_dict:#try: 
-                    check_dtype="iso3"#check_dtype = iso3_codes_dict[value]#Country.objects.get(iso3=value)
-                    error_counter.append(("iso3", counter))
-                    dtypes_found.append("iso3")
+                if value in country_names_dict:#try: 
+                    check_dtype = "country_name"#country_names_dict[value]#Country.objects.get(name=value)
+                    error_counter.append(("country_name", counter))
+                    dtypes_found.append("country_name")
                 else:#except ValueError:#Country.DoesNotExist: # check name
                     check_dtype = None
-        #check for country codes
+                    if value in iso3_codes_dict:#try: 
+                        check_dtype="iso3"#check_dtype = iso3_codes_dict[value]#Country.objects.get(iso3=value)
+                        error_counter.append(("iso3", counter))
+                        dtypes_found.append("iso3")
+                    else:#except ValueError:#Country.DoesNotExist: # check name
+                        check_dtype = None
+            #check for country codes"""
 
-        if not check_dtype:
+            #if not check_dtype:
             if "time" in file_heading.lower() or "date" in file_heading.lower() or "year" in file_heading.lower():# assuming time or date will have appropiate heading
                 try: 
                     check_dtype = parse(str(value))
@@ -215,16 +220,16 @@ def check_data_type(field, dtypes):
 def correct_data(df_data, correction_data):#correction_data ["country_name, iso2, iso3 etc"]
     
     value = {}
-    dicts = get_dictionaries()
+    _, dicts = get_dictionaries()
 
     for key in correction_data:
         #decide what format to goive it too #also check date
         if correction_data[key][1] == "iso2":
             #model = Country.objects.all()
             if correction_data[key][0] == "country_name":
-                curr_dicts = dicts[2]
+                curr_dicts = dicts["country_name"]
             elif correction_data[key][0] =="iso3":#not needed??
-                curr_dicts = dicts[1] 
+                curr_dicts = dicts["iso3"] 
         #elif date
         #elif measure value etc
             df_data.replace({key : curr_dicts})
@@ -252,7 +257,7 @@ def correct_data(df_data, correction_data):#correction_data ["country_name, iso2
     #if date convert in integer
     #if 
 
-def convert_df(relationship_dict, left_over_dict, df_data, request):
+def convert_df(relationship_dict, left_over_dict, df_data, dtypes_dict):
 
     columns = []
     for col in df_data.columns:  
@@ -272,8 +277,8 @@ def convert_df(relationship_dict, left_over_dict, df_data, request):
         #for col in columns_set:
         #    new_df[col][counter] = df_data[col][i]
         for col in relationship_dict:
-            request.session["dtypes"][relationship_dict[col]] = [['date', "100%"]] # check type #######################check here data type
-            request.session["dtypes"][left_over_dict[col]] = [['numeric', '100%']]
+            dtypes_dict[relationship_dict[col]] = [['date', "100%"]] # check type #######################check here data type
+            dtypes_dict[left_over_dict[col]] = [['numeric', '100%']]
             ##loop here through the values for relationship   
             #don't need colum//n
             new_df.loc[counter] = df_data.iloc[i] #copy row

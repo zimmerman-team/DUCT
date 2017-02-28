@@ -12,9 +12,13 @@ from lib.converters import convert_spreadsheet
 from lib.tools import check_column_data, identify_col_dtype
 from geodata.importer.country import CountryImport
 from geodata.models import get_dictionaries
+from django.contrib.staticfiles.templatetags.staticfiles import static
 from .models import File
 from .forms import DocumentForm
 import json
+import os
+import pickle
+import uuid
 import numpy as np
 import pandas as pd
 
@@ -113,7 +117,9 @@ def validate(request, newdoc):
     template_heading_list.append("unit_measure") #needed? 
     
     #count = 0# not sure if this is still needed, might need for matches
-    dicts = get_dictionaries()#get dicts for country
+    dicts, _ = get_dictionaries()#get dicts for country
+    #c = _
+    #g = dicts
     for heading in file_heading_list:
         headings_file[heading] = count
         prob_list, error_count = identify_col_dtype(df_file[heading], heading, dicts)
@@ -141,7 +147,11 @@ def validate(request, newdoc):
     request.session['found_mapping'] = []#file_heading_list#zip_list
     request.session['missing_list'] = missing_mapping#change name -> silly
     request.session['files'] = files
-    request.session['dtypes'] = dtypes_dict
+    path = os.path.join(os.path.dirname(settings.BASE_DIR), 'ZOOM/media/tmpfiles')#static('tmpfiles')
+    dict_name = path +  "/" + str(uuid.uuid4()) + ".txt"
+    with open(dict_name, 'w') as f:
+        pickle.dump(dtypes_dict, f)  
+    request.session['dtypes'] = dict_name
     #request.session['template_file'] = template_file
     request.session['remaining_headings'] = remaining_mapping
     
