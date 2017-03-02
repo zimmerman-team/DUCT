@@ -9,3 +9,7 @@ def index(request):
 def data_selector(request):
     context = {}
     return render(request, 'selector/main.html', context)
+
+def scatter_api(request):
+    context = {}
+    return render(request, 'scatter_api/index.html', context)

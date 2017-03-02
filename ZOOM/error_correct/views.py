@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.template import loader
 from django.http import HttpResponse
-
+import pickle
 import numpy as np
 import pandas as pd
 
@@ -32,7 +32,9 @@ def index(request):
     df_data = pd.read_csv(request.session['files'][0])#allow multiple files
     column_headings = list(df_data.columns)
     request.session['checked_error'] = True
-    dtypes_dict = request.session['dtypes']#dtypes a column should have
+    dict_name = request.session['dtypes']
+    with open(dict_name, 'rb') as f:
+        dtypes_dict = pickle.load(f)
     error_data = request.session['missing_dtypes_list']
     #error_data = #he data each line has
     line_no = np.array([])
