@@ -50,6 +50,7 @@ class IndicatorSource(models.Model):
 
 class FileSource(models.Model):
     file_name = models.CharField(max_length = 100)#set as primary key?
+    date_uploaded = models.DateTimeField(default=timezone.now)
     #file_type = models.CharField(max_length = 5)
 
 class Time(models.Model):
@@ -90,7 +91,7 @@ class IndicatorDatapoint(models.Model):
     indicator_category_id = models.ForeignKey(IndicatorCategory, db_column='indicator_category_id', blank=True, null=True)
     indicator_id = models.ForeignKey(Indicator, db_column='indicator_id', blank=True, null=True)
     #unit_of_measure = models.ForeignKey(IndicatorSubgroup)
-    country_id = models.ForeignKey(geo_models.Country, db_column='country_id', blank=True, null=True)#should be a foreign key to GeoData
+    country_idter = models.ForeignKey(geo_models.Country, db_column='country_id', blank=True, null=True)#should be a foreign key to GeoData
     date_value = models.CharField(max_length=20, blank=True, null=True) #changed from DecimalField #models.DecimalField(max_digits=20, decimal_places = 5) # identify timezone?
     source_id = models.ForeignKey(IndicatorSource, db_column='source_id', blank=True, null=True)
     #changed from foreign key to  Decimal and then to CharField as Pandas.to_sql didn't save properly

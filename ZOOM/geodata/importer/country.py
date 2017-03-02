@@ -14,12 +14,16 @@ class CountryImport():
         self.get_json_data = get_json_data
 
     def update_polygon(self):
-        admin_countries = self.get_json_data("/../data_backup/country_data.json")
+        admin_countries = self.get_json_data("/../data_backup/allcountrycodes.json")
+        #admin_countries = self.get_json_data("/../data_backup/country_data.json")
 
         for k in admin_countries.get('features'):
-            country_iso2 = k.get('properties').get('iso2')
+            country_iso2 = k.get('properties').get('alpha-2')
             name = k.get('properties').get('name')
-            country_iso3 = k.get('id')
+            country_iso3 = k.get('alpha-3')
+            #country_iso2 = k.get('properties').get('iso2')
+            #name = k.get('properties').get('name')
+            #country_iso3 = k.get('id')
             if not country_iso2:
                 continue
             Country(code=country_iso2, iso3=country_iso3, name=name).save()
