@@ -50,7 +50,7 @@ class IndicatorSource(models.Model):
 
 class FileSource(models.Model):
     file_name = models.CharField(max_length = 100)#set as primary key?
-    date_uploaded = models.DateTimeField(default=timezone.now)
+    date_uploaded = models.DateTimeField(default=timezone.now, blank=True, null=True) #for testing purposes
 
 class FileTags():
     file_id = models.ForeignKey(FileSource,null=False, blank=False)

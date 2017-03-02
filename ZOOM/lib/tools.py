@@ -229,10 +229,10 @@ def correct_data(df_data, correction_data):#correction_data ["country_name, iso2
             if correction_data[key][0] == "country_name":
                 curr_dicts = dicts["country_name"]
             elif correction_data[key][0] =="iso3":#not needed??
-                curr_dicts = dicts["iso3"] 
+                curr_dicts = dicts["iso3"]
         #elif date
         #elif measure value etc
-            df_data.replace({key : curr_dicts})
+            df_data = df_data.replace({key : curr_dicts})
             """for i in range(len(df_data[key])):
                 value[correction_data[key][0]] = df_data[key][i] #might not work?
                 #query_result = model.filter(**value)
@@ -242,7 +242,6 @@ def correct_data(df_data, correction_data):#correction_data ["country_name, iso2
                 else:
                     model_value = "NA"
                 df_data[key][i] = model_value"""
-
     return df_data
         #elif correction_data[key][1] == "numeric":
             #model = Country.objects.all()
@@ -280,7 +279,7 @@ def convert_df(relationship_dict, left_over_dict, df_data, dtypes_dict):
             dtypes_dict[relationship_dict[col]] = [['date', "100%"]] # check type #######################check here data type
             dtypes_dict[left_over_dict[col]] = [['numeric', '100%']]
             ##loop here through the values for relationship   
-            #don't need colum//n
+            #don't need column
             new_df.loc[counter] = df_data.iloc[i] #copy row
             new_df[relationship_dict[col]][counter] = col
             new_df[left_over_dict[col]][counter] = df_data[col][i]
