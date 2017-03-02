@@ -112,53 +112,159 @@
   <script src="{% static "jquery-3.1.1.js" %}"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <script type="text/javascript">
-  var dict = {"null":"null" {% for heading in remaining_headings %} ,"{{heading}}": ""{% endfor %} };
-  var reverse_dict = {"null" : "null" {% for heading in missing_headings %} ,"{{heading}}": ""{% endfor %} };
+  var dict = {"null":"null" {% for heading in remaining_headings %} ,"{{heading}}": []{% endfor %} };
+  var reverse_dict = {"null" : "null" {% for heading in missing_headings %} ,"{{heading}}": []{% endfor %} };//check if needed anymore
 
   function perform_map(elem_id){
     var element = document.getElementById(elem_id);
-    var ids = elem_id.split("|");
-    var old_element = "";
+    var ids = elem_id.split("|");// template_heading id | file_heading id 
+    //ids[0] = ids[0].replace("~", " ");
+    i//ds[1] = ids[1].replace("~", " ");
+    //check if background is already yellow
+    if (element.style.backgroundColor =="yellow"){
+      element.style.backgroundColor = "white";
+      //remove from dicts
+      var i = dict[ids[0]].indexOf(ids[1]);
+      if(i != -1) {
+        dict[ids[0]].splice(i, 1);
+      }
 
-    if(dict[ids[0]] != "" ){//template headings
+      i = reverse_dict[ids[1]].indexOf(ids[0]);
+      if(i != -1) {
+        reverse_dict[ids[1]].splice(i, 1);
+      }
 
-      old_element = document.getElementById(ids[0] + "|" + dict[ids[0]]);
-      old_element.style.backgroundColor = "white";
-      reverse_dict[dict[ids[0]]] = "";
-      dict[ids[0]] = "";
-    }
-    
-    if(reverse_dict[ids[1]] != ""){//mapping_ headings
-      old_element = document.getElementById(reverse_dict[ids[1]] + "|" + dict[reverse_dict[ids[1]]]);
-      old_element.style.backgroundColor = "white";
-      dict[reverse_dict[ids[1]]] = "";
-      reverse_dict[ids[1]] = "";
-    }
-    
-    reverse_dict[ids[1]] = ids[0];
-    dict[ids[0]] = ids[1];
-    element.style.backgroundColor = "yellow";  
+      element.style.backgroundColor = "white";
+
+    } else {      
+      dict[ids[0]].push(ids[1]);//maount_dictpped heading to template_heading
+      reverse_dict[ids[1]].push(ids[0]);//mapped template heading to file heading
+      element.style.backgroundColor = "yellow";  
+    }  
   }
 
   function check_complete_mapping(){
-      var check = true
-      for (var key in dict) {
-        //alert(key);
-        if( dict[key] == "" ) {
-            check = false
-            alert("Mapping incomplete");
-            return false;
+    delete dict["null"];
+    delete reverse_dict["null"];
+    //doesn't need to be complete
+    //need indicator??
+    var count_dict = {};
+    var check = false;   
+      
+    if (dict['indicator_id'].length == 0){
+      html_str = "<h3>No indicator heading selected, please provide inidicator value for entire dataset.</h3><input id='empty_indicator' type='text' name='indicator'>";
+      $( "#indicator_prompt" ).html(html_str);
+      $( "#indicator_prompt" ).dialog({
+          closeOnEscape: false,
+          open: function(event, ui) {
+            $(".ui-dialog-titlebar-close", ui.dialog | ui).hide();
+          },
+          buttons: { "Set": function() { $(this).dialog("close"); set_indicator(); }, "Cancel": function() { $(this).dialog("close"); } }, 
+          modal: true,
+        });
+      $( "#dialog" ).show();
+      return false;
+    }
+
+    html_str  = "<h3>Please select part of model related to the column name</h3>";
+
+    //use key list remove one by one
+    for (key in reverse_dict){
+      //alert("key " + key + "  value: " + reverse_dict[key]); 
+      if (reverse_dict[key].length > 1){
+        check = true
+        //prompt user for headings mapping
+        html_str += "<br>" + key + " <br>";
+        html_str += "<select id=' " + key + "' >";
+        for (value in reverse_dict[key]){//linint it to two
+          html_str += "<option>" + reverse_dict[key][value] + "</option>";
         }
-      }
-      if (check){
-        send_mapping_data(dict);
-      }      
-      return true
+
+        html_str  += "</select><br>";          
+        /*wait = true;
+        $( "#dialog" ).html(html_str);
+        $("#dialog").dialog({
+          modal: true,
+          buttons: {
+            Proceed: function() {
+                  progress_next_dialog();
+                $(this).dialog("close");
+            },
+            Cancel: function() {
+                progress_next_dialog()
+                $(this).dialog("close");
+            }
+          }
+        });*/
+
+        /*$( "#dialog" ).html(html_str);
+        //document.getElementById("#dialog").innerHTML = html_str;
+        $( "#dialog" ).show();
+        $( "#dialog" ).dialog();
+            //dialog =*/ 
+        /*$( "#dialog" ).dialog({
+          autoOpen: false,
+          height: 400,
+          width: 350,
+          modal: true,
+        });*/
+
+        
+      }  
+    }
+    
+    if(check){
+      $( "#dialog" ).html(html_str);
+      $( "#dialog" ).dialog({
+          closeOnEscape: false,
+          open: function(event, ui) {
+            $(".ui-dialog-titlebar-close", ui.dialog | ui).hide();
+          },
+          buttons: { "Map": function() { $(this).dialog("close"); get_dialog_info(); }, "Cancel": function() { $(this).dialog("close"); } }, 
+          modal: true,
+        });
+      $( "#dialog" ).show();
+      
+    } else { 
+      send_mapping_data(dict);
+      document.forms["map_form"].submit();
+    } 
+
+      return false;
+      //return true;
+  }
+
+  function get_dialog_info(){
+    dict["relationship"] = {}
+    dict["left_over"] = {}
+
+    $("#dialog select").each(function()
+    {
+        var value = String($(this).val()).trim();
+        var id = String($(this).attr('id')).trim();
+        id = id.replace("~", " ");
+        index = reverse_dict[id].indexOf(value);
+        reverse_dict[id].splice(index,1);
+        var tmp = reverse_dict[id][0]
+        delete dict[tmp]
+        dict[value] = [value]
+        dict[tmp] = [tmp]
+        dict["left_over"][id] = tmp;
+        dict["relationship"][id] = value;
+
+    });
+    send_mapping_data(dict);
+    document.forms["map_form"].submit();
+  }
+
+  function set_indicator(){
+    dict['empty_indicator'] = document.getElementById("empty_indicator").value;
+    send_mapping_data(dict);
+    document.forms["map_form"].submit();
   }
 
     //send post request
   function send_mapping_data(data){//remove data
-
     var json_string = JSON.stringify(dict);
     $('#dict').val( json_string );
   }
@@ -170,7 +276,7 @@
 <div>{{error_messages}}</div>
 <div id="wrapper">
 <h1>ZOOM</h1>
-<form action="{{ request.build_absolute_uri }}" method="post" enctype="multipart/form-data" onsubmit="return check_complete_mapping()";>
+<form id="map_form" action="{{ request.build_absolute_uri }}" method="post" enctype="multipart/form-data" onsubmit="return check_complete_mapping()";>
   {% csrf_token %}
        
     <div id = "targets">
@@ -189,9 +295,18 @@
           
        </div>
       {% endfor %}
-    </div> 
+    </div>
+
+    <div id="dialog" title="Relationship Mapping" style="display: none;"> 
+    </div>
+    <div id="indicator_prompt" title="Relationship Mapping" style="display: none;"></div>
+
     <input id="dict" type="hidden" name="dict" value="">
-    <div id ="submit_button"><p><input type="submit" name="map" value="map" onclick="" /></p></div>
+    <div id ="submit_button">
+       <!--<a href="" class="button" style= "-webkit-appearance: button; -moz-appearance: button; appearance: button; text-decoration: none; color: initial;">Map</a>-->
+      <p><input type="button" name="map" value="map" onclick="check_complete_mapping()" /></p>
+
+    </div>
 </form>
 </div>
 </body>
