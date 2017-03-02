@@ -169,13 +169,12 @@ def index(request):
                             #check = unique_list[i]
                             try:
                                 instance.save()
+                                ind_country_dict[unique_list[i]] = instance
                             except Exception as e:
-                                instance = None
-                            ind_country_dict[unique_list[i]] = instance
-                count += 1
-
+                                #instance = None
+                                ind_country_dict[unique_list[i]] = instance
+                count += 1   
             count = 0
-
             #statement = "insert into indicator_IndicatorDatapoint (" + ', '.join(datapoint_headings) + ") values "
             #cursor = connection.cursor()
             #query=''' INSERT INTO indicator_IndicatorDatapoint 
@@ -228,6 +227,7 @@ def index(request):
                     order['indicator_id'] = ind_dict[order['indicator_id']]
                 if 'country_id' in order:
                     order['country_id'] = ind_country_dict[order['country_id']]
+                    #bf.d.
                 
                 #for key in order:
                 #   statement += "'%s'," % str((order[key])).decode('utf-8')
