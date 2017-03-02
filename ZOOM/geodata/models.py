@@ -81,9 +81,9 @@ class Country(gis_models.Model):
         return self.name
 
 
-class CountryAltNames(gis_models.Model):
-    country = gis_models.ForeignKey(Country)
-    name = gis_models.CharField(max_length=100, db_index=True)
+#class CountryAltNames(gis_models.Model):
+#    country = gis_models.ForeignKey(Country)
+#    name = gis_models.CharField(max_length=100, db_index=True)
 
 
 class City(gis_models.Model):
