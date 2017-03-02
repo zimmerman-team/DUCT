@@ -17,10 +17,10 @@ class CountryImport():
         admin_countries = self.get_json_data("/../data_backup/allcountrycodes.json")
         #admin_countries = self.get_json_data("/../data_backup/country_data.json")
 
-        for k in admin_countries.get('features'):
-            country_iso2 = k.get('properties').get('alpha-2')
-            name = k.get('properties').get('name')
-            country_iso3 = k.get('alpha-3')
+        for k in admin_countries:#.get('features'):
+            country_iso2 = k.get('alpha-2')#k.get('properties').get('alpha-2')
+            name = k.get('name')#k.get('properties').get('name')
+            country_iso3 = k.get('alpha-3')#k.get('alpha-3')
             #country_iso2 = k.get('properties').get('iso2')
             #name = k.get('properties').get('name')
             #country_iso3 = k.get('id')
