@@ -167,14 +167,14 @@ def index(request):
                             #instance.save()
                             ind_country_dict[unique_list[i]] = instance[0]
                         else:
-                            instance = Country(code = unique_list[i])
+                            instance = None# Country(code = unique_list[i])
                             #check = unique_list[i]
-                            try:
-                                instance.save()
-                                ind_country_dict[unique_list[i]] = instance
-                            except Exception as e:
-                                #instance = None
-                                ind_country_dict[unique_list[i]] = instance
+                            #try:
+                            #    instance.save()
+                            #    ind_country_dict[unique_list[i]] = instance
+                            #except Exception as e:
+                            #     #instance = None
+                            ind_country_dict[unique_list[i]] = instance
                 count += 1   
             count = 0
             #statement = "insert into indicator_IndicatorDatapoint (" + ', '.join(datapoint_headings) + ") values "
@@ -269,3 +269,4 @@ def tags(request, file_id):
     context = {"file_id":file_id}
     print file_id
     return render(request, 'manual_mapping/tags.html', context)
+
