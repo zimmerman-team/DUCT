@@ -43,8 +43,11 @@ FIXTURE_DIRS = (
      os.path.join(BASE_DIR, '../fixtures/'),
 )
 
+API_CACHE_SECONDS = 0
+
 try:
     from local_settings import *
 except ImportError:
     pass
+
 
