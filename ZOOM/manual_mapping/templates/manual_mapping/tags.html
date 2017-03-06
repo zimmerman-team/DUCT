@@ -13,8 +13,9 @@
     </head>
 
     <body>
+    <div class="container">
       <!--Import jQuery before materialize.js-->
-      <h1>File Tagger</h1>
+<!--       <h1>File Tagger</h1>
 
         <div class="mdl-card_supporting-text">
         <form id="file_tags_form">{% csrf_token %}
@@ -27,8 +28,42 @@
             <input type="submit" name="" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" value="Save">
           </div>
         </form>
+        </div> -->
+
+      <div class="row">
+      <div class="col s9 offset-3">
+      <div class="card-panel">
+        <span class="blue-text text-darken-2">Add the tags list related to the file source</span>
+      </div>
+      </div>
+      </div>
+
+        <div class="row">
+          <div class=" col s9 offset-3">
+            <div class="card-panel">
+
+            <div class="row">
+              <div class="col s10"><span class="flow-text offset-2">File Tagger</span></div>
+            </div>
+
+            <div class="row">
+            <form id="file_tags_form" class="col s10 offset-2">{% csrf_token %}
+              <div class="chips">
+                <input id="tags" type="text" class="mdl-textfield__input">
+                <label for="tags" class="mdl-textfield__lable">Tags</label>
+                <span class="mdl-textfield__error"></span>
+              </div>
+              <div class="mdl-card__actions mdl-card--border">
+                <input type="submit" name="" class="waves-effect waves-light btn" value="Save">
+              </div>
+            </form>
+            </div>
+
+            </div>
+          </div>
         </div>
 
+      </div>
       <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
       <script type="text/javascript" src="{% static 'js/materialize.min.js' %}"></script>
       <script>
@@ -56,5 +91,6 @@
           });
         });
       </script>
+
     </body>
   </html>
