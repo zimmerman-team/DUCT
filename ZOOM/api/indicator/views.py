@@ -6,13 +6,14 @@ from api.indicator.serializers import *
 
 from indicator.models import IndicatorDatapoint
 
+from api.indicator.filters import IndicatorDataFilter
+
 
 class IndicatorDataList(DynamicListView):
 
-
     queryset = IndicatorDatapoint.objects.all()
     filter_backends = (DjangoFilterBackend, )
-    # filter_class = IndicatorDataFilter
+    filter_class = IndicatorDataFilter
     serializer_class = IndicatorSerializer
 
     fields = (
