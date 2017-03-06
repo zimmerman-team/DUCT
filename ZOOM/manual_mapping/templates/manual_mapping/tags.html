@@ -1,0 +1,60 @@
+{% load staticfiles %}
+
+  <!DOCTYPE html>
+  <html>
+    <head>
+      <!--Import Google Icon Font-->
+      <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+      <!--Import materialize.css-->
+      <link type="text/css" rel="stylesheet" href="{% static 'css/materialize.css' %}"  media="screen,projection"/>
+
+      <!--Let browser know website is optimized for mobile-->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    </head>
+
+    <body>
+      <!--Import jQuery before materialize.js-->
+      <h1>File Tagger</h1>
+
+        <div class="mdl-card_supporting-text">
+        <form id="file_tags_form">{% csrf_token %}
+          <div class="chips">
+            <input id="tags" type="text" class="mdl-textfield__input">
+            <label for="tags" class="mdl-textfield__lable">Tags</label>
+            <span class=class="mdl-textfield__error"></span>
+          </div>
+          <div class="mdl-card__actions mdl-card--border">
+            <input type="submit" name="" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" value="Save">
+          </div>
+        </form>
+        </div>
+
+      <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+      <script type="text/javascript" src="{% static 'js/materialize.js' %}"></script>
+      <script>
+          $('.chips').material_chip();
+      </script>
+      <script type="text/javascript">
+        $(document).on('submit', '#file_tags_form', function(e){
+          e.preventDefault();
+          $.ajax({
+            type:'POST',
+            url:'/manual_map/tags/{{file_id}}/',
+            data:{
+              tags:$('.chips').material_chip('data'),
+              csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
+            },
+            success:function(){
+              console.log(window.location.href);
+              window.location.assign("http://localhost:8000/scatter_demo/");
+              // alert(window.location.href);
+                // alert("OK");
+            },
+            // error:function(){
+            //   alert("NOK");
+            // },
+          });
+        });
+      </script>
+    </body>
+  </html>

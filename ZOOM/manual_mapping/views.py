@@ -8,6 +8,7 @@ from lib.converters import convert_to_JSON # check if this works
 from django.conf import settings
 from sqlalchemy import create_engine
 from lib.tools import check_column_data, correct_data, convert_df
+from indicator.models import FileTags, FileSource
 import numpy as np
 import pandas as pd
 import pickle 
@@ -93,6 +94,7 @@ def index(request):
             order["file_source_id"] = request.session['files'][0] 
             instance = FileSource(file_name = order['file_source_id'])
             instance.save()
+            file_id = instance.id
             #error  check for instance not being available
 
             order['file_source_id'] = instance 
@@ -242,7 +244,8 @@ def index(request):
 
         #Transgender people: HIV prevalence, 
         #convert_to_JSON("Transgender people: HIV prevalence", "Transgender people: Population size estimate")#allow user to choose these
-        return HttpResponseRedirect('/scatter_demo/')
+        return HttpResponseRedirect('tags/%d'%file_id)
+        # return HttpResponseRedirect('/scatter_demo/')
     else:
         #cache.clear() # check if necessary for ctrf token?   
         context = {}
@@ -254,3 +257,15 @@ def index(request):
 
         context = {"files" : request.session['files'], "missing_headings" : missing, "remaining_headings" : request.session['remaining_headings'], "dict_values" : dict_values}
         return render(request, 'manual_mapping/manual_mapping.html', context)       
+
+
+def tags(request, file_id):
+    if request.method == 'POST':
+        file_source = FileSource.objects.get(pk=file_id)
+        for i in range(0,len(request.POST)-1):
+            tag = request.POST['tags[' + str(i) + '][tag]']
+            FileTags.objects.create(file_id=file_source, tag=tag)
+        return HttpResponse('')
+    context = {"file_id":file_id}
+    print file_id
+    return render(request, 'manual_mapping/tags.html', context)
