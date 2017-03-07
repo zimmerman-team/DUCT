@@ -52,7 +52,7 @@ class FileSource(models.Model):
     file_name = models.CharField(max_length = 100)#set as primary key?
     date_uploaded = models.DateTimeField(default=timezone.now, blank=True, null=True) #for testing purposes
 
-class FileTags():
+class FileTags(models.Model):
     file_id = models.ForeignKey(FileSource,null=False, blank=False)
     tag =  models.CharField(max_length=50)
     #file_type = models.CharField(max_length = 5)

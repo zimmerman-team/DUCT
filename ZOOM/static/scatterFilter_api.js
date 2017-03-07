@@ -6,7 +6,7 @@ var margin = {top: 20, right: 20, bottom: 30, left: 80},
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
-var yaya;
+
 var display = 1;
 var global_data = [];
 var data_api = {};
@@ -46,8 +46,6 @@ $(document).ready(function(){
             data_api.data.data = global_data.concat(adjust_data(data));
             // data_api.data.data = adjust_data(data);
             global_data = data_api.data.data;
-            yaya = data;
-            papa = data_api.data.data;
             if (data.next === null) { p = 1; } else { p++; }
           },
           error: function(data){
@@ -59,8 +57,6 @@ $(document).ready(function(){
     }
     });
 });
-// console.log(yaya);
-// arrhaystack.indexOf(needle) > -1
 
 function adjust_data(data){
     var data_updated = [];
