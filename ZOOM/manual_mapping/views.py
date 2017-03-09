@@ -260,22 +260,28 @@ def index(request):
 
 
 def tags(request, file_id):
-    file_source = FileSource.objects.get(pk=file_id)
-    if request.method == 'POST':
-        FileTags.objects.filter(file_id=file_source).delete()
-        for i in range(0,len(request.POST)-1):
-            tag = request.POST['tags[' + str(i) + '][tag]']
-            FileTags.objects.create(file_id=file_source, tag=tag)
-        return HttpResponse('')
-    tags_saved = FileTags.objects.filter(file_id=file_source)
-    tags_array = []
-    if tags_saved.count() > 0:
-        for tg in tags_saved:
-            tags_array.append(tg.tag)
-    context = {
-    "file_id" : file_id,
-    "tags_array": tags_array
-    }
-    print tags_array
-    return render(request, 'manual_mapping/tags.html', context)
+    try:
+        file_source = FileSource.objects.get(pk=file_id)
+        file_name = file_source.file_name
+        if request.method == 'POST':
+            FileTags.objects.filter(file_id=file_source).delete()
+            for i in range(0,len(request.POST)-1):
+                tag = request.POST['tags[' + str(i) + '][tag]']
+                FileTags.objects.create(file_id=file_source, tag=tag)
+            return HttpResponse('')
+        tags_saved = FileTags.objects.filter(file_id=file_source)
+        tags_array = []
+        if tags_saved.count() > 0:
+            for tg in tags_saved:
+                tags_array.append(tg.tag)
+        context = {
+        "file_id" : file_id,
+        "tags_array": tags_array,
+        "file_name": file_name.split("/")[-1]
+        }
+        print tags_array
+        return render(request, 'manual_mapping/tags.html', context)
+    except:
+        context = {}
+        return render(request, 'manual_mapping/tags.html', context)
 
