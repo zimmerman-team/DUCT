@@ -15,11 +15,10 @@
 
 
       <div class="container">
-      <h1>File Error Management</h1>
+      <h1>File Errors Management</h1>
 
-      <p>Through the powers of <strong>contenteditable</strong> and some simple jQuery you can easily create a custom editable table. No need for a robust JavaScript library anymore these days.</p>
 
-      <form id="file_tags_form" class="col s10 offset-2">{% csrf_token %}
+      <form id="table_form" class="col s10 offset-2">{% csrf_token %}
       <div id="table" class="table-editable"">
         <span class="table-add glyphicon glyphicon-plus"></span>
         <table class="table striped">
@@ -38,7 +37,7 @@
             <tr>
                 <td >{{line_no}}</td>
                 {% for data, error_id in data_line %}
-                    <td contenteditable="true">{{data}}</td>
+                    <td contenteditable="true" id="{{error_id}}">{{data}}</td>
                 {% endfor %}
                 <td></td>
             </tr>
@@ -57,6 +56,15 @@
 
       <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
       <script type="text/javascript" src="{% static 'js/materialize.min.js' %}"></script>
+
+      <script>
+        $(document).ready(function() {
+            {% for id, message in found_error_ids %}
+            $('#{{id}}').css('background','red')
+            {% endfor %}
+        } );
+
+      </script>
 
       <script type="text/javascript">
         var $TABLE = $('#table');
@@ -118,7 +126,7 @@
 
       
       <script type="text/javascript">
-        $(document).on('submit', '#file_tags_form', function(e){
+        $(document).on('submit', '#table_form', function(e){
           e.preventDefault();
 
           var myRows = [];
