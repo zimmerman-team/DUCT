@@ -314,5 +314,5 @@ def tags(request, file_id):
         return render(request, 'manual_mapping/tags.html', context)
     except:
         context = {}
-return render(request, 'manual_mapping/tags.html', context)
+    return render(request, 'manual_mapping/tags.html', context)
 
