@@ -35,7 +35,7 @@ def index(request):
     #CountryImport.update_polygon()
     
     if request.method == 'POST':
-
+        print request.POST
         form = DocumentForm(request.POST, request.FILES)
         if request.session['checked_error']:
             #get from seetion
