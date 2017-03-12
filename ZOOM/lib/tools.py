@@ -116,7 +116,7 @@ def identify_col_dtype(column_values, file_heading, dicts,sample=None): #only ta
                     error_counter.append(("date", counter))
                     dtypes_found.append("date")
                 except ValueError:
-                    dtypes_found.append("possiblly date")
+                    dtypes_found.append("date")#fix this
                     error_counter.append(("possiblly date", counter))
                     
                 #check if string value is a formula     
