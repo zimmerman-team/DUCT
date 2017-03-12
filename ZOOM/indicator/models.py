@@ -38,7 +38,7 @@ class IndicatorCategory(models.Model):
     indicator = models.ForeignKey(Indicator,null=False, blank=False)
 
 class IndicatorSource(models.Model):
-    id = models.CharField(max_length=255, primary_key=True)
+    id = models.CharField(max_length=500, primary_key=True)
     code = models.CharField(max_length=50)
     indicator = models.ForeignKey(Indicator,null=False, blank=False)
     

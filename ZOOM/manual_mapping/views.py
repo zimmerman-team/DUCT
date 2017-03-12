@@ -215,9 +215,9 @@ def index(request):
                             instance.save()
                         ind_cat_dict[unique_list[index_order['indicator_id']][i] + unique_list[index_order['indicator_category_id']][i]] = instance
                     elif(count == 2):#ind_source
-                        instance = IndicatorSource.objects.filter(id = unique_list[index_order['source_id']][i], indicator = ind_dict[unique_list[index_order['indicator_id']][i]]).first() 
+                        instance = IndicatorSource.objects.filter(id = unique_list[index_order['source_id']][i].decode(errors='ignore'), indicator = ind_dict[unique_list[index_order['indicator_id']][i]]).first() 
                         if not instance:
-                            instance = IndicatorSource(id = unique_list[index_order['source_id']][i], indicator = ind_dict[unique_list[index_order['indicator_id']][i]])
+                            instance = IndicatorSource(id = unique_list[index_order['source_id']][i].decode(errors='ignore'), indicator = ind_dict[unique_list[index_order['indicator_id']][i]])
                             instance.save()
                         ind_source_dict[unique_list[index_order['indicator_id']][i] + unique_list[index_order['source_id']][i]] = instance
                         
