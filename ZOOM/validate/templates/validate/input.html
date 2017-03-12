@@ -1,83 +1,165 @@
-<!DOCTYPE html>
-<html>
+{% load staticfiles %}
+
+  <!DOCTYPE html>
+  <html>
     <head>
-        <meta charset="utf-8">
-        <title>Validate Example</title>   
+      <!--Import Google Icon Font-->
+      <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+      <!--Import materialize.css-->
+      <link type="text/css" rel="stylesheet" href="{% static 'css/materialize.min.css' %}"  media="screen,projection"/>
+
+      <!--Let browser know website is optimized for mobile-->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     </head>
-    <style>
-        table, th, td {
-           border: 1px solid black;
-        }
 
-        body {
-            font: 12px Arial;
-        }
-
-    </style>
     <body>
-    <h1>ZOOM</h1>
-    {% if validate == False %}
-    <div>
-    <!-- List of uploaded documents -->
-    
-        <!-- Display current templates -->
-        <form action="{{ request.build_absolute_uri }}" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {% if documents %}
-                <!--<h3>Choose Template</h3>
-                <ul>
-                {% for document in documents %}
-                     <input type="radio" name="file_template" value="{{document.file}}">{{ document.file }}<br>
-                {% endfor %}
-                </ul>-->                
 
-                <h3>CSV's already uploaded</h3><!-- remove csv that template was choosen on  and only show this when a template has been choosen -->
-                <ul>
-                {% for document in documents %}
-                    <li>{{document.file}}</li>
-                    <!--<input type="checkbox" name="files[]" value="{{document.file}}"> {{document.file}}<br>
-                     <!--<input type="radio" name="file_template" value="{{document.file}}">{{ document.file }}<br>-->
-                {% endfor %}
-                </ul>
-            {% else %}
-                <p>No documents stored</p>
-            {% endif %}
-            
-            <p>{{ form.file }}</p>
-            <p><input type="submit" name="upload" value="Upload" /></p>
-            {% if documents %}
-                <!--<p><input type="submit" name="validate" value="validate" /></p>-->
-            {% endif %}
-        </form>
-    </div>
-    {% else %}
-        <form action="../manual_map/" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <p>Using {{template_file}}, found {{ mapped }} column </p>
-            <table>
-            <tr><th>Heading</th><th>Mapping</th><th>Datatypes</th><th>Missing Results</th></tr>
-            
-                {% for heading, dtypes, val_results in found_list %}
-                    <tr><td>{{ heading }}</td><td> mapped by columns</td><td>{{dtypes}}</td><td>{{val_results}}</td> </tr>
-                {% endfor %}
-            
-            </table>
-            <p>{{files}} missing mapping for {{ no_mapped }} columns</p>
-            <table>
-                
-                {% for heading in missing_list %}
-                    <tr><td>{{ heading }}</td></tr>
-                {% endfor %}
-            
-            </table>
-            {% if missing_list %}
-                <!--<p><input type="submit" value="Manual Mapping" /></p>-->
-                <!-- if missing data and unidentified types -->
-                <a href="../validate" class="button" style= "-webkit-appearance: button; -moz-appearance: button; appearance: button; text-decoration: none; color: initial;">Reupload</a>
-                <a href="../error_correct" class="button" style= "-webkit-appearance: button; -moz-appearance: button; appearance: button; text-decoration: none; color: initial;">Correct Error</a>
-                <a href="../manual_map" class="button" style= "-webkit-appearance: button; -moz-appearance: button; appearance: button; text-decoration: none; color: initial;">Manual Mapping</a>
-            {% endif %}
-        </form>    
-    {% endif %}    
+      <div class="container">
+      <h1>ZOOM</h1>
+
+      {% if validate == False %}
+      <div>
+      <!-- List of uploaded documents -->
+      
+          <!-- Display current templates -->
+          <form action="{{ request.build_absolute_uri }}" method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+              {% if documents %}
+                  <!--<h3>Choose Template</h3>
+                  <ul>
+                  {% for document in documents %}
+                       <input type="radio" name="file_template" value="{{document.file}}">{{ document.file }}<br>
+                  {% endfor %}
+                  </ul>-->                
+
+                  <h3>CSV's already uploaded</h3><!-- remove csv that template was choosen on  and only show this when a template has been choosen -->
+                  <div id="table">
+                    <span class="table-add glyphicon glyphicon-plus"></span>
+                    <table class="table striped">
+                      
+                      <thead>
+                        <tr>
+                        <th>File Name</th>
+                        <th>Upload date</th>
+                        </tr>
+                      </thead>
+                        
+                      <tbody>
+                        {% for document in documents %}
+                        <tr>
+                                <td>{{document.filename}}</td>
+                                <td>{{document.created}}</td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+
+                    </table>
+                  </div>
+                  </div>
+              {% else %}
+                  <p>No documents stored</p>
+              {% endif %}
+              
+              <p>{{ form.file }}</p>
+              <p><input type="submit" name="upload" value="Upload" /></p>
+              {% if documents %}
+                  <!--<p><input type="submit" name="validate" value="validate" /></p>-->
+              {% endif %}
+          </form>
+      </div>
+      {% else %}
+          <form action="../manual_map/" method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+              <p>Using {{template_file}}, found {{ mapped }} column </p>
+
+              <div id="table">
+                <span class="table-add glyphicon glyphicon-plus"></span>
+                <table class="table striped">
+                  
+                  <thead>
+                    <tr>
+                    <th>Heading</th>
+                    <th>Mapping</th>
+                    <th>Datatypes</th>
+                    <th>Missing Results</th>
+                    </tr>
+                  </thead>
+                    
+                  <tbody>
+                  {% for heading, dtypes, val_results in found_list %}
+                      <tr>
+                        <td>{{ heading }}</td>
+                        <td> mapped by columns</td>
+                        <td>{{dtypes}}</td>
+                        <td>{{val_results}}</td>
+                      </tr>
+                  {% endfor %}
+
+                  </tbody>
+
+                </table>
+              </div>
+
+              <p>{{files}} missing mapping for {{ no_mapped }} columns</p>
+
+              <div id="table">
+                <span class="table-add glyphicon glyphicon-plus"></span>
+                <table class="table striped">
+                  
+                  <thead>
+                    <tr>
+                    <th>File Columns</th>
+                    </tr>
+                  </thead>
+                    
+                  <tbody>
+                  {% for heading in missing_list %}
+                      <tr><td>{{ heading }}</td></tr>
+                  {% endfor %}
+                  </tbody>
+
+                </table>
+              </div>
+
+
+              {% if missing_list %}
+                  <!--<p><input type="submit" value="Manual Mapping" /></p>-->
+                  <!-- if missing data and unidentified types -->
+                  <a href="../validate" class="button" style= "-webkit-appearance: button; -moz-appearance: button; appearance: button; text-decoration: none; color: initial;">Reupload</a>
+                  <a href="../error_correct" class="button" style= "-webkit-appearance: button; -moz-appearance: button; appearance: button; text-decoration: none; color: initial;">Correct Error</a>
+                  <a href="../manual_map" class="button" style= "-webkit-appearance: button; -moz-appearance: button; appearance: button; text-decoration: none; color: initial;">Manual Mapping</a>
+              {% endif %}
+          </form>    
+      {% endif %}    
+
+
+
+      <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+      <script type="text/javascript" src="{% static 'js/materialize.min.js' %}"></script>
+
+      
+<!--       <script type="text/javascript">
+        $(document).on('submit', '#file_tags_form', function(e){
+          e.preventDefault();
+          $.ajax({
+            type:'POST',
+            url:'/manual_map/tags/{{file_id}}/',
+            data:{
+              tags:$('.chips').material_chip('data'),
+              csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
+            },
+            success:function(){
+              console.log(window.location.href);
+              window.location.assign("http://dev-zoom.zz-clients.net/scatter_demo/");
+              // alert(window.location.href);
+                // alert("OK");
+            },
+            // error:function(){
+            //   alert("NOK");
+            // },
+          });
+        });
+      </script> -->
+
     </body>
-</html> 
+  </html>
