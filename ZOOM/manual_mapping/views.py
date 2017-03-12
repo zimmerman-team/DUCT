@@ -8,7 +8,6 @@ from lib.converters import convert_to_JSON # check if this works
 from django.conf import settings
 from sqlalchemy import create_engine
 from lib.tools import check_column_data, correct_data, convert_df
-from indicator.models import FileTags, FileSource
 import numpy as np
 import pandas as pd
 import pickle 
@@ -18,8 +17,8 @@ import time
 import os
 
 def index(request):
-    if request.method == 'POST':
-        
+    
+    if request.method == 'POST':    
         #check data types
 
         # add validation check here
@@ -33,36 +32,98 @@ def index(request):
             convert_to_dtype = []
             error_message = []
             correction_mappings = {}
-
             dict_name = request.session['dtypes']
+            indicator_value = mappings.pop("empty_indicator", None)
+            country_value = mappings.pop("empty_country", None)
+            relationship_dict = mappings.pop("relationship", None)
+            left_over_dict = mappings.pop("left_over", None)
+
             with open(dict_name, 'rb') as f:
                 dtypes_dict = pickle.load(f)
+            #check if exists
+            if relationship_dict:
+            #clean values of ~
+                for i in relationship_dict:
+                    value = relationship_dict.pop(i)
+                    key = i.replace("~", " ")
+                    relationship_dict[key] = value
 
-            if 'empty_indicator' in mappings:
-                indicator_value = mappings.pop("empty_indicator")
+                for i in left_over_dict:
+                    value = left_over_dict.pop(i)
+                    key = i.replace("~", " ")
+                    left_over_dict[key] = value
+
+            for key in mappings:
+                    #return HttpResponse(key)
+                if mappings[key]:#this is included incase no mapping is given
+                    #if not mappings[key][0] in df_data.columns:
+                    #if mappings[key][0].replace("~", " ") in df_data.columns:
+                    if len(mappings[key]) > 1:#greated than one for subgroups change for indicatpor scenario
+                        if key == "indicator_category_id":
+                            #ignore relationship
+                            df_data["indicator_category_id"] = ""
+                            tmp_mappings = ['indicator_category_id']
+                            count = 0
+                            for value in mappings[key]:
+                                mappings[key][count] = mappings[key][count].replace("~", " ")
+                                value = value.replace("~", " ")
+
+                                #loop through data combine with heading name and itself   
+                                if not value == 'indicator_category_id':
+                                    if not relationship_dict:#no relationshup defined
+                                            df_data["indicator_category_id"] = df_data["indicator_category_id"] + "|" + value + ":" + df_data[value].map(str)
+                                    else:
+                                        if not (value in relationship_dict):
+                                            df_data["indicator_category_id"] = df_data["indicator_category_id"] + "|" + value + ":" + df_data[value].map(str)
+                                        else:
+                                            tmp_mappings.append(value)     
+                                count += 1
+                            mappings[key] = tmp_mappings#IF RELATIONSHOip add here????
+                            dtypes_dict[mappings['indicator_category_id'][0]] = [('str','str')]
+                            #df_data['indicator_category_id'] =  tmp_col
+                    else:
+                        mappings[key][0] = mappings[key][0].replace("~", " ")
+
+            if indicator_value:
                 mappings['indicator_id'] = ['indicator_id']
                 df_data['indicator_id'] = indicator_value
-                dtypes_dict[mappings['indicator_id'][0]] = ('str', 'str')
+                dtypes_dict[mappings['indicator_id'][0]] = [('str', 'str')]
                 #add indicator value as column 
 
-            if "relationship" in mappings:
-                relationship_dict = mappings.pop("relationship")
-                left_over_dict = mappings.pop("left_over")
+            if country_value:
+                mappings['country_id'] = ['country_id']
+                df_data['country_id'] = country_value
+                dtypes_dict[mappings['country_id'][0]] = [('iso2', 'iso2')]
 
-                df_data = convert_df(relationship_dict, left_over_dict, df_data, dtypes_dict) 
+            if relationship_dict:
+                df_data = convert_df(mappings, relationship_dict, left_over_dict, df_data, dtypes_dict)
+
+
+            #remove replace
+            #Validation
+            for key in mappings:
+                    #return HttpResponse(key)
+                if mappings[key]:#this is included incase no mapping is given
+                    if key in mappings[key]:
+                        mappings[key] = [key]
+                    if not mappings[key][0] in df_data.columns:
+                        mappings[key][0] = mappings[key][0].replace("~", " ")
+                #if (col.replace("~") in relationship_dict):
+                #    relationship_dict[col] = relationship_dict[col].replace("~", " ")
+
                 #for each line in df data
             #column_check = df_data.columns# 
-    
+
             #Validation
             for key in mappings:
                     #return HttpResponse(key)
                     if mappings[key]:#this is included incase no mapping is given
 
-                        if not mappings[key][0] in df_data.columns:
-                            temp = mappings[key][0]
-                            mappings[key][0] = mappings[key][0].replace("~", " ")
+                        #if not mappings[key][0] in df_data.columns:
+                            #mappings[key][0] = mappings[key][0].replace("~", " ")
                         
                         correction_mappings[mappings[key][0]] = []
+                        check = df_data[mappings[key][0]]
                         temp_results_check_dtype, temp_found_dtype, temp_convert_dtype = check_column_data(dtypes_dict[mappings[key][0]], df_data[mappings[key][0]], key, mappings[key][0])
 
                         if temp_results_check_dtype != False:
@@ -78,7 +139,7 @@ def index(request):
                 context = {}
                 missing = []
                 for heading in request.session['missing_list']: #why not just pass missing list instead of missing
-                    missing.append(heading.replace(" ", "~"))
+                    missing.append(heading.replace(" ", "~"))#check this
                 context = {"files" : request.session['files'], "missing_headings" : missing, "remaining_headings" : request.session['remaining_headings'], "error_messages" : error_message}
                 return render(request, 'manual_mapping/manual_mapping.html', context)
                 #return HttpResponse(error_message)
@@ -95,7 +156,6 @@ def index(request):
             instance = FileSource(file_name = order['file_source_id'])
             instance.save()
             file_id = instance.id
-            #error  check for instance not being available
 
             order['file_source_id'] = instance 
             order["date_created"] = datetime.datetime.now()
@@ -107,7 +167,7 @@ def index(request):
             for key in mappings:
                 #if (not key == "file_name") or (not key == "indicator_category"):
                 if mappings[key]:
-                    if mappings[key][0] in df_data.columns:
+                    if mappings[key][0] in df_data.columns:#don't need this
                         index_order[key] = mappings[key][0]
                         datapoint_headings.append(mappings[key][0])
                     else:
@@ -166,44 +226,18 @@ def index(request):
                         if instance.count() > 0:
                             #instance.save()
                             ind_country_dict[unique_list[i]] = instance[0]
-                        else:
-                            instance = None# Country(code = unique_list[i])
+                        else:#not in data base
+                            instance = None#Country(code = unique_list[i])
                             #check = unique_list[i]
                             #try:
                             #    instance.save()
                             #    ind_country_dict[unique_list[i]] = instance
                             #except Exception as e:
-                            #     #instance = None
+                                #instance = None
                             ind_country_dict[unique_list[i]] = instance
                 count += 1   
             count = 0
-            #statement = "insert into indicator_IndicatorDatapoint (" + ', '.join(datapoint_headings) + ") values "
-            #cursor = connection.cursor()
-            #query=''' INSERT INTO indicator_IndicatorDatapoint 
-            #        (var1) 
-            #        VALUES ("indicator_id, testascbcs") '''
-            #queryList=buildQueryList() 
-            #here buildQueryList() represents some function to populate
-            #the list with multiple records
-            #in the tuple format (value1,value2,value3).
-            #cursor.executemany(query,queryList)
-            #transaction.commit()
-
-            #cursor = connection.cursor()
-            #statement = "insert into indicator_IndicatorDatapoint (indicator_id, date_created, file_source_id) values('test2', '%s', %s)" % (order["date_created"], order["file_source_id"].id)
-            #id = cursor.execute(statement)""" 
-            """user = settings.DATABASES['default']['USER']
-            password = settings.DATABASES['default']['PASSWORD']
-            database_name = settings.DATABASES['default']['NAME']
-
-            database_url = 'postgresql://{user}:{password}@localhost:5432/{database_name}'.format(
-                user=user,
-                password=password,
-                database_name=database_name,
-            )
-
-            engine = create_engine(database_url, echo=False)
-            df_data.to_sql("indicator_indicatordatapoint1", con=engine, if_exists='append', index=False)""" #slow, really slow....
+          
             
             for count in range(len(df_data)):
                 #statement += " ("
@@ -238,14 +272,11 @@ def index(request):
                 bulk_list.append(instance)
             
             IndicatorDatapoint.objects.bulk_create(bulk_list)
-
-        #delete tmp file
-        os.remove(dict_name)
-
-        #Transgender people: HIV prevalence, 
-        #convert_to_JSON("Transgender people: HIV prevalence", "Transgender people: Population size estimate")#allow user to choose these
-        return HttpResponseRedirect('tags/%d'%file_id)
-        # return HttpResponseRedirect('/scatter_demo/')
+            #os.remove(dict_name)#remove tmp file with datatypes
+            #Transgender people: HIV prevalence, 
+             #convert_to_JSON("Transgender people: HIV prevalence", "Transgender people: Population size estimate")#allow user to choose these
+            return HttpResponseRedirect('tags/%d'%file_id)
+        #return nothing
     else:
         #cache.clear() # check if necessary for ctrf token?   
         context = {}
@@ -256,7 +287,7 @@ def index(request):
             dict_values.append(heading)
 
         context = {"files" : request.session['files'], "missing_headings" : missing, "remaining_headings" : request.session['remaining_headings'], "dict_values" : dict_values}
-        return render(request, 'manual_mapping/manual_mapping.html', context)       
+        return render(request, 'manual_mapping/manual_mapping.html', context)
 
 
 def tags(request, file_id):
@@ -268,5 +299,5 @@ def tags(request, file_id):
         return HttpResponse('')
     context = {"file_id":file_id}
     print file_id
-    return render(request, 'manual_mapping/tags.html', context)
-
+    #delete tmp file
+    return render(request, 'manual_mapping/tags.html', context)  
