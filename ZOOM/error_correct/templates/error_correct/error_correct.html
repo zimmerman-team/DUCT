@@ -61,7 +61,9 @@
 
       <script>
         var send_data = {};
+
         var extract_data = function(){
+          var myObj = {};
           var myRows = [];
           var $headers = $("th");
           var $rows = $("tbody tr").each(function(index) {
@@ -71,9 +73,25 @@
               myRows[index][$($headers[cellIndex]).html()] = $(this).html();
             });    
           });
-          send_data.myrows = myRows;
-          return send_data
+          myObj.myrows = myRows;
+          return myObj
         };
+
+        // var update_data = function(){
+        //   var myRows = [];
+        //   var $headers = $("th");
+        //   var $rows = $("tbody tr").each(function(index) {
+        //     $cells = $(this).find("td");
+        //     myRows[index] = {};
+        //     $cells.each(function(cellIndex) {
+        //       myRows[index][$($headers[cellIndex]).html()] = $(this).html();
+        //     });    
+        //   });
+        //   new_data.myrows = myRows;
+        //   update_rows(send_data, new_data);
+
+        //   return send_data
+        // };
 
 
         $(document).ready(function() {
@@ -81,7 +99,8 @@
             $('#{{id}}').css('background','red')
             {% endfor %}
 
-            extract_data();
+            send_data = extract_data();
+            console.log(send_data);
 
             $('#myTab')
             .on('stateLoaded.dt',   function () { eventFired( 'state' ); } )
@@ -94,14 +113,16 @@
  
             table.on( 'page', function () {
                 alert( 'Table redrawn' );
-                extract_data();
-                console.log(send_data);
+                var new_data = {};
+                new_data = extract_data();
+                console.log(new_data);
             } );
 
             table.on( 'length', function () {
                 alert( 'Table redrawn' );
-                extract_data();
-                console.log(send_data);
+                var new_data = {};
+                new_data = extract_data();
+                console.log(new_data);
             } );
 
         } );
