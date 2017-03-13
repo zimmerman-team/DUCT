@@ -26,7 +26,7 @@
         <table id="myTab" class="table striped">
           <thead>
             <tr>
-            <th>Line No.</th>
+            <th>Item</th>
             {% for data in column_headings %}
                 <th>{{data}}</th>
             {% endfor %}
@@ -61,6 +61,10 @@
 
       <script>
         var send_data = {};
+        var $headers = $("th");
+        $headers.each(function(Index){
+          console.log($($headers[Index]).html())
+        });
 
         var extract_data = function(){
           var myObj = {};
@@ -77,21 +81,14 @@
           return myObj
         };
 
-        // var update_data = function(){
-        //   var myRows = [];
-        //   var $headers = $("th");
-        //   var $rows = $("tbody tr").each(function(index) {
-        //     $cells = $(this).find("td");
-        //     myRows[index] = {};
-        //     $cells.each(function(cellIndex) {
-        //       myRows[index][$($headers[cellIndex]).html()] = $(this).html();
-        //     });    
-        //   });
-        //   new_data.myrows = myRows;
-        //   update_rows(send_data, new_data);
-
-        //   return send_data
-        // };
+        var find_row_id = function(line_no){
+          for(i=0; i<send_data.myrows.length; i++){
+            if (send_data.myrows[i].Item === line_no){
+              return i;
+            }  
+          }
+          return -1;
+        };
 
 
         $(document).ready(function() {
@@ -112,19 +109,33 @@
             var table = $('#myTab').DataTable();
  
             table.on( 'page', function () {
-                alert( 'Table redrawn' );
                 var new_data = {};
                 new_data = extract_data();
-                console.log(new_data);
+
+                for (var i = 0; i < new_data.myrows.length; i++){
+                    var new_data_line_no = new_data.myrows[i]["Item"];
+                    var send_data_id = find_row_id(new_data_line_no);
+                    var $headers = $("th");
+                    $headers.each(function(Index) {
+                      send_data.myrows[send_data_id][$($headers[Index]).html()] = new_data.myrows[i][$($headers[Index]).html()];
+                    });
+                }
+                console.log(send_data);
             } );
 
             table.on( 'length', function () {
-                alert( 'Table redrawn' );
                 var new_data = {};
                 new_data = extract_data();
-                console.log(new_data);
+                for (var i = 0; i < new_data.myrows.length; i++){
+                    var new_data_line_no = new_data.myrows[i]["Item"];
+                    var send_data_id = find_row_id(new_data_line_no);
+                    var $headers = $("th");
+                    $headers.each(function(Index) {
+                      send_data.myrows[send_data_id][$($headers[Index]).html()] = new_data.myrows[i][$($headers[Index]).html()];
+                    });
+                }
+                console.log(send_data);
             } );
-
         } );
 
       </script>
