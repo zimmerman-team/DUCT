@@ -52,9 +52,7 @@
       </div>
       </form>
       </div>
-<!--       <button id="export-btn" class="btn btn-primary">Export Data</button>
-      <p id="export"></p>
-      </div> -->
+
 
       <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
       <script type="text/javascript" src="{% static 'js/materialize.min.js' %}"></script>
@@ -76,22 +74,34 @@
           send_data.myrows = myRows;
           return send_data
         };
+
+
         $(document).ready(function() {
             {% for id, message in found_error_ids %}
             $('#{{id}}').css('background','red')
             {% endfor %}
 
+            extract_data();
+
             $('#myTab')
             .on('stateLoaded.dt',   function () { eventFired( 'state' ); } )
-            .DataTable();
+            .DataTable({
+              "searching":   false,
+              "ordering": false
+            });
 
             var table = $('#myTab').DataTable();
  
-            table.on( 'draw', function () {
-                // alert( 'Table redrawn' );
+            table.on( 'page', function () {
+                alert( 'Table redrawn' );
                 extract_data();
                 console.log(send_data);
+            } );
 
+            table.on( 'length', function () {
+                alert( 'Table redrawn' );
+                extract_data();
+                console.log(send_data);
             } );
 
         } );
