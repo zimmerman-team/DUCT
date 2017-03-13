@@ -11,6 +11,8 @@
       <!--Let browser know website is optimized for mobile-->
       <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
+      <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/jq-2.2.4/dt-1.10.13/datatables.min.css"/>
+
     </head>
 
 
@@ -21,7 +23,7 @@
       <form id="table_form" class="col s10 offset-2">{% csrf_token %}
       <div id="table" class="table-editable">
         <span class="table-add glyphicon glyphicon-plus"></span>
-        <table class="table striped">
+        <table id="myTab" class="table striped">
           <thead>
             <tr>
             <th>Line No.</th>
@@ -45,7 +47,7 @@
           </tbody>
         </table>
           <div class="mdl-card__actions mdl-card--border">
-            <input type="submit" name="" class="waves-effect waves-light btn" value="Save">
+            <input type="submit" name="" class="waves-effect waves-light btn" value="Validate">
           </div>
       </div>
       </form>
@@ -54,81 +56,14 @@
       <p id="export"></p>
       </div> -->
 
-      <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+      <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
       <script type="text/javascript" src="{% static 'js/materialize.min.js' %}"></script>
+      <script type="text/javascript" src="https://cdn.datatables.net/v/bs/jq-2.2.4/dt-1.10.13/datatables.min.js"></script>
+
 
       <script>
-        $(document).ready(function() {
-            {% for id, message in found_error_ids %}
-            $('#{{id}}').css('background','red')
-            {% endfor %}
-        } );
-
-      </script>
-
-      <script type="text/javascript">
-        var $TABLE = $('#table');
-        var $BTN = $('#export-btn');
-        var $EXPORT = $('#export');
-
-        $('.table-add').click(function () {
-          var $clone = $TABLE.find('tr.hide').clone(true).removeClass('hide table-line');
-          $TABLE.find('table').append($clone);
-        });
-
-        $('.table-remove').click(function () {
-          $(this).parents('tr').detach();
-        });
-
-        $('.table-up').click(function () {
-          var $row = $(this).parents('tr');
-          if ($row.index() === 1) return; // Don't go above the header
-          $row.prev().before($row.get(0));
-        });
-
-        $('.table-down').click(function () {
-          var $row = $(this).parents('tr');
-          $row.next().after($row.get(0));
-        });
-
-        // A few jQuery helpers for exporting only
-        jQuery.fn.pop = [].pop;
-        jQuery.fn.shift = [].shift;
-
-        $BTN.click(function () {
-          var $rows = $TABLE.find('tr:not(:hidden)');
-          var headers = [];
-          var data = [];
-          
-          // Get the headers (add special header logic here)
-          $($rows.shift()).find('th:not(:empty)').each(function () {
-            headers.push($(this).text().toLowerCase());
-          });
-          
-          // Turn all existing rows into a loopable array
-          $rows.each(function () {
-            var $td = $(this).find('td');
-            var h = {};
-            
-            // Use the headers from earlier to name our hash keys
-            headers.forEach(function (header, i) {
-              h[header] = $td.eq(i).text();   
-            });
-            
-            data.push(h);
-          });
-          
-          // Output the result
-          $EXPORT.text(JSON.stringify(data));
-        });
-
-      </script>
-
-      
-      <script type="text/javascript">
-        $(document).on('submit', '#table_form', function(e){
-          e.preventDefault();
-
+        var send_data = {};
+        var extract_data = function(){
           var myRows = [];
           var $headers = $("th");
           var $rows = $("tbody tr").each(function(index) {
@@ -138,12 +73,50 @@
               myRows[index][$($headers[cellIndex]).html()] = $(this).html();
             });    
           });
+          send_data.myrows = myRows;
+          return send_data
+        };
+        $(document).ready(function() {
+            {% for id, message in found_error_ids %}
+            $('#{{id}}').css('background','red')
+            {% endfor %}
 
-          var myObj = {};
-          myObj.myrows = myRows;
+            $('#myTab')
+            .on('stateLoaded.dt',   function () { eventFired( 'state' ); } )
+            .DataTable();
 
-          var data = JSON.stringify(myObj);
-          console.log(data);
+            var table = $('#myTab').DataTable();
+ 
+            table.on( 'draw', function () {
+                // alert( 'Table redrawn' );
+                extract_data();
+                console.log(send_data);
+
+            } );
+
+        } );
+
+      </script>
+
+      
+      <script type="text/javascript">
+        $(document).on('submit', '#table_form', function(e){
+          e.preventDefault();
+
+          // var myRows = [];
+          // var $headers = $("th");
+          // var $rows = $("tbody tr").each(function(index) {
+          //   $cells = $(this).find("td");
+          //   myRows[index] = {};
+          //   $cells.each(function(cellIndex) {
+          //     myRows[index][$($headers[cellIndex]).html()] = $(this).html();
+          //   });    
+          // });
+
+          // var myObj = {};
+          // myObj.myrows = myRows;
+
+          var data = JSON.stringify(send_data);
 
           $.ajax({
             type:'POST',
