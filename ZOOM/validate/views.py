@@ -62,6 +62,7 @@ def upload(request):
     return newdoc
 
 def validate(request, newdoc):
+    print newdoc
     validate_form = True
     count = 0
     overall_count = 0
@@ -151,26 +152,50 @@ def report(request):
         # print request.POST
         # request.POST['dict']
         form = DocumentForm(request.POST, request.FILES)
-        # if request.session['checked_error']:
-        #get from seetion
-        #makes changes in csv file
-        newdoc = request.session['files']#use loop here to loop through file/locations
+        if request.session['checked_error']:
+            #get from seetion
+            #makes changes in csv file
+            newdoc = request.session['files']#use loop here to loop through file/locations
 
-        if 'dict' in request.POST:#user has corrected csv file
-            df_data = pd.read_csv(newdoc[0])
-            corrections = json.loads(request.POST['dict']) 
-            
-            for line_no in corrections:
-                for i in range(1, len(corrections[line_no])): 
-                    df_data.iloc[int(line_no) - 1, i] = corrections[line_no][i] #line[0]-1 cause started at 1 for visual design 
-            
-            df_data.to_csv(newdoc[0],  mode = 'w', index=False)
-        # request.session['checked_error'] = False
-    # else:
-    #     newdoc = upload(request)
+            if 'dict' in request.POST:#user has corrected csv file
+                df_data = pd.read_csv(newdoc[0])
+                corrections = json.loads(request.POST['dict']) 
+                
+                for line_no in corrections:
+                    for i in range(1, len(corrections[line_no])): 
+                        df_data.iloc[int(line_no) - 1, i] = corrections[line_no][i] #line[0]-1 cause started at 1 for visual design 
+                
+                df_data.to_csv(newdoc[0],  mode = 'w', index=False)
+            request.session['checked_error'] = False
+        else:
+            newdoc = upload(request)
+
+        return validate(request, newdoc)
+    return render(request, 'validate/input_report.html', context)
+
+
+def correction_report(request, file_name):
+    context = {}
+    # request.session['test'] = "test" # create test user session if it doesnt exist
+    # cache.clear() #???
+    print file_name
+
+    full_path = settings.MEDIA_ROOT + "/datasets/" + file_name
+    print full_path
+    newdoc = [full_path]
+    # print newdoc
+    # df_data = pd.read_csv(full_path)
+    # corrections = json.loads(request.POST['dict']) 
+    
+    # for line_no in corrections:
+    #     for i in range(1, len(corrections[line_no])): 
+    #         df_data.iloc[int(line_no) - 1, i] = corrections[line_no][i] #line[0]-1 cause started at 1 for visual design 
+    
+    # df_data.to_csv(newdoc[0],  mode = 'w', index=False)
+    # return render(request, 'validate/input_report.html', context)
 
     return validate(request, newdoc)
-    # return render(request, 'validate/input_report.html', context)
+
 
 
 def get_file_type(django_file):
