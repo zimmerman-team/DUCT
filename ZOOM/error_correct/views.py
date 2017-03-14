@@ -30,6 +30,10 @@ def index(request):
     #list(df_file[heading].isnull()) # out put and highlight bad values
     #go with the majority
     df_data = pd.read_csv(request.session['files'][0])#allow multiple files
+    print request.session['files'][0]
+    # newdoc_path = request.session['files'][0]
+    newdoc_name = request.session['files'][0].split("/")[-1]
+    print newdoc_name
     column_headings = list(df_data.columns)
     request.session['checked_error'] = True
     dict_name = request.session['dtypes']
@@ -82,10 +86,14 @@ def index(request):
 
         #zip_list = zip(*[data_list, error_ids])
         zip_list = zip(line_numbers, data_list)
-        context= {"df_data" : zip_list, "column_headings":column_headings, "found_error_ids" : found_error_ids}
+        context= {"df_data" : zip_list, "column_headings":column_headings, "found_error_ids" : found_error_ids, "newdoc_name": newdoc_name}
     else:
         error_count = len(error_line_no)
         list_of_errors = [] 
-        context = {"error_count": len(error_line_no), "list of errors": list_of_errors}
+        context = {"error_count": len(error_line_no), "list of errors": list_of_errors, "newdoc_name": newdoc_name}
 
     return render(request, 'error_correct/error_correct.html', context)
+
+def test(request):
+    context = {}
+    return render(request, 'error_correct/test.html', context)
