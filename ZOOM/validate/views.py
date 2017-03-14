@@ -33,40 +33,17 @@ def index(request):
     #ci.update_regions()
     #country_data.update_polygon()
     #CountryImport.update_polygon()
-    
-    if request.method == 'POST':
-        print request.POST
-        form = DocumentForm(request.POST, request.FILES)
-        if request.session['checked_error']:
-            #get from seetion
-            #makes changes in csv file
-            newdoc = request.session['files']#use loop here to loop through file/locations
 
-            if 'dict' in request.POST:#user has corrected csv file
-                df_data = pd.read_csv(newdoc[0])
-                corrections = json.loads(request.POST['dict']) 
-                
-                for line_no in corrections:
-                    for i in range(1, len(corrections[line_no])): 
-                        df_data.iloc[int(line_no) - 1, i] = corrections[line_no][i] #line[0]-1 cause started at 1 for visual design 
-                
-                df_data.to_csv(newdoc[0],  mode = 'w', index=False)
-            request.session['checked_error'] = False
-        else:
-            newdoc = upload(request)
-
-        return validate(request, newdoc)
-    else:
-        form = DocumentForm() # Allow multiple csv entries
-        documents = File.objects.all() #load templates only
-        template = loader.get_template('validate/input.html')
-        validate_form = False
-        request.session['checked_error'] = False
-        context = {
-          'validate': validate_form,
-          'documents': documents,
-          'form' : form}
-        return render(request, 'validate/input.html', context)
+    form = DocumentForm() # Allow multiple csv entries
+    documents = File.objects.all() #load templates only
+    template = loader.get_template('validate/input.html')
+    validate_form = False
+    request.session['checked_error'] = False
+    context = {
+      'validate': validate_form,
+      'documents': documents,
+      'form' : form}
+    return render(request, 'validate/input.html', context)
    
         
 #need to clean this up
@@ -157,7 +134,43 @@ def validate(request, newdoc):
     
     context = {'validate': validate_form, 'mapped' : count, "no_mapped" : overall_count - count, "found_list": zip_list, "missing_list" : remaining_mapping, "files" : files[0]}#reorganise messy
     #output need to pass allignments of mapped headings
-    return render(request, 'validate/input.html', context)
+    return render(request, 'validate/input_report.html', context)
+
+def report(request):
+    context = {}
+    request.session['test'] = "test" # create test user session if it doesnt exist
+    cache.clear() #???
+    #ci = CountryImport()
+    ##ci.update_country_center()
+    #ci.update_polygon()
+    #ci.update_regions()
+    #country_data.update_polygon()
+    #CountryImport.update_polygon()
+    
+    if request.method == 'POST':
+        # print request.POST
+        # request.POST['dict']
+        form = DocumentForm(request.POST, request.FILES)
+        # if request.session['checked_error']:
+        #get from seetion
+        #makes changes in csv file
+        newdoc = request.session['files']#use loop here to loop through file/locations
+
+        if 'dict' in request.POST:#user has corrected csv file
+            df_data = pd.read_csv(newdoc[0])
+            corrections = json.loads(request.POST['dict']) 
+            
+            for line_no in corrections:
+                for i in range(1, len(corrections[line_no])): 
+                    df_data.iloc[int(line_no) - 1, i] = corrections[line_no][i] #line[0]-1 cause started at 1 for visual design 
+            
+            df_data.to_csv(newdoc[0],  mode = 'w', index=False)
+        # request.session['checked_error'] = False
+    # else:
+    #     newdoc = upload(request)
+
+    return validate(request, newdoc)
+    # return render(request, 'validate/input_report.html', context)
 
 
 def get_file_type(django_file):

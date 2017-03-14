@@ -11,6 +11,8 @@
       <!--Let browser know website is optimized for mobile-->
       <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
+      <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/jq-2.2.4/dt-1.10.13/datatables.min.css"/>
+
     </head>
 
 
@@ -21,10 +23,10 @@
       <form id="table_form" class="col s10 offset-2">{% csrf_token %}
       <div id="table" class="table-editable">
         <span class="table-add glyphicon glyphicon-plus"></span>
-        <table class="table striped">
+        <table id="myTab" class="table striped">
           <thead>
             <tr>
-            <th>Line No.</th>
+            <th>Item</th>
             {% for data in column_headings %}
                 <th>{{data}}</th>
             {% endfor %}
@@ -45,90 +47,27 @@
           </tbody>
         </table>
           <div class="mdl-card__actions mdl-card--border">
-            <input type="submit" name="" class="waves-effect waves-light btn" value="Save">
+            <input type="submit" name="" class="waves-effect waves-light btn" value="Validate">
           </div>
       </div>
       </form>
       </div>
-<!--       <button id="export-btn" class="btn btn-primary">Export Data</button>
-      <p id="export"></p>
-      </div> -->
 
-      <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+
+      <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
       <script type="text/javascript" src="{% static 'js/materialize.min.js' %}"></script>
+      <script type="text/javascript" src="https://cdn.datatables.net/v/bs/jq-2.2.4/dt-1.10.13/datatables.min.js"></script>
+
 
       <script>
-        $(document).ready(function() {
-            {% for id, message in found_error_ids %}
-            $('#{{id}}').css('background','red')
-            {% endfor %}
-        } );
+        var send_data = {};
+        // var $headers = $("th");
+        // $headers.each(function(Index){
+        //   console.log($($headers[Index]).html())
+        // });
 
-      </script>
-
-      <script type="text/javascript">
-        var $TABLE = $('#table');
-        var $BTN = $('#export-btn');
-        var $EXPORT = $('#export');
-
-        $('.table-add').click(function () {
-          var $clone = $TABLE.find('tr.hide').clone(true).removeClass('hide table-line');
-          $TABLE.find('table').append($clone);
-        });
-
-        $('.table-remove').click(function () {
-          $(this).parents('tr').detach();
-        });
-
-        $('.table-up').click(function () {
-          var $row = $(this).parents('tr');
-          if ($row.index() === 1) return; // Don't go above the header
-          $row.prev().before($row.get(0));
-        });
-
-        $('.table-down').click(function () {
-          var $row = $(this).parents('tr');
-          $row.next().after($row.get(0));
-        });
-
-        // A few jQuery helpers for exporting only
-        jQuery.fn.pop = [].pop;
-        jQuery.fn.shift = [].shift;
-
-        $BTN.click(function () {
-          var $rows = $TABLE.find('tr:not(:hidden)');
-          var headers = [];
-          var data = [];
-          
-          // Get the headers (add special header logic here)
-          $($rows.shift()).find('th:not(:empty)').each(function () {
-            headers.push($(this).text().toLowerCase());
-          });
-          
-          // Turn all existing rows into a loopable array
-          $rows.each(function () {
-            var $td = $(this).find('td');
-            var h = {};
-            
-            // Use the headers from earlier to name our hash keys
-            headers.forEach(function (header, i) {
-              h[header] = $td.eq(i).text();   
-            });
-            
-            data.push(h);
-          });
-          
-          // Output the result
-          $EXPORT.text(JSON.stringify(data));
-        });
-
-      </script>
-
-      
-      <script type="text/javascript">
-        $(document).on('submit', '#table_form', function(e){
-          e.preventDefault();
-
+        var extract_data = function(){
+          var myObj = {};
           var myRows = [];
           var $headers = $("th");
           var $rows = $("tbody tr").each(function(index) {
@@ -138,23 +77,100 @@
               myRows[index][$($headers[cellIndex]).html()] = $(this).html();
             });    
           });
-
-          var myObj = {};
           myObj.myrows = myRows;
+          return myObj
+        };
 
-          var data = JSON.stringify(myObj);
+        var find_row_id = function(line_no){
+          for(i=0; i<send_data.myrows.length; i++){
+            if (send_data.myrows[i].Item === line_no){
+              return i;
+            }  
+          }
+          return -1;
+        };
+
+
+        $(document).ready(function() {
+            {% for id, message in found_error_ids %}
+            $('#{{id}}').css('background','red')
+            {% endfor %}
+
+            send_data = extract_data();
+            // console.log(send_data);
+
+            $('#myTab')
+            .on('stateLoaded.dt',   function () { eventFired( 'state' ); } )
+            .DataTable({
+              "searching":   false,
+              "ordering": false
+            });
+
+            var table = $('#myTab').DataTable();
+ 
+            table.on( 'page', function () {
+                var new_data = {};
+                new_data = extract_data();
+
+                for (var i = 0; i < new_data.myrows.length; i++){
+                    var new_data_line_no = new_data.myrows[i]["Item"];
+                    var send_data_id = find_row_id(new_data_line_no);
+                    var $headers = $("th");
+                    $headers.each(function(Index) {
+                      send_data.myrows[send_data_id][$($headers[Index]).html()] = new_data.myrows[i][$($headers[Index]).html()];
+                    });
+                }
+                // console.log(send_data);
+            } );
+
+            table.on( 'length', function () {
+                var new_data = {};
+                new_data = extract_data();
+                for (var i = 0; i < new_data.myrows.length; i++){
+                    var new_data_line_no = new_data.myrows[i]["Item"];
+                    var send_data_id = find_row_id(new_data_line_no);
+                    var $headers = $("th");
+                    $headers.each(function(Index) {
+                      send_data.myrows[send_data_id][$($headers[Index]).html()] = new_data.myrows[i][$($headers[Index]).html()];
+                    });
+                }
+                // console.log(send_data);
+            } );
+        } );
+
+      </script>
+
+      
+      <script type="text/javascript">
+        $(document).on('submit', '#table_form', function(e){
+          e.preventDefault();
+
+          // var myRows = [];
+          // var $headers = $("th");
+          // var $rows = $("tbody tr").each(function(index) {
+          //   $cells = $(this).find("td");
+          //   myRows[index] = {};
+          //   $cells.each(function(cellIndex) {
+          //     myRows[index][$($headers[cellIndex]).html()] = $(this).html();
+          //   });    
+          // });
+
+          // var myObj = {};
+          // myObj.myrows = myRows;
+
+          var data = JSON.stringify(send_data);
           console.log(data);
 
           $.ajax({
             type:'POST',
-            url:'/validate/',
+            url:'/validate/report/',
             data:{
               data : data,
               csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
             },
             success:function(){
               console.log(window.location.href);
-              window.location.assign("http://dev-zoom.zz-clients.net/validate/");
+              window.location.assign("http://localhost:8000/validate/report/");
               // alert(window.location.href);
                 // alert("OK");
             },
