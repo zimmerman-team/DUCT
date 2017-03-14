@@ -61,10 +61,10 @@
 
       <script>
         var send_data = {};
-        var $headers = $("th");
-        $headers.each(function(Index){
-          console.log($($headers[Index]).html())
-        });
+        // var $headers = $("th");
+        // $headers.each(function(Index){
+        //   console.log($($headers[Index]).html())
+        // });
 
         var extract_data = function(){
           var myObj = {};
@@ -97,7 +97,7 @@
             {% endfor %}
 
             send_data = extract_data();
-            console.log(send_data);
+            // console.log(send_data);
 
             $('#myTab')
             .on('stateLoaded.dt',   function () { eventFired( 'state' ); } )
@@ -120,7 +120,7 @@
                       send_data.myrows[send_data_id][$($headers[Index]).html()] = new_data.myrows[i][$($headers[Index]).html()];
                     });
                 }
-                console.log(send_data);
+                // console.log(send_data);
             } );
 
             table.on( 'length', function () {
@@ -134,7 +134,7 @@
                       send_data.myrows[send_data_id][$($headers[Index]).html()] = new_data.myrows[i][$($headers[Index]).html()];
                     });
                 }
-                console.log(send_data);
+                // console.log(send_data);
             } );
         } );
 
@@ -159,17 +159,18 @@
           // myObj.myrows = myRows;
 
           var data = JSON.stringify(send_data);
+          console.log(data);
 
           $.ajax({
             type:'POST',
-            url:'/validate/',
+            url:'/validate/report/',
             data:{
               data : data,
               csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
             },
             success:function(){
               console.log(window.location.href);
-              window.location.assign("http://dev-zoom.zz-clients.net/validate/");
+              window.location.assign("http://localhost:8000/validate/report/");
               // alert(window.location.href);
                 // alert("OK");
             },
