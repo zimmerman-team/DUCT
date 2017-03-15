@@ -5,8 +5,9 @@ def get_dictionaries():#might be better to use a set
         iso2_codes = Country.objects.values_list('code')
         iso3_codes = Country.objects.values_list('iso3')
         country_names = Country.objects.values_list('name')
-        data_lists = [iso2_codes, iso3_codes, country_names]
-        source = ["iso2", "iso3", "country name"]
+        country_alt_names = CountryAltName.objects.values_list('name')
+        data_lists = [iso2_codes, iso3_codes, country_names, country_alt_names]
+        source = ["iso2", "iso3", "country name", "country alternative name"]
         country_source_dict = {}
         country_iso2_dict = {}
 
@@ -15,8 +16,13 @@ def get_dictionaries():#might be better to use a set
             counter = 0
             country_iso2_dict[source[i]] = {}
             for j in range(len(data_lists[i])):
-                country_source_dict[data_lists[i][j][0]] = source[i] #{NL: {iso2: NL, source:iso2}}  
-                country_iso2_dict[source[i]][data_lists[i][j][0]] = iso2_codes[j][0]
+                country_source_dict[data_lists[i][j][0]] = source[i] #{NL: {iso2: NL, source:iso2}}
+                if i != len(data_lists) -1:  
+                    country_iso2_dict[source[i]][data_lists[i][j][0]] = iso2_codes[j][0]
+                else:
+                    country_alt_name = CountryAltName.objects.get(name=data_lists[i][j][0]) 
+                    country = Country.objects.get(code=country_alt_name.country.code) 
+                    country_iso2_dict[source[i]][data_lists[i][j][0]] = country.code
         return country_source_dict, country_iso2_dict
 
 
@@ -81,9 +87,9 @@ class Country(gis_models.Model):
         return self.name
 
 
-#class CountryAltNames(gis_models.Model):
-#    country = gis_models.ForeignKey(Country)
-#    name = gis_models.CharField(max_length=100, db_index=True)
+class CountryAltName(models.Model):
+   country = models.ForeignKey(Country)
+   name = models.CharField(max_length=100, db_index=True)
 
 
 class City(gis_models.Model):
