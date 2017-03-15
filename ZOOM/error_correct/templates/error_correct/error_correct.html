@@ -16,6 +16,12 @@
       table, th, td {
          border: 1px solid #ddd;
       }
+      td:focus {
+        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #7ab5d3;
+        -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #7ab5d3;
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #7ab5d3;  
+        outline: rgb(91, 157, 217) auto 5px;
+      }
       </style>
 
     </head>
@@ -103,6 +109,10 @@
 
             send_data = extract_data();
             // console.log(send_data);
+
+            setTimeout(function(){
+             $("#1_Indicator").focus();
+            }, 1);
 
             $('#myTab')
             .on('stateLoaded.dt',   function () { eventFired( 'state' ); } )
