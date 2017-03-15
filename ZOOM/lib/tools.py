@@ -289,3 +289,12 @@ def convert_df(relationship_dict, left_over_dict, df_data, dtypes_dict):
             counter += 1
     
     return new_df
+
+def get_line_index(line_records, line_no):
+    i = 0
+    for line in line_records:
+        if line["Item"] == line_no:
+            return i
+        else:
+            i += 1
+    return -1

@@ -158,6 +158,17 @@
           // var myObj = {};
           // myObj.myrows = myRows;
 
+          var new_data = {};
+          new_data = extract_data();
+          for (var i = 0; i < new_data.myrows.length; i++){
+              var new_data_line_no = new_data.myrows[i]["Item"];
+              var send_data_id = find_row_id(new_data_line_no);
+              var $headers = $("th");
+              $headers.each(function(Index) {
+                send_data.myrows[send_data_id][$($headers[Index]).html()] = new_data.myrows[i][$($headers[Index]).html()];
+              });
+            }
+
           var data = JSON.stringify(send_data);
           console.log(data);
 
@@ -166,6 +177,7 @@
             url:'/validate/report/',
             data:{
               data : data,
+              dict : "True",
               csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
             },
             success:function(){
