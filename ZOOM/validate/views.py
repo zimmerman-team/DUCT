@@ -53,6 +53,20 @@ def upload(request):
     #save uploaded files # look for HXL tags
     for filename, file in request.FILES.iteritems():
         #name = request.FILES[filename].name
+        file_exists = False
+        for fi in File.objects.all():
+            if fi.filename() == str(file):
+                print "File Already Exists! Would you like to rename?"
+                confirm_replace = True
+                confirm_rename = True
+                file_exists = True
+                context = {}
+                return render(request, 'validate/dialogue.html', context)
+                file_found_id = fi.id
+                file_found_path = fi.get_file_path()
+        if file_exists and confirm_replace:
+            File.objects.filter(id=file_found_id).delete()
+            os.remove(file_found_path)
         instance = File(file = request.FILES[filename])
         instance.save()
         newdoc.append(instance.get_file_path())
@@ -147,16 +161,18 @@ def report(request):
     #ci.update_regions()
     #country_data.update_polygon()
     #CountryImport.update_polygon()
-    
+    print "111111111"
     if request.method == 'POST':
         # print request.POST
         # request.POST['dict']
 
         # form = DocumentForm(request.POST, request.FILES)
+        print "222222222222"
         if request.session['checked_error']:
             #get from seetion
             #makes changes in csv file
             newdoc = request.session['files']#use loop here to loop through file/locations
+            print "33333333333"
 
             if 'dict' in request.POST:#user has corrected csv file
                 df_data = pd.read_csv(newdoc[0])
@@ -174,11 +190,62 @@ def report(request):
     
                 df_data.to_csv(newdoc[0],  mode = 'w', index=False)
             request.session['checked_error'] = False
+            return validate(request, newdoc)
         else:
-            newdoc = upload(request)
-
+            print "44444444444444"
+            # newdoc = upload(request)
+            newdoc = []
+            count = 0
+            #save uploaded files # look for HXL tags
+            for filename, file in request.FILES.iteritems():
+                #name = request.FILES[filename].name
+                file_exists = False
+                for fi in File.objects.all():
+                    if fi.filename() == str(file):
+                        # print "File Already Exists! Would you like to rename?"
+                        # confirm_replace = True
+                        # confirm_rename = True
+                        # file_exists = True
+                        # context = {}
+                        # return render(request, 'validate/user_dialogue.html', context)
+                        # print reverse('/validate/user_dialogue/')
+                        request.session["file_replace"] = fi.filename()
+                        # request.session["file_replace_object"] = request.FILES[filename]
+                        return HttpResponseRedirect('/validate/user_dialogue/')
+                # if file_exists and confirm_replace:
+                #     File.objects.filter(id=file_found_id).delete()
+                #     os.remove(file_found_path)
+                instance = File(file = request.FILES[filename])
+                instance.save()
+                newdoc.append(instance.get_file_path())
+                count += 1
+                return validate(request, newdoc)
+    # if request.session["file_replace"]:
+    else:
+        print "5555555555555"
+        print request.session["file_replace"]
+        newdoc = []
+        count = 0
+        file_path = settings.MEDIA_ROOT + "/datasets/" + request.session["file_replace"]
+        file_found = File.objects.get(file=file_path)
+        # print file_found.id
+        File.objects.filter(id=file_found.id).delete()
+        # os.remove(file_path)
+        instance = File(file = file_path)
+        instance.save()
+        newdoc.append(instance.get_file_path())
+        count += 1
         return validate(request, newdoc)
-    return render(request, 'validate/input_report.html', context)
+        # return HttpResponseRedirect('/validate/report')
+    # return validate(request, newdoc)
+    # return render(request, 'validate/input_report.html', context)
+
+
+def user_dialogue(request):
+    if request.method == 'POST':
+        HttpResponse('')
+    context = {}
+    return render(request, 'validate/user_dialogue.html', context)
 
 
 def correction_report(request, file_name):
