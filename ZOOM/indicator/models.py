@@ -38,7 +38,7 @@ class IndicatorCategory(models.Model):
     indicator = models.ForeignKey(Indicator,null=False, blank=False)
 
 class IndicatorSource(models.Model):
-    id = models.CharField(max_length=255, primary_key=True)
+    id = models.CharField(max_length=500, primary_key=True)
     code = models.CharField(max_length=50)
     indicator = models.ForeignKey(Indicator,null=False, blank=False)
     
@@ -100,7 +100,7 @@ class IndicatorDatapoint(models.Model):
     source_id = models.ForeignKey(IndicatorSource, db_column='source_id', blank=True, null=True)
     #changed from foreign key to  Decimal and then to CharField as Pandas.to_sql didn't save properly
     measure_value = models.CharField(max_length=20, blank=True, null=True) #models.DecimalField(max_digits=20, decimal_places = 5)#for now leave as char #models.ForeignKey(MeasureValue) # might need more for accuracy
-    other = models.CharField(max_length=500, blank=True, null=True)
+    other = models.CharField(max_length=600, blank=True, null=True) #found instance where it ius bigger than 500    
 
 #the mapping betweeen coulmns in the datastore and HXL tags
 """class HXLmapping(models.Model): #can be used for other conversions
