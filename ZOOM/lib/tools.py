@@ -116,7 +116,7 @@ def identify_col_dtype(column_values, file_heading, dicts,sample=None): #only ta
                     error_counter.append(("date", counter))
                     dtypes_found.append("date")
                 except ValueError:
-                    dtypes_found.append("possiblly date")
+                    dtypes_found.append("date")#fix this
                     error_counter.append(("possiblly date", counter))
                     
                 #check if string value is a formula     
@@ -228,11 +228,14 @@ def correct_data(df_data, correction_data):#correction_data ["country_name, iso2
             #model = Country.objects.all()
             if correction_data[key][0] == "country_name":
                 curr_dicts = dicts["country_name"]
+                df_data = df_data.replace({key : curr_dicts}) #needs to be more comprehensive, users mix iso2 and iso3 in column data
             elif correction_data[key][0] =="iso3":#not needed??
                 curr_dicts = dicts["iso3"]
+                df_data = df_data.replace({key : curr_dicts})
+
         #elif date
         #elif measure value etc
-            df_data = df_data.replace({key : curr_dicts})
+            
             """for i in range(len(df_data[key])):
                 value[correction_data[key][0]] = df_data[key][i] #might not work?
                 #query_result = model.filter(**value)
@@ -256,39 +259,64 @@ def correct_data(df_data, correction_data):#correction_data ["country_name, iso2
     #if date convert in integer
     #if 
 
-def convert_df(relationship_dict, left_over_dict, df_data, dtypes_dict):
-
+def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict):
+    
     columns = []
-    for col in df_data.columns:  
-        if (col in relationship_dict):
-            if not relationship_dict[col] in columns:
-                columns.append(relationship_dict[col])
-                columns.append(left_over_dict[col])
+    for col in df_data.columns: 
+        temp = str(col)#.replace(" ", "~")#needed?
+        col = str(col) 
+        if (temp in relationship_dict):
+            if not relationship_dict[temp] in columns or not left_over_dict[temp] in columns:
+                columns.append(str(relationship_dict[temp]))
+                columns.append(str(left_over_dict[temp]))
         else: 
             columns.append(col)
 
+    columns = list(set(columns))#filter duplicates
     columns_set = list(set(list(columns)) & set(list(df_data.columns))) #set(columns).intersection(set(df_data.columns)) 
+    new_df = pd.DataFrame( columns = columns)
     
-    new_df = pd.DataFrame( columns = list(columns))
-
     counter = 0
+
     for i in range(len(df_data[columns_set[0]])):#columns[0] bad idea, fix
         #for col in columns_set:
         #    new_df[col][counter] = df_data[col][i]
         for col in relationship_dict:
-            dtypes_dict[relationship_dict[col]] = [['date', "100%"]] # check type #######################check here data type
+
+            if relationship_dict[col] == "date_value":
+                dtypes_dict[relationship_dict[col]] = [['date', "100%"]] # check type #######################check here data type
+            else:
+                dtypes_dict[relationship_dict[col]] = [['str', "100%"]] # check type #######################check here data type
+
             dtypes_dict[left_over_dict[col]] = [['numeric', '100%']]
             ##loop here through the values for relationship   
             #don't need column
+            
             new_df.loc[counter] = df_data.iloc[i] #copy row
-            new_df[relationship_dict[col]][counter] = col
-            new_df[left_over_dict[col]][counter] = df_data[col][i]
+            #might have to be greater than 2
+            
+            if col in mappings['indicator_category_id'] and len(mappings['indicator_category_id']) > 1:#if more than one relationship ie multiple subgroupd and relationships
+                check  = new_df[relationship_dict[col]][counter] 
+                new_df[relationship_dict[col]][counter] = new_df[relationship_dict[col]][counter] + "|" + (col.replace("~", " "))#last part not needed
+                new_df[left_over_dict[col]][counter] = df_data[col.replace("~", " ")][i]
+                
+            else: #normal case
+                #hre.y  
+                new_df[relationship_dict[col]][counter] = col.replace("~", " ")#add column heading
+                new_df[left_over_dict[col]][counter] = df_data[col.replace("~", " ")][i]
+            
+
             #new_df  = df_data[mappings[key]]
             #map value
+            
+            #mappings[relationship_dict[col]] = [relationship_dict[col]]#what is the point of this?
+            #mappings[left_over_dict[col]] = [left_over_dict[col]] 
 
             counter += 1
-    
-    return new_df
+        #if i == 2:
+        #    sdf.sgd
+    return new_df#.T.drop_duplicates().T#prevent duplicate columns// why is this happening
+
 
 def get_line_index(line_records, line_no):
     i = 0
