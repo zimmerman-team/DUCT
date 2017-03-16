@@ -316,3 +316,13 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict)
         #if i == 2:
         #    sdf.sgd
     return new_df#.T.drop_duplicates().T#prevent duplicate columns// why is this happening
+
+
+def get_line_index(line_records, line_no):
+    i = 0
+    for line in line_records:
+        if line["Item"] == line_no:
+            return i
+        else:
+            i += 1
+    return -1
