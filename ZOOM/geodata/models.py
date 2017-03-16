@@ -7,7 +7,7 @@ def get_dictionaries():#might be better to use a set
         country_names = Country.objects.values_list('name')
         country_alt_names = CountryAltName.objects.values_list('name')
         data_lists = [iso2_codes, iso3_codes, country_names, country_alt_names]
-        source = ["iso2", "iso3", "country name", "country alternative name"]
+        source = ["iso2", "iso3", "country_name", "country alternative name"]
         country_source_dict = {}
         country_iso2_dict = {}
 
