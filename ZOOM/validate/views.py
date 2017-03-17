@@ -22,6 +22,7 @@ import uuid
 import numpy as np
 import pandas as pd
 
+
 #@ensure_csrf_cookie
 def index(request):
     context = {}
@@ -201,6 +202,53 @@ def correction_report(request, file_name):
     # df_data.to_csv(newdoc[0],  mode = 'w', index=False)
     # return render(request, 'validate/input_report.html', context)
 
+    return validate(request, newdoc)
+
+
+def upload_file(request):
+    if request.method == 'POST':
+        print 'valid form'
+        file_name = request.FILES['file']
+        file_path = settings.MEDIA_ROOT + "/datasets/" + str(file_name)
+        # try:
+            # file_found = File.objects.get(file=file_name)
+            # file_found = File.objects.get(file=file_path)
+        if File.objects.filter(file=file_path).count() > 0  or File.objects.filter(file=file_name).count() > 0:
+            print "File Found"
+            for filename, file in request.FILES.iteritems():
+                instance = File(file = request.FILES[filename])
+                instance.save()
+            # return HttpResponse("['" + file_path+ "']")
+            return HttpResponse("1|" + str(file_name) + "|" + instance.filename())
+        # except:
+        else:
+            #File Not Found
+            for filename, file in request.FILES.iteritems():
+                instance = File(file = request.FILES[filename])
+                instance.save()
+            return HttpResponse("0|" + str(file_name))
+    return HttpResponse('')
+
+def update_file(request, file_name, file_temp):
+    context = {}
+    request.session['test'] = "test" # create test user session if it doesnt exist
+    cache.clear() #???
+    file_name_path = settings.MEDIA_ROOT + "/datasets/" + file_name
+    file_temp_path = settings.MEDIA_ROOT + "/datasets/" + file_temp
+    if  File.objects.filter(file=file_name_path).count() > 0:
+        file_name_obj = File.objects.get(file=file_name_path)
+    else:
+        file_name_obj = File.objects.get(file=file_name)
+    print file_name_obj.id
+    file_temp_obj = File.objects.get(file=file_temp_path)
+    print file_temp_obj.id
+    File.objects.filter(id=file_name_obj.id).delete()
+    os.remove(file_name_path)
+    os.rename(file_temp_path, file_name_path)
+    file_temp_upd = File.objects.get(id=file_temp_obj.id)
+    # file_temp_obj.update_filename(file_name)
+    file_temp_upd.update_filename(str(file_name))
+    newdoc = [file_name_path]
     return validate(request, newdoc)
 
 
