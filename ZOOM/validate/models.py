@@ -60,6 +60,10 @@ class File(models.Model):
     def filename(self):
         return os.path.basename(self.file.name)
 
+    def update_filename(self, updated_name):
+        self.file.name = updated_name
+        self.save()
+
     def get_file_path(self):
         return settings.MEDIA_ROOT + "/datasets/" + os.path.basename(self.file.name)
         #return os.path.join(str(instance.pk), filename)
