@@ -12,6 +12,17 @@
       <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
       <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/jq-2.2.4/dt-1.10.13/datatables.min.css"/>
+      <style>
+      table, th, td {
+         border: 1px solid #ddd;
+      }
+      td:focus {
+        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #7ab5d3;
+        -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #7ab5d3;
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #7ab5d3;  
+        outline: rgb(91, 157, 217) auto 5px;
+      }
+      </style>
 
     </head>
 
@@ -99,6 +110,10 @@
             send_data = extract_data();
             // console.log(send_data);
 
+            setTimeout(function(){
+             $("#1_Indicator").focus();
+            }, 1);
+
             $('#myTab')
             .on('stateLoaded.dt',   function () { eventFired( 'state' ); } )
             .DataTable({
@@ -158,6 +173,17 @@
           // var myObj = {};
           // myObj.myrows = myRows;
 
+          var new_data = {};
+          new_data = extract_data();
+          for (var i = 0; i < new_data.myrows.length; i++){
+              var new_data_line_no = new_data.myrows[i]["Item"];
+              var send_data_id = find_row_id(new_data_line_no);
+              var $headers = $("th");
+              $headers.each(function(Index) {
+                send_data.myrows[send_data_id][$($headers[Index]).html()] = new_data.myrows[i][$($headers[Index]).html()];
+              });
+            }
+
           var data = JSON.stringify(send_data);
           console.log(data);
 
@@ -166,11 +192,12 @@
             url:'/validate/report/',
             data:{
               data : data,
+              dict : "True",
               csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
             },
             success:function(){
               console.log(window.location.href);
-              window.location.assign("http://localhost:8000/validate/report/");
+              window.location.assign("/validate/report_update/{{newdoc_name}}");
               // alert(window.location.href);
                 // alert("OK");
             },
