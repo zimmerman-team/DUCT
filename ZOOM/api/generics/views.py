@@ -34,7 +34,9 @@ class DynamicView(GenericAPIView):
 
     def _get_query_fields(self):
         request_fields = self.request.query_params.get('fields')
-
+        print("here1")
+        print(request_fields)
+        print(getattr(self, 'fields', ()))
         if request_fields:
             return request_fields.split(',')
         else:
@@ -61,6 +63,9 @@ class DynamicView(GenericAPIView):
         queryset = super(DynamicView, self).filter_queryset(queryset, *args, **kwargs)
 
         return queryset
+
+    def check(self):
+        return Response("Hello")
 
 
     def get_serializer(self, *args, **kwargs):

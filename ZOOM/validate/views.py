@@ -166,8 +166,8 @@ def report(request):
             
             df_data.to_csv(newdoc[0],  mode = 'w', index=False)
         # request.session['checked_error'] = False
-    # else:
-    #     newdoc = upload(request)
+        else:
+            newdoc = upload(request)
 
     return validate(request, newdoc)
     # return render(request, 'validate/input_report.html', context)
