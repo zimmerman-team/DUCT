@@ -316,3 +316,15 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict)
         #if i == 2:
         #    sdf.sgd
     return new_df#.T.drop_duplicates().T#prevent duplicate columns// why is this happening
+
+def check_file_formatting(df_data):
+    #check column names if unammed give back false
+    for key in df_data.columns:
+        if 'Unnamed' in key:
+            return False, "Cannot validate, unammed columns in data set or unessecary text at start of file."
+        print(key)
+
+    length_found = lenth(df_data)
+    #check end of file if there is empty line and the df_data lenght is longer than this line then error#
+    #get columns with the least amount of empty values 
+    #check which has the least amount
