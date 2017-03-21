@@ -8,7 +8,7 @@ ZOOM/.cache
 
 ZOOM/ZOOM/local_settings.py
 ZOOM/ZOOM/local_settings.pyc
-
+ZOOM/media/
 ZOOM/static_served/*
 
 *.pyc
