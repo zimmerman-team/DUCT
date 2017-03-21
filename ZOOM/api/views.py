@@ -29,6 +29,10 @@ def welcome(request, format=None):
                 'scatter:scatter-list',
                 request=request,
                 format=format),
+            'uploads': reverse(
+                'uploads:files-list',
+                request=request,
+                format=format),
         }
     })
 

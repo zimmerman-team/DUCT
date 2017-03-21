@@ -5,6 +5,7 @@ from api import views
 urlpatterns = [
     url(r'^$', views.welcome, name='api-root'),
     url(r'^indicators/', include('api.indicator.urls', namespace='indicators')),
+    url(r'^uploads/', include('api.uploads.urls', namespace='uploads')),
     url(r'^scatter/', include('api.scatter.urls', namespace='scatter')),
     ]
 
