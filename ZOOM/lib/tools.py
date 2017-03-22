@@ -317,7 +317,7 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict)
         #    sdf.sgd
     return new_df#.T.drop_duplicates().T#prevent duplicate columns// why is this happening
 
-<<<<<<< HEAD
+
 def check_file_formatting(df_data):
     #check column names if unammed give back false
     for key in df_data.columns:
@@ -329,7 +329,7 @@ def check_file_formatting(df_data):
     #check end of file if there is empty line and the df_data lenght is longer than this line then error#
     #get columns with the least amount of empty values 
     #check which has the least amount
-=======
+
 
 def get_line_index(line_records, line_no):
     i = 0
@@ -339,4 +339,4 @@ def get_line_index(line_records, line_no):
         else:
             i += 1
     return -1
->>>>>>> 8695dc99c253332be8b1ea63be5b6ad3c581d2a8
+
