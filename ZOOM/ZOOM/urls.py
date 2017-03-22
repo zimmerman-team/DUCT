@@ -3,11 +3,7 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 import debug_toolbar
-from rest_framework import routers
-from api.uploads.views import FilesCreateList
 
-router = routers.DefaultRouter()
-router.register('files', FilesCreateList, 'files')
 
 admin.autodiscover()
 
@@ -23,7 +19,6 @@ urlpatterns = [
     url(r'^validate/', include('validate.urls')),
     url(r'^error_correct/', include('error_correct.urls')),
     url(r'^admin/', admin.site.urls),
-    url(r'^api/v1/', include(router.urls)),
 ]
 
 if settings.DEBUG:
