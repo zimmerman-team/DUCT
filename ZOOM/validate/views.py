@@ -152,27 +152,6 @@ def report(request):
     if request.method == 'POST':
         # print request.POST
         # request.POST['dict']
-<<<<<<< HEAD
-        form = DocumentForm(request.POST, request.FILES)
-        # if request.session['checked_error']:
-        #get from seetion
-        #makes changes in csv file
-        newdoc = request.session['files']#use loop here to loop through file/locations
-
-        if 'dict' in request.POST:#user has corrected csv file
-            df_data = pd.read_csv(newdoc[0])
-            corrections = json.loads(request.POST['dict']) 
-            
-            for line_no in corrections:
-                for i in range(1, len(corrections[line_no])): 
-                    df_data.iloc[int(line_no) - 1, i] = corrections[line_no][i] #line[0]-1 cause started at 1 for visual design 
-            
-            df_data.to_csv(newdoc[0],  mode = 'w', index=False)
-        # request.session['checked_error'] = False
-        else:
-            newdoc = upload(request)
-=======
->>>>>>> 8695dc99c253332be8b1ea63be5b6ad3c581d2a8
 
         # form = DocumentForm(request.POST, request.FILES)
         if request.session['checked_error']:
