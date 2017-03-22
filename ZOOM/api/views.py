@@ -30,7 +30,7 @@ def welcome(request, format=None):
                 request=request,
                 format=format),
             'uploads': reverse(
-                'uploads:files-list',
+                'uploads:uploads-list',
                 request=request,
                 format=format),
         }
