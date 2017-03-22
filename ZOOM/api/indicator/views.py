@@ -12,6 +12,9 @@ from api.aggregation.views import AggregationView, Aggregation, GroupBy
 
 from django.db.models import Count, Sum, F
 
+from django.db.models import FloatField
+from django.db.models.functions import Cast
+
 class IndicatorDataList(DynamicListView):
 
     queryset = IndicatorDatapoint.objects.all()
@@ -31,6 +34,14 @@ class IndicatorDataList(DynamicListView):
         'measure_value',
         'other',
         )
+
+
+def annotate_measure(query_params, groupings):
+
+    annotation_components = F('measure_value')
+
+    return Sum(Cast(annotation_components, FloatField()))
+
 
 
 class IndicatorDataAggregations(AggregationView):
@@ -78,6 +89,11 @@ class IndicatorDataAggregations(AggregationView):
             field='count',
             annotate=Count('id', distinct=True),
         ),
+        Aggregation(
+            query_param='measure_value',
+            field='total_measure',
+            annotate=annotate_measure,
+        ),
     )
 
     allowed_groupings = (
@@ -88,5 +104,9 @@ class IndicatorDataAggregations(AggregationView):
         GroupBy(
             query_param="indicator_id",
             fields="indicator_id",
+        ),
+        GroupBy(
+            query_param="date_value",
+            fields="date_value",
         ),
     )
