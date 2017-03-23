@@ -13,23 +13,33 @@ class IndicatorCategoryIdSerializer(DynamicFieldsModelSerializer):
         	'id',
         	'code'
         	)		
-		
 
 
+class RegionIdSerializer(DynamicFieldsModelSerializer):
+
+        class Meta:
+                model = geo_models.Region
+                fields = (
+                'code',
+                'name',
+                )
 
 class CountryIdSerializer(DynamicFieldsModelSerializer):
-	# name = serializers.CharField()
-	class Meta:
-		model = geo_models.Country
-		fields = (
-        	'code',
-        	'name'
-        	)
+
+        region = RegionIdSerializer()
+        class Meta:
+                model = geo_models.Country
+                fields = (
+                'code',
+                'name',
+                'region',
+                )
 
 
 class IndicatorSerializer(DynamicFieldsModelSerializer):
 
 	country_id = CountryIdSerializer()
+        
 	# indicator_category_id = IndicatorCategoryIdSerializer()
 	class Meta:
 		model = indicator_models.IndicatorDatapoint
