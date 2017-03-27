@@ -16,4 +16,5 @@ class IndicatorDataFilter(FilterSet):
             'country_id',
             'date_value',
             'source_id',
+            'country_id__region',
         )
