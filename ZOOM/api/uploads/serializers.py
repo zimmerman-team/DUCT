@@ -1,6 +1,5 @@
 from rest_framework import serializers
-from validate.models import File 
-
+from validate.models import File
 
 
 class FileSerializer(serializers.ModelSerializer):
