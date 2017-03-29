@@ -2,6 +2,8 @@ from rest_framework.filters import DjangoFilterBackend
 
 from api.generics.views import DynamicListView
 
+from rest_framework.generics import RetrieveAPIView, GenericAPIView, ListAPIView
+
 from api.indicator.serializers import *
 
 from indicator.models import IndicatorDatapoint
@@ -15,7 +17,7 @@ from django.db.models import Count, Sum, F
 from django.db.models import FloatField
 from django.db.models.functions import Cast
 
-class IndicatorDataList(DynamicListView):
+class IndicatorDataList(ListAPIView):
 
     queryset = IndicatorDatapoint.objects.all()
     filter_backends = (DjangoFilterBackend, )
