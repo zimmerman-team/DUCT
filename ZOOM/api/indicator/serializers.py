@@ -5,7 +5,7 @@ from api.generics.serializers import DynamicFieldsModelSerializer
 
 
 
-class IndicatorCategoryIdSerializer(DynamicFieldsModelSerializer):
+class IndicatorCategoryIdSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = indicator_models.IndicatorCategory
@@ -15,7 +15,7 @@ class IndicatorCategoryIdSerializer(DynamicFieldsModelSerializer):
         	)		
 
 
-class RegionIdSerializer(DynamicFieldsModelSerializer):
+class RegionIdSerializer(serializers.ModelSerializer):
 
         class Meta:
                 model = geo_models.Region
@@ -24,7 +24,7 @@ class RegionIdSerializer(DynamicFieldsModelSerializer):
                 'name',
                 )
 
-class CountryIdSerializer(DynamicFieldsModelSerializer):
+class CountryIdSerializer(serializers.ModelSerializer):
 
         region = RegionIdSerializer()
         class Meta:
@@ -35,12 +35,42 @@ class CountryIdSerializer(DynamicFieldsModelSerializer):
                 'region',
                 )
 
+class FileTagsSerializer(serializers.ModelSerializer):
+        class Meta:
+                model = indicator_models.FileTags
+                fields = (
+                        'file_id',
+                        'tag',
+                        )
 
-class IndicatorSerializer(DynamicFieldsModelSerializer):
+class FileSourceSerializer(serializers.ModelSerializer):
+        file_tags = FileTagsSerializer(many=True, read_only=True)
+        class Meta:
+                model = indicator_models.FileSource
+                fields = (
+                        'id',
+                        'file_name',
+                        'date_uploaded',
+                        'file_tags',
+                        )
+
+class IndicatorCategoryIdSerializer(serializers.ModelSerializer):
+        class Meta:
+                model = indicator_models.IndicatorCategory
+                fields = (
+                        'id',
+                        'code',
+                        'indicator',
+                        )     
+
+class IndicatorSerializer(serializers.ModelSerializer):
 
 	country_id = CountryIdSerializer()
+        file_source_id = FileSourceSerializer()
+        # indicator_category_id = IndicatorCategoryIdSerializer(many=True, read_only=True)
         
-	# indicator_category_id = IndicatorCategoryIdSerializer()
+	indicator_category_id = IndicatorCategoryIdSerializer()
+
 	class Meta:
 		model = indicator_models.IndicatorDatapoint
 		fields = (
