@@ -24,6 +24,8 @@
       }
       </style>
 
+       
+
     </head>
 
 
@@ -31,7 +33,8 @@
       <h1>File Errors Management</h1>
 
 
-      <form id="table_form" class="col s10 offset-2">{% csrf_token %}
+      <form action="{{ request.build_absolute_uri }}../validate/" method="POST"  enctype="multipart/form-data" onsubmit="return send_data();" id="table_form" class="col s10 offset-2" >
+      {% csrf_token %}
       <div id="table" class="table-editable">
         <span class="table-add glyphicon glyphicon-plus"></span>
         <table id="myTab" class="table striped">
@@ -61,6 +64,7 @@
             <input type="submit" name="" class="waves-effect waves-light btn" value="Validate">
           </div>
       </div>
+      <input id="dict" type="hidden" name="dict" value="">
       </form>
       </div>
 
@@ -102,6 +106,7 @@
         };
 
 
+       
         $(document).ready(function() {
             {% for id, message in found_error_ids %}
             $('#{{id}}').css('background','red')
@@ -151,15 +156,14 @@
                 }
                 // console.log(send_data);
             } );
-        } );
+        });
 
       </script>
 
-      
       <script type="text/javascript">
+        //function send_data(){
         $(document).on('submit', '#table_form', function(e){
-          e.preventDefault();
-
+          //e.preventDefault();
           // var myRows = [];
           // var $headers = $("th");
           // var $rows = $("tbody tr").each(function(index) {
@@ -175,17 +179,21 @@
 
           var new_data = {};
           new_data = extract_data();
-          for (var i = 0; i < new_data.myrows.length; i++){
+          for (var i = 0; i < new_data.myrows.length - 1; i++){
               var new_data_line_no = new_data.myrows[i]["Item"];
               var send_data_id = find_row_id(new_data_line_no);
               var $headers = $("th");
               $headers.each(function(Index) {
                 send_data.myrows[send_data_id][$($headers[Index]).html()] = new_data.myrows[i][$($headers[Index]).html()];
               });
-            }
-
+          }
+          alert(send_data);
           var data = JSON.stringify(send_data);
-          console.log(data);
+          $('#dict').val(data);
+          //window.location.assign("/validate/");
+
+          return true;
+          /*console.log(data);
 
           $.ajax({
             type:'POST',
@@ -204,7 +212,7 @@
             // error:function(){
             //   alert("NOK");
             // },
-          });
+          });*/
         });
       </script>
 
