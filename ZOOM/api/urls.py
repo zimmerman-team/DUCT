@@ -9,5 +9,6 @@ urlpatterns = [
     url(r'^scatter/', include('api.scatter.urls', namespace='scatter')),
     url(r'^file/', include('api.file.urls')),
     url(r'^file-source/', include('api.file_source.urls', namespace='file_source')),
+    url(r'^validate/', include('api.validate.urls')),
     ]
 

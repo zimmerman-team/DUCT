@@ -28,24 +28,32 @@ def index(request):
     context = {}
     request.session['test'] = "test" # create test user session if it doesnt exist
     cache.clear() #???
-    #ci = CountryImport()
-    ##ci.update_country_center()
-    #ci.update_polygon()
-    #ci.update_regions()
-    #country_data.update_polygon()
-    #CountryImport.update_polygon()
 
-    form = DocumentForm() # Allow multiple csv entries
-    documents = File.objects.all() #load templates only
-    template = loader.get_template('validate/input.html')
-    validate_form = False
-    request.session['checked_error'] = False
-    context = {
-      'validate': validate_form,
-      'documents': documents,
-      'form' : form}
-    return render(request, 'validate/input.html', context)
-   
+    if request.method == 'POST':
+        if 'dict' in request.POST:
+            return report(request)
+        else:
+            newdoc = upload(request)
+            return validate(request, newdoc) 
+    else:    
+        #ci = CountryImport()
+        ##ci.update_country_center()
+        #ci.update_polygon()
+        #ci.update_regions()
+        #country_data.update_polygon()
+        #CountryImport.update_polygon()
+
+        form = DocumentForm() # Allow multiple csv entries
+        documents = File.objects.all() #load templates only
+        template = loader.get_template('validate/input.html')
+        validate_form = False
+        request.session['checked_error'] = False
+        context = {
+          'validate': validate_form,
+          'documents': documents,
+          'form' : form}
+        return render(request, 'validate/input.html', context)
+       
         
 #need to clean this up
 def upload(request):
@@ -63,7 +71,7 @@ def upload(request):
     return newdoc
 
 def validate(request, newdoc):
-    print newdoc
+    #print newdoc
     validate_form = True
     count = 0
     overall_count = 0
@@ -87,7 +95,6 @@ def validate(request, newdoc):
     file_heading_list = df_file.columns
     #sample_amount = len(df_file[file_heading_list[0]]) # might be too big, might take too long
     template_heading_list = []
-    
     #Get datapoint headings
     for field in IndicatorDatapoint._meta.fields:
         template_heading_list.append(field.name)#.get_attname_column())
@@ -142,6 +149,7 @@ def report(request):
     context = {}
     request.session['test'] = "test" # create test user session if it doesnt exist
     cache.clear() #???
+
     #ci = CountryImport()
     ##ci.update_country_center()
     #ci.update_polygon()
@@ -149,37 +157,40 @@ def report(request):
     #country_data.update_polygon()
     #CountryImport.update_polygon()
     
-    if request.method == 'POST':
-        # print request.POST
-        # request.POST['dict']
+    #if request.method == 'POST':
+    # print request.POST
+    # request.POST['dict']
+    #if not request.session['checked_error']:
+    #    request.session['checked_error'] = True;
 
-        # form = DocumentForm(request.POST, request.FILES)
-        if request.session['checked_error']:
-            #get from seetion
-            #makes changes in csv file
-            newdoc = request.session['files']#use loop here to loop through file/locations
+    # form = DocumentForm(request.POST, request.FILES)
+    #if request.session['checked_error']:
+    #get from seetion
+    #makes changes in csv file
+    newdoc = request.session['files']#use loop here to loop through file/locations
 
-            if 'dict' in request.POST:#user has corrected csv file
-                df_data = pd.read_csv(newdoc[0])
-                print request.POST
-                corrections = json.loads(request.POST['data'])['myrows']
-                column_headings = list(df_data.columns)
-                generator = ( line['Item'] for line in corrections )
-                for line_no in generator:
-                    line_index = get_line_index(corrections, line_no)
-                    i = 0
-                    for column_name in column_headings: 
-                        print corrections[line_index][column_name]
-                        df_data.iloc[int(line_no) -1, i] = corrections[line_index][column_name] #line[0]-1 cause started at 1 for visual design 
-                        i += 1
-    
-                df_data.to_csv(newdoc[0],  mode = 'w', index=False)
-            request.session['checked_error'] = False
-        else:
-            newdoc = upload(request)
+    #if 'dict' in request.POST:#user has corrected csv file
+    df_data = pd.read_csv(newdoc[0])
+    print request.POST
+    x = request.POST['dict']
+    corrections = json.loads(request.POST['dict'])#['myrows']
+    column_headings = list(df_data.columns)
+    generator = ( line['Item'] for line in corrections )
+    for line_no in generator:
+        line_index = get_line_index(corrections, line_no)
+        i = 0
+        for column_name in column_headings: 
+            print corrections[line_index][column_name]
+            df_data.iloc[int(line_no) -1, i] = corrections[line_index][column_name] #line[0]-1 cause started at 1 for visual design 
+            i += 1
+    msdf.t
+    df_data.to_csv(newdoc[0],  mode = 'w', index=False)
+        #request.session['checked_error'] = False
+    #else:
+        #newdoc = upload(request)
 
-        return validate(request, newdoc)
-    return render(request, 'validate/input_report.html', context)
+    return validate(request, newdoc)
+    #return render(request, 'validate/input_report.html', context)
 
 
 def correction_report(request, file_name):
