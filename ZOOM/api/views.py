@@ -33,6 +33,10 @@ def welcome(request, format=None):
                 'uploads:uploads-list',
                 request=request,
                 format=format),
+            'file_source': reverse(
+                'file_source:file-source-list',
+                request=request,
+                format=format),
         }
     })
 
