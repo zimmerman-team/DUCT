@@ -115,4 +115,8 @@ class IndicatorDataAggregations(AggregationView):
             query_param="country_id",
             fields="country_id",
         ),
+        GroupBy(
+            query_param="country_id__region",
+            fields="country_id__region",
+        ),
     )
