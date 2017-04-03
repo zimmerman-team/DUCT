@@ -111,4 +111,8 @@ class IndicatorDataAggregations(AggregationView):
             query_param="date_value",
             fields="date_value",
         ),
+        GroupBy(
+            query_param="country_id",
+            fields="country_id",
+        ),
     )
