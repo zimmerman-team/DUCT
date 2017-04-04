@@ -35,6 +35,7 @@ def index(request):
             dict_name = request.session['dtypes']
             indicator_value = mappings.pop("empty_indicator", None)
             country_value = mappings.pop("empty_country", None)
+            indicator_category_value = mappings.pop("empty_ind_cat", None)
             relationship_dict = mappings.pop("relationship", None)
             left_over_dict = mappings.pop("left_over", None)
 
@@ -94,6 +95,11 @@ def index(request):
                 mappings['country_id'] = ['country_id']
                 df_data['country_id'] = country_value
                 dtypes_dict[mappings['country_id'][0]] = [('iso2', 'iso2')]
+
+            if indicator_category_value:
+                mappings['indicator_category_id'] = ['indicator_category_id']
+                df_data['indicator_category_id'] = indicator_category_value
+                dtypes_dict[mappings['indicator_category_id'][0]] = [('str', 'str')]
 
             if relationship_dict:
                 df_data = convert_df(mappings, relationship_dict, left_over_dict, df_data, dtypes_dict)
@@ -189,6 +195,7 @@ def index(request):
             if "indicator_category_id" in index_order:
                 #search for indicator
                 unique_indicator_cat = df_data.groupby([index_order["indicator_id"],index_order["indicator_category_id"]]).size().reset_index()
+
             if "source_id" in index_order:
                 #get indicator if not present
                 unique_indicator_source = df_data.groupby([index_order["indicator_id"],index_order["source_id"]]).size().reset_index()
