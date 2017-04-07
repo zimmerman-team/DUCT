@@ -8,6 +8,7 @@ from lib.converters import convert_to_JSON # check if this works
 from django.conf import settings
 from sqlalchemy import create_engine
 from lib.tools import check_column_data, correct_data, convert_df
+from rest_framework.decorators import api_view
 import numpy as np
 import pandas as pd
 import pickle 
@@ -16,7 +17,9 @@ import datetime
 import time
 import os
 
-def index(request):
+
+@api_view(['GET', 'POST'])
+def begin_map(request):
     
     if request.method == 'POST':    
         #check data types
@@ -146,8 +149,10 @@ def index(request):
                 missing = []
                 for heading in request.session['missing_list']: #why not just pass missing list instead of missing
                     missing.append(heading.replace(" ", "~"))#check this
-                context = {"files" : request.session['files'], "missing_headings" : missing, "remaining_headings" : request.session['remaining_headings'], "error_messages" : error_message}
-                return render(request, 'manual_mapping/manual_mapping.html', context)
+                #context = {"files" : request.session['files'], "missing_headings" : missing, "remaining_headings" : request.session['remaining_headings'], "error_messages" : error_message}
+                context = {'success': 0, "error_messages" : error_message}
+                return Response(context)
+                #return render(request, 'manual_mapping/manual_mapping.html', context)
                 #return HttpResponse(error_message)
 
             df_data = correct_data(df_data, correction_mappings)
@@ -282,44 +287,20 @@ def index(request):
             #os.remove(dict_name)#remove tmp file with datatypes
             #Transgender people: HIV prevalence, 
              #convert_to_JSON("Transgender people: HIV prevalence", "Transgender people: Population size estimate")#allow user to choose these
-            return HttpResponseRedirect('tags/%d'%file_id)
+             context = {'success': 1}
+            return Response(context)
         #return nothing
     else:
         #cache.clear() # check if necessary for ctrf token?   
-        context = {}
-        missing = []
-        dict_values = []
-        for heading in request.session['missing_list']: #why not just pass missing list instead of missing
-            missing.append(heading.replace(" ", "~"))
-            dict_values.append(heading)
+        #error
+        
+        #context = {}
+        #missing = []
+        #dict_values = []
+        #for heading in request.session['missing_list']: #why not just pass missing list instead of missing
+        #    missing.append(heading.replace(" ", "~"))
+        #    dict_values.append(heading)
 
-        context = {"files" : request.session['files'], "missing_headings" : missing, "remaining_headings" : request.session['remaining_headings'], "dict_values" : dict_values}
-        return render(request, 'manual_mapping/manual_mapping.html', context)
-
-
-def tags(request, file_id):
-    try:
-        file_source = FileSource.objects.get(pk=file_id)
-        file_name = file_source.file_name
-        if request.method == 'POST':
-            FileTags.objects.filter(file_id=file_source).delete()
-            for i in range(0,len(request.POST)-1):
-                tag = request.POST['tags[' + str(i) + '][tag]']
-                FileTags.objects.create(file_id=file_source, tag=tag)
-            return HttpResponse('')
-        tags_saved = FileTags.objects.filter(file_id=file_source)
-        tags_array = []
-        if tags_saved.count() > 0:
-            for tg in tags_saved:
-                tags_array.append(tg.tag)
-        context = {
-        "file_id" : file_id,
-        "tags_array": tags_array,
-        "file_name": file_name.split("/")[-1]
-        }
-        print tags_array
-        return render(request, 'manual_mapping/tags.html', context)
-    except:
-        context = {}
-    return render(request, 'manual_mapping/tags.html', context)
-
+        #context = {"files" : request.session['files'], "missing_headings" : missing, "remaining_headings" : request.session['remaining_headings'], "dict_values" : dict_values}
+        #return render(request, 'manual_mapping/manual_mapping.html', context)
+        return Response("Error") 
