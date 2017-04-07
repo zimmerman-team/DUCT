@@ -8,6 +8,10 @@ from lib.converters import convert_to_JSON # check if this works
 from django.conf import settings
 from sqlalchemy import create_engine
 from lib.tools import check_column_data, correct_data, convert_df
+from django.http import Http404
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 from rest_framework.decorators import api_view
 import numpy as np
 import pandas as pd
@@ -17,25 +21,28 @@ import datetime
 import time
 import os
 
-
 @api_view(['GET', 'POST'])
-def begin_map(request):
-    
-    if request.method == 'POST':    
+def manual_mapping(request):
+    print('Recieved request')
+    print(request)
+    if request.method == 'POST':
+        print('Rewuest Recieved')    
         #check data types
-
+        print(request)
         # add validation check here
         if 'dict' in request.POST:
-            mappings = json.loads(request.POST['dict']) 
+            print('here')
+            mappings = json.loads(request.data['dict']) 
             mappings.pop("null", None)
             mappings.pop("unit_measure", None)#change later
             mappings.pop("validate_store", None) # remove??
-            df_data = pd.read_csv(request.session['files'][0]) # change to use with multiple files
+            df_data = pd.read_csv(request.data['file_id']) # change to use with multiple files
             found_dtype = []
             convert_to_dtype = []
             error_message = []
             correction_mappings = {}
-            dict_name = request.session['dtypes']
+
+            dict_name = mappings.pop("empty_indicator", None)#request.session['dtypes']
             indicator_value = mappings.pop("empty_indicator", None)
             country_value = mappings.pop("empty_country", None)
             indicator_category_value = mappings.pop("empty_indicator_cat", None)
@@ -147,14 +154,12 @@ def begin_map(request):
                 #cache.clear() # check if necessary for ctrf token?   
                 context = {}
                 missing = []
-                for heading in request.session['missing_list']: #why not just pass missing list instead of missing
-                    missing.append(heading.replace(" ", "~"))#check this
-                #context = {"files" : request.session['files'], "missing_headings" : missing, "remaining_headings" : request.session['remaining_headings'], "error_messages" : error_message}
-                context = {'success': 0, "error_messages" : error_message}
-                return Response(context)
+                #for heading in request.session['missing_list']: #why not just pass missing list instead of missing
+                #    missing.append(heading.replace(" ", "~"))#check this
+                context = {"error_messages" : error_message, "success" : 0}
                 #return render(request, 'manual_mapping/manual_mapping.html', context)
                 #return HttpResponse(error_message)
-
+                return Response(context)
             df_data = correct_data(df_data, correction_mappings)
 
             #df_data = df_data[1:len(df_data)]
@@ -163,7 +168,7 @@ def begin_map(request):
             bulk_list = []
 
             #cycle through dataset and save each line
-            order["file_source_id"] = request.session['files'][0] 
+            order["file_source_id"] = request.data['file_id'];#request.session['files'][0] 
             instance = FileSource(file_name = order['file_source_id'])
             instance.save()
             file_id = instance.id
@@ -262,7 +267,7 @@ def begin_map(request):
                         
                 #instance = MeasureValue(value = order['measure_value'], value_type =order['unit_measure'], name="")
                 #bulk_measure_value.append(instance)
-                #del order['unit_measure'] # temporary fix
+                #del order['unit_measure'] # temporary fix  
                 #add measure unit
                 #order['measure_value'] = instance
                 #add foreign keys to indicator datapoint model
@@ -287,20 +292,15 @@ def begin_map(request):
             #os.remove(dict_name)#remove tmp file with datatypes
             #Transgender people: HIV prevalence, 
              #convert_to_JSON("Transgender people: HIV prevalence", "Transgender people: Population size estimate")#allow user to choose these
-             context = {'success': 1}
+            
+            #return HttpResponseRedirect('tags/%d'%file_id)
+            #return nothing
+            context = {"success" : 1}
+            #return render(request, 'manual_mapping/manual_mapping.html', context)
+            #return HttpResponse(error_message)
             return Response(context)
-        #return nothing
+        else:
+            context = {"error_messages" : "No data in dictionary sent", "success" : 0}
+            return Response(context)
     else:
-        #cache.clear() # check if necessary for ctrf token?   
-        #error
-        
-        #context = {}
-        #missing = []
-        #dict_values = []
-        #for heading in request.session['missing_list']: #why not just pass missing list instead of missing
-        #    missing.append(heading.replace(" ", "~"))
-        #    dict_values.append(heading)
-
-        #context = {"files" : request.session['files'], "missing_headings" : missing, "remaining_headings" : request.session['remaining_headings'], "dict_values" : dict_values}
-        #return render(request, 'manual_mapping/manual_mapping.html', context)
-        return Response("Error") 
+        return Response("No file selected");

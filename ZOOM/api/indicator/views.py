@@ -34,6 +34,7 @@ class IndicatorDataList(ListAPIView):
         'date_value',
         'source_id',
         'measure_value',
+        'unit_of_measure'
         'other',
         )
 
@@ -125,6 +126,9 @@ class IndicatorDataAggregations(AggregationView):
         ),
         GroupBy(
             query_param="country_id__region__name",
-            fields="country_id__region__name",
-        ),
+            fields="country_id__region__name"),
+        GroupBy(
+            query_param="unit_of_measure",
+            fields="unit_of_measure",
+        ),        
     )

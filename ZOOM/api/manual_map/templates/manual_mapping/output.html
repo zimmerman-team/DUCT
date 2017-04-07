@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <style>
+    table, th, td {
+      border: 1px solid black;
+    }
+
+    body {
+      font: 12px Arial;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>ZOOM</h1>
+  <table>
+  <tr>
+  <th>id</th><th>file_source</th><th>data created</th><th>indicator_type</th><th>indicator</th><th>subgroup</th><th>country_id</th><th>date</th><th>source</th><th>value</th><th>footnote</th>
+  </tr>
+  {% for line in data_check %}
+    <tr>
+    <td>{{line.id}}</td>
+    <td>{{line.file_source}}</td>
+    <td>{{line.date_created}}</td>
+    <td>{{line.indicator_category}}</td>
+    <td>{{line.indicator}}</td>
+    <td>{{line.subgroup}}</td>
+    <td>{{line.country_id}}</td>
+    <td>{{line.date_value}}</td>
+    <td>{{line.source}}</td>
+    <td>{{line.measure_value}}</td>
+    <td>{{line.other}}</td>  
+    </tr>
+  {% endfor %}
+  </table>
+</body>
+</html>
