@@ -83,5 +83,6 @@ class IndicatorSerializer(serializers.ModelSerializer):
         	'date_value',
         	'source_id',
         	"measure_value",
+                "unit_of_measure",
         	'other',
         	)
