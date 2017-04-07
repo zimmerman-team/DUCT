@@ -111,6 +111,9 @@ def validate(request):
     context = {'validate': validate_form, 'mapped' : count, "no_mapped" : overall_count - count, "found_list": zip_list, "missing_list" : remaining_mapping, "files" : files[0], "dtypes_loc" : dict_name}#reorganise messy
     #context = {'message':'heya'}
 
+    print(context);
+    
+
     #output need to pass allignments of mapped headings
     return Response(context)
 

@@ -94,7 +94,7 @@ class IndicatorDatapoint(models.Model):
     date_format_id = models.ForeignKey(Time, db_column='date_format_id', blank=True, null=True)
     indicator_category_id = models.ForeignKey(IndicatorCategory, db_column='indicator_category_id', blank=True, null=True)
     indicator_id = models.ForeignKey(Indicator, db_column='indicator_id', blank=True, null=True)
-    #unit_of_measure = models.ForeignKey(IndicatorSubgroup)
+    unit_of_measure = models.CharField(max_length=20, blank=True, null=True)
     country_id = models.ForeignKey(geo_models.Country, db_column='country_id', blank=True, null=True)#should be a foreign key to GeoData
     date_value = models.CharField(max_length=20, blank=True, null=True) #changed from DecimalField #models.DecimalField(max_digits=20, decimal_places = 5) # identify timezone?
     source_id = models.ForeignKey(IndicatorSource, db_column='source_id', blank=True, null=True)
