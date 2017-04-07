@@ -9,6 +9,7 @@ from validate.models import File
 
 import pandas as pd
 import numpy as np
+import json
 from django.conf import settings
 from indicator.models import IndicatorDatapoint
 from geodata.models import get_dictionaries
@@ -168,6 +169,11 @@ class MapperView(APIView):
             line_no = np.append(line_no, indexes)
         error_line_no = np.unique(line_no)
 
+        file_error = {}
+        file_error['data'] = []
+        # file_error['heading'] = ['id'] + column_headings
+        file_error['heading'] = column_headings
+
         if len(error_line_no) <= 200: 
 
             for i in error_line_no:
@@ -185,8 +191,39 @@ class MapperView(APIView):
                 line_numbers.append(i + 1)
                 data_list.append(zip(temp_list, temp_error_ids))
 
+                item = {}
+                # print column_headings
+                item['id'] = i + 1
+                for j in range(len(column_headings)):
+                    if dtypes_dict[column_headings[j]][0][0] != error_data[j][i][0]:
+                        #log line to highlight
+                        found_error_ids.append((str(i+1)+"_"+column_headings[j], "found " + error_data[j][i][0] + " should be " + dtypes_dict[column_headings[j]][0][0]))
+                        #found_error = True
+                    # temp_list.append(df_data.iloc[i, j])
+                    # temp_error_ids.append(str(i+1)+"_"+ column_headings[j])
+
+                    item[column_headings[j]] = df_data.iloc[i, j]
+                    if str(item[column_headings[j]]) == "nan":
+                        item[column_headings[j]] = "nan"
+                        
+                # print item
+                # print i
+
+                file_error['data'].append(item)
+                # print data_disp 
+                #if found_error:
+                # line_numbers.append(i + 1)
+                # data_list.append(zip(temp_list, temp_error_ids))
+
+
             #zip_list = zip(*[data_list, error_ids])
             zip_list = zip(line_numbers, data_list)
+
+                
+
+
+
+
             context= {"df_data" : zip_list, "column_headings":column_headings, "found_error_ids" : found_error_ids}
         else:
             error_count = len(error_line_no)
@@ -195,13 +232,17 @@ class MapperView(APIView):
 
         # return render(request, 'error_correct/error_correct.html', context)
 
-        print 'CCCCCCCCCCCCCCCCCCCCCCCC'
-        print context
-        print 'DDDDDDDDDDDDDDDDDDDDDDDD'
-        print found_error_ids
+        # print 'CCCCCCCCCCCCCCCCCCCCCCCC'
+        # print column_headings
+        # print 'DDDDDDDDDDDDDDDDDDDDDDDD'
+        # print found_error_ids
         print 'FFFFFFFFFFFFFFFFFFFFFFFFF'
-        print data_list
+        # data_result = json.loads(str(file_error))
+        print file_error
+        # print file_error['data']
+        # for el in file_error['data']:
+        #     print str(el['Footnotes']) == "nan"
 
-        return Response(pata, status=HTTP_200_OK)
+        return Response(file_error, status=HTTP_200_OK)
 
 
