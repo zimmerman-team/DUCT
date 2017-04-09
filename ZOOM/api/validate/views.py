@@ -67,7 +67,7 @@ def validate(request):
         template_heading_list.append(field.name)#.get_attname_column())
     
     template_heading_list = template_heading_list[4:len(template_heading_list)]#skip first four headings as irrelevant to user input
-    template_heading_list.append("unit_measure") #needed? 
+    #template_heading_list.append("unit_measure") #needed? 
     
     #count = 0# not sure if this is still needed, might need for matches
     dicts, _ = get_dictionaries()#get dicts for country

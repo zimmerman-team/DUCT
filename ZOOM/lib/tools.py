@@ -183,6 +183,7 @@ def check_column_data(dtypes, column_data, model_field, file_heading):#No need f
 #should return field to map to
 def check_data_type(field, dtypes):   
     #add time
+    print("getting here in check data type")
     dtype_set = set()
     result = False
     if field == "country_id":
@@ -259,8 +260,11 @@ def correct_data(df_data, correction_data):#correction_data ["country_name, iso2
     #if date convert in integer
     #if 
 
-def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict):
+def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict, empty_unit_measure_value):
     
+    if not empty_unit_measure_value:
+        empty_unit_measure_value = {}
+
     columns = []
     for col in df_data.columns: 
         temp = str(col)#.replace(" ", "~")#needed?
@@ -296,15 +300,20 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict)
             #might have to be greater than 2
             
             if col in mappings['indicator_category_id'] and len(mappings['indicator_category_id']) > 1:#if more than one relationship ie multiple subgroupd and relationships
-                check  = new_df[relationship_dict[col]][counter] 
+                check  = new_df[relationship_dict[col]][counter] #if supgroup already defined
                 new_df[relationship_dict[col]][counter] = new_df[relationship_dict[col]][counter] + "|" + (col.replace("~", " "))#last part not needed
-                new_df[left_over_dict[col]][counter] = df_data[col.replace("~", " ")][i]
+                new_df[left_over_dict[col]][counter] = df_data[col.replace("~", " ")][i]#check if col_replace is there
+                #if empty_unit_of_measure in mappings:
+                #apply units of measure
+                #a = 5                        
                 
             else: #normal case
-                #hre.y  
+                #hre.y 
                 new_df[relationship_dict[col]][counter] = col.replace("~", " ")#add column heading
                 new_df[left_over_dict[col]][counter] = df_data[col.replace("~", " ")][i]
             
+            if col.replace("~", " ") in empty_unit_measure_value:
+                new_df['unit_of_measure'] = empty_unit_measure_value[col.replace("~", " ")] 
 
             #new_df  = df_data[mappings[key]]
             #map value
