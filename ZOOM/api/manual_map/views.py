@@ -13,6 +13,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
+from validate.models import File
 import numpy as np
 import pandas as pd
 import pickle 
@@ -24,30 +25,39 @@ import os
 @api_view(['GET', 'POST'])
 def manual_mapping(request):
     print('Recieved request')
-    print(request)
+    #print(request.data)
+    #print(request.data['file_id'])
+    #print(request.data['dict'])
+
     if request.method == 'POST':
         print('Rewuest Recieved')    
         #check data types
         print(request)
         # add validation check here
-        if 'dict' in request.POST:
+        if 'dict' in request.data:
             print('here')
-            mappings = json.loads(request.data['dict']) 
-            mappings.pop("null", None)
-            mappings.pop("unit_measure", None)#change later
-            mappings.pop("validate_store", None) # remove??
-            df_data = pd.read_csv(request.data['file_id']) # change to use with multiple files
+            print(request.data['dict'])
+            mappings = request.data['dict']#json.loads(request.data['dict']) 
+            mappings.pop("null", None)#not needed for api call
+            mappings.pop("validate_store", None) # not needed for api call
+            file_id = str(File.objects.get(id=request.data['file_id']).file)
+            df_data = pd.read_csv(file_id) # change to use with multiple files
             found_dtype = []
             convert_to_dtype = []
             error_message = []
             correction_mappings = {}
 
-            dict_name = mappings.pop("empty_indicator", None)#request.session['dtypes']
+            dict_name = request.data["dtypes_loc"]#request.session['dtypes']
             indicator_value = mappings.pop("empty_indicator", None)
             country_value = mappings.pop("empty_country", None)
             indicator_category_value = mappings.pop("empty_indicator_cat", None)
+            unit_of_measure_value = mappings.pop("empty_unit_of_measure", None)
             relationship_dict = mappings.pop("relationship", None)
             left_over_dict = mappings.pop("left_over", None)
+
+            print('Here in this method')
+            print(file_id)
+            print(dict_name)
 
             with open(dict_name, 'rb') as f:
                 dtypes_dict = pickle.load(f)
@@ -111,9 +121,18 @@ def manual_mapping(request):
                 df_data['indicator_category_id'] = indicator_category_value
                 dtypes_dict[mappings['indicator_category_id'][0]] = [('str', 'str')]
 
-            if relationship_dict:
-                df_data = convert_df(mappings, relationship_dict, left_over_dict, df_data, dtypes_dict)
+            if unit_of_measure_value:
+                if len(unit_of_measure_value.keys()) < 2 :#chect each entry emoty unit_of measure a dict
+                    mappings['unit_of_measure'] = ['unit_of_measure']
+                    df_data['unit_of_measure'] = unit_of_measure_value[unit_of_measure_value.keys()[0]]
+                    dtypes_dict[mappings['unit_of_measure'][0]] = [('str', 'str')]
+                else:
+                    mappings['unit_of_measure'] = ['unit_of_measure']
+                    dtypes_dict[mappings['unit_of_measure'][0]] = [('str', 'str')]
 
+            if relationship_dict:
+                #check if unit of measure exists
+                df_data = convert_df(mappings, relationship_dict, left_over_dict, df_data, dtypes_dict, unit_of_measure_value)
 
             #remove replace
             #Validation
@@ -168,7 +187,7 @@ def manual_mapping(request):
             bulk_list = []
 
             #cycle through dataset and save each line
-            order["file_source_id"] = request.data['file_id'];#request.session['files'][0] 
+            order["file_source_id"] = file_id;#request.session['files'][0] 
             instance = FileSource(file_name = order['file_source_id'])
             instance.save()
             file_id = instance.id

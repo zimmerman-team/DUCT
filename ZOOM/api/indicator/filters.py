@@ -18,4 +18,5 @@ class IndicatorDataFilter(FilterSet):
             'source_id',
             'country_id__region',
             'country_id__name',
+            'unit_of_measure',
         )
