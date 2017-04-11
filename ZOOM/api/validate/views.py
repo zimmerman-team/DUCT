@@ -32,8 +32,7 @@ from django.core import serializers
 @api_view(['GET', 'POST'])
 def validate(request):
     if request.method == 'POST':
-        file_id = request.data['file_id']
-        print("Here")
+        file_id = request.data.get('file_id')
     else:
         return Response("No file selected");
     newdoc = ['Item']#tmp 
