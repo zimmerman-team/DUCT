@@ -6,11 +6,13 @@ from indicator.models import FileSource
 class FileSerializer(serializers.ModelSerializer):
 
 	file = serializers.FileField()
+	file_name = serializers.CharField()
 
 	class Meta:
 		model = File
 		read_only_fields = (
-        	'file',
+        	'file_name',
+        	'file'
         	)		
 
 class MapperSerializer(serializers.ModelSerializer):

@@ -26,14 +26,22 @@ class UploadsCreateList(ListCreateAPIView):
     serializer_class = FileSerializer
     parser_classes = (MultiPartParser, FormParser,)
     filter_backends = (filters.OrderingFilter,)
-    ordering_fields = ('file', 'created')
+    ordering_fields = ('file_name', 'file', 'created')
 
     fields = (
-        'file',
+        'file_name',
+        'file'
         )
 
     def perform_create(self, serializer):
-        serializer.save(file=self.request.data.get('file'))
+        #get data file
+        #file if fomrat okay if so return 
+        print("Here please", self.request.data)
+        serializer.save(file=self.request.data.get('file'), file_name=self.request.data.get('file_name'))
+        #result = check_file_formatting(newdoc[0])
+    
+        #if result[0] == False:
+            #'return Response({"error": result[1], "success": 0})
 
 
 class MapperView(APIView):
