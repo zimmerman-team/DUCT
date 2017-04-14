@@ -37,6 +37,10 @@ def validate(request):
     file_id = request.data['file_id']
     #else:
     #    return Response("No file selected");
+    if request.method == 'POST':
+        file_id = request.data.get('file_id')
+    else:
+        return Response("No file selected");
     newdoc = ['Item']#tmp 
     validate_form = True
     count = 0
