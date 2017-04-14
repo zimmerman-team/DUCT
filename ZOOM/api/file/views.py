@@ -24,6 +24,7 @@ class FileList(APIView):
             file_name = request.data['file_name']
             file_contents = request.data['file']
             result = self.save_file(file_name, file_contents)
+            #check file formatting here
         return Response({'result': result})
     
     def save_file(self, file_name, file_contents):

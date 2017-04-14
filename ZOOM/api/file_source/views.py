@@ -26,6 +26,7 @@ class TagsListView(ListCreateAPIView):
         return self.queryset.filter(file_id_id=self.kwargs.get('file_source_pk'))
 
     def perform_create(self, serializer):
+        print("Here in file_source")
         file_id = get_object_or_404(
             FileSource, pk = self.kwargs.get('file_source_pk')
             )

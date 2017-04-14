@@ -326,15 +326,35 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
         #    sdf.sgd
     return new_df#.T.drop_duplicates().T#prevent duplicate columns// why is this happening
 
+def check_file_type(file_name):
+    name = file_name.lower()
+    if name.endswith('.csv'):
+        return True ,{'file_type':'csv', 'success':1}
+    elif name.endswith('.xlsx'):
+        return False, {'file_type':'xlsx', 'success':0, 'error': "Cannot map xlsx files"}
+    elif name.endswith('.json'):
+        return False, {'file_type':'json', 'success':0, 'error': "Cannot map json files"}
+    else:
+        return False, {'file_type':'Unrecognised format', 'success':0, 'error': "Don't recognise file type"}#.txt format??
 
-def check_file_formatting(df_data):
+def check_file_formatting(file_loc):
+    try:
+        df_data = pd.read_csv(file_loc)
+    except Exception as e:
+        return False, {'success':0, "error":"Couldn't read file, check start of file for text, for malformed columns and  for gaps in data."}
     #check column names if unammed give back false
     for key in df_data.columns:
         if 'Unnamed' in key:
-            return False, "Cannot validate, unammed columns in data set or unessecary text at start of file."
-        print(key)
+            return False, {'success':0, "error":"Cannot validate, unammed columns in data set or unessecary text at start of file."}
+        else:
+            nan_indexes = pd.isnull(df_data)
+            #for col in df_data.ix[:,0]:
 
-    length_found = lenth(df_data)
+    resulting_indexes = nan_indexes.apply(lambda x: min(x) == max(x) and min(x) == True, 1)
+    result = len(resulting_indexes[resulting_indexes == True]) > 0
+    if result:
+        return False, {'success':0, "error":"Files has blank lines or text at end of the file."}#return line number of blank lines?
+    return True, {"success":1}
     #check end of file if there is empty line and the df_data lenght is longer than this line then error#
     #get columns with the least amount of empty values 
     #check which has the least amount

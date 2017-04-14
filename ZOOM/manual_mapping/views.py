@@ -152,6 +152,10 @@ def index(request):
 
             df_data = correct_data(df_data, correction_mappings)
 
+            null_values = df_data[mappings['indicator_category_id'][0]].isnull()
+            heading = mappings['indicator_category_id'][0]
+            df_data[mappings['indicator_category_id'][0]][null_values] = "Default"
+
             #df_data = df_data[1:len(df_data)]
             order = {}
             index_order = {}
