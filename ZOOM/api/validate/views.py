@@ -54,6 +54,8 @@ def validate(request):
     validation_results = []
     dtypes_list = []
     error_lines = []
+    summary_results = []
+    summary_indexes = []
 
     dtypes_dict = {}
     headings_template = {}
@@ -86,7 +88,10 @@ def validate(request):
         
         error_lines.append(error_count)
         validation_results.append(df_file[heading].isnull().sum())
-        dtypes_list.append(prob_list) 
+        dtypes_list.append(prob_list)
+        column_detail = df_file[heading].describe()
+        summary_results.append(np.array(column_detail).astype('str'))
+        summary_indexes.append(list(column_detail.index))
         #count += 1
 
     count = 0 #count matching
@@ -98,7 +103,7 @@ def validate(request):
     files = []
     files_id = []
     files.append(newdoc[0])#.get_file_path())   
-    zip_list = zip(file_heading_list, dtypes_list, validation_results)#zip(found_mapping, mapping, data_types, validation_on_types)
+    zip_list = zip(file_heading_list, dtypes_list, validation_results)#summary_results won't zip correctly
     missing_mapping = list(headings_file.keys())
     
     path = os.path.join(os.path.dirname(settings.BASE_DIR), 'ZOOM/media/tmpfiles')
@@ -106,10 +111,11 @@ def validate(request):
     with open(dict_name, 'w') as f:
         pickle.dump(dtypes_dict, f)  
     
-    context = {'success': 1, 'mapped' : count, "no_mapped" : overall_count - count, "found_list": zip_list, "missing_list" : remaining_mapping, "files" : files[0], "dtypes_loc" : dict_name}#reorganise messy
+    context = {'success': 1, 'mapped' : count, "no_mapped" : overall_count - count, "found_list": zip_list, "summary":summary_results, "missing_list" : remaining_mapping, "files" : files[0], "dtypes_loc" : dict_name}#reorganise messy
     #context = {'message':'heya'}
 
-    print(context);
+    print(len(summary_results));
+    print(len(validation_results));
     
 
     #output need to pass allignments of mapped headings
