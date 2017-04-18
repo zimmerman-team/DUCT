@@ -183,7 +183,6 @@ def check_column_data(dtypes, column_data, model_field, file_heading):#No need f
 #should return field to map to
 def check_data_type(field, dtypes):   
     #add time
-    print("getting here in check data type")
     dtype_set = set()
     result = False
     if field == "country_id":
@@ -194,12 +193,12 @@ def check_data_type(field, dtypes):
         if not result:
             dtype_set = dtypes[0]
         else:
-            dtype_set = list(dtype_set)[0]
+            dtype_set = list(dtype_set)[0]#pointless??
 
-        if "country_name" == dtype_set:
-            dtype_set = "name"
-        elif "iso2" == dtype_set:
-            dtype_set = "code"
+        # if "country_name" == dtype_set:
+        #     dtype_set = "countrname"
+        # elif "iso2" == dtype_set:
+        #     dtype_set = "code"
             
         return result, dtype_set, "iso2" #return type found
     
@@ -225,6 +224,8 @@ def correct_data(df_data, correction_data):#correction_data ["country_name, iso2
 
     for key in correction_data:
         #decide what format to goive it too #also check date
+        print(correction_data[key][1])
+        print(correction_data[key][0])
         if correction_data[key][1] == "iso2":
             #model = Country.objects.all()
             if correction_data[key][0] == "country_name":
