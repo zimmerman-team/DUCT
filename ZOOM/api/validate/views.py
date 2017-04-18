@@ -111,7 +111,7 @@ def validate(request):
     with open(dict_name, 'w') as f:
         pickle.dump(dtypes_dict, f)  
     
-    context = {'success': 1, 'mapped' : count, "no_mapped" : overall_count - count, "found_list": zip_list, "summary":summary_results, "missing_list" : remaining_mapping, "files" : files[0], "dtypes_loc" : dict_name}#reorganise messy
+    context = {'success': 1, 'mapped' : count, "no_mapped" : overall_count - count, "found_list": zip_list, "summary":zip(summary_indexes, summary_results), "missing_list" : remaining_mapping, "files" : files[0], "dtypes_loc" : dict_name}#reorganise messy
     #context = {'message':'heya'}
 
     print(len(summary_results));
