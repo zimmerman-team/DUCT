@@ -1,9 +1,9 @@
+from django.db import connections
+from django.db import OperationalError
+
 from rest_framework.decorators import api_view
 from rest_framework.reverse import reverse
 from rest_framework.response import Response
-
-from django.db import connections
-from django.db import OperationalError
 
 
 @api_view(('GET',))
@@ -25,20 +25,25 @@ def welcome(request, format=None):
                 'indicators:indicator-list',
                 request=request,
                 format=format),
-            'scatter': reverse(
-                'scatter:scatter-list',
-                request=request,
-                format=format),
             'uploads': reverse(
                 'uploads:uploads-list',
                 request=request,
                 format=format),
-            'file_source': reverse(
+            'file-source': reverse(
                 'file_source:file-source-list',
+                request=request,
+                format=format),
+            'validate': reverse(
+                'validate:validate',
+                request=request,
+                format=format),
+            'manual_map': reverse(
+                'manual_map:manual_map',
                 request=request,
                 format=format),
         }
     })
+
 
 
 @api_view(('GET',))

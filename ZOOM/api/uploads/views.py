@@ -1,22 +1,19 @@
+import pandas as pd
+import numpy as np
+import json
 from rest_framework.views import APIView
 from rest_framework.generics import ListCreateAPIView
-from api.uploads.serializers import FileSerializer, MapperSerializer
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework import filters
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
-from validate.models import File
 
-import pandas as pd
-import numpy as np
-import json
 from django.conf import settings
+
+from api.uploads.serializers import FileSerializer, MapperSerializer
+from validate.models import File
 from indicator.models import IndicatorDatapoint
 from geodata.models import get_dictionaries
-
-# from lib.converters import convert_spreadsheet
-# from lib.tools import check_column_data, identify_col_dtype, get_line_index
-
 from lib.tools import  identify_col_dtype
 
 
@@ -34,14 +31,7 @@ class UploadsCreateList(ListCreateAPIView):
         )
 
     def perform_create(self, serializer):
-        #get data file
-        #file if fomrat okay if so return 
-        print("Here please", self.request.data)
         serializer.save(file=self.request.data.get('file'), file_name=self.request.data.get('file_name'))
-        #result = check_file_formatting(newdoc[0])
-    
-        #if result[0] == False:
-            #'return Response({"error": result[1], "success": 0})
 
 
 class MapperView(APIView):

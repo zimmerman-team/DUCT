@@ -1,11 +1,13 @@
+from django.conf import settings
+
+import datetime
+import time
+from redis import Redis
+
 from django_rq import job
 import django_rq
-import datetime
 from rq import Queue, Connection, Worker
 from rq.job import Job
-from redis import Redis
-from django.conf import settings
-import time
 
 
 redis_conn = Redis()
