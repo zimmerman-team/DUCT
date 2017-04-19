@@ -1,14 +1,16 @@
-from django.db import models
 import uuid
-from django.core.urlresolvers import reverse
 import os
-from django.conf import settings
 import requests
+import rfc6266
+import datetime
+
+from django.db import models
+from django.core.urlresolvers import reverse
+from django.conf import settings
 from django.core.files.base import ContentFile
-import rfc6266  # (content-disposition header parser)
 from django.conf import settings
 from django.utils import timezone
-import datetime
+
 
 CONTENT_TYPE_MAP = {
     'application/json': 'json',
@@ -22,23 +24,8 @@ def upload_to(instance, filename=''):
     #return os.path.join(str(instance.pk), filename)
     return os.path.join(settings.MEDIA_ROOT + "/datasets/", filename)
 
-#Basic data store for the test file being used
 
-"""class Store(models.Model):
-    source_file = models.CharField(max_length = 100)
-    date_created =  models.DateTimeField(default=timezone.now)
-    indicator_type = models.CharField(max_length=50)
-    indicator = models.CharField(max_length=100)
-    unit = models.CharField(max_length=50)
-    subgroup = models.CharField(max_length=50)
-    country = models.CharField(max_length=50)
-    country_id = models.CharField(max_length=5)
-    date = models.DateField(("Date")) # identify timezone?
-    source = models.CharField(max_length=50)
-    value = models.DecimalField(max_digits=20, decimal_places = 5) # might need more for accuracy
-    footnote = models.CharField(max_length=200)
-"""
-#temp storage of file. used until mapping is complete
+# Temp storage of file. Used until mapping is complete
 class File(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     source_url = models.URLField(null=True, max_length=2000)
@@ -107,3 +94,4 @@ class File(models.Model):
                     ContentFile(r.content))
         else:
             raise ValueError('No source_url specified.')
+

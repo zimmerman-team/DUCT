@@ -10,7 +10,6 @@ from django.core.exceptions import FieldDoesNotExist
 from geodata.models import Country, Region, RegionVocabulary, Codelist
 
 
-
 logger = logging.getLogger(__name__)
 
 

@@ -6,4 +6,3 @@ urlpatterns = [
         url(r'^$', UploadsCreateList.as_view(), name='uploads-list'),
         url(r'^mapper/$', MapperView.as_view(), name='mapper-list'),
 ]
-
