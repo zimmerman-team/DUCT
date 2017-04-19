@@ -8,4 +8,3 @@ urlpatterns = [
         url(r'^manual-mapper/$', ManualMappingJob.as_view(), name='manual-mapper'),
         url(r'^manual-mapper-result/$', ManualMappingJobResult.as_view(), name='manual-mapper-result'),
 ]
-
