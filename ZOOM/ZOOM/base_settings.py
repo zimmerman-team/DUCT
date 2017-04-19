@@ -130,7 +130,6 @@ INSTALLED_APPS = [
     'error_correct',
     'manual_mapping',
     'indicator',
-    'scatter_demo',
     'geodata.apps.GeodataConfig',
     'task_queue',
     'djsupervisor',
