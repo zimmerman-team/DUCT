@@ -7,20 +7,22 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
 from django.conf import settings
-from indicator.models import IndicatorDatapoint
-from lib.converters import convert_spreadsheet
-from lib.tools import check_column_data, identify_col_dtype, get_line_index
-from geodata.importer.country import CountryImport
-from geodata.models import get_dictionaries
 from django.contrib.staticfiles.templatetags.staticfiles import static
-from .models import File
-from .forms import DocumentForm
+
 import json
 import os
 import pickle
 import uuid
 import numpy as np
 import pandas as pd
+
+from lib.converters import convert_spreadsheet
+from lib.tools import check_column_data, identify_col_dtype, get_line_index
+from geodata.importer.country import CountryImport
+from geodata.models import get_dictionaries
+from indicator.models import IndicatorDatapoint
+from validate.models import File
+from validate.forms import DocumentForm
 
 
 #@ensure_csrf_cookie
