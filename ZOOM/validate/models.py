@@ -41,6 +41,7 @@ def upload_to(instance, filename=''):
 #temp storage of file. used until mapping is complete
 class File(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    in_progress = models.BooleanField(default=False)
     source_url = models.URLField(null=True, max_length=2000)
     file = models.FileField(upload_to=upload_to)
     file_name = models.CharField(max_length = 200, default="default")

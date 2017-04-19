@@ -57,3 +57,29 @@ def update_city_data():
     from geodata.importer.city import CityImport
     ci = CityImport()
     ci.update_cities()
+
+
+
+###############################
+#### MANUAL MAPPING TASKS #####
+###############################
+
+
+from lib.manual_mapper import manual_mapper
+
+@job
+def manual_mapping_job(data):
+    context = manual_mapper(data)
+    return context
+
+
+
+
+
+
+
+
+
+
+
+
