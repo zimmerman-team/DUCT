@@ -1,16 +1,18 @@
-from django.db import models
 import uuid
-from django.core.urlresolvers import reverse
 import os
-from django.conf import settings
 import requests
+import rfc6266
+import datetime
+
+from django.db import models
+from django.core.urlresolvers import reverse
+from django.conf import settings
 from django.core.files.base import ContentFile
-import rfc6266  # (content-disposition header parser)
 from django.conf import settings
 from django.utils import timezone
+
 from geodata import models as geo_models
 
-import datetime
 
 CONTENT_TYPE_MAP = {
     'application/json': 'json',
@@ -26,60 +28,58 @@ def upload_to(instance, filename=''):
 
 #Basic data store for the test file being used
 
+
 class Indicator(models.Model):
     id = models.CharField(max_length=255, primary_key=True)
     description = models.TextField(null=True, blank=True)
     #source = models.ForeignKey(IndicatorSource, null=True, blank=True)
     #category = models.ForeignKey(IndicatorCategory, null=True, blank=True)
-    
+
+
 class IndicatorCategory(models.Model):
     id = models.CharField(max_length=255, primary_key=True)
     code = models.CharField(max_length=50)
     indicator = models.ForeignKey(Indicator,null=False, blank=False)
 
+
 class IndicatorSource(models.Model):
     id = models.CharField(max_length=500, primary_key=True)
     code = models.CharField(max_length=50)
     indicator = models.ForeignKey(Indicator,null=False, blank=False)
-    
+
+
 """class IndicatorSubgroup(models.Model):
     id = models.CharField(max_length=255, primary_key=True)
     #indicator = ForeignKey
     code = models.CharField(max_length=50)
     indicator = models.ForeignKey(Indicator, null=False, blank=False)"""
 
+
 class FileSource(models.Model):
-    file_name = models.CharField(max_length = 100)#set as primary key?
+    file_name = models.CharField(max_length=100)#set as primary key?
     date_uploaded = models.DateTimeField(default=timezone.now, blank=True, null=True) #for testing purposes
 
+
 class FileTags(models.Model):
-    file_id = models.ForeignKey(FileSource,null=False, blank=False)
+    file_id = models.ForeignKey(FileSource, null=False, blank=False)
     tag =  models.CharField(max_length=50)
     #file_type = models.CharField(max_length = 5)
+
 
 class Time(models.Model):
     date_type = models.CharField(max_length = 100, primary_key=True)
     #date = models.DateField(("Date")) # mapping time format, timezone?
 
-#class City(models.Model):
-#    id = models.CharField(max_length=255, primary_key=True)
-#    name = models.CharField(max_length = 100)
-
-#class Country(models.Model):
-#    id = models.CharField(max_length=10, primary_key=True)
-#    name = models.CharField(max_length = 100)
-
-#class Region(models.Model):
-#    id = models.CharField(max_length=10, primary_key=True) 
-#    name = models.CharField(max_length = 100)
 
 class Sector(models.Model):#what is this for?
     id = models.CharField(max_length=50, primary_key=True)
     name = models.CharField(max_length = 100)
 
+
 class Organisation(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
     name = models.CharField(max_length = 100)
+
 
 class MeasureValue(models.Model):
     code = models.CharField(max_length=50)
@@ -87,6 +87,7 @@ class MeasureValue(models.Model):
     value_type= models.CharField(max_length=50)#might not need
     value = models.DecimalField(max_digits=20, decimal_places = 5)
 #other
+
 
 class IndicatorDatapoint(models.Model):
     file_source_id = models.ForeignKey(FileSource, db_column='file_source_id')
@@ -102,6 +103,7 @@ class IndicatorDatapoint(models.Model):
     measure_value = models.CharField(max_length=40, blank=True, null=True) #models.DecimalField(max_digits=20, decimal_places = 5)#for now leave as char #models.ForeignKey(MeasureValue) # might need more for accuracy
     other = models.CharField(max_length=600, blank=True, null=True) #found instance where it ius bigger than 500    
 
+
 #the mapping betweeen coulmns in the datastore and HXL tags
 """class HXLmapping(models.Model): #can be used for other conversions
     indicator =  models.ForeignKey(IndicatorSource, null=True, blank=True)
@@ -112,5 +114,3 @@ class IndicatorDatapoint(models.Model):
 class HXLtags(models.Model):
     id = models.CharField(max_length = 50, primary_key=True)
     value_type = models.CharField(max_length = 40)"""
-
-
