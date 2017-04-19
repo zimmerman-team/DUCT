@@ -19,6 +19,9 @@ from geodata.models import get_dictionaries
 
 from lib.tools import  identify_col_dtype
 
+import django_rq
+from task_queue.tasks import manual_mapping_job
+
 
 class UploadsCreateList(ListCreateAPIView):
 
@@ -134,25 +137,10 @@ class MapperView(APIView):
         zip_list = zip(file_heading_list, dtypes_list, validation_results)#zip(found_mapping, mapping, data_types, validation_on_types)
         missing_mapping = list(headings_file.keys())
         
-        # #check this, see if these are relevant 
-        # request.session['missing_dtypes_list'] = error_lines #change name # error per column, error[0][0] => 1st column 1st line
-        # request.session['found_mapping'] = []#file_heading_list#zip_list
-        # request.session['missing_list'] = missing_mapping#change name -> silly
-        # request.session['files'] = files
-        # path = os.path.join(os.path.dirname(settings.BASE_DIR), 'ZOOM/media/tmpfiles')#static('tmpfiles')
-        # dict_name = path +  "/" + str(uuid.uuid4()) + ".txt"
-        # with open(dict_name, 'w') as f:
-        #     pickle.dump(dtypes_dict, f)  
-        # request.session['dtypes'] = dict_name
-        # request.session['remaining_headings'] = remaining_mapping
-        
+
         context = {'mapped' : count, "no_mapped" : overall_count - count, "found_list": zip_list, "missing_list" : remaining_mapping}#reorganise messy
 
-        # return render(request, 'validate/input_report.html', context)
-
-        print 'AAAAAAAAAAAAAAAAAAAAAAAAAA'
         print context
-        print 'BBBBBBBBBBBBBBBBBBBBBBBBBB'
 
 
         '''
@@ -204,53 +192,90 @@ class MapperView(APIView):
                 item['id'] = i + 1
                 for j in range(len(column_headings)):
                     if dtypes_dict[column_headings[j]][0][0] != error_data[j][i][0]:
-                        #log line to highlight
                         found_error_ids.append((str(i+1)+"_"+column_headings[j], "found " + error_data[j][i][0] + " should be " + dtypes_dict[column_headings[j]][0][0]))
-                        #found_error = True
-                    # temp_list.append(df_data.iloc[i, j])
-                    # temp_error_ids.append(str(i+1)+"_"+ column_headings[j])
-
                     item[column_headings[j]] = df_data.iloc[i, j]
                     if str(item[column_headings[j]]) == "nan":
                         item[column_headings[j]] = "nan"
-                        
-                # print item
-                # print i
-
                 file_error['data'].append(item)
-                # print data_disp 
-                #if found_error:
-                # line_numbers.append(i + 1)
-                # data_list.append(zip(temp_list, temp_error_ids))
-
-
-            #zip_list = zip(*[data_list, error_ids])
             zip_list = zip(line_numbers, data_list)
-
-                
-
-
-
-
             context= {"df_data" : zip_list, "column_headings":column_headings, "found_error_ids" : found_error_ids}
         else:
             error_count = len(error_line_no)
             list_of_errors = [] 
             context = {"error_count": len(error_line_no), "list of errors": list_of_errors}
-
-        # return render(request, 'error_correct/error_correct.html', context)
-
-        # print 'CCCCCCCCCCCCCCCCCCCCCCCC'
-        # print column_headings
-        # print 'DDDDDDDDDDDDDDDDDDDDDDDD'
-        # print found_error_ids
-        print 'FFFFFFFFFFFFFFFFFFFFFFFFF'
-        # data_result = json.loads(str(file_error))
         print file_error
-        # print file_error['data']
-        # for el in file_error['data']:
-        #     print str(el['Footnotes']) == "nan"
-
         return Response(file_error, status=HTTP_200_OK)
+
+
+
+class ManualMappingJob(APIView):
+    """Manual Mapping Job"""
+
+    # authentication_classes = (authentication.TokenAuthentication,)
+    # permission_classes = (PublisherPermissions, )
+    
+    def post(self, request):
+        try:
+            file = File.objects.get(id=request.data["file_id"])
+        except File.DoesNotExist:
+            return Response({
+                'status': 'File not found',
+            })
+
+        if file.in_progress:
+            return Response({
+                'status': 'failed',
+            })
+
+
+        file.in_progress = True
+        file.save()
+
+        queue = django_rq.get_queue('mapper')
+        job = queue.enqueue(manual_mapping_job, request.data)
+
+        return Response({
+            'status': 'processing',
+            'job': job.key,
+        })
+
+
+class ManualMappingJobResult(APIView):
+    """Manual Mapping Job Results"""
+
+    # authentication_classes = (authentication.TokenAuthentication,)
+    # permission_classes = (PublisherPermissions, )
+    
+    def post(self, request):
+        job_id = request.data["job_id"]
+        job_id = job_id.split(':')[2]
+
+        queue = django_rq.get_queue('mapper')
+        job = queue.fetch_job(job_id)
+
+        if job.is_finished:
+            ret = {'status':'completed', 'result': job.return_value}
+
+            try:
+                file = File.objects.get(id=request.data["file_id"])
+            except File.DoesNotExist:
+                return Response({
+                    'status': 'failed',
+                })
+
+            file.in_progress = False
+            file.save()
+
+        elif job.is_queued:
+            ret = {'status':'in-queue'}
+        elif job.is_started:
+            ret = {'status':'waiting'}
+        elif job.is_failed:
+            ret = {'status': 'failed'}
+            print(job.to_dict())
+
+
+        return Response(ret)
+
 
 
