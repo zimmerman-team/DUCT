@@ -6,7 +6,7 @@ import os
 
 from lib.tools import check_file_formatting, check_file_type
 from validate.models import File
-from api.validate.validator import validate
+from validate.validator import validate
 
 class Validate(APIView):
     def post(self, request):

@@ -1,21 +1,4 @@
-# from django.http import Http404
-# from django.http import JsonResponse
-# from django.shortcuts import render
-# from django.template import loader
-# from django.http import HttpResponse
-# from django.shortcuts import render_to_response
-# from django.template import RequestContext
-# from django.http import HttpResponseRedirect
-# from django.core.urlresolvers import reverse
-# from django.core.cache import cache
 from django.conf import settings
-# from django.core import serializers
-# from django.contrib.staticfiles.templatetags.staticfiles import static
-# from rest_framework.views import APIView
-# from rest_framework.response import Response
-# from rest_framework import status
-# from rest_framework.decorators import api_view
-# import json
 import os
 import pickle
 import uuid
@@ -23,7 +6,6 @@ import numpy as np
 import pandas as pd
 
 from indicator.models import IndicatorDatapoint
-# from lib.converters import convert_spreadsheet
 from lib.tools import identify_col_dtype
 from validate.models import File
 from geodata.importer.country import CountryImport
