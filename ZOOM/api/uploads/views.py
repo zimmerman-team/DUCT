@@ -34,7 +34,7 @@ class UploadsCreateList(ListCreateAPIView):
         serializer.save(file=self.request.data.get('file'), file_name=self.request.data.get('file_name'))
 
 
-class MapperView(APIView):
+class ErrorCorrectionView(APIView):
 
     def post(seld, request, *args, **kwargs):
 
