@@ -20,7 +20,7 @@ class IndicatorDataList(ListAPIView):
 
     fields = (
         'id',
-        'file_source_id',
+        'file',
         'date_format_id',
         'indicator_category_id',
         'indicator_id',
@@ -30,7 +30,7 @@ class IndicatorDataList(ListAPIView):
         'measure_value',
         'unit_of_measure'
         'other',
-        )
+    )
 
 
 def annotate_measure(query_params, groupings):
@@ -38,7 +38,6 @@ def annotate_measure(query_params, groupings):
     annotation_components = F('measure_value')
 
     return Sum(Cast(annotation_components, FloatField()))
-
 
 
 class IndicatorDataAggregations(AggregationView):

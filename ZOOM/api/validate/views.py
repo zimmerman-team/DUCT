@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view
 import os
 
 from lib.tools import check_file_formatting, check_file_type
-from validate.models import File
+from file_upload.models import File
 from validate.validator import validate
 
 class Validate(APIView):
@@ -15,12 +15,6 @@ class Validate(APIView):
             return Response("No file selected")
         context = validate(file_id)
         return Response(context)
-
-      
-@api_view(['POST'])
-def error_correction(request):
-    context = {"Error": "To do"}
-    return Response(context)        
 
 
 @api_view(['POST'])

@@ -9,7 +9,7 @@ class IndicatorDataFilter(FilterSet):
         model = IndicatorDatapoint
         fields = (
             'id',
-            'file_source_id',
+            'file_id',
             'date_format_id',
             'indicator_category_id',
             'indicator_id',

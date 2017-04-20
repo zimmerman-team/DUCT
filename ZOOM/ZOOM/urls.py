@@ -13,10 +13,6 @@ urlpatterns = [
     url(r'^admin/task_queue/', include('task_queue.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/', include('api.urls')),
-    url(r'^manual_map/', include('manual_mapping.urls')),
-    url(r'^validate/', include('validate.urls')),
-    url(r'^error_correct/', include('error_correct.urls')),
-    url(r'^admin/', admin.site.urls),
 ]
 
 if settings.DEBUG:

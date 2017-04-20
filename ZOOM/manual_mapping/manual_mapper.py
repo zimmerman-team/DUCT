@@ -2,14 +2,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.core.cache import cache
 from django.db import connection,transaction
-from indicator.models import *
-from geodata.models import Country
-from lib.converters import convert_to_JSON # check if this works
 from django.conf import settings
-from sqlalchemy import create_engine
-from lib.tools import check_column_data, correct_data, convert_df
 from django.http import Http404
-from validate.models import File
 import numpy as np
 import pandas as pd
 import pickle 
@@ -17,6 +11,12 @@ import json
 import datetime
 import time
 import os
+
+from indicator.models import *
+from geodata.models import Country
+from lib.converters import convert_to_JSON
+from lib.tools import check_column_data, correct_data, convert_df
+from file_upload.models import File
 
 
 def manual_mapper(data):
@@ -175,12 +175,12 @@ def manual_mapper(data):
 		bulk_list = []
 
 		#cycle through dataset and save each line
-		order["file_source_id"] = file_id;#request.session['files'][0] 
-		instance = FileSource(file_name = order['file_source_id'])
+		order["file_id"] = file_id;#request.session['files'][0] 
+		instance = FileSource(file_name = order['file_id'])
 		instance.save()
 		file_id = instance.id
 
-		order['file_source_id'] = instance 
+		order['file_id'] = instance 
 		order["date_created"] = datetime.datetime.now()
 		instance = Time(date_type = "YYYY")
 		instance.save()

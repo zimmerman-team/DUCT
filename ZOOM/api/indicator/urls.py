@@ -4,6 +4,7 @@ from api.indicator.views import IndicatorDataList, IndicatorDataAggregations
 from django.views.decorators.cache import cache_page
 from django.conf import settings
 
+
 urlpatterns = [
     url(r'^$',
         IndicatorDataList.as_view(),
