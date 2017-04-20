@@ -67,7 +67,7 @@ def update_city_data():
 ###############################
 
 
-from lib.manual_mapper import manual_mapper
+from manual_mapping.manual_mapper import manual_mapper
 
 @job
 def manual_mapping_job(data):
