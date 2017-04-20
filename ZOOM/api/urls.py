@@ -10,5 +10,5 @@ urlpatterns = [
     url(r'^uploads/', include('api.uploads.urls', namespace='uploads')),
     url(r'^file-source/', include('api.file_source.urls', namespace='file_source')),
     url(r'^validate/', include('api.validate.urls', namespace='validate')),
-    url(r'^manual_map/', include('api.manual_map.urls', namespace='manual_map'))
+    url(r'^manual_mapper/', include('api.manual_mapper.urls', namespace='manual_mapper'))
     ]

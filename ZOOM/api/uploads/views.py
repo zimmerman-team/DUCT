@@ -10,14 +10,11 @@ from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 
 from django.conf import settings
 
-from api.uploads.serializers import FileSerializer, MapperSerializer
+from api.uploads.serializers import FileSerializer
 from validate.models import File
 from indicator.models import IndicatorDatapoint
 from geodata.models import get_dictionaries
 from lib.tools import  identify_col_dtype
-
-import django_rq
-from task_queue.tasks import manual_mapping_job
 
 
 class UploadsCreateList(ListCreateAPIView):
@@ -37,38 +34,18 @@ class UploadsCreateList(ListCreateAPIView):
         serializer.save(file=self.request.data.get('file'), file_name=self.request.data.get('file_name'))
 
 
-class MapperView(APIView):
-    #serializer_class = MapperSerializer
+class ErrorCorrectionView(APIView):
 
     def post(seld, request, *args, **kwargs):
-        # data = request.data
-        # print data
-        # serializer = MapperSerializer(data=data)
-        # if serializer.is_valid(raise_exception=True):
-        #     new_data=serializer.data
-        #     pata = {"test": "hatim"}
-        #     return Response(pata, status=HTTP_200_OK)
-        # else:
-        #     return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
         file_name = request.data.get('file_name').split("/")[-1]
 
         df_data = pd.read_csv(settings.MEDIA_ROOT + "/datasets/" + str(file_name))
 
-        pata = {"test": "hatim"}
-
         
         '''
         Create FileSource
         '''
-
- 
-        # file_source = File.objects.get(id=serializer.data['id'])
-        # new_file_source = FileSource.objects.create(file_source=file_source, file_name=file_name)
-        # file_source_id = new_file_source.id
-        # print file_source_id
-
-        # return Response(serializer.data, status=HTTP_400_BAD_REQUEST)
 
 
 
@@ -195,77 +172,5 @@ class MapperView(APIView):
             context = {"error_count": len(error_line_no), "list of errors": list_of_errors}
         print file_error
         return Response(file_error, status=HTTP_200_OK)
-
-
-
-class ManualMappingJob(APIView):
-    """Manual Mapping Job"""
-
-    # authentication_classes = (authentication.TokenAuthentication,)
-    # permission_classes = (PublisherPermissions, )
-    
-    def post(self, request):
-        try:
-            file = File.objects.get(id=request.data["file_id"])
-        except File.DoesNotExist:
-            return Response({
-                'status': 'File not found',
-            })
-
-        if file.in_progress:
-            return Response({
-                'status': 'failed',
-            })
-
-
-        file.in_progress = True
-        file.save()
-
-        queue = django_rq.get_queue('mapper')
-        job = queue.enqueue(manual_mapping_job, request.data)
-
-        return Response({
-            'status': 'processing',
-            'job': job.key,
-        })
-
-
-class ManualMappingJobResult(APIView):
-    """Manual Mapping Job Results"""
-
-    # authentication_classes = (authentication.TokenAuthentication,)
-    # permission_classes = (PublisherPermissions, )
-    
-    def post(self, request):
-        job_id = request.data["job_id"]
-        job_id = job_id.split(':')[2]
-
-        queue = django_rq.get_queue('mapper')
-        job = queue.fetch_job(job_id)
-
-        if job.is_finished:
-            ret = {'status':'completed', 'result': job.return_value}
-
-            try:
-                file = File.objects.get(id=request.data["file_id"])
-            except File.DoesNotExist:
-                return Response({
-                    'status': 'failed',
-                })
-
-            file.in_progress = False
-            file.save()
-
-        elif job.is_queued:
-            ret = {'status':'in-queue'}
-        elif job.is_started:
-            ret = {'status':'waiting'}
-        elif job.is_failed:
-            ret = {'status': 'failed'}
-            print(job.to_dict())
-
-
-        return Response(ret)
-
 
 
