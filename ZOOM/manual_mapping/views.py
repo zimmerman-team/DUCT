@@ -20,7 +20,6 @@ def index(request):
     
     if request.method == 'POST':    
         #check data types
-
         # add validation check here
         if 'dict' in request.POST:
             mappings = json.loads(request.POST['dict']) 
