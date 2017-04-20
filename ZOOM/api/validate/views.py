@@ -1,4 +1,3 @@
-
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -17,7 +16,7 @@ class Validate(APIView):
         context = validate(file_id)
         return Response(context)
 
-
+      
 @api_view(['POST'])
 def error_correction(request):
     context = {"Error": "To do"}

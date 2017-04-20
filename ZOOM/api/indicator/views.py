@@ -1,21 +1,15 @@
-from rest_framework.filters import DjangoFilterBackend
-
-from api.generics.views import DynamicListView
-
-from rest_framework.generics import RetrieveAPIView, GenericAPIView, ListAPIView
-
-from api.indicator.serializers import *
-
-from indicator.models import IndicatorDatapoint
-
-from api.indicator.filters import IndicatorDataFilter
-
-from api.aggregation.views import AggregationView, Aggregation, GroupBy
-
 from django.db.models import Count, Sum, F
-
 from django.db.models import FloatField
 from django.db.models.functions import Cast
+from rest_framework.filters import DjangoFilterBackend
+from rest_framework.generics import RetrieveAPIView, GenericAPIView, ListAPIView
+
+from indicator.models import IndicatorDatapoint
+from api.indicator.serializers import *
+from api.indicator.filters import IndicatorDataFilter
+from api.aggregation.views import AggregationView, Aggregation, GroupBy
+from api.generics.views import DynamicListView
+
 
 class IndicatorDataList(ListAPIView):
 
