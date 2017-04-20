@@ -1,14 +1,15 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from manual_mapping.manual_mapper import manual_mapper
 from rest_framework.views import APIView
 import django_rq
+
+from manual_mapping.manual_mapper import manual_mapper
 from task_queue.tasks import manual_mapping_job
-from validate.models import File
+from file_upload.models import File
 
 
 @api_view(['GET', 'POST'])
-def manual_mapping(request):
+def ManualMapping(request):
     if request.method == 'POST':
         context = manual_mapper(request.data)
         return Response(context)
@@ -84,7 +85,4 @@ class ManualMappingJobResult(APIView):
 
 
         return Response(ret)
-
-
-
 

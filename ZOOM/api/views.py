@@ -29,16 +29,16 @@ def welcome(request, format=None):
                 'uploads:uploads-list',
                 request=request,
                 format=format),
-            'file-source': reverse(
-                'file_source:file-source-list',
+            'file': reverse(
+                'file:file-source-list',
                 request=request,
                 format=format),
             'validate': reverse(
                 'validate:validate',
                 request=request,
                 format=format),
-            'manual_mapper': reverse(
-                'manual_mapper:manual_mapper',
+            'manual-mapper': reverse(
+                'manual-mapper:manual-mapper',
                 request=request,
                 format=format),
         }

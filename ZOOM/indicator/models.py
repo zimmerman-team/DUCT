@@ -12,19 +12,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from geodata import models as geo_models
-
-
-CONTENT_TYPE_MAP = {
-    'application/json': 'json',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
-    'text/csv': 'csv'
-}
-
-
-def upload_to(instance, filename=''):
-	#create datasets if it doesnt exist
-    #return os.path.join(str(instance.pk), filename)
-    return os.path.join(settings.MEDIA_ROOT + "/datasets/", filename)
+from file_upload.models import File
 
 #Basic data store for the test file being used
 
@@ -55,17 +43,6 @@ class IndicatorSource(models.Model):
     indicator = models.ForeignKey(Indicator, null=False, blank=False)"""
 
 
-class FileSource(models.Model):
-    file_name = models.CharField(max_length=100)#set as primary key?
-    date_uploaded = models.DateTimeField(default=timezone.now, blank=True, null=True) #for testing purposes
-
-
-class FileTags(models.Model):
-    file_id = models.ForeignKey(FileSource, null=False, blank=False)
-    tag =  models.CharField(max_length=50)
-    #file_type = models.CharField(max_length = 5)
-
-
 class Time(models.Model):
     date_type = models.CharField(max_length = 100, primary_key=True)
     #date = models.DateField(("Date")) # mapping time format, timezone?
@@ -90,7 +67,7 @@ class MeasureValue(models.Model):
 
 
 class IndicatorDatapoint(models.Model):
-    file_source_id = models.ForeignKey(FileSource, db_column='file_source_id')
+    file = models.ForeignKey(File)
     date_created =  models.DateTimeField(default=timezone.now)
     date_format_id = models.ForeignKey(Time, db_column='date_format_id', blank=True, null=True)
     indicator_id = models.ForeignKey(Indicator, db_column='indicator_id', blank=True, null=True)

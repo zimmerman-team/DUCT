@@ -7,7 +7,7 @@ import pandas as pd
 
 from indicator.models import IndicatorDatapoint
 from lib.tools import identify_col_dtype
-from validate.models import File
+from file_upload.models import File
 from geodata.importer.country import CountryImport
 from geodata.models import get_dictionaries
 

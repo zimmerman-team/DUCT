@@ -20,14 +20,25 @@ CONTENT_TYPE_MAP = {
 
 
 def upload_to(instance, filename=''):
-	#create datasets if it doesnt exist
-    #return os.path.join(str(instance.pk), filename)
     return os.path.join(settings.MEDIA_ROOT + "/datasets/", filename)
 
 
-# Temp storage of file. Used until mapping is complete
+class FileTag(models.Model):
+    tag = models.CharField(max_length=50)
+
+
+class FileSource(models.Model):
+    name = models.CharField(max_length=100)
+
+
 class File(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    title = models.CharField(max_length=100)
+    description = models.TextField(null=False, blank=False)
+    tags = models.ManyToManyField(FileTag)
+    data_source = models.ForeignKey(FileSource, null=True)
+
     in_progress = models.BooleanField(default=False)
     source_url = models.URLField(null=True, max_length=2000)
     file = models.FileField(upload_to=upload_to)
@@ -57,9 +68,6 @@ class File(models.Model):
         return settings.MEDIA_ROOT + "/datasets/" + os.path.basename(self.file.name)
         #return os.path.join(str(instance.pk), filename)
 
-    def get_absolute_url(self):
-        return reverse('zoom_demo:explore', args=(self.pk,), current_app=self.current_app)
-
     def upload_dir(self):#change to upload to different places 
         return os.path.join(settings.MEDIA_ROOT, upload_to(self))
     
@@ -74,7 +82,7 @@ class File(models.Model):
             if self.is_google_doc():
                 get_google_doc(self)
             else:
-                r = requests.get(self.source_url, headers={'User-Agent': 'Cove (cove.opendataservice.coop)'})
+                r = requests.get(self.source_url, headers={'User-Agent': 'ZOOM (zoom.aidsfonds.nl)'})
                 r.raise_for_status()
                 content_type = r.headers.get('content-type', '').split(';')[0].lower()
                 file_extension = CONTENT_TYPE_MAP.get(content_type)

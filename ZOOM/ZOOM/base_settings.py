@@ -121,7 +121,7 @@ INSTALLED_APPS = [
     'api',
     'validate',
     'lib',
-    'error_correct',
+    'error_correction',
     'manual_mapping',
     'indicator',
     'geodata.apps.GeodataConfig',
@@ -130,6 +130,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'test_without_migrations',
     'admin_reorder',
+    'file_upload',
 ]
 
 ADMIN_REORDER = (
