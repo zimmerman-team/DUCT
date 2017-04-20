@@ -7,9 +7,6 @@ from file_upload.models import File, FileSource, FileTag
 from api.file.serializers import FileSerializer, FileSourceSerializer, FileTagSerializer
 
 
-
-
-
 class FileListView(ListCreateAPIView):
 
     queryset = File.objects.all()
