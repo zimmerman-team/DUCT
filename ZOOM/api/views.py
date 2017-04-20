@@ -37,8 +37,8 @@ def welcome(request, format=None):
                 'validate:validate',
                 request=request,
                 format=format),
-            'manual_map': reverse(
-                'manual_map:manual_map',
+            'manual_mapper': reverse(
+                'manual_mapper:manual_mapper',
                 request=request,
                 format=format),
         }

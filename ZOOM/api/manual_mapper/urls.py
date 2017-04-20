@@ -4,6 +4,7 @@ from . import views
 from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = [
+    url(r'^$', views.ManualMappingJob.as_view(), name='manual_mapper'),
     url(r'^manual_map/$', views.manual_mapping, name='manual_map'),
 ]
 
