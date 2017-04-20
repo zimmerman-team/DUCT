@@ -1,13 +1,8 @@
 # Django settings for OIPA project.
 import sys
 import os
-# from django.core.urlresolvers import reverse_lazy
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-
-# LOGIN_URL = reverse_lazy('two_factor:login')
-# LOGOUT_URL = '/logout'
-# DATA_UPLOAD_MAX_NUMBER_FIELDS = 3000
 
 TEMPLATES = [
     {
@@ -121,7 +116,6 @@ INSTALLED_APPS = [
     'corsheaders',
     'grappelli',
     'django.contrib.admin',
-    'autocomplete_light',
     'django.contrib.gis',
     'rest_framework',
     'api',
@@ -185,17 +179,11 @@ RQ_QUEUES = {
 }
 
 GRAPPELLI_ADMIN_TITLE = 'ZOOM admin'
-# ADMINFILES_UPLOAD_TO = 'csv_files'
 LOGIN_REDIRECT_URL = '/admin/'
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_URLS_REGEX = r'^/api/.*$'
 CORS_ALLOW_METHODS = ('GET',)
 
-# IATI_PARSER_DISABLED = False
-# CONVERT_CURRENCIES = True
-# ROOT_ORGANISATIONS = []
-
 ERROR_LOGS_ENABLED = True
-
 DEFAULT_LANG = None

@@ -4,13 +4,7 @@
     {{ block.super }}
     <style>table {width: 100%;}</style>
 
-    <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/prettify.css" %}"/>
-    <link rel="stylesheet" href="{% static "foundation/stylesheets/app.css" %}" />
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
-
-    <link rel="stylesheet" href="{% static "grappelli/stylesheets/screen.css" %}" />
-
-    <script src="{% static "foundation/bower_components/modernizr/modernizr.js" %}"></script>
+    
     <style>
     body{ height: auto; }
     nav{ background-color: inherit; }
@@ -23,7 +17,7 @@
 {% block breadcrumbs %}
     <ul class="grp-horizontal-list">
         <li><a href="{% url 'admin:index' %}">Home</a></li>
-        <li><a href="{% url 'rq_home' %}">OIPA task queues</a></li>
+        <li><a href="{% url 'rq_home' %}">ZOOM task queues</a></li>
     </ul>
 {% endblock %}
 
