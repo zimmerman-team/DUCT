@@ -5,7 +5,7 @@ from file_upload.models import File, FileTag
 from api.generics.serializers import DynamicFieldsModelSerializer
 
 
-class IndicatorCategoryIdSerializer(serializers.ModelSerializer):
+class IndicatorCategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = indicator_models.IndicatorCategory
@@ -14,7 +14,7 @@ class IndicatorCategoryIdSerializer(serializers.ModelSerializer):
             'code')
 
 
-class RegionIdSerializer(serializers.ModelSerializer):
+class RegionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = geo_models.Region
@@ -23,9 +23,9 @@ class RegionIdSerializer(serializers.ModelSerializer):
             'name')
 
 
-class CountryIdSerializer(serializers.ModelSerializer):
+class CountrySerializer(serializers.ModelSerializer):
 
-    region = RegionIdSerializer()
+    region = RegionSerializer()
     
     class Meta:
         model = geo_models.Country
@@ -41,22 +41,22 @@ class FileTagSerializer(serializers.ModelSerializer):
         model = FileTag
         fields = (
             'file_id',
-            'tag')
+            'name')
 
 
 class FileSerializer(serializers.ModelSerializer):
-    file_tags = FileTagSerializer(many=True, read_only=True)
+    file_tags = FileTagSerializer(source="tags", many=True, read_only=True)
     
     class Meta:
         model = File
         fields = (
             'id',
             'file_name',
-            'date_uploaded',
+            'created',
             'file_tags')
 
 
-class IndicatorCategoryIdSerializer(serializers.ModelSerializer):
+class IndicatorCategorySerializer(serializers.ModelSerializer):
     
     class Meta:
         model = indicator_models.IndicatorCategory
@@ -68,9 +68,9 @@ class IndicatorCategoryIdSerializer(serializers.ModelSerializer):
 
 class IndicatorSerializer(serializers.ModelSerializer):
 
-    country_id = CountryIdSerializer()
+    country = CountrySerializer()
     file = FileSerializer()
-    indicator_category_id = IndicatorCategoryIdSerializer()
+    indicator_category = IndicatorCategorySerializer()
 
 
     class Meta:
@@ -78,12 +78,12 @@ class IndicatorSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'file',
-            'date_format_id',
-            'indicator_category_id',
-            'indicator_id',
-            'country_id',
+            'date_format',
+            'indicator_category',
+            'indicator',
+            'country',
             'date_value',
-            'source_id',
+            'source',
             "measure_value",
             "unit_of_measure",
             'other')

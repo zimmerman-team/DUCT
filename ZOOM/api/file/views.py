@@ -28,7 +28,10 @@ class FileListView(ListCreateAPIView):
         'rendered')
 
     def perform_create(self, serializer):
-        serializer.save(file=self.request.data.get('file'), file_name=self.request.data.get('file_name'))
+        serializer.save(
+            file=self.request.data.get('file'), 
+            file_name=self.request.data.get('file_name')
+        )
 
 
 class FileDetailView(RetrieveUpdateDestroyAPIView):

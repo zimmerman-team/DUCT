@@ -24,7 +24,7 @@ def upload_to(instance, filename=''):
 
 
 class FileTag(models.Model):
-    tag = models.CharField(max_length=50)
+    name = models.CharField(max_length=50)
 
 
 class FileSource(models.Model):
