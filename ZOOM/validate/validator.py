@@ -8,6 +8,7 @@ import pandas as pd
 from indicator.models import IndicatorDatapoint
 from lib.tools import identify_col_dtype
 from file_upload.models import File
+from file_upload.models import FileDtypes
 from geodata.importer.country import CountryImport
 from geodata.models import get_dictionaries
 
@@ -15,6 +16,7 @@ from geodata.models import get_dictionaries
 def validate(file_id):
     # file_id = file_id
     #tmp
+    print(file_id)
     newdoc = ['Item'] 
     validate_form = True
     count = 0
@@ -66,8 +68,7 @@ def validate(file_id):
     for heading in file_heading_list:
         headings_file[heading] = count
         prob_list, error_count = identify_col_dtype(df_file[heading], heading, dicts)
-        dtypes_dict[heading] = prob_list 
-        
+        dtypes_dict[heading] = prob_list       
         error_lines.append(error_count)
         validation_results.append(df_file[heading].isnull().sum())
         dtypes_list.append(prob_list)
@@ -93,8 +94,12 @@ def validate(file_id):
     path = os.path.join(os.path.dirname(settings.BASE_DIR), 'ZOOM/media/tmpfiles')
     dict_name = path +  "/" + str(uuid.uuid4()) + ".txt"
     with open(dict_name, 'w') as f:
-        pickle.dump(dtypes_dict, f)  
-    
+        pickle.dump(error_lines, f) 
+    print("dict name:  ", dict_name)
+    print("File:  ", File.objects.get(id=file_id))
+    FileDtypes(dtype_name=dict_name, file=File.objects.get(id=file_id)).save()
+
+    print("dtypes_dict", dtypes_dict)
     context = {
         'success': 1, 
         'mapped' : count, 
@@ -103,7 +108,7 @@ def validate(file_id):
         "summary":zip(summary_indexes, summary_results), 
         "missing_list" : remaining_mapping, 
         "files" : files[0], 
-        "dtypes_loc" : dict_name
+        "dtypes_dict" : dtypes_dict
     }
 
     # print(len(summary_results));
