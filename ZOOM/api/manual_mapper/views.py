@@ -10,6 +10,7 @@ from file_upload.models import File
 
 @api_view(['GET', 'POST'])
 def ManualMapping(request):
+    print request
     if request.method == 'POST':
         context = manual_mapper(request.data)
         return Response(context)
@@ -24,29 +25,37 @@ class ManualMappingJob(APIView):
     # permission_classes = (PublisherPermissions, )
     
     def post(self, request):
-        try:
-            file = File.objects.get(id=request.data["file_id"])
-        except File.DoesNotExist:
-            return Response({
-                'status': 'File not found',
-            })
 
-        if file.in_progress:
-            return Response({
-                'status': 'failed',
-            })
+        from manual_mapping.manual_mapper import manual_mapper
+        context = manual_mapper(request.data)
+
+        return Response(context)
 
 
-        file.in_progress = True
-        file.save()
 
-        queue = django_rq.get_queue('mapper')
-        job = queue.enqueue(manual_mapping_job, request.data)
+        # try:
+        #     file = File.objects.get(id=request.data["file_id"])
+        # except File.DoesNotExist:
+        #     return Response({
+        #         'status': 'File not found',
+        #     })
 
-        return Response({
-            'status': 'processing',
-            'job': job.key,
-        })
+        # if file.in_progress:
+        #     return Response({
+        #         'status': 'failed',
+        #     })
+
+
+        # file.in_progress = True
+        # file.save()
+
+        # queue = django_rq.get_queue('mapper')
+        # job = queue.enqueue(manual_mapping_job, request.data)
+
+        # return Response({
+        #     'status': 'processing',
+        #     'job': job.key,
+        # })
 
 
 class ManualMappingJobResult(APIView):
