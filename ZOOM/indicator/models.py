@@ -68,14 +68,14 @@ class MeasureValue(models.Model):
 
 class IndicatorDatapoint(models.Model):
     file = models.ForeignKey(File)
-    date_created =  models.DateTimeField(default=timezone.now)
-    date_format_id = models.ForeignKey(Time, db_column='date_format_id', blank=True, null=True)
-    indicator_id = models.ForeignKey(Indicator, db_column='indicator_id', blank=True, null=True)
-    indicator_category_id = models.ForeignKey(IndicatorCategory, db_column='indicator_category_id', blank=True, null=True)
+    date_created = models.DateTimeField(default=timezone.now)
+    date_format = models.ForeignKey(Time, blank=True, null=True)
+    indicator = models.ForeignKey(Indicator, blank=True, null=True)
+    indicator_category = models.ForeignKey(IndicatorCategory, blank=True, null=True)
     unit_of_measure = models.CharField(max_length=20, blank=True, null=True)
-    country_id = models.ForeignKey(geo_models.Country, db_column='country_id', blank=True, null=True)#should be a foreign key to GeoData
+    country = models.ForeignKey(geo_models.Country, blank=True, null=True)#should be a foreign key to GeoData
     date_value = models.CharField(max_length=20, blank=True, null=True) #changed from DecimalField #models.DecimalField(max_digits=20, decimal_places = 5) # identify timezone?
-    source_id = models.ForeignKey(IndicatorSource, db_column='source_id', blank=True, null=True)
+    source = models.ForeignKey(IndicatorSource, blank=True, null=True)
     #changed from foreign key to  Decimal and then to CharField as Pandas.to_sql didn't save properly
     measure_value = models.CharField(max_length=40, blank=True, null=True) #models.DecimalField(max_digits=20, decimal_places = 5)#for now leave as char #models.ForeignKey(MeasureValue) # might need more for accuracy
     other = models.CharField(max_length=600, blank=True, null=True) #found instance where it ius bigger than 500    
