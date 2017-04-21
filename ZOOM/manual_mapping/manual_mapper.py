@@ -21,6 +21,7 @@ from file_upload.models import File
 
 def manual_mapper(data):
 	if 'dict' in data:
+		print(data)
 		mappings = data['dict']#json.loads(data['dict']) 
 		mappings.pop("null", None)#not needed for api call
 		mappings.pop("validate_store", None) # not needed for api call
@@ -31,7 +32,7 @@ def manual_mapper(data):
 		error_message = []
 		correction_mappings = {}
 
-		dict_name = data["dtypes_loc"]#request.session['dtypes']
+		dtypes_dict = data["dtypes_dict"]#request.session['dtypes']
 		indicator_value = mappings.pop("empty_indicator", None)
 		country_value = mappings.pop("empty_country", None)
 		indicator_category_value = mappings.pop("empty_indicator_cat", None)
@@ -39,12 +40,8 @@ def manual_mapper(data):
 		relationship_dict = mappings.pop("relationship", None)
 		left_over_dict = mappings.pop("left_over", None)
 
-		print('Here in this method')
-		print(str(file.file))
-		print(dict_name)
-
-		with open(dict_name, 'rb') as f:
-		    dtypes_dict = pickle.load(f)
+		#with open(dict_name, 'rb') as f:
+		#    dtypes_dict = pickle.load(f)
 		#check if exists
 		if relationship_dict:
 		#clean values of ~
@@ -127,47 +124,32 @@ def manual_mapper(data):
 		            mappings[key] = [key]
 		        if not mappings[key][0] in df_data.columns:
 		            mappings[key][0] = mappings[key][0].replace("~", " ")
-		    #if (col.replace("~") in relationship_dict):
-		    #    relationship_dict[col] = relationship_dict[col].replace("~", " ")
-
-		    #for each line in df data
-		#column_check = df_data.columns# 
-
-		#Validation
+		
 		for key in mappings:
-		        #return HttpResponse(key)
 		        if mappings[key]:#this is included incase no mapping is given
-
-		            #if not mappings[key][0] in df_data.columns:
-		                #mappings[key][0] = mappings[key][0].replace("~", " ")
 		            
 		            correction_mappings[mappings[key][0]] = []
 		            check = df_data[mappings[key][0]]
 		            temp_results_check_dtype, temp_found_dtype, temp_convert_dtype = check_column_data(dtypes_dict[mappings[key][0]], df_data[mappings[key][0]], key, mappings[key][0])
 
 		            if temp_results_check_dtype != False:
-		                #found_dtype.append(temp_found_dtype)
-		                #convert_to_dtype.append(temp_convert_dtype)
 		                correction_mappings[mappings[key][0]] = (temp_found_dtype, temp_convert_dtype) 
 		            else:
 		                error_message.append(mappings[key][0] + " to " + key + ", found " + temp_found_dtype + ", needed " + temp_convert_dtype + ". ")#datatype blah blah 
-		            ###
-		#df_data['mAP']# MISTAKE
+		 
 		if len(error_message) > 0:
-		    #cache.clear() # check if necessary for ctrf token?   
 		    context = {}
 		    missing = []
-		    #for heading in request.session['missing_list']: #why not just pass missing list instead of missing
-		    #    missing.append(heading.replace(" ", "~"))#check this
 		    context = {"error_messages" : error_message, "success" : 0}
-		    #return render(request, 'manual_mapping/manual_mapping.html', context)
-		    #return HttpResponse(error_message)
 		    return Response(context)
 		df_data = correct_data(df_data, correction_mappings)
 
 		#handle bad data
 		null_values = df_data[mappings['indicator_category'][0]].isnull()
+		print(df_data[mappings['indicator_category'][0]])
 		df_data[mappings['indicator_category'][0]][null_values] = "Default"
+		print("frof ", df_data[mappings['indicator_category'][0]])
+		#'billy.j
 
 		#df_data = df_data[1:len(df_data)]
 		order = {}
