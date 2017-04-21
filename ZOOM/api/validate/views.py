@@ -7,6 +7,7 @@ from lib.tools import check_file_formatting, check_file_type
 from file_upload.models import File
 from validate.validator import validate
 
+
 class Validate(APIView):
     def post(self, request):
         if request.method == 'POST':
