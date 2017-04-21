@@ -9,7 +9,7 @@ class FileTagSerializer(serializers.ModelSerializer):
 		model = FileTag
 		fields = (
 			'id',
-			'name')
+			'tag')
 
 
 class FileSourceSerializer(serializers.ModelSerializer):
