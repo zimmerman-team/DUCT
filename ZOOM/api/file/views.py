@@ -35,9 +35,6 @@ class FileView(APIView):
             for i in range(len(tags)):
                 tag = tags[str(i)]["tag"]
                 file_tag,_ = FileTag.objects.get_or_create(tag=tag)
-                # instance_file_tag = File(id=instance.id, tags=file_tag)
-                # # instance_file_tag(tags=file_tag)
-                # instance_file_tag.save()
                 instance.tags.add(file_tag)
 
         data_source = self.request.data.get('data_source')
