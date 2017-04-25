@@ -21,9 +21,9 @@ def error_correction(request):
     #newdoc_name = request.session['files'][0].split("/")[-1]
     column_headings = list(df_data.columns)
     dtypes_dict = request.data['dtypes_dict']
-    file_name = FileDtypes.objects.get(file=File.objects.get(id=file_id)).dtype_name 
-    print(file_name)
-    with open(file_name, 'rb') as f:
+    dtypes_dict_file_name = FileDtypes.objects.get(file=File.objects.get(id=file_id)).dtype_name 
+    print(dtypes_dict_file_name)
+    with open(dtypes_dict_file_name, 'rb') as f:
         error_data = pickle.load(f)
     #error_data = request.data['missing_dtypes_list']
     #error_data = #he data each line has
@@ -72,7 +72,8 @@ def error_correction(request):
 
     #zip_list = zip(*[data_list, error_ids])
     zip_list = zip(line_numbers, data_list)
-    context= {"df_data" : zip_list, "column_headings":column_headings, "found_error_ids" : found_error_ids}
+    context = {"df_data" : zip_list, "column_headings":column_headings, "found_error_ids" : found_error_ids}
+    
     #else:
     #    error_count = len(error_line_no)
     #    list_of_errors = [] 
