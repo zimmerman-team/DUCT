@@ -13,28 +13,6 @@ import os
 import json
 
 
-@api_view(['POST'])
-def delete_file(request):
-    print("In delete file")
-    file_id = request.data.get('file_id')
-    print(file_id)
-    
-    instance = File.objects.get(id=request.data['file_id'])
-    #FileSource.objects.get()
-    #FileTag.objects.get()
-    print instance
-    indicator_instance = IndicatorDatapoint.objects.filter(file=instance)
-    if indicator_instance:
-        #indicator_instance = IndicatorDatapoint.objects.get(file=instance)
-        print(len(indicator_instance))
-        indicator_instance.delete()
-    file = instance.file
-    print(file)
-    os.remove(str(file))
-    instance.delete()
-    return Response({"success": 1})
-
-
 class FileListView(ListCreateAPIView):
 
     queryset = File.objects.all()
