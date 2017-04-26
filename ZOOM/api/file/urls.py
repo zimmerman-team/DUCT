@@ -1,10 +1,9 @@
 from django.conf.urls import url
 
-from api.file.views import FileListView, FileDetailView, FileSourceListView, FileTagListView, delete_file
+from api.file.views import FileListView, FileDetailView, FileSourceListView, FileTagListView
 
 
 urlpatterns = [
-        url(r'^delete_file/$', delete_file, name='delete_file'),
         url(r'^$', FileListView.as_view(), name='file-list'),
         url(r'^(?P<pk>[^@$&+,/:;=?]+)/', FileDetailView.as_view(), name='file-detail'),
         url(r'^sources/', FileSourceListView.as_view(), name='file-source-list'),
