@@ -21,12 +21,12 @@ class IndicatorDataList(ListAPIView):
     fields = (
         'id',
         'file',
-        'date_format_id',
-        'indicator_category_id',
-        'indicator_id',
-        'country_id',
+        'date_format',
+        'indicator_category',
+        'indicator',
+        'country',
         'date_value',
-        'source_id',
+        'source',
         'measure_value',
         'unit_of_measure'
         'other',
@@ -94,32 +94,33 @@ class IndicatorDataAggregations(AggregationView):
 
     allowed_groupings = (
         GroupBy(
-            query_param="indicator_category_id",
-            fields="indicator_category_id",
+            query_param="indicator_category",
+            fields="indicator_category",
         ),
         GroupBy(
-            query_param="indicator_id",
-            fields="indicator_id",
+            query_param="indicator",
+            fields="indicator",
         ),
         GroupBy(
             query_param="date_value",
             fields="date_value",
         ),
         GroupBy(
-            query_param="country_id",
-            fields="country_id",
+            query_param="country",
+            fields="country",
         ),
         GroupBy(
-            query_param="country_id__region",
-            fields="country_id__region",
+            query_param="country__region",
+            fields="country__region",
         ),
         GroupBy(
-            query_param="country_id__name",
-            fields="country_id__name",
+            query_param="country__name",
+            fields="country__name",
         ),
         GroupBy(
-            query_param="country_id__region__name",
-            fields="country_id__region__name"),
+            query_param="country__region__name",
+            fields="country__region__name"
+        ),
         GroupBy(
             query_param="unit_of_measure",
             fields="unit_of_measure",
