@@ -185,7 +185,7 @@ def check_data_type(field, dtypes):
     #add time
     dtype_set = set()
     result = False
-    if field == "country_id":
+    if field == "country":
         country_list = ['iso2', 'iso3', "country_name"]
         dtype_set = set(dtypes) & set(country_list)
         result = bool(dtype_set)   
@@ -300,7 +300,7 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
             new_df.loc[counter] = df_data.iloc[i] #copy row
             #might have to be greater than 2
             
-            if col in mappings['indicator_category_id'] and len(mappings['indicator_category_id']) > 1:#if more than one relationship ie multiple subgroupd and relationships
+            if col in mappings['indicator_category'] and len(mappings['indicator_category']) > 1:#if more than one relationship ie multiple subgroupd and relationships
                 check  = new_df[relationship_dict[col]][counter] #if supgroup already defined
                 new_df[relationship_dict[col]][counter] = new_df[relationship_dict[col]][counter] + "|" + (col.replace("~", " "))#last part not needed
                 new_df[left_over_dict[col]][counter] = df_data[col.replace("~", " ")][i]#check if col_replace is there

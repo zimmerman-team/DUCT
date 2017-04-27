@@ -20,6 +20,7 @@ class Validate(APIView):
 
 @api_view(['POST'])
 def check_file_valid(request):
+    print(request.data)
     file_name = str(File.objects.get(id=request.data['file_id']).file_name)
     file_loc = str(File.objects.get(id=request.data['file_id']).file)
 
@@ -31,6 +32,7 @@ def check_file_valid(request):
         return Response(result[1])
 
     result = check_file_formatting(file_loc)
+
     if not result[0]:
         os.remove(file_loc) 
         File.objects.get(id=request.data['file_id']).delete()

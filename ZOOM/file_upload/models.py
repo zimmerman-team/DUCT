@@ -24,16 +24,14 @@ def upload_to(instance, filename=''):
 
 
 class FileTag(models.Model):
-    tag = models.CharField(max_length=50)
+    name = models.CharField(max_length=50)
 
 
 class FileSource(models.Model):
     name = models.CharField(max_length=100)
 
-
 class File(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-
     title = models.CharField(max_length=100)
     description = models.TextField(null=False, blank=False)
     tags = models.ManyToManyField(FileTag)
@@ -104,3 +102,7 @@ class File(models.Model):
         else:
             raise ValueError('No source_url specified.')
 
+class FileDtypes(models.Model):
+    dtype_name = models.CharField(max_length=500, null=True)#location      
+    file = models.OneToOneField("File", null=True)
+    #include method that deletes physical file if row deleted
