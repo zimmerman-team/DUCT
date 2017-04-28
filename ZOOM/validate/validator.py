@@ -44,7 +44,6 @@ def validate(file_id):
     newdoc[0] = str(File.objects.get(id=file_id).file)
 
     #loop here for multiple files
-
     #.get_file_path())
     df_file = pd.read_csv(newdoc[0])
     file_heading_list = df_file.columns
