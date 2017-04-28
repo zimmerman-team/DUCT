@@ -82,6 +82,8 @@ class FileDetailView(RetrieveUpdateDestroyAPIView):
                 file_tag, file_tag_created = FileTag.objects.get_or_create(name=tag)
                 file.tags.add(file_tag)
 
+        file.title = self.request.data.get('title')
+
         data_source = self.request.data.get('data_source')
         data_source_obj, data_source_created = FileSource.objects.get_or_create(name=data_source)
 
