@@ -11,7 +11,8 @@ class IndicatorCategorySerializer(serializers.ModelSerializer):
         model = indicator_models.IndicatorCategory
         fields = (
             'id',
-            'code')
+            'code',
+            )
 
 
 class RegionSerializer(serializers.ModelSerializer):
@@ -20,7 +21,8 @@ class RegionSerializer(serializers.ModelSerializer):
         model = geo_models.Region
         fields = (
             'code',
-            'name')
+            'name',
+            )
 
 
 class CountrySerializer(serializers.ModelSerializer):
@@ -32,7 +34,8 @@ class CountrySerializer(serializers.ModelSerializer):
         fields = (
             'code',
             'name',
-            'region')
+            'region',
+            )
 
 
 class FileTagSerializer(serializers.ModelSerializer):
@@ -40,8 +43,8 @@ class FileTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = FileTag
         fields = (
-            'file_id',
-            'name')
+            'name',
+            )
 
 
 class FileSerializer(serializers.ModelSerializer):
@@ -53,7 +56,8 @@ class FileSerializer(serializers.ModelSerializer):
             'id',
             'file_name',
             'created',
-            'file_tags')
+            'file_tags',
+            )
 
 
 class IndicatorCategorySerializer(serializers.ModelSerializer):
@@ -63,7 +67,8 @@ class IndicatorCategorySerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'code',
-            'indicator') 
+            'indicator',
+            ) 
 
 
 class IndicatorSerializer(serializers.ModelSerializer):
@@ -86,4 +91,5 @@ class IndicatorSerializer(serializers.ModelSerializer):
             'source',
             "measure_value",
             "unit_of_measure",
-            'other')
+            'other',
+            )
