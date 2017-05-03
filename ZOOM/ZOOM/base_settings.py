@@ -1,13 +1,8 @@
 # Django settings for OIPA project.
 import sys
 import os
-# from django.core.urlresolvers import reverse_lazy
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-
-# LOGIN_URL = reverse_lazy('two_factor:login')
-# LOGOUT_URL = '/logout'
-# DATA_UPLOAD_MAX_NUMBER_FIELDS = 3000
 
 TEMPLATES = [
     {
@@ -121,22 +116,21 @@ INSTALLED_APPS = [
     'corsheaders',
     'grappelli',
     'django.contrib.admin',
-    'autocomplete_light',
     'django.contrib.gis',
     'rest_framework',
     'api',
     'validate',
     'lib',
-    'error_correct',
+    'error_correction',
     'manual_mapping',
     'indicator',
-    'scatter_demo',
     'geodata.apps.GeodataConfig',
     'task_queue',
     'djsupervisor',
     'django_extensions',
     'test_without_migrations',
     'admin_reorder',
+    'file_upload',
 ]
 
 ADMIN_REORDER = (
@@ -160,7 +154,6 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.BrowsableAPIRenderer',
         'rest_framework.renderers.JSONRenderer',
-        'api.renderers.PaginatedCSVRenderer',
     ),
 }
 
@@ -176,21 +169,21 @@ RQ_QUEUES = {
         'PORT': 6379,
         'DB': 0,
         'DEFAULT_TIMEOUT': 5400,
+    },
+    'mapper': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+        'DEFAULT_TIMEOUT': 5400,
     }
 }
 
 GRAPPELLI_ADMIN_TITLE = 'ZOOM admin'
-# ADMINFILES_UPLOAD_TO = 'csv_files'
 LOGIN_REDIRECT_URL = '/admin/'
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_URLS_REGEX = r'^/api/.*$'
-CORS_ALLOW_METHODS = ('GET',)
-
-# IATI_PARSER_DISABLED = False
-# CONVERT_CURRENCIES = True
-# ROOT_ORGANISATIONS = []
+CORS_ALLOW_METHODS = ('GET','PUT', 'PATCH', 'DELETE')
 
 ERROR_LOGS_ENABLED = True
-
 DEFAULT_LANG = None

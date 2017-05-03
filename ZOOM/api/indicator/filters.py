@@ -9,11 +9,14 @@ class IndicatorDataFilter(FilterSet):
         model = IndicatorDatapoint
         fields = (
             'id',
-            'file_source_id',
-            'date_format_id',
-            'indicator_category_id',
-            'indicator_id',
-            'country_id',
+            'file',
+            'date_format',
+            'indicator_category',
+            'indicator',
+            'country',
             'date_value',
-            'source_id',
+            'source',
+            'country__region',
+            'country__name',
+            'unit_of_measure',
         )

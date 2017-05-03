@@ -1,11 +1,13 @@
+from django.conf import settings
+
+import datetime
+import time
+from redis import Redis
+
 from django_rq import job
 import django_rq
-import datetime
 from rq import Queue, Connection, Worker
 from rq.job import Job
-from redis import Redis
-from django.conf import settings
-import time
 
 
 redis_conn = Redis()
@@ -57,3 +59,29 @@ def update_city_data():
     from geodata.importer.city import CityImport
     ci = CityImport()
     ci.update_cities()
+
+
+
+###############################
+#### MANUAL MAPPING TASKS #####
+###############################
+
+
+from manual_mapping.manual_mapper import manual_mapper
+
+@job
+def manual_mapping_job(data):
+    context = manual_mapper(data)
+    return context
+
+
+
+
+
+
+
+
+
+
+
+
