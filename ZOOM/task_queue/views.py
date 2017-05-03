@@ -1,6 +1,9 @@
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponse
+
 import json
+from math import ceil
+from redis import Redis
 import django_rq
 from django_rq import get_connection
 from rq import requeue_job
@@ -8,12 +11,10 @@ from rq import get_failed_queue
 from rq import Worker
 from rq_scheduler import Scheduler
 from rq.registry import FinishedJobRegistry
-from task_queue import tasks
-from redis import Redis
 from rq.exceptions import NoSuchJobError
 from rq.job import Job
 
-from math import ceil
+from task_queue import tasks
 
 
 # PARSE TASKS

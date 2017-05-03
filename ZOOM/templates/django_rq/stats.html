@@ -1,16 +1,18 @@
 {% extends "admin/base_site.html" %}
 {% load staticfiles %}
+
+
 {% block extrastyle %}
     {{ block.super }}
-    <style>table {width: 100%;}</style>
 
-    <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/prettify.css" %}"/>
-    <link rel="stylesheet" href="{% static "foundation/stylesheets/app.css" %}" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.5.3/css/normalize.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.5.3/css/foundation.min.css" />
+    <link rel="stylesheet" type="text/css" href="/static/admin/css/custom_admin.css" />
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 
-    <link rel="stylesheet" href="{% static "grappelli/stylesheets/screen.css" %}" />
+    <style>table {width: 100%;}</style>
 
-    <script src="{% static "foundation/bower_components/modernizr/modernizr.js" %}"></script>
+    
     <style>
     body{ height: auto; }
     nav{ background-color: inherit; }
@@ -23,7 +25,7 @@
 {% block breadcrumbs %}
     <ul class="grp-horizontal-list">
         <li><a href="{% url 'admin:index' %}">Home</a></li>
-        <li><a href="{% url 'rq_home' %}">OIPA task queues</a></li>
+        <li><a href="{% url 'rq_home' %}">ZOOM task queues</a></li>
     </ul>
 {% endblock %}
 
@@ -34,7 +36,7 @@
     <div class="row">
         <div class="small-6 large-6 columns">
             <div class="django-rq-block block-add-new-task">
-                <h1>Add new task</h1>
+                <h4>Add new task</h4>
 
                 <select name="add-task-select-default">
 
@@ -59,7 +61,7 @@
             </div>
         </div>
         <div class="small-6 large-6 columns text-right">
-        <a id="refresh-tables" href="#refresh"><h1><i class="fa fa-refresh" aria-hidden="true"></i></h1></a>
+        <a id="refresh-tables" href="#refresh"><h4><i class="fa fa-refresh" aria-hidden="true"></i></h4></a>
             Last refreshed: 
             <span id="seconds">0</span> seconds ago 
             <br>&nbsp;<br>
@@ -73,7 +75,7 @@
 
     <div class="row">
         <div class="small-12 large-6 columns">
-            <h1>Task queues</h1>
+            <h4>Task queues</h4>
        
             <div id="task-queue-overview-table-wrapper">
                 <table id="task-queue-overview-table" class="table table-striped table-bordered table-hover table-condensed django-rq-table">
@@ -121,7 +123,7 @@
             </div>
         </div>
         <div class="small-12 large-6 columns">
-            <h1>Worker details</h1>
+            <h4>Worker details</h4>
                    
             <table id="workers-table" class="table table-striped table-bordered table-hover table-condensed django-rq-table">
                 <thead>
@@ -141,7 +143,7 @@
 
     <div class="row">
       <div class="small-12 large-6 columns">
-            <h1>Default queue</h1>
+            <h4>Default queue</h4>
             
             <table id="default-tasks-table" class="table table-striped table-bordered table-hover table-condensed django-rq-table">
                 <thead>
@@ -157,9 +159,9 @@
             <a id="clear-default-queue" href="#" class="task-btn btn-info oipa-admin-button">Clear default queue</a>
       </div>
       <div class="small-12 large-6 columns">
-            <h1>Parser queue</h1>
+            <h4>Mapper queue</h4>
             
-            <table id="parser-tasks-table" class="table table-striped table-bordered table-hover table-condensed django-rq-table">
+            <table id="mapper-tasks-table" class="table table-striped table-bordered table-hover table-condensed django-rq-table">
                 <thead>
                     <tr>
                         <th>Task</th>
@@ -170,7 +172,7 @@
                 <tbody>
                 </tbody>
             </table>
-            <a id="clear-parser-queue" href="#" class="task-btn btn-info oipa-admin-button">Clear parser queue</a>
+            <a id="clear-mapper-queue" href="#" class="task-btn btn-info oipa-admin-button">Clear mapper queue</a>
       </div>
     </div>
 
@@ -178,7 +180,7 @@
 
     <div class="row">
       <div class="small-12 large-6 columns">
-            <h1>Finished in default queue</h1>
+            <h4>Finished in default queue</h4>
             
             <table id="finished-default-table" class="table table-striped table-bordered table-hover table-condensed django-rq-table">
                 <thead>
@@ -193,9 +195,9 @@
             </table>
       </div>
       <div class="small-12 large-6 columns">
-            <h1>Finished in parser queue</h1>
+            <h4>Finished in mapper queue</h4>
             
-            <table id="finished-parser-table" class="table table-striped table-bordered table-hover table-condensed django-rq-table">
+            <table id="finished-mapper-table" class="table table-striped table-bordered table-hover table-condensed django-rq-table">
                 <thead>
                     <tr>
                         <th>Task</th>
@@ -213,7 +215,7 @@
 
     <div class="row">
         <div class="small-12 large-12 columns">
-            <h1>Failed tasks</h1>
+            <h4>Failed tasks</h4>
             <a id="requeue-all-failed-tasks" href="#" class="task-btn btn-info oipa-admin-button">Re-queue all failed tasks</a>
             <a id="clear-failed-tasks" href="#" class="task-btn btn-info oipa-admin-button">Clear failed tasks</a>
         
@@ -240,7 +242,7 @@
     <div class="row">
         <div class="small-12 large-8 columns">
             <div class="django-rq-block">
-                <h1>Scheduled tasks</h1>
+                <h4>Scheduled tasks</h4>
 
                 <table id="scheduled-tasks-table" class="table table-striped table-bordered table-hover table-condensed django-rq-table">
                     <thead>
@@ -259,7 +261,7 @@
         </div>
         <div class="small-12 large-4 columns">
             <div class="django-rq-block">
-                <h1>Schedule new task</h1>
+                <h4>Schedule new task</h4>
 
                 <div class="django-rq-buttons">
                     <input name="new-schedule-jobname" placeholder="Job name">
@@ -396,18 +398,18 @@ $(document).ready(function (){
         });
     });
 
-    $('#clear-parser-queue').click(function(e){
+    $('#clear-mapper-queue').click(function(e){
        e.preventDefault();
-       var btn = $('#clear-parser-queue');
+       var btn = $('#clear-mapper-queue');
 
         $.ajax({
             type: "GET",
             url: '/admin/task_queue/delete_all_tasks_from_queue/',
-            data: { queue_name: "parser"},
+            data: { queue_name: "mapper"},
             beforeSend: btnBeforeSend(btn)
         })
         .done(function() {
-            btnSuccess(btn, "Clear parser queue")
+            btnSuccess(btn, "Clear mapper queue")
         })
         .fail(function() {
             btnError(btn)
@@ -618,23 +620,23 @@ $(document).ready(function (){
 
     fill_finished_default_tasks();
 
-    function fill_finished_parser_tasks(){
+    function fill_finished_mapper_tasks(){
 
         $.ajax({
            type: "GET",     
            url: "/admin/task_queue/get_finished_tasks/",
            data: {
-                "queue": "parser"
+                "queue": "mapper"
            },
            success: function (data) {
                var trs = createFinishedTableRows(data)
-               $('#finished-parser-table tbody').html(trs);
+               $('#finished-mapper-table tbody').html(trs);
                load_listeners();
            }
        });
     }
 
-    fill_finished_parser_tasks();
+    fill_finished_mapper_tasks();
 
 
 
@@ -675,24 +677,24 @@ $(document).ready(function (){
 
     fill_workers();
 
-    function fill_parser_queue(){
+    function fill_mapper_queue(){
 
        $.ajax({
           type: "GET",
           url: "/admin/task_queue/get_queue/",
           data: {
-               "queue": "parser"
+               "queue": "mapper"
           },
           success: function (data) {
 
             var trs = createQueueTableRows(data, 1);
-            $('#parser-tasks-table tbody').html(trs);
+            $('#mapper-tasks-table tbody').html(trs);
             load_listeners();
           }
       });
     }
 
-    fill_parser_queue();
+    fill_mapper_queue();
 
 
     function reload_task_queue_overview_table(){
@@ -746,8 +748,8 @@ $(document).ready(function (){
 
 
     function load_listeners(){
-        $(".delete-parser-task").unbind('click')
-        $(".delete-parser-task").click(function(e){
+        $(".delete-mapper-task").unbind('click')
+        $(".delete-mapper-task").click(function(e){
             e.preventDefault();
             var btn = $(this);
             var url = $(this).attr("href");
@@ -839,11 +841,11 @@ $(document).ready(function (){
 
         reload_task_queue_overview_table();
         fill_default_queue();
-        fill_parser_queue();
+        fill_mapper_queue();
         fill_workers();
         fill_failed_tasks();
         fill_scheduled_tasks();
-        fill_finished_parser_tasks();
+        fill_finished_mapper_tasks();
         fill_finished_default_tasks();
 
         totalSeconds = 0;

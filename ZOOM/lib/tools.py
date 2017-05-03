@@ -116,7 +116,7 @@ def identify_col_dtype(column_values, file_heading, dicts,sample=None): #only ta
                     error_counter.append(("date", counter))
                     dtypes_found.append("date")
                 except ValueError:
-                    dtypes_found.append("possiblly date")
+                    dtypes_found.append("date")#fix this
                     error_counter.append(("possiblly date", counter))
                     
                 #check if string value is a formula     
@@ -185,7 +185,7 @@ def check_data_type(field, dtypes):
     #add time
     dtype_set = set()
     result = False
-    if field == "country_id":
+    if field == "country":
         country_list = ['iso2', 'iso3', "country_name"]
         dtype_set = set(dtypes) & set(country_list)
         result = bool(dtype_set)   
@@ -193,12 +193,12 @@ def check_data_type(field, dtypes):
         if not result:
             dtype_set = dtypes[0]
         else:
-            dtype_set = list(dtype_set)[0]
+            dtype_set = list(dtype_set)[0]#pointless??
 
-        if "country_name" == dtype_set:
-            dtype_set = "name"
-        elif "iso2" == dtype_set:
-            dtype_set = "code"
+        # if "country_name" == dtype_set:
+        #     dtype_set = "countrname"
+        # elif "iso2" == dtype_set:
+        #     dtype_set = "code"
             
         return result, dtype_set, "iso2" #return type found
     
@@ -224,15 +224,20 @@ def correct_data(df_data, correction_data):#correction_data ["country_name, iso2
 
     for key in correction_data:
         #decide what format to goive it too #also check date
+        print(correction_data[key][1])
+        print(correction_data[key][0])
         if correction_data[key][1] == "iso2":
             #model = Country.objects.all()
             if correction_data[key][0] == "country_name":
                 curr_dicts = dicts["country_name"]
+                df_data = df_data.replace({key : curr_dicts}) #needs to be more comprehensive, users mix iso2 and iso3 in column data
             elif correction_data[key][0] =="iso3":#not needed??
                 curr_dicts = dicts["iso3"]
+                df_data = df_data.replace({key : curr_dicts})
+
         #elif date
         #elif measure value etc
-            df_data = df_data.replace({key : curr_dicts})
+            
             """for i in range(len(df_data[key])):
                 value[correction_data[key][0]] = df_data[key][i] #might not work?
                 #query_result = model.filter(**value)
@@ -256,36 +261,112 @@ def correct_data(df_data, correction_data):#correction_data ["country_name, iso2
     #if date convert in integer
     #if 
 
-def convert_df(relationship_dict, left_over_dict, df_data, dtypes_dict):
+def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict, empty_unit_measure_value):
+    
+    if not empty_unit_measure_value:
+        empty_unit_measure_value = {}
 
     columns = []
-    for col in df_data.columns:  
-        if (col in relationship_dict):
-            if not relationship_dict[col] in columns:
-                columns.append(relationship_dict[col])
-                columns.append(left_over_dict[col])
+    for col in df_data.columns: 
+        temp = str(col)#.replace(" ", "~")#needed?
+        col = str(col) 
+        if (temp in relationship_dict):
+            if not relationship_dict[temp] in columns or not left_over_dict[temp] in columns:
+                columns.append(str(relationship_dict[temp]))
+                columns.append(str(left_over_dict[temp]))
         else: 
             columns.append(col)
 
+    columns = list(set(columns))#filter duplicates
     columns_set = list(set(list(columns)) & set(list(df_data.columns))) #set(columns).intersection(set(df_data.columns)) 
+    new_df = pd.DataFrame( columns = columns)
     
-    new_df = pd.DataFrame( columns = list(columns))
-
     counter = 0
+
     for i in range(len(df_data[columns_set[0]])):#columns[0] bad idea, fix
         #for col in columns_set:
         #    new_df[col][counter] = df_data[col][i]
         for col in relationship_dict:
-            dtypes_dict[relationship_dict[col]] = [['date', "100%"]] # check type #######################check here data type
+
+            if relationship_dict[col] == "date_value":
+                dtypes_dict[relationship_dict[col]] = [['date', "100%"]] # check type #######################check here data type
+            else:
+                dtypes_dict[relationship_dict[col]] = [['str', "100%"]] # check type #######################check here data type
+
             dtypes_dict[left_over_dict[col]] = [['numeric', '100%']]
             ##loop here through the values for relationship   
             #don't need column
+            
             new_df.loc[counter] = df_data.iloc[i] #copy row
-            new_df[relationship_dict[col]][counter] = col
-            new_df[left_over_dict[col]][counter] = df_data[col][i]
+            #might have to be greater than 2
+            
+            if col in mappings['indicator_category'] and len(mappings['indicator_category']) > 1:#if more than one relationship ie multiple subgroupd and relationships
+                check  = new_df[relationship_dict[col]][counter] #if supgroup already defined
+                new_df[relationship_dict[col]][counter] = new_df[relationship_dict[col]][counter] + "|" + (col.replace("~", " "))#last part not needed
+                new_df[left_over_dict[col]][counter] = df_data[col.replace("~", " ")][i]#check if col_replace is there
+                #if empty_unit_of_measure in mappings:
+                #apply units of measure
+                #a = 5                        
+                
+            else: #normal case
+                #hre.y 
+                new_df[relationship_dict[col]][counter] = col.replace("~", " ")#add column heading
+                new_df[left_over_dict[col]][counter] = df_data[col.replace("~", " ")][i]
+            
+            if col.replace("~", " ") in empty_unit_measure_value:
+                new_df['unit_of_measure'] = empty_unit_measure_value[col.replace("~", " ")] 
+
             #new_df  = df_data[mappings[key]]
             #map value
+            
+            #mappings[relationship_dict[col]] = [relationship_dict[col]]#what is the point of this?
+            #mappings[left_over_dict[col]] = [left_over_dict[col]] 
 
             counter += 1
-    
-    return new_df
+        #if i == 2:
+        #    sdf.sgd
+    return new_df#.T.drop_duplicates().T#prevent duplicate columns// why is this happening
+
+def check_file_type(file_name):
+    name = file_name.lower()
+    if name.endswith('.csv'):
+        return True ,{'file_type':'csv', 'success':1}
+    elif name.endswith('.xlsx'):
+        return False, {'file_type':'xlsx', 'success':0, 'error': "Cannot map xlsx files"}
+    elif name.endswith('.json'):
+        return False, {'file_type':'json', 'success':0, 'error': "Cannot map json files"}
+    else:
+        return False, {'file_type':'Unrecognised format', 'success':0, 'error': "Don't recognise file type"}#.txt format??
+
+def check_file_formatting(file_loc):
+    try:
+        df_data = pd.read_csv(file_loc)
+    except Exception as e:
+        return False, {'success':0, "error":"Couldn't read file, check start of file for text, for malformed columns and  for gaps in data."}
+    #check column names if unammed give back false
+    for key in df_data.columns:
+        if 'Unnamed' in key:
+            return False, {'success':0, "error":"Cannot validate, unammed columns in data set or unessecary text at start of file."}
+        else:
+            nan_indexes = pd.isnull(df_data)
+            #for col in df_data.ix[:,0]:
+
+    resulting_indexes = nan_indexes.apply(lambda x: min(x) == max(x) and min(x) == True, 1)
+    result = len(resulting_indexes[resulting_indexes == True]) > 0
+    if result:
+        return False, {'success':0, "error":"Files has blank lines or text at end of the file."}#return line number of blank lines?
+    return True, {"success":1}
+    #check end of file if there is empty line and the df_data lenght is longer than this line then error#
+    #get columns with the least amount of empty values 
+    #check which has the least amount
+
+
+def get_line_index(line_records, line_no):
+    i = 0
+    for line in line_records:
+        if line["Item"] == line_no:
+            return i
+        else:
+            i += 1
+    return -1
+
