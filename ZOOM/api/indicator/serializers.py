@@ -39,9 +39,10 @@ class FileTagSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = FileTag
-        fields = (
-            'file_id',
-            'name')
+        fields = ('file_id','name')
+        #fields = (
+        #    #'file_id',Kieran: this should work but doesn't removing for deployment
+        #    'name')
 
 
 class FileSerializer(serializers.ModelSerializer):
