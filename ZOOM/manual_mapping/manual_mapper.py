@@ -141,7 +141,7 @@ def manual_mapper(data):
 		    context = {}
 		    missing = []
 		    context = {"error_messages" : error_message, "success" : 0}
-		    return Response(context)
+		    return (context)
 		df_data = correct_data(df_data, correction_mappings)
 
 		#handle bad data
