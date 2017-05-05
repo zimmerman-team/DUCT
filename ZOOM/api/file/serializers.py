@@ -17,8 +17,9 @@ class FileSourceSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = FileSource
 		fields = (
-			'id',
-			'name')
+			# 'id',
+			'name',
+			)
 
 
 class FileSerializer(serializers.ModelSerializer):
