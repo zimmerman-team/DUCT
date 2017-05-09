@@ -81,6 +81,7 @@ def error_correction(request):
     file_id = request.data["file_id"]
     start_pos = request.data["start_pos"]
     end_pos = request.data["end_pos"]
+    apply_filter = ""
 
     if request.data["type"] == "csv":
         #og_data = pd.read_csv(File.objects.get(id=file_id).file)#allow multiple files
@@ -88,14 +89,21 @@ def error_correction(request):
 
     if request.data["filter_toggle"]:
         #look for empty string if given or nan's
+
+        if request.data["find_value"] == "nan":
+            apply_filter = df_data[request.data["filter_value"]].isnull()
+        else:    
+            apply_filter = df_data[request.data["filter_value"]] == request.data['find_value']
+
         if request.data['replace_pressed']:
             print("this is the replace value: ",request.data['replace_value'])
-            df_data[request.data["filter_value"]][df_data[request.data["filter_value"]] == request.data['find_value']] = request.data['replace_value']
+            
+            df_data[request.data["filter_value"]][apply_filter] = request.data['replace_value']
             with open(str(File.objects.get(id=file_id).file), 'w') as f:
                 df_data.to_csv(f, index=False)
             df_data = df_data[df_data[request.data["filter_value"]] == request.data['replace_value']]
         else:
-            df_data = df_data[df_data[request.data["filter_value"]] == request.data['find_value']]
+            df_data = df_data[apply_filter]
            
     #if filter apply it
 
