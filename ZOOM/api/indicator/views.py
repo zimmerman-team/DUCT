@@ -30,6 +30,7 @@ class IndicatorDataList(ListAPIView):
     filter_backends = (DjangoFilterBackend, )
     filter_class = IndicatorDataFilter
     serializer_class = IndicatorSerializer
+    pagination_class = None
 
     fields = (
         'id',
@@ -44,6 +45,11 @@ class IndicatorDataList(ListAPIView):
         'unit_of_measure'
         'other',
     )
+
+    # def get_queryset(self):
+    #     if self.request.data.get('group_by') is None:
+    #         return IndicatorDatapoint.objects.none()
+    #     return IndicatorDatapoint.objects.all()
 
 '''
 Data Post Example:
