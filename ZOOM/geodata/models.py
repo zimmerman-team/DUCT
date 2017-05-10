@@ -7,17 +7,18 @@ def get_dictionaries():#might be better to use a set
         country_names = Country.objects.values_list('name')
         country_alt_names = CountryAltName.objects.values_list('name')
         data_lists = [iso2_codes, iso3_codes, country_names, country_alt_names]
-        source = ["iso2", "iso3", "country_name", "country_alternative_name"]
+        source = ["iso2", "iso3", "country_name", "country_name"]
         country_source_dict = {}
         country_iso2_dict = {}
-
+        print("country_alt_names")
+        print(country_alt_names)
 
         for i in range(len(data_lists)):
             counter = 0
             country_iso2_dict[source[i]] = {}
             for j in range(len(data_lists[i])):
                 country_source_dict[data_lists[i][j][0]] = source[i] #{NL: {iso2: NL, source:iso2}}
-                if i != len(data_lists) -1:  
+                if i < (len(data_lists) - 1):
                     country_iso2_dict[source[i]][data_lists[i][j][0]] = iso2_codes[j][0]
                 else:
                     country_alt_name = CountryAltName.objects.get(name=data_lists[i][j][0]) 

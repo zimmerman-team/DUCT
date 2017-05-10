@@ -5,13 +5,24 @@ from rest_framework.filters import DjangoFilterBackend
 from rest_framework.generics import RetrieveAPIView, GenericAPIView, ListAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.decorators import api_view
 
+from api.file.views import update_status
 from indicator.models import IndicatorDatapoint, Indicator, IndicatorCategory
 from api.indicator.serializers import *
 from api.indicator.filters import IndicatorDataFilter
 from api.aggregation.views import AggregationView, Aggregation, GroupBy
 from api.generics.views import DynamicListView
 
+
+@api_view(['POST'])
+def reset_mapping(request):
+    file = File.objects.get(id=request.data['file_id'])
+    indicators = IndicatorDatapoint.objects.filter(file=file)
+    #foreign keys 
+
+    indicators.delete()
+    return Response({"success":1})
 
 class IndicatorDataList(ListAPIView):
 

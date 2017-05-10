@@ -44,6 +44,7 @@ class File(models.Model):
     created = models.DateTimeField(auto_now_add=True, null=True)
     modified = models.DateTimeField(auto_now=True, null=True)
     rendered = models.BooleanField(default=False)
+    status = models.IntegerField(default=1)
 
     form_name = models.CharField(
         max_length=20,

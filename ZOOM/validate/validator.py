@@ -96,7 +96,16 @@ def validate(file_id):
         pickle.dump(error_lines, f) 
     print("dict name:  ", dict_name)
     print("File:  ", File.objects.get(id=file_id))
-    FileDtypes(dtype_name=dict_name, file=File.objects.get(id=file_id)).save()
+    
+    file = File.objects.get(id=file_id)
+    #obj, created = FileDtypes.objects.update_or_create(dtype_name=dict_name, file= file) # error due to one to one field
+    try:
+        instance = FileDtypes.objects.get(file=file)#
+        os.remove(instance.dtype_name)
+        instance.dtype_name = dict_name
+        instance.save()
+    except Exception:
+        FileDtypes(dtype_name= dict_name, file=file).save()
 
     print("dtypes_dict", dtypes_dict)
     context = {

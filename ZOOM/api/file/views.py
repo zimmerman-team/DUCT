@@ -12,7 +12,6 @@ import os
 
 import json
 
-
 class FileListView(ListCreateAPIView):
 
     queryset = File.objects.all()
@@ -28,6 +27,7 @@ class FileListView(ListCreateAPIView):
         'in_progress',
         'source_url',
         'data_source',
+        'status',
         'tags',
         'created',
         'modified',
@@ -61,6 +61,13 @@ class FileListView(ListCreateAPIView):
     #    print("In self")
 
 
+@api_view(['POST'])
+def update_status(request):
+    file = File.objects.get(id=request.data['file_id'])
+    file.status = request.data['status']
+    file.save()
+    return Response({"success":1})
+    
 class FileDetailView(RetrieveUpdateDestroyAPIView):
 
     queryset = File.objects.all()
@@ -83,8 +90,13 @@ class FileDetailView(RetrieveUpdateDestroyAPIView):
                 file.tags.add(file_tag)
 
         file.title = self.request.data.get('title')
+        file.description = self.request.data.get('description')
 
         data_source = self.request.data.get('data_source')
+        print("----------------- data source -----------------")
+        print(self.request.data.get('status'))
+        print(self.request.data)
+        file.status = self.request.data.get('status')
         data_source_obj, data_source_created = FileSource.objects.get_or_create(name=data_source)
 
         file.data_source = data_source_obj 

@@ -57,6 +57,7 @@ class FileSerializer(serializers.ModelSerializer):
             'file_name',
             'created',
             'file_tags',
+            'status',
             )
 
 

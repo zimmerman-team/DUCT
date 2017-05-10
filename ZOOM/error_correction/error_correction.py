@@ -87,51 +87,64 @@ def error_correction(request):
         #og_data = pd.read_csv(File.objects.get(id=file_id).file)#allow multiple files
         df_data = pd.read_csv(File.objects.get(id=file_id).file)
 
-    if request.data["filter_toggle"]:
-        #look for empty string if given or nan's
+        if request.data["filter_toggle"]:
+            #look for empty string if given or nan's
 
-        if request.data["find_value"] == "nan":
-            apply_filter = df_data[request.data["filter_value"]].isnull()
-        else:    
-            apply_filter = df_data[request.data["filter_value"]] == request.data['find_value']
+            if request.data["find_value"] == "nan":
+                apply_filter = df_data[request.data["filter_value"]].isnull()
+            else:    
+                apply_filter = df_data[request.data["filter_value"]] == request.data['find_value']
 
-        if request.data['replace_pressed']:
-            print("this is the replace value: ",request.data['replace_value'])
-            
-            df_data[request.data["filter_value"]][apply_filter] = request.data['replace_value']
-            with open(str(File.objects.get(id=file_id).file), 'w') as f:
-                df_data.to_csv(f, index=False)
-            df_data = df_data[df_data[request.data["filter_value"]] == request.data['replace_value']]
-        else:
-            df_data = df_data[apply_filter]
-           
-    #if filter apply it
+            if request.data['replace_pressed']:
+                print("this is the replace value: ",request.data['replace_value'])
+                
+                df_data[request.data["filter_value"]][apply_filter] = request.data['replace_value']
+                with open(str(File.objects.get(id=file_id).file), 'w') as f:
+                    df_data.to_csv(f, index=False)
+                df_data = df_data[df_data[request.data["filter_value"]] == request.data['replace_value']]
+            else:
+                df_data = df_data[apply_filter]
+               
+        #if filter apply it
 
-    #replace everything in the column 
+        #replace everything in the column 
 
-    output_list  = []
-    org_data = df_data.copy(deep=True)
-    org_data['line_no'] = org_data.index.values
-    org_data = org_data.reset_index()
-    df_data = df_data.reset_index()
-    #print(df_data)
-    counter = 0
-    print("start pos ", start_pos, " end pos ", end_pos, "length ", len(df_data[df_data.columns[0]]) - 1)
-    start = start_pos
-    for start_pos in range(start, end_pos):
-        if start_pos > len(df_data[df_data.columns[0]]) - 1:
-            break
-        temp_dict={}
-        temp_dict = {"line no.": org_data['line_no'][start_pos]}
-        for column in df_data.columns:
-            temp_dict[column] = str(df_data[column][start_pos])
-            #print(df_data.index.get_loc(df_data[column].iloc[start_pos].name))
-        output_list.append(temp_dict)
-        counter = counter + 1
-        print("check " ,counter, ' start_pos ', start_pos )
+        output_list  = []
+        org_data = df_data.copy(deep=True)
+        org_data['line_no'] = org_data.index.values
+        org_data = org_data.reset_index()
+        df_data = df_data.reset_index()
+        #print(df_data)
+        counter = 0
+        print("start pos ", start_pos, " end pos ", end_pos, "length ", len(df_data[df_data.columns[0]]) - 1)
+        start = start_pos
+        for start_pos in range(start, end_pos):
+            if start_pos > len(df_data[df_data.columns[0]]) - 1:
+                break
+            temp_dict={}
+            temp_dict = {"line no.": org_data['line_no'][start_pos]}
+            for column in df_data.columns:
+                temp_dict[column] = str(df_data[column][start_pos])
+                #print(df_data.index.get_loc(df_data[column].iloc[start_pos].name))
+            output_list.append(temp_dict)
+            counter = counter + 1
+            print("check " ,counter, ' start_pos ', start_pos )
 
-    print("counter ", counter ," length of dataframe ", len(str(df_data[df_data.columns[0]])))
-    #context = {"table": output_list, "errors": [], "error_message": [], "missing_value": []}
-    context = {"data_table": json.dumps(output_list), "total_amount": len(df_data[df_data.columns[0]]) }#added json dumps, front end couldn't read original format
-    print("CONTEXT, ", context)
+        print("counter ", counter ," length of dataframe ", len(str(df_data[df_data.columns[0]])))
+        #context = {"table": output_list, "errors": [], "error_message": [], "missing_value": []}
+        context = {"data_table": json.dumps(output_list), "total_amount": len(df_data[df_data.columns[0]]) }#added json dumps, front end couldn't read original format
+        print("CONTEXT, ", context)
+
+    else:
+        print("type database")
+        #type = database
+        #filter by id
+
+        #if filter toggle
+            #check for nan
+            #replace all filter all
+            #use replace
+
+        #for each in filter get data
+
     return context
