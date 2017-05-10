@@ -1,5 +1,4 @@
 import strict_rfc3339
-import datetime
 from functools import wraps  # use this to preserve function signatures and docstrings
 from geodata.models import Country
 from indicator.models import IndicatorDatapoint
@@ -114,15 +113,16 @@ def identify_col_dtype(column_values, file_heading, dicts, sample=None): #only t
             if "time" in file_heading.lower() or "date" in file_heading.lower() or "year" in file_heading.lower():# assuming time or date will have appropiate heading
                 try: 
                     check_dtype = parse(str(value))
+                    check_dtype = check_dtype.year
                     error_counter.append(("date", counter))
                     dtypes_found.append("date")
                 except ValueError:
                     dtypes_found.append("date")#fix this
                     error_counter.append(("possiblly date", counter))
-                    
-                #check if string value is a formula     
-                #try convert to number
-                #use complier to compler equation # might have to change equation syntax to match python's syntax
+                        
+                    #check if string value is a formula     
+                    #try convert to number
+                    #use complier to compler equation # might have to change equation syntax to match python's syntax
             else:
                 try:
                     float(value) 
@@ -222,19 +222,32 @@ def correct_data(df_data, correction_data):#correction_data ["country_name, iso2
     
     value = {}
     _, dicts = get_dictionaries()
-
+    print("Lets go")
     for key in correction_data:
         #decide what format to goive it too #also check date
-        print(correction_data[key][1])
-        print(correction_data[key][0])
+        print("Correcting data ", key, " , ", correction_data[key][1])
+       
         if correction_data[key][1] == "iso2":
             #model = Country.objects.all()
             if correction_data[key][0] == "country_name":
                 curr_dicts = dicts["country_name"]
-                df_data = df_data.replace({key : curr_dicts}) #needs to be more comprehensive, users mix iso2 and iso3 in column data
+                df_data[key] = df_data.replace({key : curr_dicts}) #needs to be more comprehensive, users mix iso2 and iso3 in column data
             elif correction_data[key][0] =="iso3":#not needed??
                 curr_dicts = dicts["iso3"]
-                df_data = df_data.replace({key : curr_dicts})
+                df_data[key] = df_data.replace({key : curr_dicts})
+        elif correction_data[key][1] == "date":
+            print(df_data[key])
+            f = (lambda x: parse(str(x)).year)
+            try:
+                df_data[key] = df_data[key].apply(f)
+            except Exception:
+                f = (lambda x: parse(str(int(x))).year)#2016.0 will cause error unless it is formatted
+                df_data[key] = df_data[key].apply(f)
+        elif correction_data[key][1] == "str":
+            print("string")
+            f = (lambda x: str(x).decode("unicode_escape").encode('ascii','ignore'))
+            df_data[key] = df_data[key].apply(f)
+
 
         #elif date
         #elif measure value etc

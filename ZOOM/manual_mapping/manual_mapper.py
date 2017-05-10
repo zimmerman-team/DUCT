@@ -12,6 +12,7 @@ import datetime
 import time
 import os
 
+from dateutil.parser import parse
 from indicator.models import *
 from geodata.models import Country
 from lib.converters import convert_to_JSON
@@ -144,13 +145,11 @@ def manual_mapper(data):
 		    return (context)
 		df_data = correct_data(df_data, correction_mappings)
 
+		print(df_data) 
 		#handle bad data
 		null_values = df_data[mappings['indicator_category'][0]].isnull()
-		print(df_data[mappings['indicator_category'][0]])
 		df_data[mappings['indicator_category'][0]][null_values] = "Default"
-		print("frof ", df_data[mappings['indicator_category'][0]])
-		#'billy.j
-
+		
 		#df_data = df_data[1:len(df_data)]
 		order = {}
 		index_order = {}
