@@ -2,7 +2,7 @@ import ujson
 from geodata.importer.common import get_json_data
 from django.contrib.gis.geos import fromstr
 
-from geodata.models import Country
+from geodata.models import Country, CountryAltName
 from geodata.models import Region
 
 
@@ -12,6 +12,15 @@ class CountryImport():
     """
     def __init__(self):
         self.get_json_data = get_json_data
+
+    #make sure update_polygon done first
+    def update_alt_name(self):
+        admin_countries = self.get_json_data("/../data_backup/alternative_names.json")
+        for k in admin_countries:#.get('features'):
+            country_iso2 = k.get('iso2')#k.get('properties').get('alpha-2')
+            name = k.get('name')#k.get('properties').get('name')
+            c = Country(code=country_iso2)
+            CountryAltName(name=name, country=c).save()
 
     def update_polygon(self):
         admin_countries = self.get_json_data("/../data_backup/allcountrycodes.json")

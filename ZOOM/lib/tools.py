@@ -52,7 +52,7 @@ def datetime_or_date(instance):
 
 #serach for columns that map together, look for specific vlaues such as time
 #assume whole column is uploaded, the full length
-def identify_col_dtype(column_values, file_heading, dicts,sample=None): #only takle a sample of three value and serach for data type
+def identify_col_dtype(column_values, file_heading, dicts, sample=None): #only takle a sample of three value and serach for data type
     #   if sample != "None":
         #provide sample data with indexes
         #df_file[heading].sample(n=sample_amount)
@@ -81,6 +81,7 @@ def identify_col_dtype(column_values, file_heading, dicts,sample=None): #only ta
     #iso3_codes_dict = dicts[1]
     #country_names_dict = dicts[2]
 
+    
     for value in column_values:
         #if string
         if value in dicts:

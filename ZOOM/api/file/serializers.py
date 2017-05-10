@@ -39,6 +39,7 @@ class FileSerializer(serializers.ModelSerializer):
 			'source_url',
 			'data_source',
 			'tags',
+			'status',
 			'created',
 			'modified',
 			'rendered')
