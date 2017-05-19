@@ -30,7 +30,7 @@ class IndicatorDataList(ListAPIView):
     filter_backends = (DjangoFilterBackend, )
     filter_class = IndicatorDataFilter
     serializer_class = IndicatorSerializer
-    pagination_class = None
+    #pagination_class = IndicatorSerializer
 
     fields = (
         'id',
@@ -80,7 +80,7 @@ class IndicatorCategoryDataList(ListAPIView):
     filter_backends = (DjangoFilterBackend, )
     filter_class = IndicatorCategoryDataFilter
     serializer_class = IndicatorCategorySerializer
-    pagination_class = None
+    #pagination_class = None
 
     fields = (
         'id',
@@ -216,7 +216,7 @@ class IndicatorDataAggregations(AggregationView):
     allowed_groupings = (
         GroupBy(
             query_param="indicator_category",
-            fields="indicator_category",
+            fields="indicator_category_id",
         ),
         GroupBy(
             query_param="indicator",
