@@ -84,6 +84,7 @@ class IndicatorCategoryDataList(ListAPIView):
 
     fields = (
         'id',
+        'unique_identifier',
         'name',
         'level',
         'child',

@@ -226,35 +226,36 @@ def manual_mapper(data):
                         print("cats, ", cats)
                         print(cats[0])
                         #previous = IndicatorCategory(id=cats[0], indicator = ind_dict[unique_list[index_order['indicator']][0]])
-                        previous = IndicatorCategory.objects.filter(id="".join(cats),
+                        previous = IndicatorCategory.objects.filter(unique_identifier="".join(cats),
                                                                     name=cats[len(cats) - 1], 
                                                                     indicator = ind_dict[unique_list[index_order['indicator']][i]],
                                                                     level=(len(cats) - 1)).first()
                         if not previous:
-                            previous = IndicatorCategory(id="".join(cats), name = cats[len(cats) - 1], indicator = ind_dict[unique_list[index_order['indicator']][i]], level=(len(cats) - 1))
-                            previous.save()   
+                            previous = IndicatorCategory(unique_identifier="".join(cats), name = cats[len(cats) - 1], indicator = ind_dict[unique_list[index_order['indicator']][i]], level=(len(cats) - 1))
+                            previous.save()
+                        finstance = previous#not sure that's good idea  
 
                         for j in range(len(cats)-2 , -1, -1):
-                            instance = IndicatorCategory.objects.filter(id="".join(cats[0:j+1]),
+                            instance = IndicatorCategory.objects.filter(unique_identifier="".join(cats[0:j+1]),
                                                                         name=cats[j], 
                                                                         indicator = ind_dict[unique_list[index_order['indicator']][i]],
                                                                         child = previous,
                                                                         level=j).first()
                             if not instance:
-                                instance = IndicatorCategory(id="".join(cats[0:j+1]), name = cats[j], indicator = ind_dict[unique_list[index_order['indicator']][i]], level=j, child = previous)
+                                instance = IndicatorCategory(unique_identifier="".join(cats[0:j+1]), name = cats[j], indicator = ind_dict[unique_list[index_order['indicator']][i]], level=j, child = previous)
                                 instance.save()
                             previous = instance   
                         #order alphabetically
                         #and save backwards
                         #ind = sub ind=etc
                     else:
-                        instance = IndicatorCategory.objects.filter(id=unique_list[index_order['indicator_category']][i] ,
+                        finstance = IndicatorCategory.objects.filter(unique_identifier=unique_list[index_order['indicator_category']][i] ,
                                                                     name=unique_list[index_order['indicator_category']][i], indicator = ind_dict[unique_list[index_order['indicator']][i]]).first()
-                        if not instance:
-                            instance = IndicatorCategory(id=unique_list[index_order['indicator_category']][i],
+                        if not finstance:
+                            finstance = IndicatorCategory(unique_identifier=unique_list[index_order['indicator_category']][i],
                                                         name = unique_list[index_order['indicator_category']][i], indicator = ind_dict[unique_list[index_order['indicator']][i]])
-                            instance.save()
-                    ind_cat_dict[unique_list[index_order['indicator']][i] + unique_list[index_order['indicator_category']][i]] = instance
+                            finstance.save()
+                    ind_cat_dict[unique_list[index_order['indicator']][i] + unique_list[index_order['indicator_category']][i]] = finstance
                 elif(count == 2):#ind_source
                     instance = IndicatorSource.objects.filter(id = unique_list[index_order['source']][i].decode(errors='ignore'), indicator = ind_dict[unique_list[index_order['indicator']][i]]).first() 
                     if not instance:

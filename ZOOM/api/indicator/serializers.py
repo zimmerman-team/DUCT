@@ -56,6 +56,7 @@ class IndicatorCategorySerializer(serializers.ModelSerializer):
         model = indicator_models.IndicatorCategory
         fields = (
             'id',
+            'unique_identifier',
             'name',
             'level',
             'child',
