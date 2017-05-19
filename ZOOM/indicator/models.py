@@ -25,7 +25,7 @@ class Indicator(models.Model):
 
 
 class IndicatorCategory(models.Model):
-    id= models.CharField(max_length=255, primary_key=True)
+    unique_identifier = models.CharField(max_length=255)
     name = models.CharField(max_length=255, default=None)#adding default to make transition from old to model to new model error free 
     code = models.CharField(max_length=50)
     indicator = models.ForeignKey(Indicator,null=False, blank=False)
