@@ -27,6 +27,7 @@ class IndicatorCategoryDataFilter(FilterSet):
         model = IndicatorCategory
         fields = (
             'id',
+            'unique_identifier',
             'name',
             'level',
             'child',

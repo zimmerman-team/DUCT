@@ -248,7 +248,6 @@ def correct_data(df_data, correction_data):#correction_data ["country_name, iso2
             f = (lambda x: str(x).decode("unicode_escape").encode('ascii','ignore'))
             df_data[key] = df_data[key].apply(f)
 
-
         #elif date
         #elif measure value etc
             
