@@ -1,7 +1,7 @@
 
 from django_filters import Filter, FilterSet
 from api.generics.filters import CommaSeparatedCharFilter
-from indicator.models import IndicatorDatapoint
+from indicator.models import IndicatorDatapoint, IndicatorCategory
 
 class IndicatorDataFilter(FilterSet):
 
@@ -19,4 +19,16 @@ class IndicatorDataFilter(FilterSet):
             'country__region',
             'country__name',
             'unit_of_measure',
+        )
+
+class IndicatorCategoryDataFilter(FilterSet):
+
+    class Meta:
+        model = IndicatorCategory
+        fields = (
+            'id',
+            'name',
+            'level',
+            'child',
+            'indicator',
         )
