@@ -10,7 +10,7 @@ from rest_framework.decorators import api_view
 from api.file.views import update_status
 from indicator.models import IndicatorDatapoint, Indicator, IndicatorCategory
 from api.indicator.serializers import *
-from api.indicator.filters import IndicatorDataFilter
+from api.indicator.filters import IndicatorDataFilter, IndicatorCategoryDataFilter
 from api.aggregation.views import AggregationView, Aggregation, GroupBy
 from api.generics.views import DynamicListView
 
@@ -73,6 +73,22 @@ Data Post Example:
             "date_value": "2004"
 }
 '''
+
+class IndicatorCategoryDataList(ListAPIView):
+
+    queryset = IndicatorCategory.objects.all()
+    filter_backends = (DjangoFilterBackend, )
+    filter_class = IndicatorCategoryDataFilter
+    serializer_class = IndicatorCategorySerializer
+    pagination_class = None
+
+    fields = (
+        'id',
+        'name',
+        'level',
+        'child',
+        'indicator',
+    )
 
 class ScatterPlotDataList(APIView):
     def post(self, request):
