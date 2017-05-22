@@ -248,7 +248,6 @@ def correct_data(df_data, correction_data):#correction_data ["country_name, iso2
             f = (lambda x: str(x).decode("unicode_escape").encode('ascii','ignore'))
             df_data[key] = df_data[key].apply(f)
 
-
         #elif date
         #elif measure value etc
             
@@ -360,7 +359,7 @@ def check_file_formatting(file_loc):
     #check column names if unammed give back false
     for key in df_data.columns:
         if 'Unnamed' in key:
-            return False, {'success':0, "error":"Cannot validate, unammed columns in data set or unessecary text at start of file."}
+            return False, {'success':0, "error":"Cannot validate, unnamed columns in data set or unessecary text at start of file."}
         else:
             nan_indexes = pd.isnull(df_data)
             #for col in df_data.ix[:,0]:
