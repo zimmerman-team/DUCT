@@ -45,6 +45,7 @@ def update_country_data():
     ci.update_country_center()
     ci.update_polygon()
     ci.update_regions()
+    ci.update_alt_name()
 
 
 @job
