@@ -10,7 +10,7 @@ from rest_framework.decorators import api_view
 from api.file.views import update_status
 from indicator.models import IndicatorDatapoint, Indicator, IndicatorCategory
 from api.indicator.serializers import *
-from api.indicator.filters import IndicatorDataFilter
+from api.indicator.filters import IndicatorDataFilter, IndicatorCategoryDataFilter
 from api.aggregation.views import AggregationView, Aggregation, GroupBy
 from api.generics.views import DynamicListView
 
@@ -30,7 +30,7 @@ class IndicatorDataList(ListAPIView):
     filter_backends = (DjangoFilterBackend, )
     filter_class = IndicatorDataFilter
     serializer_class = IndicatorSerializer
-    pagination_class = None
+    #pagination_class = IndicatorSerializer
 
     fields = (
         'id',
@@ -73,6 +73,23 @@ Data Post Example:
             "date_value": "2004"
 }
 '''
+
+class IndicatorCategoryDataList(ListAPIView):
+
+    queryset = IndicatorCategory.objects.all()
+    filter_backends = (DjangoFilterBackend, )
+    filter_class = IndicatorCategoryDataFilter
+    serializer_class = IndicatorCategorySerializer
+    #pagination_class = None
+
+    fields = (
+        'id',
+        'unique_identifier',
+        'name',
+        'level',
+        'child',
+        'indicator',
+    )
 
 class ScatterPlotDataList(APIView):
     def post(self, request):
@@ -199,7 +216,7 @@ class IndicatorDataAggregations(AggregationView):
     allowed_groupings = (
         GroupBy(
             query_param="indicator_category",
-            fields="indicator_category",
+            fields=("indicator_category_id", "indicator_category__name", "indicator_category__level"),
         ),
         GroupBy(
             query_param="indicator",
