@@ -143,7 +143,10 @@ def manual_mapper(data):
                         correction_mappings[mappings[key][0]] = (temp_found_dtype, temp_convert_dtype) 
                     else:
                         error_message.append(mappings[key][0] + " to " + key + ", found " + temp_found_dtype + ", needed " + temp_convert_dtype + ". ")#datatype blah blah 
-         
+        
+        #print("Corrcetion Mapping")
+        #print(correction_mappings)
+
         if len(error_message) > 0:
             context = {}
             missing = []
@@ -151,7 +154,7 @@ def manual_mapper(data):
             return (context)
         df_data = correct_data(df_data, correction_mappings)
         
-        print(df_data) 
+        #print(df_data) 
         #handle bad data
         null_values = df_data[mappings['indicator_category'][0]].isnull()
         df_data[mappings['indicator_category'][0]][null_values] = "Default"
@@ -216,15 +219,15 @@ def manual_mapper(data):
                     ind_dict[unique_list[i]] = instance
                 elif(count == 1):#indicator_cat
                     if "|" in unique_list[index_order['indicator_category']][i]:
-                        print("Original ", unique_list[index_order['indicator_category']][i])
-                        print("Split ", unique_list[index_order['indicator_category']][i].split("|"))
+                        #print("Original ", unique_list[index_order['indicator_category']][i])
+                        #print("Split ", unique_list[index_order['indicator_category']][i].split("|"))
                         cats = sorted(list(filter(None, np.unique(np.array(unique_list[index_order['indicator_category']][i].split("|"))))))
-                        print(cats)
+                        #print(cats)
                         #print(cats.sort())
                         #cats = np.unique(unique_list[index_order['indicator_category']][i].split("|"))
                         #cats = cats.sort()
-                        print("cats, ", cats)
-                        print(cats[0])
+                        #print("cats, ", cats)
+                        #print(cats[0])
                         #previous = IndicatorCategory(id=cats[0], indicator = ind_dict[unique_list[index_order['indicator']][0]])
                         previous = IndicatorCategory.objects.filter(unique_identifier="".join(cats),
                                                                     name=cats[len(cats) - 1], 

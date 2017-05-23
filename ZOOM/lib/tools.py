@@ -187,14 +187,31 @@ def check_data_type(field, dtypes):
     dtype_set = set()
     result = False
     if field == "country":
+        #print("rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr")
         country_list = ['iso2', 'iso3', "country_name"]
+        #print(dtypes)
+        #print(country_list)
         dtype_set = set(dtypes) & set(country_list)
         result = bool(dtype_set)   
+        #print(result)
 
         if not result:
             dtype_set = dtypes[0]
+            #print(dtype_set)
         else:
-            dtype_set = list(dtype_set)[0]#pointless??
+            indexes = []
+            dtype_set = list(dtype_set)
+            #print(dtype_set)
+            for i in range(len(dtype_set)):#looking for furthest forward data type found that is  compatiable
+                #print(dtypes.index(dtype_set[i]))
+                indexes.append(int(dtypes.index(dtype_set[i])))
+            #print(indexes)
+            indexes.sort()
+            
+            #print("Indexes ", indexes)
+            #print(indexes[0])
+            dtype_set = dtypes[indexes[0]]#pointless??
+            #print(dtype_set)
 
         # if "country_name" == dtype_set:
         #     dtype_set = "countrname"
@@ -222,29 +239,42 @@ def correct_data(df_data, correction_data):#correction_data ["country_name, iso2
     
     value = {}
     _, dicts = get_dictionaries()
-    print("Lets go")
+    #print("Lets go")
     for key in correction_data:
         #decide what format to goive it too #also check date
-        print("Correcting data ", key, " , ", correction_data[key][1])
-       
+        #print("og loc")
+        #print(df_data.head())
+        #print("----------------------------------")
+        #print(correction_data[key])
         if correction_data[key][1] == "iso2":
             #model = Country.objects.all()
             if correction_data[key][0] == "country_name":
+                #print("Name")
                 curr_dicts = dicts["country_name"]
-                df_data[key] = df_data.replace({key : curr_dicts}) #needs to be more comprehensive, users mix iso2 and iso3 in column data
+                #print(curr_dicts, " key ", key)
+                df_data[key].replace(curr_dicts, inplace=True) #needs to be more comprehensive, users mix iso2 and iso3 in column data
+                #print(df_data[key].head())
             elif correction_data[key][0] =="iso3":#not needed??
+                #print("iso3")
                 curr_dicts = dicts["iso3"]
-                df_data[key] = df_data.replace({key : curr_dicts})
+                df_data.replace(curr_dicts, inplace=True)
+            #print("end")
+            #print("key ", key)
+            #print(df_data.head())
+            #print(fgs)
         elif correction_data[key][1] == "date":
-            print(df_data[key])
+            #print(df_data[key])
             f = (lambda x: parse(str(x)).year)
             try:
                 df_data[key] = df_data[key].apply(f)
             except Exception:
                 f = (lambda x: parse(str(int(x))).year)#2016.0 will cause error unless it is formatted
-                df_data[key] = df_data[key].apply(f)
+                try:
+                    df_data[key] = df_data[key].apply(f)
+                except Exception:
+                    df_data[key].apply(lambda x: lookForError(f, "0000", x)) 
         elif correction_data[key][1] == "str":
-            print("string")
+            #print("string")
             f = (lambda x: str(x).decode("unicode_escape").encode('ascii','ignore'))
             df_data[key] = df_data[key].apply(f)
 
@@ -273,6 +303,14 @@ def correct_data(df_data, correction_data):#correction_data ["country_name, iso2
     #if numeric convert to decimal/char
     #if date convert in integer
     #if 
+
+
+def lookForError(f, default, x):
+    try:
+        value = f(x)
+    except Exception:
+        value = default
+    return default
 
 def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict, empty_unit_measure_value):
     

@@ -13,9 +13,11 @@ def get_dictionaries():#might be better to use a set
         print("country_alt_names")
         print(country_alt_names)
 
+        for i in range(len(source)):
+            country_iso2_dict[source[i]] = {}
+
         for i in range(len(data_lists)):
             counter = 0
-            country_iso2_dict[source[i]] = {}
             for j in range(len(data_lists[i])):
                 country_source_dict[data_lists[i][j][0]] = source[i] #{NL: {iso2: NL, source:iso2}}
                 if i < (len(data_lists) - 1):
@@ -90,7 +92,7 @@ class Country(gis_models.Model):
 
 class CountryAltName(models.Model):
    country = models.ForeignKey(Country)
-   name = models.CharField(max_length=100, db_index=True)
+   name = models.CharField(max_length=100, db_index=True, primary_key=True)
 
 
 class City(gis_models.Model):
