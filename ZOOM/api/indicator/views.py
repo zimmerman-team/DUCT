@@ -1,4 +1,4 @@
-from django.db.models import Count, Sum, F
+from django.db.models import Count, Sum, F, Avg, Max, Min
 from django.db.models import FloatField
 from django.db.models.functions import Cast
 from rest_framework.filters import DjangoFilterBackend
@@ -160,6 +160,24 @@ def annotate_measure(query_params, groupings):
 
     return Sum(Cast(annotation_components, FloatField()))
 
+def mean_measure(query_params, groupings):
+
+    annotation_components = F('measure_value')
+
+    return Avg(Cast(annotation_components, FloatField()))
+
+def max_measure(query_params, groupings):
+
+    annotation_components = F('measure_value')
+
+    return Max(Cast(annotation_components, FloatField()))
+
+def min_measure(query_params, groupings):
+
+    annotation_components = F('measure_value')
+
+    return Min(Cast(annotation_components, FloatField()))
+
 
 class IndicatorDataAggregations(AggregationView):
     """
@@ -210,6 +228,21 @@ class IndicatorDataAggregations(AggregationView):
             query_param='measure_value',
             field='total_measure',
             annotate=annotate_measure,
+        ),
+        Aggregation(
+            query_param='mean_value',
+            field='total_measure',
+            annotate=mean_measure,
+        ),
+        Aggregation(
+            query_param='max_value',
+            field='total_measure',
+            annotate=max_measure,
+        ),
+        Aggregation(
+            query_param='min_value',
+            field='total_measure',
+            annotate=min_measure,
         ),
     )
 
