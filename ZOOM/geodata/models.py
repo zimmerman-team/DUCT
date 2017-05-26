@@ -62,8 +62,6 @@ class Region(gis_models.Model):
         return self.name
 
 
-
-
 class Country(gis_models.Model):
     code = gis_models.CharField(primary_key=True, max_length=2) #iso2
     numerical_code_un = gis_models.IntegerField(null=True, blank=True)
