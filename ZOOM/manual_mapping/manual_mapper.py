@@ -124,6 +124,7 @@ def manual_mapper(data):
 
         #remove replace
         #Validation
+        print("validating data")
         for key in mappings:
                 #return HttpResponse(key)
             if mappings[key]:#this is included incase no mapping is given
@@ -192,6 +193,7 @@ def manual_mapper(data):
         unique_indicator_source = [] 
         unique_country = []
 
+        print("Save indicators, sources, categories, countries")
         if "indicator" in index_order:
             unique_indicator = df_data[index_order["indicator"]].unique()
         if "indicator_category" in index_order:
@@ -208,6 +210,7 @@ def manual_mapper(data):
         #need to fix this in case indicator missing #
         count = 0
 
+        #change this to use bulk saves
         for unique_list in unique_lists:
             for i in range(len(unique_list)):
                 
@@ -283,7 +286,7 @@ def manual_mapper(data):
             count += 1   
         count = 0
 
-
+        print("Begining mapping process")
         for count in range(len(df_data)):
             #statement += " ("
             for key in mappings:
@@ -317,6 +320,7 @@ def manual_mapper(data):
             bulk_list.append(instance)
 
         IndicatorDatapoint.objects.bulk_create(bulk_list)
+        print("Save successful")
         #os.remove(dict_name)#remove tmp file with datatypes
         #Transgender people: HIV prevalence, 
          #convert_to_JSON("Transgender people: HIV prevalence", "Transgender people: Population size estimate")#allow user to choose these
