@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from api.indicator.views import IndicatorDataList, IndicatorDataAggregations, IndicatorCategoryDataList, ScatterPlotDataList
+from api.indicator.views import IndicatorDataList, IndicatorDataAggregations, IndicatorCategoryDataList
 from . import views
 
 from django.views.decorators.cache import cache_page
@@ -14,9 +14,6 @@ urlpatterns = [
         IndicatorCategoryDataList.as_view(),
         name='indicator_category-list'),
     url(r'^reset_mapping/$', views.reset_mapping, name='reset_mapping'),
-    url(r'^scatter/$',
-        ScatterPlotDataList.as_view(),
-        name='scatterplotdata-list'),
     url(r'^aggregations/$',
         cache_page(settings.API_CACHE_SECONDS)(IndicatorDataAggregations.as_view()),
         name='indicator-aggregations'),

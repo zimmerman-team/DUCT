@@ -91,68 +91,8 @@ class IndicatorCategoryDataList(ListAPIView):
         'indicator',
     )
 
-class ScatterPlotDataList(APIView):
-    def post(self, request):
-        if request.method == 'POST':
-            indicator_x = request.data.get('indicator_x')
-            indicator_category_x = request.data.get('indicator_category_x')
-            indicator_y = request.data.get('indicator_y')
-            indicator_category_y = request.data.get('indicator_category_y')
-            date_value = request.data.get('date_value')
-        else:
-            return Response("No data posted")
-        indicator_obj_x = Indicator.objects.get(id=indicator_x)
-        indicator_category_obj_x = IndicatorCategory.objects.get(id=indicator_category_x)
-        indicator_obj_y = Indicator.objects.get(id=indicator_y)
-        indicator_category_obj_y = IndicatorCategory.objects.get(id=indicator_category_y)
-        if date_value:
-            initial_items = IndicatorDatapoint.objects.filter(
-                indicator=indicator_obj_x,
-                indicator_category=indicator_category_obj_x,
-                date_value=date_value
-                )
-        else:
-            initial_items = IndicatorDatapoint.objects.filter(
-                indicator=indicator_obj_x,
-                indicator_category=indicator_category_obj_x
-                )
-        results = []
-        for item in initial_items:
-            date_value = item.date_value
-            country = item.country
-            if country and date_value:
-                code = country.code
-                if date_value:
-                    new_items = IndicatorDatapoint.objects.filter(
-                        indicator=indicator_obj_y,
-                        indicator_category=indicator_category_obj_y,
-                        country=country,
-                        date_value=date_value
-                        )
-                else:
-                    new_items = IndicatorDatapoint.objects.filter(
-                        indicator=indicator_obj_y,
-                        indicator_category=indicator_category_obj_y,
-                        country=country
-                        )
-                if new_items.count() > 0 :
-                    for new_item in new_items:
-                        result = {
-                            "date_value": date_value,
-                            "country": code,
-                            "indicator_x": indicator_x,
-                            "indicator_category_x": indicator_category_x,
-                            "measure_value_x": float(item.measure_value),
-                            "indicator_y": indicator_y,
-                            "indicator_category_y": indicator_category_y,
-                            "measure_value_y": float(new_item.measure_value)
-                        }
-                        results.append(result)
-        print len(results)
-        context = {
-            "resutls" : results
-        }
-        return Response(context)
+
+
 
 def annotate_measure(query_params, groupings):
 
