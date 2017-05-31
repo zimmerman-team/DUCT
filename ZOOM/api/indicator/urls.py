@@ -1,9 +1,13 @@
+from django.conf import settings
 from django.conf.urls import url
-from api.indicator.views import IndicatorDataList, IndicatorDataAggregations, IndicatorCategoryDataList
-from . import views
 
 from django.views.decorators.cache import cache_page
-from django.conf import settings
+
+from api.indicator.views import IndicatorList
+from api.indicator.views import IndicatorDataList
+from api.indicator.views import IndicatorDataAggregations
+from api.indicator.views import IndicatorCategoryDataList
+from api.indicator.views import reset_mapping
 
 
 urlpatterns = [
@@ -16,7 +20,7 @@ urlpatterns = [
     url(r'^list/$',
         IndicatorCategoryDataList.as_view(),
         name='indicator_category-list'),
-    url(r'^reset_mapping/$', views.reset_mapping, name='reset_mapping'),
+    url(r'^reset_mapping/$', reset_mapping, name='reset_mapping'),
     url(r'^aggregations/$',
         cache_page(settings.API_CACHE_SECONDS)(IndicatorDataAggregations.as_view()),
         name='indicator-aggregations'),
