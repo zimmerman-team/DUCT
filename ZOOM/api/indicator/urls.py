@@ -9,8 +9,11 @@ from django.conf import settings
 urlpatterns = [
     url(r'^$',
         IndicatorDataList.as_view(),
+        name='indicator-data-list'),
+    url(r'^$',
+        IndicatorList.as_view(),
         name='indicator-list'),
-    url(r'^category/$',
+    url(r'^list/$',
         IndicatorCategoryDataList.as_view(),
         name='indicator_category-list'),
     url(r'^reset_mapping/$', views.reset_mapping, name='reset_mapping'),

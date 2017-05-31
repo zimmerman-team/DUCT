@@ -1,7 +1,7 @@
 
 from django_filters import Filter, FilterSet
 from api.generics.filters import CommaSeparatedCharFilter
-from indicator.models import IndicatorDatapoint, IndicatorCategory
+from indicator.models import Indicator, IndicatorDatapoint, IndicatorCategory
 
 
 from api.generics.filters import CommaSeparatedCharFilter
@@ -34,7 +34,25 @@ class IndicatorDataFilter(FilterSet):
             'unit_of_measure',
         )
 
+
+class IndicatorFilter(FilterSet):
+
+    class Meta:
+        model = Indicator
+        fields = (
+            'id',
+            'description',
+        )
+
 class IndicatorCategoryDataFilter(FilterSet):
+
+    indicator_category__name = CommaSeparatedStickyCharFilter(
+        name='indicator_category__name',
+        lookup_expr='in')
+
+    parent = CommaSeparatedStickyCharFilter(
+        name='parent__id',
+        lookup_expr='in')
 
     class Meta:
         model = IndicatorCategory
@@ -44,5 +62,6 @@ class IndicatorCategoryDataFilter(FilterSet):
             'name',
             'level',
             'child',
+            'parent',
             'indicator',
         )
