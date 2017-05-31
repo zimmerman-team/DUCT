@@ -53,7 +53,7 @@ class IndicatorDataList(ListAPIView):
         'date_value',
         'source',
         'measure_value',
-        'unit_of_measure'
+        'unit_of_measure',
         'other',
     )
 
