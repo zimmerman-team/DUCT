@@ -4,6 +4,7 @@ from geodata import models as geo_models
 from file_upload.models import File, FileTag
 from api.generics.serializers import DynamicFieldsModelSerializer
 
+
 class RegionSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -11,7 +12,7 @@ class RegionSerializer(serializers.ModelSerializer):
         fields = (
             'code',
             'name',
-            )
+        )
 
 
 class CountrySerializer(serializers.ModelSerializer):
@@ -24,7 +25,7 @@ class CountrySerializer(serializers.ModelSerializer):
             'code',
             'name',
             'region',
-            )
+        )
 
 
 class FileTagSerializer(serializers.ModelSerializer):
@@ -33,7 +34,7 @@ class FileTagSerializer(serializers.ModelSerializer):
         model = FileTag
         fields = (
             'name',
-            )
+        )
 
 
 class FileSerializer(serializers.ModelSerializer):
@@ -47,7 +48,7 @@ class FileSerializer(serializers.ModelSerializer):
             'created',
             'file_tags',
             'status',
-            )
+        )
 
 
 class IndicatorCategorySerializer(serializers.ModelSerializer):
@@ -61,11 +62,10 @@ class IndicatorCategorySerializer(serializers.ModelSerializer):
             'level',
             'child',
             'indicator',
-            )
+        )
 
 
-
-class IndicatorSerializer(serializers.ModelSerializer):
+class IndicatorDataSerializer(serializers.ModelSerializer):
 
     country = CountrySerializer()
     file = FileSerializer()
@@ -86,4 +86,17 @@ class IndicatorSerializer(serializers.ModelSerializer):
             "measure_value",
             "unit_of_measure",
             'other',
-            )
+        )
+
+
+class IndicatorSerializer(serializers.ModelSerializer):
+
+
+    class Meta:
+        model = indicator_models.Indicator
+        fields = (
+            'id',
+            'description',
+        )
+
+

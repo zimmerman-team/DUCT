@@ -7,10 +7,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
-from api.file.views import update_status
 from indicator.models import IndicatorDatapoint, Indicator, IndicatorCategory
-from api.indicator.serializers import *
-from api.indicator.filters import IndicatorDataFilter, IndicatorCategoryDataFilter
+from api.indicator.serializers import IndicatorSerializer, IndicatorDataSerializer, IndicatorCategorySerializer
+from api.indicator.filters import IndicatorFilter, IndicatorDataFilter, IndicatorCategoryDataFilter
 from api.aggregation.views import AggregationView, Aggregation, GroupBy
 from api.generics.views import DynamicListView
 
@@ -24,13 +23,25 @@ def reset_mapping(request):
     indicators.delete()
     return Response({"success":1})
 
+
+class IndicatorList(ListAPIView):
+    queryset = Indicator.objects.all()
+    filter_backends = (DjangoFilterBackend, )
+    filter_class = IndicatorFilter
+    serializer_class = IndicatorSerializer
+
+    fields = (
+        'id',
+        'description'
+    )
+
+
 class IndicatorDataList(ListAPIView):
 
     queryset = IndicatorDatapoint.objects.all()
     filter_backends = (DjangoFilterBackend, )
     filter_class = IndicatorDataFilter
-    serializer_class = IndicatorSerializer
-    #pagination_class = IndicatorSerializer
+    serializer_class = IndicatorDataSerializer
 
     fields = (
         'id',
