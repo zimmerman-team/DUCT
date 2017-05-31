@@ -12,11 +12,11 @@ from api.indicator.views import reset_mapping
 
 urlpatterns = [
     url(r'^$',
-        IndicatorDataList.as_view(),
-        name='indicator-data-list'),
-    url(r'^list/$',
         IndicatorList.as_view(),
         name='indicator-list'),
+    url(r'^data/$',
+        IndicatorDataList.as_view(),
+        name='indicator-data-list'),
     url(r'^category/$',
         IndicatorCategoryDataList.as_view(),
         name='indicator_category-list'),
