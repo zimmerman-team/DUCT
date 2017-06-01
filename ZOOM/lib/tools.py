@@ -83,9 +83,10 @@ def identify_col_dtype(column_values, file_heading, dicts, sample=None): #only t
     
     for value in column_values:
         #if string
-        #print(value)
+        print(value)
         #print(str(value).lower())
         temp_value = str(value).lower()
+        print(temp_value)
         if temp_value in dicts: 
             error_counter.append((dicts[temp_value],counter))
             dtypes_found.append(dicts[temp_value])
@@ -269,10 +270,12 @@ def correct_data(df_data, correction_data):#correction_data ["country_name, iso2
             #print(df_data[key])
             #f = (lambda x: parse(str(x)).year)
             try:
+                old = df_data[key]
                 df_data[key] = pd.to_datetime(df_data[key])
-                df_data[key] = df_data[key].year
+                df_data[key] = df_data[key].year.astype(int)
                 #df_data[key] = df_data[key].apply(f)
             except Exception:
+                df_data[key] = old
                 f = (lambda x: parse(str(int(x))).year)#2016.0 will cause error unless it is formatted
                 try:
                     df_data[key] = df_data[key].apply(f)

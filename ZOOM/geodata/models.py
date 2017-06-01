@@ -19,7 +19,7 @@ def get_dictionaries():#might be better to use a set
         for i in range(len(data_lists)):
             counter = 0
             for j in range(len(data_lists[i])):
-                country_source_dict[((data_lists[i][j][0])).lower()] = source[i] #{NL: {iso2: NL, source:iso2}}
+                country_source_dict[(data_lists[i][j][0]).lower()] = source[i] #{NL: {iso2: NL, source:iso2}}
                 if i < (len(data_lists) - 1):
                     country_iso2_dict[source[i]][(data_lists[i][j][0]).lower()] = iso2_codes[j][0]
                 else:

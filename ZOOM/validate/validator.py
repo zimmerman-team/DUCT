@@ -60,7 +60,6 @@ def validate(file_id):
     
     #skip first four headings as irrelevant to user input
     template_heading_list = template_heading_list[4:len(template_heading_list)]
-
     #template_heading_list.append("unit_measure") #needed? 
     
     #get dicts for country

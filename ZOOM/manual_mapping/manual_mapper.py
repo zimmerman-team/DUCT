@@ -217,6 +217,7 @@ def manual_mapper(data):
                 
                 if(count == 0):#indicator
                     instance = Indicator.objects.filter(id=unique_list[i]).first()
+                    #print(unique_list[i])
                     if not instance:
                         instance = Indicator(id = unique_list[i])
                         instance.save()
@@ -233,16 +234,19 @@ def manual_mapper(data):
                         #print("cats, ", cats)
                         #print(cats[0])
                         #previous = IndicatorCategory(id=cats[0], indicator = ind_dict[unique_list[index_order['indicator']][0]])
+                        #print("".join(cats))
                         previous = IndicatorCategory.objects.filter(unique_identifier="".join(cats),
                                                                     name=cats[len(cats) - 1], 
                                                                     indicator = ind_dict[unique_list[index_order['indicator']][i]],
                                                                     level=(len(cats) - 1)).first()
                         if not previous:
                             previous = IndicatorCategory(unique_identifier="".join(cats), name = cats[len(cats) - 1], indicator = ind_dict[unique_list[index_order['indicator']][i]], level=(len(cats) - 1))
+                            #print("".join(cats))
                             previous.save()
                         finstance = previous#not sure that's good idea  
 
                         for j in range(len(cats)-2 , -1, -1):
+                            #print("".join(cats[0:j+1]))
                             instance = IndicatorCategory.objects.filter(unique_identifier="".join(cats[0:j+1]),
                                                                         name=cats[j], 
                                                                         indicator = ind_dict[unique_list[index_order['indicator']][i]],
@@ -256,6 +260,7 @@ def manual_mapper(data):
                         #and save backwards
                         #ind = sub ind=etc
                     else:
+                        #print(index_order['indicator_category'][i])
                         finstance = IndicatorCategory.objects.filter(unique_identifier=unique_list[index_order['indicator_category']][i] ,
                                                                     name=unique_list[index_order['indicator_category']][i], indicator = ind_dict[unique_list[index_order['indicator']][i]]).first()
                         if not finstance:
@@ -264,6 +269,7 @@ def manual_mapper(data):
                             finstance.save()
                     ind_cat_dict[unique_list[index_order['indicator']][i] + unique_list[index_order['indicator_category']][i]] = finstance
                 elif(count == 2):#ind_source
+                    #print(index_order['source'][i])
                     instance = IndicatorSource.objects.filter(id = unique_list[index_order['source']][i].decode(errors='ignore'), indicator = ind_dict[unique_list[index_order['indicator']][i]]).first() 
                     if not instance:
                         instance = IndicatorSource(id = unique_list[index_order['source']][i].decode(errors='ignore'), indicator = ind_dict[unique_list[index_order['indicator']][i]])
@@ -271,6 +277,7 @@ def manual_mapper(data):
                     ind_source_dict[unique_list[index_order['indicator']][i] + unique_list[index_order['source']][i]] = instance
                     
                 else:#indicator_sub
+                    #print(unique_list[i])
                     instance = Country.objects.filter(code = unique_list[i])
                     if instance.count() > 0:
                         #instance.save()
@@ -287,14 +294,20 @@ def manual_mapper(data):
             count += 1   
         count = 0
 
+        #print("Date Value column")#
+        #f= (lambda x: True if len(x) >= 4 else False)
+        #print(df_data['Date'][df_data['Date'].apply(f)])
+
         print("Begining mapping process")
         for count in range(len(df_data)):
             #statement += " ("
             for key in mappings:
                 if mappings[key]:
                     if mappings[key][0] in df_data.columns:
+                       #print(df_data[mappings[key][0]][count])
                        order[key] = df_data[mappings[key][0]][count]
                     else:
+                       #print(df_data[mappings[key][0].replace("~", " ")][count])
                        order[key] = df_data[mappings[key][0].replace("~", " ")][count] # kind of a stupid way to handle this 
                     
             #instance = MeasureValue(value = order['measure_value'], value_type =order['unit_measure'], name="")
@@ -321,7 +334,7 @@ def manual_mapper(data):
             bulk_list.append(instance)
 
         IndicatorDatapoint.objects.bulk_create(bulk_list)
-        print("Save successful")
+        #print("Save successful")
         #os.remove(dict_name)#remove tmp file with datatypes
         #Transgender people: HIV prevalence, 
          #convert_to_JSON("Transgender people: HIV prevalence", "Transgender people: Population size estimate")#allow user to choose these
