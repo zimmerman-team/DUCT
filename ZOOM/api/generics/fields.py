@@ -7,6 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import serializers
 
+
 class PointIATIField(serializers.Field):
     """
     A field for handling GeoDjango Point fields in IATI format.

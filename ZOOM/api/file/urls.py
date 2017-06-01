@@ -11,9 +11,3 @@ urlpatterns = [
         url(r'^(?P<pk>\d+)/tags/$', FileTagListView.as_view(), name='file-tag-list'),
 
 ]
-
-
-# url(r'^(?P<pk>[^@$&+,/:;=?]+)/',
-#         api.chain.views.ChainDetail.as_view(),
-#         name='chain-detail'),
-#     ]

@@ -32,32 +32,6 @@ class ManualMappingJob(APIView):
         return Response(context)
 
 
-
-        # try:
-        #     file = File.objects.get(id=request.data["file_id"])
-        # except File.DoesNotExist:
-        #     return Response({
-        #         'status': 'File not found',
-        #     })
-
-        # if file.in_progress:
-        #     return Response({
-        #         'status': 'failed',
-        #     })
-
-
-        # file.in_progress = True
-        # file.save()
-
-        # queue = django_rq.get_queue('mapper')
-        # job = queue.enqueue(manual_mapping_job, request.data)
-
-        # return Response({
-        #     'status': 'processing',
-        #     'job': job.key,
-        # })
-
-
 class ManualMappingJobResult(APIView):
     """Manual Mapping Job Results"""
 
