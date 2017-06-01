@@ -14,9 +14,10 @@ from geodata.models import get_dictionaries
 
 
 def validate(file_id):
+    print("Validating")
     # file_id = file_id
     #tmp
-    print(file_id)
+    #print(file_id)
     newdoc = ['Item'] 
     validate_form = True
     count = 0
@@ -94,8 +95,8 @@ def validate(file_id):
     dict_name = path +  "/" + str(uuid.uuid4()) + ".txt"
     with open(dict_name, 'w') as f:
         pickle.dump(error_lines, f) 
-    print("dict name:  ", dict_name)
-    print("File:  ", File.objects.get(id=file_id))
+    #print("dict name:  ", dict_name)
+    #print("File:  ", File.objects.get(id=file_id))
     
     file = File.objects.get(id=file_id)
     #obj, created = FileDtypes.objects.update_or_create(dtype_name=dict_name, file= file) # error due to one to one field
@@ -107,7 +108,7 @@ def validate(file_id):
     except Exception:
         FileDtypes(dtype_name= dict_name, file=file).save()
 
-    print("dtypes_dict", dtypes_dict)
+    #print("dtypes_dict", dtypes_dict)
     context = {
         'success': 1, 
         'mapped' : count, 
