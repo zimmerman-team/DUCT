@@ -53,8 +53,8 @@ def datetime_or_date(instance):
 #assume whole column is uploaded, the full length
 def identify_col_dtype(column_values, file_heading, dicts, sample=None): #only takle a sample of three value and serach for data type
     #   if sample != "None":
-        #provide sample data with indexes
-        #df_file[heading].sample(n=sample_amount)
+    #    #provide sample data with indexes
+    #    #df_file[heading].sample(n=sample_amount)
 
     # take sample here id need be
     #check hxl tag
@@ -83,9 +83,12 @@ def identify_col_dtype(column_values, file_heading, dicts, sample=None): #only t
     
     for value in column_values:
         #if string
-        if value in dicts:
-            error_counter.append((dicts[value],counter))
-            dtypes_found.append(dicts[value])
+        #print(value)
+        #print(str(value).lower())
+        temp_value = str(value).lower()
+        if temp_value in dicts: 
+            error_counter.append((dicts[temp_value],counter))
+            dtypes_found.append(dicts[temp_value])
         else:
 
             """if value in iso2_codes_dict:#try:#change to if statements, expections more costly than ifs
@@ -137,7 +140,6 @@ def identify_col_dtype(column_values, file_heading, dicts, sample=None): #only t
             #else isinstance(value, basestring):
             #    check_dtype = "str"
             #    dtypes_found.append("str")
-  
     dtypes_found = (dtypes_found)
 
     if len(dtypes_found) > 0:
@@ -248,6 +250,7 @@ def correct_data(df_data, correction_data):#correction_data ["country_name, iso2
         #print(correction_data[key])
         if correction_data[key][1] == "iso2":
             #model = Country.objects.all()
+            df_data[key] = df_data[key].str.lower()
             if correction_data[key][0] == "country_name":
                 #print("Name")
                 curr_dicts = dicts["country_name"]
@@ -264,9 +267,11 @@ def correct_data(df_data, correction_data):#correction_data ["country_name, iso2
             #print(fgs)
         elif correction_data[key][1] == "date":
             #print(df_data[key])
-            f = (lambda x: parse(str(x)).year)
+            #f = (lambda x: parse(str(x)).year)
             try:
-                df_data[key] = df_data[key].apply(f)
+                df_data[key] = pd.to_datetime(df_data[key])
+                df_data[key] = df_data[key].year
+                #df_data[key] = df_data[key].apply(f)
             except Exception:
                 f = (lambda x: parse(str(int(x))).year)#2016.0 will cause error unless it is formatted
                 try:

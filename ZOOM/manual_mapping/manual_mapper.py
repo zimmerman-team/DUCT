@@ -22,7 +22,7 @@ from file_upload.models import File
 
 def manual_mapper(data):
     if 'dict' in data:
-        print(data)
+        print("Begining Mapping")
         mappings = data['dict']#json.loads(data['dict']) 
         mappings.pop("null", None)#not needed for api call
         mappings.pop("validate_store", None) # not needed for api call
@@ -111,6 +111,7 @@ def manual_mapper(data):
 
         if unit_of_measure_value:
             if len(unit_of_measure_value.keys()) < 2 :#chect each entry emoty unit_of measure a dict
+                #print(unit_of_measure_value)
                 mappings['unit_of_measure'] = ['unit_of_measure']
                 df_data['unit_of_measure'] = unit_of_measure_value[unit_of_measure_value.keys()[0]]
                 dtypes_dict[mappings['unit_of_measure'][0]] = [('str', 'str')]
@@ -124,7 +125,7 @@ def manual_mapper(data):
 
         #remove replace
         #Validation
-        print("validating data")
+        print("Validating data")
         for key in mappings:
                 #return HttpResponse(key)
             if mappings[key]:#this is included incase no mapping is given
