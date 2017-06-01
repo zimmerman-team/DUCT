@@ -9,8 +9,8 @@ from file_upload.models import File, FileSource, FileTag
 from indicator.models import IndicatorDatapoint
 from api.file.serializers import FileSerializer, FileSourceSerializer, FileTagSerializer
 import os
-
 import json
+
 
 class FileListView(ListCreateAPIView):
 
