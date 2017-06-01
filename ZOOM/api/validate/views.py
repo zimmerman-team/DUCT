@@ -20,7 +20,6 @@ class Validate(APIView):
 
 @api_view(['POST'])
 def check_file_valid(request):
-    print(request.data)
     file_name = str(File.objects.get(id=request.data['file_id']).file_name)
     file_loc = str(File.objects.get(id=request.data['file_id']).file)
 

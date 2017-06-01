@@ -1,3 +1,6 @@
+import os
+import json
+
 from django.shortcuts import get_object_or_404
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.parsers import FormParser, MultiPartParser
@@ -8,8 +11,6 @@ from rest_framework.decorators import api_view
 from file_upload.models import File, FileSource, FileTag
 from indicator.models import IndicatorDatapoint
 from api.file.serializers import FileSerializer, FileSourceSerializer, FileTagSerializer
-import os
-import json
 
 
 class FileListView(ListCreateAPIView):
@@ -39,27 +40,6 @@ class FileListView(ListCreateAPIView):
             file_name=self.request.data.get('file_name')
         )
 
-        # tags = self.request.data.get('tags')
-
-        # if tags:
-        #     tags = json.loads(tags)
-        #     for i in range(len(tags)):
-        #         tag = tags[i]["tag"]
-        #         file_tag, file_tag_created = FileTag.objects.get_or_create(name=tag)
-        #         file.tags.add(file_tag)
-
-        # data_source = self.request.data.get('data_source')
-        # data_source_obj, data_source_created = FileSource.objects.get_or_create(name=data_source)
-
-        # file.data_source = data_source_obj 
-        # file.save()
-
-
-
-
-    #def delete(self, request): getting front end error, permission denied for delete method  <- @Kieran - ListCreateAPIView does not allow delete indeed, should use the FileDetailView endpoint for delete, but your method above is ok for now :) http://www.django-rest-framework.org/api-guide/generic-views/#listcreateapiview 
-    #    print("In self")
-
 
 @api_view(['POST'])
 def update_status(request):
@@ -67,7 +47,8 @@ def update_status(request):
     file.status = request.data['status']
     file.save()
     return Response({"success":1})
-    
+
+
 class FileDetailView(RetrieveUpdateDestroyAPIView):
 
     queryset = File.objects.all()
@@ -93,13 +74,12 @@ class FileDetailView(RetrieveUpdateDestroyAPIView):
         file.description = self.request.data.get('description')
 
         data_source = self.request.data.get('data_source')
-        print("----------------- data source -----------------")
-        print(self.request.data.get('status'))
-        print(self.request.data)
         file.status = self.request.data.get('status')
-        data_source_obj, data_source_created = FileSource.objects.get_or_create(name=data_source)
 
-        file.data_source = data_source_obj 
+        if data_source: 
+            data_source_obj, data_source_created = FileSource.objects.get_or_create(name=data_source)
+            file.data_source = data_source_obj
+        
         file.save()
 
 

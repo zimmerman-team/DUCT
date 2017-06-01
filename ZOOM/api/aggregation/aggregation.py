@@ -1,5 +1,6 @@
 from operator import itemgetter
 
+
 def apply_annotations(queryset, selected_groupings, selected_aggregations, query_params):
     """
     Builds and performs the query, when multiple aggregations were requested it joins the results

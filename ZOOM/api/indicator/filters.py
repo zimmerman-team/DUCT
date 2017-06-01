@@ -1,13 +1,10 @@
-
 from django_filters import Filter, FilterSet
 from api.generics.filters import CommaSeparatedCharFilter
 from indicator.models import Indicator, IndicatorDatapoint, IndicatorCategory
 
-
 from api.generics.filters import CommaSeparatedCharFilter
 from api.generics.filters import CommaSeparatedStickyCharFilter
 from rest_framework import filters
-
 
 
 class IndicatorDataFilter(FilterSet):
