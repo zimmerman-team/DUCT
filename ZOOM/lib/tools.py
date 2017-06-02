@@ -97,7 +97,7 @@ def identify_col_dtype(column_values, file_heading, dicts, sample=None): #only t
                 error_counter.append((dicts[temp_value],counter))
                 dtypes_found.append(dicts[temp_value])
         except Exception:
-            print("Unicode error")
+            print("Unicode error, checking if another datatype")
 
             """if value in iso2_codes_dict:#try:#change to if statements, expections more costly than ifs
                 check_dtype = "iso2"
@@ -354,6 +354,7 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
     new_df = pd.DataFrame( columns = columns)
     
     counter = 0
+    new_df['unit_of_measure'] = 0
 
     for i in range(len(df_data[columns_set[0]])):#columns[0] bad idea, fix
         #for col in columns_set:
@@ -386,8 +387,10 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
                 new_df[left_over_dict[col]][counter] = df_data[col.replace("~", " ")][i]
             
             if col.replace("~", " ") in empty_unit_measure_value:
-                new_df['unit_of_measure'] = empty_unit_measure_value[col.replace("~", " ")] 
-
+                #print("getting unit of measure")
+                #print(col.replace("~", " "))
+                #print(empty_unit_measure_value[col.replace("~", " ")])
+                new_df['unit_of_measure'][counter] = empty_unit_measure_value[col.replace("~", " ")]
             #new_df  = df_data[mappings[key]]
             #map value
             

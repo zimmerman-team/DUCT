@@ -111,11 +111,12 @@ def manual_mapper(data):
 
         if unit_of_measure_value:
             if len(unit_of_measure_value.keys()) < 2 :#chect each entry emoty unit_of measure a dict
-                #print(unit_of_measure_value)
                 mappings['unit_of_measure'] = ['unit_of_measure']
                 df_data['unit_of_measure'] = unit_of_measure_value[unit_of_measure_value.keys()[0]]
                 dtypes_dict[mappings['unit_of_measure'][0]] = [('str', 'str')]
             else:
+                #print("Unit of measure values")
+                #print(unit_of_measure_value)
                 mappings['unit_of_measure'] = ['unit_of_measure']
                 dtypes_dict[mappings['unit_of_measure'][0]] = [('str', 'str')]
 
