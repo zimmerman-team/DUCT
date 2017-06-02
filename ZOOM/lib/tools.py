@@ -7,6 +7,7 @@ from collections import Counter
 from dateutil.parser import parse
 import pandas as pd
 import numpy as np
+import unicodedata
 #import complier
 
 def ignore_errors(f):
@@ -85,12 +86,18 @@ def identify_col_dtype(column_values, file_heading, dicts, sample=None): #only t
         #if string
         print(value)
         #print(str(value).lower())
-        temp_value = str(value).lower()
-        print(temp_value)
-        if temp_value in dicts: 
-            error_counter.append((dicts[temp_value],counter))
-            dtypes_found.append(dicts[temp_value])
-        else:
+        result = False
+        try:
+            try:
+                temp_value = str(value.lower())
+            except Exception:#special_character
+                temp_value = str(unicodedata.normalize('NFKD', value).lower().encode('ascii','ignore'))
+            result = (temp_value in dicts)
+            if result: 
+                error_counter.append((dicts[temp_value],counter))
+                dtypes_found.append(dicts[temp_value])
+        except Exception:
+            print("Unicode error")
 
             """if value in iso2_codes_dict:#try:#change to if statements, expections more costly than ifs
                 check_dtype = "iso2"
@@ -114,6 +121,7 @@ def identify_col_dtype(column_values, file_heading, dicts, sample=None): #only t
             #check for country codes"""
 
             #if not check_dtype:
+        if not result: 
             if "time" in file_heading.lower() or "date" in file_heading.lower() or "year" in file_heading.lower():# assuming time or date will have appropiate heading
                 try: 
                     check_dtype = parse(str(value))
@@ -251,7 +259,12 @@ def correct_data(df_data, correction_data):#correction_data ["country_name, iso2
         #print(correction_data[key])
         if correction_data[key][1] == "iso2":
             #model = Country.objects.all()
-            df_data[key] = df_data[key].str.lower()
+            try:
+                df_data[key] = df_data[key].str.lower().astype("str")
+            except Exception:#special_character
+                f = (lambda x: str(unicodedata.normalize('NFKD', x).lower().encode('ascii','ignore')))
+                df_data[key] = df_data[key].apply(f).astype("str")
+            #df_data[key] = df_data[key].str.lower()
             if correction_data[key][0] == "country_name":
                 #print("Name")
                 curr_dicts = dicts["country_name"]
