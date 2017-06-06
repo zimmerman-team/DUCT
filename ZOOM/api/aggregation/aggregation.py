@@ -24,10 +24,10 @@ def apply_annotations(queryset, selected_groupings, selected_aggregations, query
     # - group by's that have extra's (null filter would not be correct)
     # TODO: do this different or rewrite the if part, too complicated 23-06-2016 
     nullable_group_fields = flatten([grouping.get_fields() for grouping in selected_groupings if (grouping.extra is None and grouping.query_param not in query_params and grouping.renamed_name_search_field not in query_params) ])
-    eliminate_nulls = {"{}__isnull".format(grouping): False for grouping in nullable_group_fields}
+    #eliminate_nulls = {"{}__isnull".format(grouping): False for grouping in nullable_group_fields}
 
-    queryset = queryset \
-       .filter(**eliminate_nulls)
+    #queryset = queryset \
+    #    .filter(**eliminate_nulls)
 
     # preparation for aggregation look
     main_group_key = group_fields[0]
