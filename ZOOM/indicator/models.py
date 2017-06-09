@@ -25,11 +25,11 @@ class Indicator(models.Model):
 
 
 class IndicatorCategory(models.Model):
-    unique_identifier = models.CharField(max_length=255)
+    unique_identifier = models.CharField(max_length=255, unique=True)
     name = models.CharField(max_length=255, default=None)#adding default to make transition from old to model to new model error free 
     code = models.CharField(max_length=50)
     indicator = models.ForeignKey(Indicator,null=False, blank=False)
-    child = models.ForeignKey('self', related_name='parent', null=True, blank=True)#need child and parent to ensure consistency, ie each entry point to a unique entry
+    parent = models.ForeignKey('self', related_name='child', null=True, blank=True)#need child and parent to ensure consistency, ie each entry point to a unique entry
     level = models.IntegerField(default=0)
 
 class IndicatorSource(models.Model):

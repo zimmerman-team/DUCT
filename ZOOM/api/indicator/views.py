@@ -217,8 +217,13 @@ class IndicatorDataAggregations(AggregationView):
     allowed_groupings = (
         GroupBy(
             query_param="indicator_category",
-            fields=("indicator_category_id", "indicator_category__name", "indicator_category__level", "indicator_category__child_id" ),
+            fields=("indicator_category_id", "indicator_category__name", "indicator_category__level"),
         ),
+        #GroupBy(
+        #    query_param="get_source",
+        #    fields=("indicator", "indicator_category__name", "unit_of_measure", "country", "source", "file__file_name",
+        #     "file__data_source", "file__title", "file__description", "file__tags" ),
+        #),
         GroupBy(
             query_param="indicator",
             fields="indicator",
