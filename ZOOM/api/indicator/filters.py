@@ -47,8 +47,8 @@ class IndicatorCategoryDataFilter(FilterSet):
         name='indicator_category__name',
         lookup_expr='in')
 
-    parent = CommaSeparatedStickyCharFilter(
-        name='parent__id',
+    child  = CommaSeparatedStickyCharFilter(
+        name='child__id',
         lookup_expr='in')
 
     class Meta:

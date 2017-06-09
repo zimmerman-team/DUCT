@@ -18,6 +18,7 @@ from geodata.models import Country
 from lib.converters import convert_to_JSON
 from lib.tools import check_column_data, correct_data, convert_df
 from file_upload.models import File
+from error_correction.error_correction import *
 
 
 def manual_mapper(data):
@@ -155,6 +156,7 @@ def manual_mapper(data):
             missing = []
             context = {"error_messages" : error_message, "success" : 0}
             return (context)
+
         df_data = correct_data(df_data, correction_mappings)
         
         #print(df_data) 
@@ -235,31 +237,47 @@ def manual_mapper(data):
                         #print("cats, ", cats)
                         #print(cats[0])
                         #previous = IndicatorCategory(id=cats[0], indicator = ind_dict[unique_list[index_order['indicator']][0]])
-                        #print("".join(cats))
-                        previous = IndicatorCategory.objects.filter(unique_identifier="".join(cats),
-                                                                    name=cats[len(cats) - 1], 
-                                                                    indicator = ind_dict[unique_list[index_order['indicator']][i]],
-                                                                    level=(len(cats) - 1)).first()
-                        if not previous:
-                            previous = IndicatorCategory(unique_identifier="".join(cats), name = cats[len(cats) - 1], indicator = ind_dict[unique_list[index_order['indicator']][i]], level=(len(cats) - 1))
+                        print("--------------")
+                        print("".join(cats))
+                        parent, created = IndicatorCategory.objects.get_or_create(unique_identifier="".join(cats[0]),
+                                                                                name=cats[0], 
+                                                                                indicator = ind_dict[unique_list[index_order['indicator']][i]],
+                                                                                level=0)
+                        print("gone past")
+                        #parent = IndicatorCategory.objects.filter(unique_identifier="".join(cats[0]),
+                        #                                            name=cats[0], 
+                        #                                            indicator = ind_dict[unique_list[index_order['indicator']][i]],
+                        #                                            level=0).first()
+                        if not parent:
+                            print("no made")
+                            #created.save()
+                            
+                            #parent = IndicatorCategory(unique_identifier="".join(cats[0]), name = cats[0], 
+                            #indicator = ind_dict[unique_list[index_order['indicator']][i]], level=0)
                             #print("".join(cats))
-                            previous.save()
-                        finstance = previous#not sure that's good idea  
+                            parent = created  
 
-                        for j in range(len(cats)-2 , -1, -1):
+                        print("continue") 
+                        for j in range(1 , len(cats)):
                             #print("".join(cats[0:j+1]))
-                            instance = IndicatorCategory.objects.filter(unique_identifier="".join(cats[0:j+1]),
-                                                                        name=cats[j], 
-                                                                        indicator = ind_dict[unique_list[index_order['indicator']][i]],
-                                                                        child = previous,
-                                                                        level=j).first()
-                            if not instance:
-                                instance = IndicatorCategory(unique_identifier="".join(cats[0:j+1]), name = cats[j], indicator = ind_dict[unique_list[index_order['indicator']][i]], level=j, child = previous)
-                                instance.save()
-                            previous = instance   
+                            print("in loop")
+                            parent, created = IndicatorCategory.objects.get_or_create(unique_identifier="".join(cats[0:j+1]),
+                                                                                    name=cats[j], 
+                                                                                    indicator = ind_dict[unique_list[index_order['indicator']][i]],
+                                                                                    parent = parent,
+                                                                                    level=j)#first()
+                            print("gone past 2")
+                            if not parent:
+                                print("Not made")
+                                #instance = IndicatorCategory(unique_identifier="".join(cats[0:j]), name = cats[j], 
+                                #    indicator = ind_dict[unique_list[index_order['indicator']][i]], level=j, parent = parent)
+                                #created.save()
+                                parent = created
+                            print("continue 2") 
                         #order alphabetically
                         #and save backwards
                         #ind = sub ind=etc
+                        finstance = parent
                     else:
                         #print(index_order['indicator_category'][i])
                         finstance = IndicatorCategory.objects.filter(unique_identifier=unique_list[index_order['indicator_category']][i] ,

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from indicator import models as indicator_models
 from geodata import models as geo_models
-from file_upload.models import File, FileTag
+from file_upload.models import File, FileTag, FileSource
 from api.generics.serializers import DynamicFieldsModelSerializer
 
 
@@ -27,6 +27,12 @@ class CountrySerializer(serializers.ModelSerializer):
             'region',
         )
 
+class FileSourceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=FileSource
+        filed = (
+            'name',
+        )
 
 class FileTagSerializer(serializers.ModelSerializer):
     
@@ -39,7 +45,7 @@ class FileTagSerializer(serializers.ModelSerializer):
 
 class FileSerializer(serializers.ModelSerializer):
     file_tags = FileTagSerializer(source="tags", many=True, read_only=True)
-    
+
     class Meta:
         model = File
         fields = (
@@ -50,9 +56,26 @@ class FileSerializer(serializers.ModelSerializer):
             'status',
         )
 
+    #data_source = FileSourceSerializer()
+
+#getting error when adding data source to file serializer, think it's due to nested serializers therefore using this cutsom serializer instead
+class FileDataSerializer(serializers.ModelSerializer):
+    def to_representation(self, value):
+        file_name = value.file_name
+        data_source = value.data_source.name
+        title = value.title
+        created = value.created
+        description = value.description
+        tags = value.tags.all()
+        tag_list = []
+        for i in tags:
+            tag_list.append(i.name)
+        file_dict = {"file_name" : file_name, "file_source" : data_source, "file_title" : title, "description" : description, "tags" : tag_list}
+        return file_dict
 
 class IndicatorCategorySerializer(serializers.ModelSerializer):
 
+    #return list here
     class Meta:
         model = indicator_models.IndicatorCategory
         fields = (
@@ -68,9 +91,9 @@ class IndicatorCategorySerializer(serializers.ModelSerializer):
 class IndicatorDataSerializer(serializers.ModelSerializer):
 
     country = CountrySerializer()
-    file = FileSerializer()
+    #file = FileSerializer()
+    file = FileDataSerializer()
     indicator_category = IndicatorCategorySerializer()
-
 
     class Meta:
         model = indicator_models.IndicatorDatapoint
@@ -86,6 +109,7 @@ class IndicatorDataSerializer(serializers.ModelSerializer):
             "measure_value",
             "unit_of_measure",
             'other',
+            'date_created',
         )
 
 

@@ -246,7 +246,8 @@ def check_data_type(field, dtypes):
         return True, "str", "str" 
 
 
-def correct_data(df_data, correction_data):#correction_data ["country_name, iso2, iso3 etc"]
+#use validation error lines to get bad data, would optimise 
+def correct_data(df_data, correction_data, error_lines={}):#correction_data ["country_name, iso2, iso3 etc"]
     
     value = {}
     _, dicts = get_dictionaries()
@@ -298,6 +299,9 @@ def correct_data(df_data, correction_data):#correction_data ["country_name, iso2
             #print("string")
             f = (lambda x: str(x).decode("unicode_escape").encode('ascii','ignore'))
             df_data[key] = df_data[key].apply(f)
+        else:#numeric
+            f = float()
+            df_data[key].apply(lambda x: lookForError(f, 0, x)) 
 
         #elif date
         #elif measure value etc
