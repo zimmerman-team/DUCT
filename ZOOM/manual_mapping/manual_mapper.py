@@ -243,40 +243,19 @@ def manual_mapper(data):
                                                                                 name=cats[0], 
                                                                                 indicator = ind_dict[unique_list[index_order['indicator']][i]],
                                                                                 level=0)
-                        print("gone past")
-                        #parent = IndicatorCategory.objects.filter(unique_identifier="".join(cats[0]),
-                        #                                            name=cats[0], 
-                        #                                            indicator = ind_dict[unique_list[index_order['indicator']][i]],
-                        #                                            level=0).first()
                         if not parent:
-                            print("no made")
-                            #created.save()
-                            
-                            #parent = IndicatorCategory(unique_identifier="".join(cats[0]), name = cats[0], 
-                            #indicator = ind_dict[unique_list[index_order['indicator']][i]], level=0)
-                            #print("".join(cats))
                             parent = created  
-
-                        print("continue") 
+    
                         for j in range(1 , len(cats)):
-                            #print("".join(cats[0:j+1]))
-                            print("in loop")
+                            
                             parent, created = IndicatorCategory.objects.get_or_create(unique_identifier="".join(cats[0:j+1]),
                                                                                     name=cats[j], 
                                                                                     indicator = ind_dict[unique_list[index_order['indicator']][i]],
                                                                                     parent = parent,
                                                                                     level=j)#first()
-                            print("gone past 2")
                             if not parent:
-                                print("Not made")
-                                #instance = IndicatorCategory(unique_identifier="".join(cats[0:j]), name = cats[j], 
-                                #    indicator = ind_dict[unique_list[index_order['indicator']][i]], level=j, parent = parent)
-                                #created.save()
                                 parent = created
-                            print("continue 2") 
-                        #order alphabetically
-                        #and save backwards
-                        #ind = sub ind=etc
+            
                         finstance = parent
                     else:
                         #print(index_order['indicator_category'][i])
