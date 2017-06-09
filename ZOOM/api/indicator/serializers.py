@@ -73,6 +73,20 @@ class FileDataSerializer(serializers.ModelSerializer):
         file_dict = {"file_name" : file_name, "file_source" : data_source, "file_title" : title, "description" : description, "tags" : tag_list}
         return file_dict
 
+class IndicatorSubCatSerializer(serializers.ModelSerializer):
+    def to_representation(self, value):
+        file_name = value.file_name
+        data_source = value.data_source.name
+        title = value.title
+        created = value.created
+        description = value.description
+        tags = value.tags.all()
+        tag_list = []
+        for i in tags:
+            tag_list.append(i.name)
+        file_dict = {"file_name" : file_name, "file_source" : data_source, "file_title" : title, "description" : description, "tags" : tag_list}
+        return file_dict
+
 class IndicatorCategorySerializer(serializers.ModelSerializer):
 
     #return list here
