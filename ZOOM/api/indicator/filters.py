@@ -47,10 +47,11 @@ class IndicatorCategoryDataFilter(FilterSet):
         name='indicator_category__name',
         lookup_expr='in')
 
-    child  = CommaSeparatedStickyCharFilter(
-        name='child__id',
-        lookup_expr='in')
+    #child  = CommaSeparatedStickyCharFilter(
+    #    name='child__id',
+    #    lookup_expr='in')
 
+    #excluded child below
     class Meta:
         model = IndicatorCategory
         fields = (
@@ -58,7 +59,6 @@ class IndicatorCategoryDataFilter(FilterSet):
             'unique_identifier',
             'name',
             'level',
-            'child',
             'parent',
             'indicator',
         )
