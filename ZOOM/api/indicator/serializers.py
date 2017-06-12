@@ -54,6 +54,7 @@ class FileSerializer(serializers.ModelSerializer):
             'created',
             'file_tags',
             'status',
+            'authorised',
         )
 
     #data_source = FileSourceSerializer()
@@ -66,11 +67,12 @@ class FileDataSerializer(serializers.ModelSerializer):
         title = value.title
         created = value.created
         description = value.description
+        authorised = value.authorised
         tags = value.tags.all()
         tag_list = []
         for i in tags:
             tag_list.append(i.name)
-        file_dict = {"file_name" : file_name, "file_source" : data_source, "file_title" : title, "description" : description, "tags" : tag_list}
+        file_dict = {"file_name" : file_name, "file_source" : data_source, "file_title" : title, "description" : description, "authorised" : authorised, "tags" : tag_list}
         return file_dict
 
 class IndicatorSubCatSerializer(serializers.ModelSerializer):
