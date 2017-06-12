@@ -29,6 +29,7 @@ class FileListView(ListCreateAPIView):
         'source_url',
         'data_source',
         'status',
+        'authorised',
         'tags',
         'created',
         'modified',
@@ -72,6 +73,7 @@ class FileDetailView(RetrieveUpdateDestroyAPIView):
 
         file.title = self.request.data.get('title')
         file.description = self.request.data.get('description')
+        file.authorised = self.request.data.get('authorised')
 
         data_source = self.request.data.get('data_source')
         file.status = self.request.data.get('status')
