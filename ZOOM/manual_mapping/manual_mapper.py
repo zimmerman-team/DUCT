@@ -237,35 +237,42 @@ def manual_mapper(data):
                         #print("cats, ", cats)
                         #print(cats[0])
                         #previous = IndicatorCategory(id=cats[0], indicator = ind_dict[unique_list[index_order['indicator']][0]])
-                        print("--------------")
-                        print("".join(cats))
-                        parent, created = IndicatorCategory.objects.get_or_create(unique_identifier="".join(cats[0]),
+                        #print("--------------")
+                        #print("".join(cats))
+                        temp_id = ind_dict[unique_list[index_order['indicator']][i]].id + ("".join(cats[0]))
+                        parent, created = IndicatorCategory.objects.get_or_create(unique_identifier= temp_id,
                                                                                 name=cats[0], 
                                                                                 indicator = ind_dict[unique_list[index_order['indicator']][i]],
                                                                                 level=0)
+                        #print("Past create")
                         if not parent:
+                            #print("in parent")
                             parent = created  
     
-                        for j in range(1 , len(cats)):
-                            
-                            parent, created = IndicatorCategory.objects.get_or_create(unique_identifier="".join(cats[0:j+1]),
+                     
+                        for j in range(1 , len(cats)):                    
+                            temp_id = ind_dict[unique_list[index_order['indicator']][i]].id + ("".join(cats[0:j+1]))
+                            parent, created = IndicatorCategory.objects.get_or_create(unique_identifier=temp_id,
                                                                                     name=cats[j], 
                                                                                     indicator = ind_dict[unique_list[index_order['indicator']][i]],
                                                                                     parent = parent,
                                                                                     level=j)#first()
+                            #print("Past create 2")
                             if not parent:
+                                #print("in create 2")
                                 parent = created
-            
+
                         finstance = parent
                     else:
-                        #print(index_order['indicator_category'][i])
-                        finstance = IndicatorCategory.objects.filter(unique_identifier=unique_list[index_order['indicator_category']][i] ,
-                                                                    name=unique_list[index_order['indicator_category']][i], indicator = ind_dict[unique_list[index_order['indicator']][i]]).first()
+                        temp_id = ind_dict[unique_list[index_order['indicator']][i]].id + (unique_list[index_order['indicator_category']][i])
+                        finstance, created = IndicatorCategory.objects.get_or_create(unique_identifier=temp_id,
+                                                                                    name = unique_list[index_order['indicator_category']][i], 
+                                                                                    indicator = ind_dict[unique_list[index_order['indicator']][i]], 
+                                                                                    level=0)
                         if not finstance:
-                            finstance = IndicatorCategory(unique_identifier=unique_list[index_order['indicator_category']][i],
-                                                        name = unique_list[index_order['indicator_category']][i], indicator = ind_dict[unique_list[index_order['indicator']][i]])
-                            finstance.save()
-                    ind_cat_dict[unique_list[index_order['indicator']][i] + unique_list[index_order['indicator_category']][i]] = finstance
+                            finstance = created
+                        
+                    ind_cat_dict[unique_list[index_order['indicator']][i] + unique_list[index_order['indicator_category']][i]] = finstance####wrong here
                 elif(count == 2):#ind_source
                     #print(index_order['source'][i])
                     instance = IndicatorSource.objects.filter(id = unique_list[index_order['source']][i].decode(errors='ignore'), indicator = ind_dict[unique_list[index_order['indicator']][i]]).first() 
