@@ -24,3 +24,4 @@ ZOOM/supervisord.pid
 
 
 .vagrant
+.vscode
