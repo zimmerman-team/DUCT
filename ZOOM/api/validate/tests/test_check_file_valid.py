@@ -4,7 +4,7 @@ from django.test import RequestFactory, Client
 from rest_framework.test import APIClient
 
 
-class FileSaveTestCase(TestCase):
+class FileValidTestCase(TestCase):
     request_dummy = RequestFactory().get('/')
     c = APIClient()
 
