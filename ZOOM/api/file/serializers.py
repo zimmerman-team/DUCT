@@ -11,7 +11,6 @@ class FileTagSerializer(serializers.ModelSerializer):
 			'id',
 			'name')
 
-
 class FileSourceSerializer(serializers.ModelSerializer):
 	
 	class Meta:
@@ -20,7 +19,6 @@ class FileSourceSerializer(serializers.ModelSerializer):
 			# 'id',
 			'name',
 			)
-
 
 class FileSerializer(serializers.ModelSerializer):
 	file = serializers.FileField()

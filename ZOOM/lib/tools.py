@@ -3,166 +3,112 @@ from functools import wraps  # use this to preserve function signatures and docs
 from geodata.models import Country
 from indicator.models import IndicatorDatapoint
 from geodata.models import get_dictionaries
-from collections import Counter
 from dateutil.parser import parse
 import pandas as pd
 import numpy as np
+import sys
 import unicodedata
+from collections import Counter
 #import complier
 
-def ignore_errors(f):
-    @wraps(f)
-    def ignore(json_data, ignore_errors=False):
-        if ignore_errors:
-            try:
-                return f(json_data)
-            except (KeyError, TypeError, IndexError, AttributeError):
-                return {}
-        else:
-            return f(json_data)
-    return ignore
+def identify_col_dtype(column_values, file_heading, dicts):
+    """Identify the data types for each value in a column.
+    
+    Args:
+        column_values (Series): values related to a column.
+        file_heading (str): heading of the column.
+        dicts ([{str:str},{str:str}]): dictionaries for iso2 conversion and identifing country data type.
 
-def to_list(item):
-    if isinstance(item, list):
-        return item
-    return [item]
+    Returns:
+        prob_list ([(str,str)]): a list of tuples containing the data type found and the percentage of data found of that type.
+        error_counter ([str]): list of data types found for each cell in the column.      
+    """
 
-def get_no_exception(item, key, fallback):
-    try:
-        return item.get(key, fallback)
-    except AttributeError:
-        return fallback
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
 
-def update_docs(document_parent, counter):
-    count = 0
-    documents = document_parent.get('documents', [])
-    for document in documents:
-        count += 1
-        doc_type = document.get("documentType")
-        if doc_type:
-            counter.update([doc_type])
-    return count
-
-
-def datetime_or_date(instance):
-    result = strict_rfc3339.validate_rfc3339(instance)
-    if result:
-        return result
-    return datetime.datetime.strptime(instance, "%Y-%m-%d")
-
-#serach for columns that map together, look for specific vlaues such as time
-#assume whole column is uploaded, the full length
-def identify_col_dtype(column_values, file_heading, dicts, sample=None): #only takle a sample of three value and serach for data type
-    #   if sample != "None":
-    #    #provide sample data with indexes
-    #    #df_file[heading].sample(n=sample_amount)
-
-    # take sample here id need be
-    #check hxl tag
-    #   if so narrow down data types
-    #check if numeric or not
-    #   if so narrow down possibilities
-    #       date, measure value, get unit of measure
-    #  
-    #if string
-    #   check if it can be changed to numeric
-    #   check if calculation
-    #   check if check country codes, catogorys, indicators, etc
-    #
-    #column_values = np.array(column_values)
     dtypes_found = []
     prob_list = []
-    fields_in_datamodel = []
-    prob_threshold = 0.6
-    counter = 0
-    error_counter = []
+    error_counter = column_values.astype("str")
+    error_counter[:] = np.NaN
+    not_null_filter = column_values.notnull()
+    numeric_filter = pd.to_numeric(column_values[not_null_filter], errors='coerce').notnull()
 
-    #iso2_codes_dict = dicts[0]
-    #iso3_codes_dict = dicts[1]
-    #country_names_dict = dicts[2]
+    print('#############################')
+    print(file_heading)
+    ###Checking Date###
+    #Numeric check
+    print("Date Num Check")
+    filter_applied = ((not_null_filter) & (numeric_filter))
+    error_counter = check_if_date(file_heading, column_values, filter_applied, error_counter)
 
+    #String check
+    print("Data Str Check") 
+    filter_applied = ((not_null_filter) & (~numeric_filter))
+    error_counter = check_if_date(file_heading, column_values, filter_applied, error_counter)
+
+    ###Country Check###
+    if(np.sum(error_counter.notnull()) < len(error_counter)):
+        print("Country Check")
+        f = (lambda x: str(unicodedata.normalize('NFKD', unicode(x)).lower().encode('ascii','ignore')))
+        filter_used = not_null_filter & (~numeric_filter)
+        print("Apply Normalisation")
+        tmp_country_values = column_values[filter_used].apply(f)
+        print("Mapping")
+        tmp_country_values = tmp_country_values.map(dicts)
+        #get values that are not null => country
+        country_filter = tmp_country_values.notnull()
+        error_counter[filter_used] = tmp_country_values[country_filter]
     
-    for value in column_values:
-        #if string
-        print(value)
-        #print(str(value).lower())
-        result = False
-        try:
-            try:
-                temp_value = str(value.lower())
-            except Exception:#special_character
-                temp_value = str(unicodedata.normalize('NFKD', value).lower().encode('ascii','ignore'))
-            result = (temp_value in dicts)
-            if result: 
-                error_counter.append((dicts[temp_value],counter))
-                dtypes_found.append(dicts[temp_value])
-        except Exception:
-            print("Unicode error, checking if another datatype")
+    ###Clean up###
+    print("Blank")
+    error_counter[~not_null_filter] = "blank"
+    
+    print("Str")
+    filter_used = (error_counter.isnull()) & (not_null_filter & (~numeric_filter))
+    error_counter[filter_used] = "str"
+    
+    print("Num")
+    filter_used = (error_counter.isnull()) & (not_null_filter & numeric_filter)
+    error_counter[filter_used] = "num"
 
-            """if value in iso2_codes_dict:#try:#change to if statements, expections more costly than ifs
-                check_dtype = "iso2"
-                #check_dtype = iso2_codes_dict[value]#Country.objects.get(code=value)#exists django
-                error_counter.append(("iso2",counter))
-                dtypes_found.append("iso2")
-            else:#except ValueError:#Country.DoesNotExist: # check name
-                check_dtype = None
-                if value in country_names_dict:#try: 
-                    check_dtype = "country_name"#country_names_dict[value]#Country.objects.get(name=value)
-                    error_counter.append(("country_name", counter))
-                    dtypes_found.append("country_name")
-                else:#except ValueError:#Country.DoesNotExist: # check name
-                    check_dtype = None
-                    if value in iso3_codes_dict:#try: 
-                        check_dtype="iso3"#check_dtype = iso3_codes_dict[value]#Country.objects.get(iso3=value)
-                        error_counter.append(("iso3", counter))
-                        dtypes_found.append("iso3")
-                    else:#except ValueError:#Country.DoesNotExist: # check name
-                        check_dtype = None
-            #check for country codes"""
-
-            #if not check_dtype:
-        if not result: 
-            if "time" in file_heading.lower() or "date" in file_heading.lower() or "year" in file_heading.lower():# assuming time or date will have appropiate heading
-                try: 
-                    check_dtype = parse(str(value))
-                    check_dtype = check_dtype.year
-                    error_counter.append(("date", counter))
-                    dtypes_found.append("date")
-                except ValueError:
-                    dtypes_found.append("date")#fix this
-                    error_counter.append(("possiblly date", counter))
-                        
-                    #check if string value is a formula     
-                    #try convert to number
-                    #use complier to compler equation # might have to change equation syntax to match python's syntax
-            else:
-                try:
-                    float(value) 
-                    check_dtype = "numeric"
-                    error_counter.append(("numeric", counter))
-                    dtypes_found.append("numeric")
-                except ValueError:
-                    check_dtype = "str"
-                    error_counter.append(("str",counter))
-                    dtypes_found.append("str")
-        counter += 1
-            #else isinstance(value, basestring):
-            #    check_dtype = "str"
-            #    dtypes_found.append("str")
-    dtypes_found = (dtypes_found)
-
-    if len(dtypes_found) > 0:
-        normalisation = float(len(column_values))
-        for heading, count in Counter(dtypes_found).most_common():
-            prob_list.append((heading, "{0:.0f}%".format(float(count)/normalisation * 100)))
-    else:
-        prob_list.append("No data type found with any certainity")
-    #probability that we have a matched column, need this has erroneous data types possible, 
-    #and nan null etc, can increase probability needed, perhaps based on size of dataset?
-    #if highest_found[0][1]/len(column_values) >= prob_threshold:
-    #    return highest_found #return datatype and value
+    dtypes_found = np.unique(error_counter)
+    
+    normalisation = float(len(column_values))
+    for heading, count in Counter(error_counter).most_common():
+        prob_list.append((heading, "{0:.0f}%".format(float(count)/normalisation * 100)))
+    
     return prob_list, error_counter
-    #return "DTNF"#DTNF = Data Type Not Found #might be better to use null
+    
+def check_if_date(file_heading, column_values, filter_used, error_counter):
+    """Check if column values could be a date.
+    
+    Args:
+        file_heading (str): heading of the file.
+        column_values (Series): values related to a column.
+        filter_used (np[boolean]): the filter to search for.
+        error_counter ([int]): error data, a list that will contain all data types for column_values.
+
+    Returns: 
+        result (boolean): result of check.
+        error_counter ([int]): error data, a list that will contain all data types for column_values. 
+
+    """
+
+    # assuming time or date will have appropiate heading, perhaps a bad assumption
+    result = "time" in file_heading.lower() or "date" in file_heading.lower() or "year" in file_heading.lower() or "period" in file_heading.lower()
+    if result:
+        tmp_data_values = pd.to_datetime(column_values[filter_used], errors = 'coerce')
+        date_dtype_values = error_counter[filter_used]
+        
+        #get values that are not null => date
+        date_filter = tmp_data_values.notnull()
+        date_dtype_values[date_filter] = "date"
+        #update error_counter
+        error_counter[filter_used] = date_dtype_values 
+    
+    return error_counter
+
 
 
 def check_column_data(dtypes, column_data, model_field, file_heading):#No need for this method anymore 
