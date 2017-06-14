@@ -17,7 +17,7 @@ class FileSaveTestCase(TestCase):
                         'file': fp,
                         'title': 'temp title', 
                         'description': 'temp description', 
-                        'file_name': 'successful_upload_test',
+                        'file_name': 'successful_upload_test.csv',
                         })
 
         self.assertEquals(res.status_code, 201, res.json())
