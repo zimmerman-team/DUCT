@@ -84,33 +84,38 @@ def manual_mapper(data):
         df_data = correct_data(df_data, correction_mappings, error_lines)
         null_values = df_data[mappings['indicator_category'][0]].isnull()
         df_data[mappings['indicator_category'][0]][null_values] = "Default"
+        print("Filtering NaNs from measure value, indicator, data and country")
+        filter_applied = df_data['indicator'].notnull() & df_data['date_value'].notnull() & df_data['measure_value'].notnull() & df_data['country'].notnull()
+        df_data = df_data[filter_applied].reset_index()
 
         #cycle through dataset and save each line
-        order['file'] = file 
-        order["date_created"] = datetime.datetime.now()
-        instance = Time(date_type = "YYYY")
+        df_data['file'] = file 
+        date_object = datetime.datetime.now()
+        df_data["date_created"] = date_object
+        ###Future figure out format
+        instance = Time(date_type = "YYYY")#temp
         instance.save()
-        order['date_format'] = instance  
+        df_data['date_format'] = instance  
 
-        datapoint_headings = []
         for key in mappings:
             if mappings[key]:
                 index_order[key] = mappings[key][0]
-                datapoint_headings.append(mappings[key][0])
-                
+
         print("Save indicators, sources, categories, countries")
-        get_save_unique_datapoints()
+        ind_dict, ind_cat_dict, ind_source_dict, ind_country_dict = get_save_unique_datapoints(df_data, index_order)
+        count = 0
 
-                count = 0
-
-        #print("Date Value column")#
-        #f= (lambda x: True if len(x) >= 4 else False)
-        #print(df_data['Date'][df_data['Date'].apply(f)])
-
+        index_order['file'] = file
+        index_order['date_created'] = date_object
+        index_order['date_format'] = instance
+        
         print("Begining mapping process")
-        for count in range(len(df_data)):
-            #statement += " ("
-            for key in mappings:
+        #
+
+
+        #for count in range(len(df_data)):
+        #statement += " ("
+        #for key in mappings:
                 if mappings[key]:
                     if mappings[key][0] in df_data.columns:
                        #print(df_data[mappings[key][0]][count])
@@ -298,7 +303,20 @@ def check_mapping_dtypes(mappings, dtypes_dict):
     return (not len(error_message) > 0), correction_mappings, context 
 
 
-def get_save_unique_datapoints():
+def get_save_unique_datapoints(df_data, index_order):
+    """Gets foreign keys for IndicatorDatapoint and saves new entries if needed.
+    
+    Args:
+        df_data (Dataframe): dataframe of CSV file.
+        index_order ({str:[str]}): data model section and associated column heading.
+
+    Returns: 
+        ind_dict ({str:Indicator}): dictionary of Indicator objects.
+        ind_cat_dict ({str:IndicatorCategory}): dictionary of IndicatorCategory objects.
+        ind_source_dict ({str:IndicatorSource}): dictionary of IndicatorSource objects.
+        ind_country_dict ({str:Country}): dictionary of Country objects.
+    """
+
     count  = 0
     ind_dict = {}
     ind_cat_dict = {}
@@ -306,11 +324,11 @@ def get_save_unique_datapoints():
     ind_country_dict = {}
     unique_indicator = [] 
     unique_indicator_cat = [] 
-    unique_indicator_source = [] 
+    unique_indicator_source = []
     unique_country = []
 
     if "indicator" in index_order:
-        unique_indicator = df_data[index_order["indicator"]].unique()
+        unique_indicator = df_data[index_order["indicator"]][].unique().notnull()
     if "indicator_category" in index_order:
         unique_indicator_cat = df_data.groupby([index_order["indicator"],index_order["indicator_category"]]).size().reset_index()
     if "source" in index_order:
@@ -320,14 +338,12 @@ def get_save_unique_datapoints():
     unique_lists = [unique_indicator, unique_indicator_cat, unique_indicator_source, unique_country]
     count = 0
 
-    #change this to use bulk saves
     for unique_list in unique_lists:
         for i in range(len(unique_list)):
             if(count == 0):#indicator
-                instance = Indicator.objects.filter(id=unique_list[i]).first()
-                #print(unique_list[i])
+                instance, created = Indicator.objects.get_or_create(id=unique_list[i])
                 if not instance:
-                    instance = Indicator(id = unique_list[i])
+                    instance = created
                     instance.save()
                 ind_dict[unique_list[i]] = instance
             elif(count == 1):#indicator_cat
@@ -338,21 +354,18 @@ def get_save_unique_datapoints():
                                                                             name=cats[0], 
                                                                             indicator = ind_dict[unique_list[index_order['indicator']][i]],
                                                                             level=0)
-                    
                     if not parent:
                         parent = created  
 
-                 
                     for j in range(1 , len(cats)):                    
                         temp_id = ind_dict[unique_list[index_order['indicator']][i]].id + ("".join(cats[0:j+1]))
                         parent, created = IndicatorCategory.objects.get_or_create(unique_identifier=temp_id,
                                                                                 name=cats[j], 
                                                                                 indicator = ind_dict[unique_list[index_order['indicator']][i]],
                                                                                 parent = parent,
-                                                                                level=j)#first()
+                                                                                level=j)
                         if not parent:
                             parent = created
-
                     finstance = parent
                 else:
                     temp_id = ind_dict[unique_list[index_order['indicator']][i]].id + (unique_list[index_order['indicator_category']][i])
@@ -361,30 +374,18 @@ def get_save_unique_datapoints():
                                                                                 indicator = ind_dict[unique_list[index_order['indicator']][i]], 
                                                                                 level=0)
                     if not finstance:
-                        finstance = created
-                    
+                        finstance = created          
                 ind_cat_dict[unique_list[index_order['indicator']][i] + unique_list[index_order['indicator_category']][i]] = finstance####wrong here
             elif(count == 2):#ind_source
-                #print(index_order['source'][i])
                 instance = IndicatorSource.objects.filter(id = unique_list[index_order['source']][i].decode(errors='ignore'), indicator = ind_dict[unique_list[index_order['indicator']][i]]).first() 
                 if not instance:
                     instance = IndicatorSource(id = unique_list[index_order['source']][i].decode(errors='ignore'), indicator = ind_dict[unique_list[index_order['indicator']][i]])
                     instance.save()
                 ind_source_dict[unique_list[index_order['indicator']][i] + unique_list[index_order['source']][i]] = instance
-                
-            else:#indicator_sub
-                #print(unique_list[i])
+            else:
                 instance = Country.objects.filter(code = unique_list[i])
-                if instance.count() > 0:
-                    #instance.save()
-                    ind_country_dict[unique_list[i]] = instance[0]
-                else:#not in data base
-                    instance = None#Country(code = unique_list[i])
-                    #check = unique_list[i]
-                    #try:
-                    #    instance.save()
-                    #    ind_country_dict[unique_list[i]] = instance
-                    #except Exception as e:
-                        #instance = None
-                    ind_country_dict[unique_list[i]] = instance
-        count += 1   
+                ind_country_dict[unique_list[i]] = instance[0]
+                ind_country_dict[unique_list[i]] = instance
+        count += 1
+
+    return ind_dict, ind_cat_dict, ind_source_dict, ind_country_dict
