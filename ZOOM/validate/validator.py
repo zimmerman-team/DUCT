@@ -44,13 +44,14 @@ def validate(file_id):
     data_model_headings = data_model_headings[4:len(data_model_headings)] 
     remaining_mapping = data_model_headings
     print("Getting Error Information")
-    error_lines, zip_list, summary_results, summary_indexes = generate_error_data(df_file)
+    error_data, zip_list, summary_results, summary_indexes, dtypes_dict = generate_error_data(df_file)
     print("Saving Error Information")
-    save_validation_data(error_lines, file_id)
+    save_validation_data(error_data, file_id, dtypes_dict)
     context = {
         'success': 1, 
         "found_list": zip_list, 
-        "summary":zip(summary_indexes, summary_results)
+        "summary":zip(summary_indexes, summary_results),
+        "missing_list" : remaining_mapping
     }
 
     return context
@@ -63,15 +64,17 @@ def generate_error_data(df_file):
         df_file (Dataframe): Data of csv file in a dataframe.
 
     Returns: 
-        error_lines ([[int]]): error data, first list is a column ,second is the row.
+        error_data ({str}): error data for each column.
         zip_list: ([str, str, int]), contains file heading, list of dtypes for heading, amount of empty results.
         summary_results ([str]): summary results of data.
         summary_indexes ([str]): summary headings for data.
+        dtypes_dict ({str:str}): stores the data-types for each heading.
     """
 
     file_heading_list = df_file.columns
     dicts, _ = get_dictionaries()
-    error_lines = []#change to dictionary
+    dtypes_dict = {}
+    error_data = {}
     validation_results = []
     dtypes_list = []
     summary_results = []
@@ -79,7 +82,8 @@ def generate_error_data(df_file):
 
     for heading in file_heading_list:
         prob_list, error_count = identify_col_dtype(df_file[heading], heading, dicts)
-        error_lines.append(error_count)
+        dtypes_dict[heading] = prob_list
+        error_data[heading] = error_count
         validation_results.append(df_file[heading].isnull().sum())
         dtypes_list.append(prob_list)
         column_detail = df_file[heading].describe()
@@ -87,30 +91,39 @@ def generate_error_data(df_file):
         summary_indexes.append(list(column_detail.index))
 
     zip_list = zip(file_heading_list, dtypes_list, validation_results)
-    return error_lines, zip_list, summary_results, summary_indexes
+    
+    return error_data, zip_list, summary_results, summary_indexes, dtypes_dict
     
 
-def save_validation_data(error_lines, file_id):
+def save_validation_data(error_data, file_id, dtypes_dict):
     """Saves error data for file.
     
     Args:
-        error_lines ([[int]]): error data, first list is a column ,second is the row.
+        error_data ({str}): error data for each column..
         file_id (str): ID of file being used.
+        dtypes_dict ({str:str}): stores the data-types for each heading.
     """
 
     path = os.path.join(os.path.dirname(settings.BASE_DIR), 'ZOOM/media/tmpfiles')
+    dtype_name = path +  "/" + str(uuid.uuid4()) + ".txt"
+    with open(dtype_name, 'w') as f:
+        pickle.dump(error_data, f)
+
     dict_name = path +  "/" + str(uuid.uuid4()) + ".txt"
     with open(dict_name, 'w') as f:
-        pickle.dump(error_lines, f) 
+        pickle.dump(dtypes_dict, f)
     
     file = File.objects.get(id=file_id)
     #obj, created = FileDtypes.objects.update_or_create(dtype_name=dict_name, file= file) # error due to one to one field
-    
+
     try:
         instance = FileDtypes.objects.get(file=file)#
-        os.remove(instance.dtype_name)
-        instance.dtype_name = dict_name
+        if instance.dtype_name:
+            os.remove(instance.dtype_name)
+        if instance.dtype_dict_name:
+            os.remove(instance.dtype_dict_name)
+        instance.dtype_name = dtype_name
+        instance.dtype_dict_name = dict_name 
         instance.save()
     except Exception:
-        FileDtypes(dtype_name= dict_name, file=file).save()
-
+        FileDtypes(dtype_name=dtype_name, file=file, dtype_dict_name=dict_name).save()

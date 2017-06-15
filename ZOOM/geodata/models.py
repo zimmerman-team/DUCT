@@ -13,17 +13,17 @@ def get_dictionaries():#might be better to use a set
     country_source_dict = {}
     country_iso2_dict = {}
 
-    for i in range(len(source)):
-        country_iso2_dict[source[i]] = {}
-
+    #for i in range(len(source)):
+        
     print("Get dictionaries")
     
     for i in range(len(data_lists)):
         counter = 0
         
+        #can vectorise this
         for j in range(len(data_lists[i])):
             
-            try:
+            try:#not needed
                 temp_value = str(data_lists[i][j][0].lower())
             except Exception:#special_character
                 temp_value = str(unicodedata.normalize('NFKD', data_lists[i][j][0]).lower().encode('ascii','ignore'))
@@ -31,11 +31,11 @@ def get_dictionaries():#might be better to use a set
             country_source_dict[temp_value] = source[i] #{NL: {iso2: NL, source:iso2}}
             
             if i < (len(data_lists) - 1):
-                country_iso2_dict[source[i]][temp_value] = iso2_codes[j][0]# just iso2 codes
+                country_iso2_dict[temp_value] = iso2_codes[j][0]# just iso2 codes
             else:
                 country_alt_name = CountryAltName.objects.get(name=data_lists[i][j][0]) 
                 country = Country.objects.get(code=country_alt_name.country.code) 
-                country_iso2_dict[source[i]][temp_value] = country.code
+                country_iso2_dict[temp_value] = country.code
     return country_source_dict, country_iso2_dict
 
 
