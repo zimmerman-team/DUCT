@@ -8,7 +8,7 @@ from rest_framework import filters
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
-from file_upload.models import File, FileSource, FileTag
+from file_upload.models import File, FileSource, FileTag, FileDtypes
 from indicator.models import IndicatorDatapoint
 from api.file.serializers import FileSerializer, FileSourceSerializer, FileTagSerializer
 
@@ -83,6 +83,30 @@ class FileDetailView(RetrieveUpdateDestroyAPIView):
             file.data_source = data_source_obj
         
         file.save()
+
+    def delete(self, request, *args, **kwargs):
+
+        file_object = self.get_object()
+        print(file_object)
+        file_dtypes = FileDtypes.objects.filter(file=file_object)
+        print(file_dtypes)
+
+        for i in file_dtypes:
+            path = i.dtype_name
+            if path:
+                try:
+                    os.remove(path)
+                except Exception:
+                    continue
+
+            path = i.dtype_dict_name
+            if path:
+                try:
+                    os.remove(path)
+                except Exception:
+                    continue
+
+        return self.destroy(request, *args, **kwargs)
 
 
 class FileSourceListView(ListCreateAPIView):

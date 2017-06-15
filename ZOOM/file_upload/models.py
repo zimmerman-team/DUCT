@@ -105,6 +105,7 @@ class File(models.Model):
             raise ValueError('No source_url specified.')
 
 class FileDtypes(models.Model):
-    dtype_name = models.CharField(max_length=500, null=True)#location      
+    dtype_name = models.CharField(max_length=500, null=True)#location  
+    dtype_dict_name = models.CharField(max_length=500, null=True)#location    
     file = models.OneToOneField("File", null=True)
     #include method that deletes physical file if row deleted

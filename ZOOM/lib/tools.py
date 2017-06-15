@@ -110,170 +110,103 @@ def check_if_date(file_heading, column_values, filter_used, error_counter):
     return error_counter
 
 
-
-def check_column_data(dtypes, column_data, model_field, file_heading):#No need for this method anymore 
-    #has to map to indicator datapoint
-    result_list = []
-    altered_column = []
-    expected_dtypes  = []
-    convert_to_type = []
-    dtypes = [(i[0]) for i in dtypes]
-    if not dtypes or dtypes == "No data type found with any certainity":# for test purposes
-        return True #for test purposes
-
-    return check_data_type(model_field, dtypes)
-    #if result is False:
-    #    return 
-    #    #return ("Column '" + model_field + "' expecting the data value to be " + ', '.join(expected_dtypes) + ", instead mapping column '" + file_heading + "'' has data type " + ', '.join(dtypes)), expected_dtypes
-    #else:
-        #alter date based in data set use dtypes
-    #    return "", expected_dtypes  
+def check_column_data_type(field, dtypes):   
+    """Check that the data types found in a column is appropiate for the heading that it was matched to.
     
+    Args:
+        field (str): column heading.
+        dtypes ([str]): list of dtypes found for a column heading.
 
-    #check dtypes of column 1 and column 2
-    #if different return false
-    #identify column against predefined data structure eg iso
-    #if heading is clear and data structure for column is known check corresponding column
-        #check for incorrect values #iso codes, coutry names
-    #if column is a sum change is or highlight it
+    Returns:
+        result (boolean), true or false if appropiate dtype found.
+        dtype_set ([str]), matching data types found for mapping.
+        conversion_dtype (str): the data type the column needs to be converted to.
+    """
 
-#returns if data type matches, the type of of attempted map and the type needed for conversion 
-#should return field to map to
-def check_data_type(field, dtypes):   
-    #add time
+    dtypes = [(i[0]) for i in dtypes]
     dtype_set = set()
     result = False
     if field == "country":
-        #print("rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr")
         country_list = ['iso2', 'iso3', "country_name"]
-        #print(dtypes)
-        #print(country_list)
         dtype_set = set(dtypes) & set(country_list)
         result = bool(dtype_set)   
-        #print(result)
-
+       
         if not result:
             dtype_set = dtypes[0]
-            #print(dtype_set)
         else:
             indexes = []
             dtype_set = list(dtype_set)
-            #print(dtype_set)
-            for i in range(len(dtype_set)):#looking for furthest forward data type found that is  compatiable
-                #print(dtypes.index(dtype_set[i]))
+            
+            for i in range(len(dtype_set)):#looking for furthest forward data type found that is compatiable
                 indexes.append(int(dtypes.index(dtype_set[i])))
-            #print(indexes)
+            
             indexes.sort()
-            
-            #print("Indexes ", indexes)
-            #print(indexes[0])
             dtype_set = dtypes[indexes[0]]#pointless??
-            #print(dtype_set)
-
-        # if "country_name" == dtype_set:
-        #     dtype_set = "countrname"
-        # elif "iso2" == dtype_set:
-        #     dtype_set = "code"
-            
-        return result, dtype_set, "iso2" #return type found
+                
+        return result, dtype_set, "iso2"
     
     elif field == "measure_value":
-        if "numeric" in dtypes:
-            return True, "numeric" , "numeric"#("numeric" in dtypes), ["numeric"]
+        if "num" in dtypes:
+            return True, "num" , "num"
         else:
-            return False, dtypes[0], "numeric"
+            return False, dtypes[0], "num"
     
     elif field == "date_value":
-        if "date" in dtypes:#just return this
+        if "date" in dtypes:
+            ###Future: include format of date
             return True, "date" , "date"
         else:
             return False, dtypes[0] , "date"
-    else:#string
+    else:
         return True, "str", "str" 
 
 
 #use validation error lines to get bad data, would optimise 
-def correct_data(df_data, correction_data, error_lines={}):#correction_data ["country_name, iso2, iso3 etc"]
+def correct_data(df_data, correction_data, error_lines, error_data):#correction_data ["country_name, iso2, iso3 etc"]
+    """Corrects data for each column according to correction_data.
     
+    Args:
+        df_data (Dataframe): dataframe of CSV file.
+        correction_mappings ({str:(str,str)}): the conversion needed for each file heading.
+        error_lines ([[int]]): error data, first list is a column ,second is the row.
+
+    Returns: 
+        new_df (Dataframe): the converted dataframe.
+    """
+
     value = {}
     _, dicts = get_dictionaries()
-    #print("Lets go")
+    f = (lambda x: str(unicodedata.normalize('NFKD', unicode(x)).lower().encode('ascii','ignore')))
+
     for key in correction_data:
-        #decide what format to goive it too #also check date
-        #print("og loc")
-        #print(df_data.head())
-        #print("----------------------------------")
-        #print(correction_data[key])
+        not_null_filter = df_data[key].notnull()
+        numeric_filter = pd.to_numeric(df_data[key][not_null_filter], errors='coerce').notnull()
+        
+        ###Country
         if correction_data[key][1] == "iso2":
-            #model = Country.objects.all()
-            try:
-                df_data[key] = df_data[key].str.lower().astype("str")
-            except Exception:#special_character
-                f = (lambda x: str(unicodedata.normalize('NFKD', x).lower().encode('ascii','ignore')))
-                df_data[key] = df_data[key].apply(f).astype("str")
-            #df_data[key] = df_data[key].str.lower()
-            if correction_data[key][0] == "country_name":
-                #print("Name")
-                curr_dicts = dicts["country_name"]
-                #print(curr_dicts, " key ", key)
-                df_data[key].replace(curr_dicts, inplace=True) #needs to be more comprehensive, users mix iso2 and iso3 in column data
-                #print(df_data[key].head())
-            elif correction_data[key][0] =="iso3":#not needed??
-                #print("iso3")
-                curr_dicts = dicts["iso3"]
-                df_data.replace(curr_dicts, inplace=True)
-            #print("end")
-            #print("key ", key)
-            #print(df_data.head())
-            #print(fgs)
+            print("Country Check")
+            filter_used = not_null_filter & (~numeric_filter) & (error_lines[key][error_lines[key] == correction_data[key][0]])
+            df_data[key] = df_data[key][filter_used].apply(f)               
+            df_data[key] = df_data[key][filter_used].map(dicts)
         elif correction_data[key][1] == "date":
-            #print(df_data[key])
-            #f = (lambda x: parse(str(x)).year)
-            try:
-                old = df_data[key]
-                df_data[key] = pd.to_datetime(df_data[key])
-                df_data[key] = df_data[key].year.astype(int)
-                #df_data[key] = df_data[key].apply(f)
-            except Exception:
-                df_data[key] = old
-                f = (lambda x: parse(str(int(x))).year)#2016.0 will cause error unless it is formatted
-                try:
-                    df_data[key] = df_data[key].apply(f)
-                except Exception:
-                    df_data[key].apply(lambda x: lookForError(f, "0000", x)) 
+            ####Numeric check
+            filter_applied1 = ((not_null_filter) & (numeric_filter) & (error_lines[key][error_lines[key] == correction_data[key][0]]))
+            df_data[key][filter_applied1] = pd.to_datetime(df_data[key][filter_applied1]).year
+
+            ###String check
+            filter_applied2 = ((not_null_filter) & (~numeric_filter)) & (error_lines[key][error_lines[key] == correction_data[key][0]])
+            df_data[key][filter_applied2] = pd.to_datetime(df_data[key][filter_applied2]).year
+
+            df_data[key][~(filter_applied1 | filter_applied2)] = np.NaN
+        #Applying filter to entire column, example indicator category might be  have numbers 
         elif correction_data[key][1] == "str":
-            #print("string")
-            f = (lambda x: str(x).decode("unicode_escape").encode('ascii','ignore'))
+            filter_applied = not_null_filter & (~numeric_filter)
             df_data[key] = df_data[key].apply(f)
         else:#numeric
-            f = float()
-            df_data[key].apply(lambda x: lookForError(f, 0, x)) 
+            filter_applied = not_null_filter & (~numeric_filter)
+            df_data[key][filter_applied]  = np.NaN
 
-        #elif date
-        #elif measure value etc
-            
-            """for i in range(len(df_data[key])):
-                value[correction_data[key][0]] = df_data[key][i] #might not work?
-                #query_result = model.filter(**value)
-                
-                if  df_data[key][i] in curr_dicts:
-                    model_value = curr_dicts[df_data[key][i]][0]#query_result[0].code
-                else:
-                    model_value = "NA"
-                df_data[key][i] = model_value"""
     return df_data
-        #elif correction_data[key][1] == "numeric":
-            #model = Country.objects.all()
-        #else:
-
-        #for i in range(len(df_data[key])):
-        #    value = correction_data[key][0] + "=" + df_data[key][i] #might not work?
-        #    value = model.filter(**value)
-        #    df[data][i] = value.id
-    #if country convert column to iso2
-    #if numeric convert to decimal/char
-    #if date convert in integer
-    #if 
 
 
 def lookForError(f, default, x):
@@ -284,13 +217,29 @@ def lookForError(f, default, x):
     return default
 
 def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict, empty_unit_measure_value):
+    """Remaps dataframe based on relationship between columns and data model.
     
+    Args:
+        mappings ({str:[str]}): the users chosen mappings for a file column.
+        relationship_dict ({str: [str]}): section of the data model mapped to a file heading.
+        left_over_dict_dict ({str: [str]}): section of the data model mapped to the file column values.
+        df_data (Dataframe): dataframe of CSV file.
+        dtypes_dict ({str:str}): stores the data-types found for each heading.
+        empty_unit_measure_value (str): value to use if unit of measure has not be mapped.
+
+    Returns: 
+        new_df (Dataframe): newly formatted dataframe.
+    """
+
+    print("Converting DF")
+    print(df_data)
     if not empty_unit_measure_value:
         empty_unit_measure_value = {}
 
     columns = []
+    ###Get columns not in relationship dict
     for col in df_data.columns: 
-        temp = str(col)#.replace(" ", "~")#needed?
+        temp = str(col)
         col = str(col) 
         if (temp in relationship_dict):
             if not relationship_dict[temp] in columns or not left_over_dict[temp] in columns:
@@ -299,58 +248,46 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
         else: 
             columns.append(col)
 
+    columns.append('unit_of_measure')
     columns = list(set(columns))#filter duplicates
-    columns_set = list(set(list(columns)) & set(list(df_data.columns))) #set(columns).intersection(set(df_data.columns)) 
-    new_df = pd.DataFrame( columns = columns)
+    columns_set = list(set(list(columns)) & set(list(df_data.columns)))
     
-    counter = 0
-    new_df['unit_of_measure'] = 0
+    for col in relationship_dict:
+        if relationship_dict[col] == "date_value":
+            dtypes_dict[relationship_dict[col]] = [['date', "100%"]]
+        else:
+            dtypes_dict[relationship_dict[col]] = [['str', "100%"]]
 
-    for i in range(len(df_data[columns_set[0]])):#columns[0] bad idea, fix
-        #for col in columns_set:
-        #    new_df[col][counter] = df_data[col][i]
-        for col in relationship_dict:
+        dtypes_dict[left_over_dict[col]] = [['num', '100%']]
 
-            if relationship_dict[col] == "date_value":
-                dtypes_dict[relationship_dict[col]] = [['date', "100%"]] # check type #######################check here data type
-            else:
-                dtypes_dict[relationship_dict[col]] = [['str', "100%"]] # check type #######################check here data type
+    new_df = pd.DataFrame(columns=df_data.columns)
 
-            dtypes_dict[left_over_dict[col]] = [['numeric', '100%']]
-            ##loop here through the values for relationship   
-            #don't need column
+    for col in relationship_dict:
+        tmp_df = df_data.copy(deep=True)    
+        
+        #if more than one relationship ie multiple subgroupd and relationships
+        if col in mappings['indicator_category'] and len(mappings['indicator_category']) > 1:
+            tmp_df[relationship_dict[col]] = tmp_df[relationship_dict[col]] + "|" + (col)
+            tmp_df[left_over_dict[col]] = tmp_df[col]
             
-            new_df.loc[counter] = df_data.iloc[i] #copy row
-            #might have to be greater than 2
-            
-            if col in mappings['indicator_category'] and len(mappings['indicator_category']) > 1:#if more than one relationship ie multiple subgroupd and relationships
-                check  = new_df[relationship_dict[col]][counter] #if supgroup already defined
-                new_df[relationship_dict[col]][counter] = new_df[relationship_dict[col]][counter] + "|" + (col.replace("~", " "))#last part not needed
-                new_df[left_over_dict[col]][counter] = df_data[col.replace("~", " ")][i]#check if col_replace is there
-                #if empty_unit_of_measure in mappings:
-                #apply units of measure
-                #a = 5                        
-                
-            else: #normal case
-                #hre.y 
-                new_df[relationship_dict[col]][counter] = col.replace("~", " ")#add column heading
-                new_df[left_over_dict[col]][counter] = df_data[col.replace("~", " ")][i]
-            
-            if col.replace("~", " ") in empty_unit_measure_value:
-                #print("getting unit of measure")
-                #print(col.replace("~", " "))
-                #print(empty_unit_measure_value[col.replace("~", " ")])
-                new_df['unit_of_measure'][counter] = empty_unit_measure_value[col.replace("~", " ")]
-            #new_df  = df_data[mappings[key]]
-            #map value
-            
-            #mappings[relationship_dict[col]] = [relationship_dict[col]]#what is the point of this?
-            #mappings[left_over_dict[col]] = [left_over_dict[col]] 
-
-            counter += 1
-        #if i == 2:
-        #    sdf.sgd
-    return new_df#.T.drop_duplicates().T#prevent duplicate columns// why is this happening
+        else:#normal case
+            tmp_df[relationship_dict[col]] = col
+            tmp_df[left_over_dict[col]] = tmp_df[col]
+        
+        if col in empty_unit_measure_value:
+            tmp_df['unit_of_measure'] = empty_unit_measure_value[col]
+        print("Temp DF")
+        print(len(tmp_df.columns))
+        print(tmp_df)
+        print("New DF")
+        print(len(new_df.columns))
+        print(new_df)
+        new_df = new_df.append(tmp_df)
+    
+    print(len(df_data[df_data.columns[0]]))
+    print(len(new_df[new_df.columns[0]]))
+    
+    return new_df#filter by columns needed
 
 def check_file_type(file_name):
     name = file_name.lower()
