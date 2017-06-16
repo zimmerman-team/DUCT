@@ -92,6 +92,9 @@ def generate_error_data(df_file):
 
     zip_list = zip(file_heading_list, dtypes_list, validation_results)
     
+    print("dtypes_dict")
+    print(dtypes_dict)
+
     return error_data, zip_list, summary_results, summary_indexes, dtypes_dict
     
 

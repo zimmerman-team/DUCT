@@ -13,10 +13,6 @@ def get_dictionaries():#might be better to use a set
     country_source_dict = {}
     country_iso2_dict = {}
 
-    #for i in range(len(source)):
-        
-    print("Get dictionaries")
-    
     for i in range(len(data_lists)):
         counter = 0
         
