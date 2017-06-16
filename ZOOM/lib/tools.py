@@ -34,41 +34,31 @@ def identify_col_dtype(column_values, file_heading, dicts):
     not_null_filter = column_values.notnull()
     numeric_filter = pd.to_numeric(column_values[not_null_filter], errors='coerce').notnull()
 
-    print('#############################')
-    print(file_heading)
     ###Checking Date###
     #Numeric check
-    print("Date Num Check")
     filter_applied = ((not_null_filter) & (numeric_filter))
     error_counter = check_if_date(file_heading, column_values.astype('str'), filter_applied, error_counter)
 
     #String check
-    print("Data Str Check") 
     filter_applied = ((not_null_filter) & (~numeric_filter))
     error_counter = check_if_date(file_heading, column_values, filter_applied, error_counter)
 
     ###Country Check###
     if(np.sum(error_counter.notnull()) < len(error_counter)):
-        print("Country Check")
-        f = (lambda x: str(unicodedata.normalize('NFKD', unicode(x)).lower().encode('ascii','ignore')).strip())
+        f = (lambda x: str(unicodedata.normalize('NFKD', unicode(x)).lower().encode('ascii','ignore')).strip().replace("_", " "))
         filter_used = not_null_filter & (~numeric_filter)
-        print("Apply Normalisation")
         tmp_country_values = column_values[filter_used].apply(f)
-        print("Mapping")
         tmp_country_values = tmp_country_values.map(dicts)
         #get values that are not null => country
         country_filter = tmp_country_values.notnull()
         error_counter[filter_used] = tmp_country_values[country_filter]
     
     ###Clean up###
-    print("Blank")
     error_counter[~not_null_filter] = "blank"
     
-    print("Str")
     filter_used = (error_counter.isnull()) & (not_null_filter & (~numeric_filter))
     error_counter[filter_used] = "str"
     
-    print("Num")
     filter_used = (error_counter.isnull()) & (not_null_filter & numeric_filter)
     error_counter[filter_used] = "num"
 
@@ -176,10 +166,7 @@ def correct_data(df_data, correction_data, error_data):#correction_data ["countr
 
     value = {}
     _, dicts = get_dictionaries()
-    f = (lambda x: str(unicodedata.normalize('NFKD', unicode(x)).lower().encode('ascii','ignore')).strip())
-
-    print("Correction data")
-    print(correction_data)
+    f = (lambda x: str(unicodedata.normalize('NFKD', unicode(x)).lower().encode('ascii','ignore')).strip().replace("_", " "))
 
     for key in correction_data:
         not_null_filter = df_data[key].notnull()
@@ -187,16 +174,10 @@ def correct_data(df_data, correction_data, error_data):#correction_data ["countr
         
         ###Country
         if correction_data[key][1] == "iso2":
-            print("Country Check")
             filter_used = not_null_filter & (~numeric_filter) & (error_data[key][error_data[key] == correction_data[key][0]])
             df_data[key] = df_data[key][filter_used].apply(f)               
             df_data[key] = df_data[key][filter_used].map(dicts)
         elif correction_data[key][1] == "date":
-            print("###############")
-            print("Key")
-            print(key)
-            print(correction_data[key][1])
-
             ####Numeric check
             filter_applied1 = ((not_null_filter) & (numeric_filter) & (error_data[key][error_data[key] == correction_data[key][0]]))
             df_data[key][filter_applied1] = pd.to_datetime(df_data[key][filter_applied1].astype('str')).dt.year
@@ -239,8 +220,6 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
         new_df (Dataframe): newly formatted dataframe.
     """
 
-    print("Converting DF")
-    print(df_data)
     if not empty_unit_measure_value:
         empty_unit_measure_value = {}
 
@@ -284,18 +263,12 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
         
         if col in empty_unit_measure_value:
             tmp_df['unit_of_measure'] = empty_unit_measure_value[col]
-        print("Temp DF")
-        print(len(tmp_df.columns))
-        print(tmp_df)
-        print("New DF")
-        print(len(new_df.columns))
-        print(new_df)
         new_df = new_df.append(tmp_df)
     
-    print(len(df_data[df_data.columns[0]]))
+    print(new_df)
     print(len(new_df[new_df.columns[0]]))
-    
-    return new_df#filter by columns needed
+    print(len(df_data[df_data.columns[0]]))
+    return new_df.reset_index()#filter by columns needed
 
 def check_file_type(file_name):
     name = file_name.lower()

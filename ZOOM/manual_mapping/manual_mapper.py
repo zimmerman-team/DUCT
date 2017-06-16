@@ -25,12 +25,10 @@ from validate.validator import generate_error_data, save_validation_data
 def manual_mapper(data):
     """Perfoms manual mapping process."""
     if 'dict' in data:
-        print("###########################################################")
-        print("Data")
-        print(data)
-        print("dict")
-        print(data['dict'])
-
+        #print("###########################################################")
+        #print("Data")
+        #print(data)
+        
         order = {}
         index_order = {}
         bulk_list = []
@@ -74,13 +72,14 @@ def manual_mapper(data):
                 if not mappings[key][0] in df_data.columns:
                     mappings[key][0] = mappings[key][0].replace("~", " ")
 
-        
+        print("Corrceting dtypes")
         result, correction_mappings, context = check_mapping_dtypes(mappings, dtypes_dict)
         
         ###Checking if mapping is bad or not
         if not result:
             return context
 
+        print("Getting Error types")
         error_lines, zip_list, summary_results, summary_indexes, new_dtypes_dict = generate_error_data(df_data)
         save_validation_data(error_lines, file_id, new_dtypes_dict)
         ###Combine dictionaries
@@ -93,13 +92,6 @@ def manual_mapper(data):
                 index_order[key] = mappings[key][0]
                 reverse_mapping[mappings[key][0]] = key 
 
-        print("Mappings")
-        print(mappings)
-        print("Reverse Mapping")
-        print(reverse_mapping)
-        print("Index Order")
-        print(index_order)
-
         df_data = correct_data(df_data, correction_mappings, error_lines)
         null_values = df_data[mappings['indicator_category'][0]].isnull()
         df_data[mappings['indicator_category'][0]][null_values] = "Default"
@@ -108,8 +100,6 @@ def manual_mapper(data):
                         & df_data[index_order['measure_value']].notnull() & df_data[index_order['country']].notnull())
         
         df_data = df_data[filter_applied].reset_index()
-        print(df_data)
-        #cycle through dataset and save each line
         file = File.objects.get(id=file_id)
         index_order['file'] = "file"
         reverse_mapping['file'] = "file"
@@ -189,10 +179,10 @@ def group_indicator_categories(df_data, mappings, dtypes_dict, relationship_dict
         #loop through data combine with heading name and itself   
         if not value == 'indicator_category':
             if not relationship_dict:#no relationshup defined
-                    df_data["indicator_category"] = df_data["indicator_category"] + "|" + value + ":" + df_data[value].map(str)
+                    df_data["indicator_category"] = df_data["indicator_category"] + "|" + value + ": " + df_data[value].map(str)
             else:
                 if not (value in relationship_dict):
-                    df_data["indicator_category"] = df_data["indicator_category"] + "|" + value + ":" + df_data[value].map(str)
+                    df_data["indicator_category"] = df_data["indicator_category"] + "|" + value + ": " + df_data[value].map(str)
                 else:
                     tmp_mappings.append(value)     
         count += 1
@@ -379,21 +369,16 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
     ind_dict, ind_cat_dict, ind_source_dict, ind_country_dict = dicts
     df_data[index_order['indicator_category']] = df_data[index_order['indicator']] + df_data[index_order['indicator_category']]
     df_data[index_order['indicator_category']] = df_data[index_order['indicator_category']].map(ind_cat_dict)
-    df_data[index_order['source']] = df_data[index_order['indicator']] + df_data[index_order['source']]
-    df_data[index_order['source']] = df_data[index_order['source']].map(ind_source_dict)
+    if 'source' in index_order:
+        df_data[index_order['source']] = df_data[index_order['indicator']] + df_data[index_order['source']]
+        df_data[index_order['source']] = df_data[index_order['source']].map(ind_source_dict)
     df_data[index_order['indicator']] = df_data[index_order['indicator']].map(ind_dict)
     df_data[index_order['country']] = df_data[index_order['country']].map(ind_country_dict)
     df_data = df_data[reverse_mapping.keys()]#should do this earlier
     df_data = df_data.rename(index=str, columns=reverse_mapping)#rename columns to data model
-    print("----Data----")
-    print(df_data)
     data_to_save = df_data.to_dict(orient='records') 
     f = (lambda x: IndicatorDatapoint(**x) )
     vfunc = np.vectorize(f)
     bulk_list = vfunc(np.array(data_to_save))
-    print("---Bulk List---")
-    print(bulk_list)
-    print("Columns")
-    print(df_data.columns)
-    #bulk_list = np.array(data_to_save).apply(f)
+    print("Bulk saving")
     IndicatorDatapoint.objects.bulk_create(list(bulk_list))
