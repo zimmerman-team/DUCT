@@ -40,7 +40,7 @@ def identify_col_dtype(column_values, file_heading, dicts):
     #Numeric check
     print("Date Num Check")
     filter_applied = ((not_null_filter) & (numeric_filter))
-    error_counter = check_if_date(file_heading, column_values, filter_applied, error_counter)
+    error_counter = check_if_date(file_heading, column_values.astype('str'), filter_applied, error_counter)
 
     #String check
     print("Data Str Check") 
@@ -50,7 +50,7 @@ def identify_col_dtype(column_values, file_heading, dicts):
     ###Country Check###
     if(np.sum(error_counter.notnull()) < len(error_counter)):
         print("Country Check")
-        f = (lambda x: str(unicodedata.normalize('NFKD', unicode(x)).lower().encode('ascii','ignore')))
+        f = (lambda x: str(unicodedata.normalize('NFKD', unicode(x)).lower().encode('ascii','ignore')).strip())
         filter_used = not_null_filter & (~numeric_filter)
         print("Apply Normalisation")
         tmp_country_values = column_values[filter_used].apply(f)
@@ -162,13 +162,13 @@ def check_column_data_type(field, dtypes):
 
 
 #use validation error lines to get bad data, would optimise 
-def correct_data(df_data, correction_data, error_lines, error_data):#correction_data ["country_name, iso2, iso3 etc"]
+def correct_data(df_data, correction_data, error_data):#correction_data ["country_name, iso2, iso3 etc"]
     """Corrects data for each column according to correction_data.
     
     Args:
         df_data (Dataframe): dataframe of CSV file.
         correction_mappings ({str:(str,str)}): the conversion needed for each file heading.
-        error_lines ([[int]]): error data, first list is a column ,second is the row.
+        error_data ({str:[str]}): error data for each column.
 
     Returns: 
         new_df (Dataframe): the converted dataframe.
@@ -176,7 +176,10 @@ def correct_data(df_data, correction_data, error_lines, error_data):#correction_
 
     value = {}
     _, dicts = get_dictionaries()
-    f = (lambda x: str(unicodedata.normalize('NFKD', unicode(x)).lower().encode('ascii','ignore')))
+    f = (lambda x: str(unicodedata.normalize('NFKD', unicode(x)).lower().encode('ascii','ignore')).strip())
+
+    print("Correction data")
+    print(correction_data)
 
     for key in correction_data:
         not_null_filter = df_data[key].notnull()
@@ -185,17 +188,22 @@ def correct_data(df_data, correction_data, error_lines, error_data):#correction_
         ###Country
         if correction_data[key][1] == "iso2":
             print("Country Check")
-            filter_used = not_null_filter & (~numeric_filter) & (error_lines[key][error_lines[key] == correction_data[key][0]])
+            filter_used = not_null_filter & (~numeric_filter) & (error_data[key][error_data[key] == correction_data[key][0]])
             df_data[key] = df_data[key][filter_used].apply(f)               
             df_data[key] = df_data[key][filter_used].map(dicts)
         elif correction_data[key][1] == "date":
+            print("###############")
+            print("Key")
+            print(key)
+            print(correction_data[key][1])
+
             ####Numeric check
-            filter_applied1 = ((not_null_filter) & (numeric_filter) & (error_lines[key][error_lines[key] == correction_data[key][0]]))
-            df_data[key][filter_applied1] = pd.to_datetime(df_data[key][filter_applied1]).year
+            filter_applied1 = ((not_null_filter) & (numeric_filter) & (error_data[key][error_data[key] == correction_data[key][0]]))
+            df_data[key][filter_applied1] = pd.to_datetime(df_data[key][filter_applied1].astype('str')).dt.year
 
             ###String check
-            filter_applied2 = ((not_null_filter) & (~numeric_filter)) & (error_lines[key][error_lines[key] == correction_data[key][0]])
-            df_data[key][filter_applied2] = pd.to_datetime(df_data[key][filter_applied2]).year
+            filter_applied2 = ((not_null_filter) & (~numeric_filter)) & (error_data[key][error_data[key] == correction_data[key][0]])
+            df_data[key][filter_applied2] = pd.to_datetime(df_data[key][filter_applied2]).dt.year
 
             df_data[key][~(filter_applied1 | filter_applied2)] = np.NaN
         #Applying filter to entire column, example indicator category might be  have numbers 
