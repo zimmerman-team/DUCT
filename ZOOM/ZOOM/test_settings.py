@@ -8,3 +8,11 @@ DATABASES = {
         'NAME': ':memory:',
     },
 }
+
+REST_FRAMEWORK = {
+    'TEST_REQUEST_RENDERER_CLASSES': (
+        'rest_framework.renderers.MultiPartRenderer',
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.TemplateHTMLRenderer'
+    )
+}
