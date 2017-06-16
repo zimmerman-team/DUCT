@@ -38,6 +38,7 @@ class FileSerializer(serializers.ModelSerializer):
 			'in_progress',
 			'source_url',
 			'data_source',
+			'authorised',
 			'tags',
 			'status',
 			'created',

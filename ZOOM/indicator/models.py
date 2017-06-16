@@ -25,11 +25,11 @@ class Indicator(models.Model):
 
 
 class IndicatorCategory(models.Model):
-    unique_identifier = models.CharField(max_length=255)
+    unique_identifier = models.CharField(max_length=255, unique=True)
     name = models.CharField(max_length=255, default=None)#adding default to make transition from old to model to new model error free 
     code = models.CharField(max_length=50)
     indicator = models.ForeignKey(Indicator,null=False, blank=False)
-    child = models.ForeignKey('self', related_name='parent', null=True, blank=True)#need child and parent to ensure consistency, ie each entry point to a unique entry
+    parent = models.ForeignKey('self', related_name='child', null=True, blank=True)#need child and parent to ensure consistency, ie each entry point to a unique entry
     level = models.IntegerField(default=0)
 
 class IndicatorSource(models.Model):
@@ -79,7 +79,7 @@ class IndicatorDatapoint(models.Model):
     source = models.ForeignKey(IndicatorSource, blank=True, null=True)
     #changed from foreign key to  Decimal and then to CharField as Pandas.to_sql didn't save properly
     measure_value = models.CharField(max_length=40, blank=True, null=True) #models.DecimalField(max_digits=20, decimal_places = 5)#for now leave as char #models.ForeignKey(MeasureValue) # might need more for accuracy
-    other = models.CharField(max_length=600, blank=True, null=True) #found instance where it ius bigger than 500    
+    other = models.CharField(max_length=600, blank=True, null=True) #found instance where it ius bigger than 500 
 
 
 #the mapping betweeen coulmns in the datastore and HXL tags
