@@ -61,10 +61,10 @@ def generate_error_data(df_file):
     """Get error data for file.
     
     Args:
-        df_file (Dataframe): Data of csv file in a dataframe.
+        df_file (Dataframe): data of csv file in a dataframe.
 
     Returns: 
-        error_data ({str}): error data for each column.
+        error_data ({str:[str]}): error data for each column.
         zip_list: ([str, str, int]), contains file heading, list of dtypes for heading, amount of empty results.
         summary_results ([str]): summary results of data.
         summary_indexes ([str]): summary headings for data.
@@ -99,7 +99,7 @@ def save_validation_data(error_data, file_id, dtypes_dict):
     """Saves error data for file.
     
     Args:
-        error_data ({str}): error data for each column..
+        error_data ({str:[str]}): error data for each column..
         file_id (str): ID of file being used.
         dtypes_dict ({str:str}): stores the data-types for each heading.
     """
