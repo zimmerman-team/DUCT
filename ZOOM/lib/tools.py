@@ -2,8 +2,8 @@ import strict_rfc3339
 from functools import wraps  # use this to preserve function signatures and docstrings
 from geodata.models import Country
 from indicator.models import IndicatorDatapoint
-from geodata.models import get_dictionaries
 from dateutil.parser import parse
+from lib.common import get_dictionaries
 import pandas as pd
 import numpy as np
 import sys
@@ -86,22 +86,57 @@ def check_if_date(file_heading, column_values, not_null_filter, numeric_filter, 
         filters = [((not_null_filter) & (numeric_filter)), ((not_null_filter) & (~numeric_filter))] 
         filter_types = ["int", "string"]
         for i in range(len(filters)):
+            filter_applied = filters[i]
+            values = column_values[filter_applied]
             if filter_types[i] == "int":
-               filter_applied = filters[i]
-               values = column_values[filter_applied].astype(int).astype("str")
-        tmp_data_values = pd.to_datetime(values, errors = 'coerce')
-        date_dtype_values = error_counter[filter_applied]
+               values = values.astype(int)
+            tmp_data_values = pd.to_datetime(values.astype("str"), errors = 'coerce')
+            date_dtype_values = error_counter[filter_applied]
         
-        #get values that are not null => date
-        date_filter = tmp_data_values.notnull()
-        date_dtype_values[date_filter] = "date"
-        #update error_counter
-        error_counter[filter_applied] = date_dtype_values 
-    
-
+            #get values that are not null => date
+            date_filter = tmp_data_values.notnull()
+            date_dtype_values[date_filter] = "date"
+            #update error_counter
+            error_counter[filter_applied] = date_dtype_values 
 
     return error_counter
 
+
+def update_cell_type(column_values, error_counter, line_no):
+    """Used when checking just one cell so no vectorisation"""
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
+    
+    #check if its blank
+    value = column_values[line_no]
+    if not value or "".join(value.split()) == "":
+        error_counter[line_no] = "blank"
+    else:
+        try:
+            tmp = int(value)
+            ##Checking Date###
+
+        except Exception:
+            ###String
+
+
+            ###Checking Date###
+            error_counter = check_if_date(file_heading, column_values, not_null_filter, numeric_filter, error_counter)
+
+            ###Country Check###
+            if(not result):
+                f = (lambda x: str(unicodedata.normalize('NFKD', unicode(x)).lower().encode('ascii','ignore')).strip().replace("_", " "))
+                value = f(value)
+                result = check_country(value)
+                
+            if(not result):
+                error_counter[filter_used] = "str"
+            
+    normalisation = float(len(column_values))
+    for heading, count in Counter(error_counter).most_common():
+        prob_list.append((heading, "{0:.0f}%".format(float(count)/normalisation * 100)))
+    
+    return prob_list, error_counter
 
 def check_column_data_type(field, dtypes):   
     """Check that the data types found in a column is appropiate for the heading that it was matched to.

@@ -17,7 +17,7 @@ from indicator.models import *
 from geodata.models import Country
 from lib.converters import convert_to_JSON
 from lib.tools import check_column_data_type, correct_data, convert_df
-from lib.common import get_data, get_dtype_data, save_mapping
+from lib.common import get_data, get_dtype_data, save_mapping, get_dictionaries
 from file_upload.models import File
 from validate.validator import generate_error_data, save_validation_data
 

@@ -1,16 +1,10 @@
-from django.conf import settings
-import os
-import pickle
-import uuid
 import numpy as np
 import pandas as pd
-
-from indicator.models import IndicatorDatapoint
 from lib.tools import identify_col_dtype
 from file_upload.models import File
 from file_upload.models import FileDtypes
-from geodata.importer.country import CountryImport
-from geodata.models import get_dictionaries
+from indicator.models import IndicatorDatapoint
+from lib.common import get_dictionaries, save_validation_data
 
 
 def validate(file_id):
@@ -91,42 +85,5 @@ def generate_error_data(df_file):
         summary_indexes.append(list(column_detail.index))
 
     zip_list = zip(file_heading_list, dtypes_list, validation_results)
-    
-    print("dtypes_dict")
-    print(dtypes_dict)
 
     return error_data, zip_list, summary_results, summary_indexes, dtypes_dict
-    
-
-def save_validation_data(error_data, file_id, dtypes_dict):
-    """Saves error data for file.
-    
-    Args:
-        error_data ({str:[str]}): error data for each column..
-        file_id (str): ID of file being used.
-        dtypes_dict ({str:str}): stores the data-types for each heading.
-    """
-
-    path = os.path.join(os.path.dirname(settings.BASE_DIR), 'ZOOM/media/tmpfiles')
-    dtype_name = path +  "/" + str(uuid.uuid4()) + ".txt"
-    with open(dtype_name, 'w') as f:
-        pickle.dump(error_data, f)
-
-    dict_name = path +  "/" + str(uuid.uuid4()) + ".txt"
-    with open(dict_name, 'w') as f:
-        pickle.dump(dtypes_dict, f)
-    
-    file = File.objects.get(id=file_id)
-    #obj, created = FileDtypes.objects.update_or_create(dtype_name=dict_name, file= file) # error due to one to one field
-
-    try:
-        instance = FileDtypes.objects.get(file=file)#
-        if instance.dtype_name:
-            os.remove(instance.dtype_name)
-        if instance.dtype_dict_name:
-            os.remove(instance.dtype_dict_name)
-        instance.dtype_name = dtype_name
-        instance.dtype_dict_name = dict_name 
-        instance.save()
-    except Exception:
-        FileDtypes(dtype_name=dtype_name, file=file, dtype_dict_name=dict_name).save()
