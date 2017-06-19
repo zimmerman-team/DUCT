@@ -1,8 +1,5 @@
-from django.shortcuts import render
-from django.template import loader
-from django.http import HttpResponse
-from file_upload.models import File, FileDtypes
-from lib.common import get_data, get_dtype_data
+from lib.common import get_data, get_dtype_data, save_validation_data
+from file_upload.models import File
 import pickle
 import json
 import numpy as np
@@ -21,8 +18,7 @@ def error_correction(request):
     if request.data["type"] == "csv":
         df_data = pd.read_csv(File.objects.get(id=file_id).file)
 
-        if request.data["filter_toggle"]:
-        
+        if request.data["filter_toggle"]:      
             if request.data["find_value"] == "nan":
                 apply_filter = df_data[request.data["filter_value"]].isnull()
             else:    
@@ -57,7 +53,7 @@ def error_correction(request):
             output_list.append(temp_dict)
             counter = counter + 1
             
-        context = {"data_table": json.dumps(output_list), "total_amount": len(df_data[df_data.columns[0]]) }#added json dumps, front end couldn't read original format
+        context = {"data_table": json.dumps(output_list), "total_amount": len(df_data[df_data.columns[0]]) , columns: df_data.columns}#added json dumps, front end couldn't read original format
     else:
         print("not csv")
     
@@ -84,15 +80,11 @@ def get_errors(request):
         errors[i] =  indexes
         line_nos[i] = line_no_selection[line_no_filter]
     
-    print("Errors")
-    print(errors)
-    print("Line filter")
-    print(line_no_filter)
-
     temp_error_message = {}
-    
+
     for i in errors:
         counter = 0
+
         for j in errors[i]:#minus one for line no
             message = ("Found " + j + ", should be " + dtypes_dict[i][0][0])
             line_no = str(line_nos[i][counter])
@@ -110,14 +102,29 @@ def update(request):
 
     if request.data['type'] == "csv":
         file_id = request.data['file_id']
-        df_data = get_data(file_id)
-        row_data = request.data['row']
-        row_data.pop('index', None)
-        line_no = row_data.pop('line no.')
-
-        for i in row_data:
-            df_data[i][line_no] = row_data[i]
+        df_data = get_data(file_id)    
+        error_data, dtypes_dict = get_dtype_data(file_id)
         
+        if 'changeHeader' in request.data:
+            df_data = df_data.rename(columns={request.data['header_tobe_changed']: request.data['header_value']})
+            dtypes_dict[request.data['header_value']] = dtypes_dict[request.data['header_tobe_changed']]
+            dtypes_dict.pop(request.data['header_tobe_changed'], None) 
+            error_data[request.data['header_value']] = error_data[request.data['header_tobe_changed']]
+            error_data.pop(request.data['header_tobe_changed'], None) 
+        else:
+            row_data = request.data['row']
+            row_data.pop('index', None)
+            line_no = row_data.pop('line no.')
+
+            for i in row_data:
+                df_data[i][line_no] = row_data[i]
+            
+            #prob_list, error_count = update_cell_type(df_data[heading][line_no], error_counter[heading][line_no], line_no) 
+            #dtypes_dict[heading] = prob_list
+            #error_data[heading] = error_count
+
+
+        save_validation_data(error_data, file_id, dtypes_dict)
         update_data(File.objects.get(id=file_id).file, df_data)
 
     return {"success" : 1}
