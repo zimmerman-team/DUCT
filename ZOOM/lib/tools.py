@@ -35,13 +35,7 @@ def identify_col_dtype(column_values, file_heading, dicts):
     numeric_filter = pd.to_numeric(column_values[not_null_filter], errors='coerce').notnull()
 
     ###Checking Date###
-    #Numeric check
-    filter_applied = ((not_null_filter) & (numeric_filter))
-    error_counter = check_if_date(file_heading, column_values.astype('str'), filter_applied, error_counter)
-
-    #String check
-    filter_applied = ((not_null_filter) & (~numeric_filter))
-    error_counter = check_if_date(file_heading, column_values, filter_applied, error_counter)
+    error_counter = check_if_date(file_heading, column_values, not_null_filter, numeric_filter, error_counter)
 
     ###Country Check###
     if(np.sum(error_counter.notnull()) < len(error_counter)):
@@ -70,13 +64,14 @@ def identify_col_dtype(column_values, file_heading, dicts):
     
     return prob_list, error_counter
     
-def check_if_date(file_heading, column_values, filter_used, error_counter):
+def check_if_date(file_heading, column_values, not_null_filter, numeric_filter, error_counter):
     """Check if column values could be a date.
     
     Args:
         file_heading (str): heading of the file.
         column_values (Series): values related to a column.
-        filter_used (np[boolean]): the filter to search for.
+        not_null_filter (np[boolean]): filters for non-null values.
+        numeric_filter (np[boolean]): filters for numeric values.
         error_counter ([int]): error data, a list that will contain all data types for column_values.
 
     Returns: 
@@ -88,15 +83,23 @@ def check_if_date(file_heading, column_values, filter_used, error_counter):
     # assuming time or date will have appropiate heading, perhaps a bad assumption
     result = "time" in file_heading.lower() or "date" in file_heading.lower() or "year" in file_heading.lower() or "period" in file_heading.lower()
     if result:
-        tmp_data_values = pd.to_datetime(column_values[filter_used], errors = 'coerce')
-        date_dtype_values = error_counter[filter_used]
+        filters = [((not_null_filter) & (numeric_filter)), ((not_null_filter) & (~numeric_filter))] 
+        filter_types = ["int", "string"]
+        for i in range(len(filters)):
+            if filter_types[i] == "int":
+               filter_applied = filters[i]
+               values = column_values[filter_applied].astype(int).astype("str")
+        tmp_data_values = pd.to_datetime(values, errors = 'coerce')
+        date_dtype_values = error_counter[filter_applied]
         
         #get values that are not null => date
         date_filter = tmp_data_values.notnull()
         date_dtype_values[date_filter] = "date"
         #update error_counter
-        error_counter[filter_used] = date_dtype_values 
+        error_counter[filter_applied] = date_dtype_values 
     
+
+
     return error_counter
 
 
@@ -180,7 +183,7 @@ def correct_data(df_data, correction_data, error_data):#correction_data ["countr
         elif correction_data[key][1] == "date":
             ####Numeric check
             filter_applied1 = ((not_null_filter) & (numeric_filter) & (error_data[key][error_data[key] == correction_data[key][0]]))
-            df_data[key][filter_applied1] = pd.to_datetime(df_data[key][filter_applied1].astype('str')).dt.year
+            df_data[key][filter_applied1] = pd.to_datetime(df_data[key][filter_applied1].astype("int").astype('str')).dt.year
 
             ###String check
             filter_applied2 = ((not_null_filter) & (~numeric_filter)) & (error_data[key][error_data[key] == correction_data[key][0]])

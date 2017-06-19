@@ -46,6 +46,7 @@ class File(models.Model):
     rendered = models.BooleanField(default=False)
     status = models.IntegerField(default=1)
     authorised = models.BooleanField(default=False)
+    mapping_used = models.CharField(max_length=1000, null=True, blank=True)
 
     form_name = models.CharField(
         max_length=20,

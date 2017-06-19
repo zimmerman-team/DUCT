@@ -17,7 +17,7 @@ from indicator.models import *
 from geodata.models import Country
 from lib.converters import convert_to_JSON
 from lib.tools import check_column_data_type, correct_data, convert_df
-from lib.common import get_data, get_dtype_data
+from lib.common import get_data, get_dtype_data, save_mapping
 from file_upload.models import File
 from validate.validator import generate_error_data, save_validation_data
 
@@ -29,11 +29,15 @@ def manual_mapper(data):
         #print("Data")
         #print(data)
         
+        
+        
         order = {}
         index_order = {}
         bulk_list = []
         file_id = data['file_id']
         mappings = data['dict']
+        save_mapping(file_id, mappings)
+
         unit_of_measure_value = mappings.pop("empty_unit_of_measure", None)
         empty_values_array = [mappings.pop("empty_indicator", None), mappings.pop("empty_country", None), mappings.pop("empty_indicator_cat", None),
                                 unit_of_measure_value, mappings.pop("empty_date", None)]
