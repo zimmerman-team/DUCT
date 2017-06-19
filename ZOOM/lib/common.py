@@ -1,6 +1,7 @@
 from file_upload.models import File, FileDtypes
 import pickle
 import pandas as pd
+import json
 
 
 def get_dtype_data(file_id):
@@ -30,3 +31,17 @@ def get_data(file_id):
     file_name = File.objects.get(id=file_id).file
     df_data = pd.read_csv(file_name)
     return df_data
+
+
+def save_mapping(file_id, mapping):
+    """Saves user mapping for file"""
+    file = File.objects.get(id=file_id)
+    file.mapping_used = json.dumps(mapping)
+    file.save()
+
+def get_mapping(file_id):
+    """Get user mapping for file"""
+    file = File.objects.get(id=file_id)
+    if file.mapping_used:
+        return {success: 1, mapping: json.loads(file.mapping_used)}
+    return {success: 0, mapping: None}
