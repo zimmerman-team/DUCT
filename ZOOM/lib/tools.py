@@ -1,9 +1,7 @@
-import strict_rfc3339
-from functools import wraps  # use this to preserve function signatures and docstrings
-from geodata.models import Country
+from geodata.models import Country, CountryAltName
 from indicator.models import IndicatorDatapoint
-from dateutil.parser import parse
 from lib.common import get_dictionaries
+import dateutil.parser as date_parser
 import pandas as pd
 import numpy as np
 import sys
@@ -28,7 +26,6 @@ def identify_col_dtype(column_values, file_heading, dicts):
     sys.setdefaultencoding('utf-8')
 
     dtypes_found = []
-    prob_list = []
     error_counter = column_values.astype("str")
     error_counter[:] = np.NaN
     not_null_filter = column_values.notnull()
@@ -57,11 +54,7 @@ def identify_col_dtype(column_values, file_heading, dicts):
     error_counter[filter_used] = "num"
 
     dtypes_found = np.unique(error_counter)
-    
-    normalisation = float(len(column_values))
-    for heading, count in Counter(error_counter).most_common():
-        prob_list.append((heading, "{0:.0f}%".format(float(count)/normalisation * 100)))
-    
+    prob_list = get_prob_list(error_counter)
     return prob_list, error_counter
     
 def check_if_date(file_heading, column_values, not_null_filter, numeric_filter, error_counter):
@@ -102,41 +95,95 @@ def check_if_date(file_heading, column_values, not_null_filter, numeric_filter, 
     return error_counter
 
 
-def update_cell_type(column_values, error_counter, line_no):
+def get_prob_list(error_counter):
+    """Gets the probability listing of all data-types found"""
+    prob_list = []
+    normalisation = float(len(error_counter))
+    for heading, count in Counter(error_counter).most_common():
+        prob_list.append((heading, "{0:.0f}%".format(float(count)/normalisation * 100)))
+    return prob_list
+
+
+def update_cell_type(value, error_counter, line_no, file_heading):
     """Used when checking just one cell so no vectorisation"""
     reload(sys)
     sys.setdefaultencoding('utf-8')
+    date_check_f = (lambda x: "time" in x.lower() or "date" in x.lower() or "year" in x.lower() or "period" in x.lower())
+    date_f = (lambda x: date_parser.parse(str(x)))
     
-    #check if its blank
-    value = column_values[line_no]
-    if not value or "".join(value.split()) == "":
-        error_counter[line_no] = "blank"
+    try:
+        result = "".join(str(value).split()) == "" 
+        if result:
+            dtype = "blank"
+    except Exception:
+        result = False
+
+    if not value:
+        dtype = "blank"
     else:
+        ###Integer
         try:
             tmp = int(value)
             ##Checking Date###
+            result = date_check_f(file_heading)
+            if result:
+                try:
+                    tmp = date_f(tmp)
+                    dtype = "date"
+                except Exception:
+                    result = False
 
+            if not result:
+                dtype = "num"
+        ###String
         except Exception:
-            ###String
-
-
             ###Checking Date###
-            error_counter = check_if_date(file_heading, column_values, not_null_filter, numeric_filter, error_counter)
-
+            f = (lambda x: str(unicodedata.normalize('NFKD', unicode(x)).lower().encode('ascii','ignore')).strip().replace("_", " "))
+            value = f(value)
+            result = date_check_f(file_heading)
+            if result:
+                try:
+                    value = date_f(value)
+                    dtype = "date"
+                except Exception:
+                    result = False
+            
             ###Country Check###
             if(not result):
-                f = (lambda x: str(unicodedata.normalize('NFKD', unicode(x)).lower().encode('ascii','ignore')).strip().replace("_", " "))
                 value = f(value)
-                result = check_country(value)
-                
+                result, dtype = check_if_cell_country(value) 
+
             if(not result):
-                error_counter[filter_used] = "str"
-            
-    normalisation = float(len(column_values))
-    for heading, count in Counter(error_counter).most_common():
-        prob_list.append((heading, "{0:.0f}%".format(float(count)/normalisation * 100)))
+                dtype = "str"
     
+    print("dtype")
+    print(dtype)
+    print(line_no)
+    error_counter[line_no] = dtype   
+    prob_list = get_prob_list(error_counter)
     return prob_list, error_counter
+
+
+def check_if_cell_country(value):
+    """Checks if value is a country"""
+    result = Country.objects.filter(code__iexact=value).exists()
+    if result:
+        return result, "iso2"
+
+    result = Country.objects.filter(iso3__iexact=value).exists()
+    if result:
+        return result, "iso3"
+
+    result = Country.objects.filter(name__iexact=value).exists()
+    if result:
+        return result, "country_name"
+
+    result = CountryAltName.objects.filter(name__iexact=value).exists()
+    if result:
+        return result, "country_name"
+
+    return False, ""
+
 
 def check_column_data_type(field, dtypes):   
     """Check that the data types found in a column is appropiate for the heading that it was matched to.
