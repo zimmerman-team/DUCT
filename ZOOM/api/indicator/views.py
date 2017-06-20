@@ -158,22 +158,6 @@ class IndicatorDataAggregations(AggregationView):
 
     All filters available on the Activity List, can be used on aggregations.
 
-    Aggregation(
-              query_param='mean_value',
-            field='total_measure',
-            annotate=mean_measure,
-        ),
-        Aggregation(
-            query_param='max_value',
-            field='total_measure',
-            annotate=max_measure,
-        ),
-        Aggregation(
-            query_param='min_value',
-            field='total_measure',
-            annotate=min_measure,
-        ),
-
     """
 
     queryset = IndicatorDatapoint.objects.all()
@@ -219,11 +203,6 @@ class IndicatorDataAggregations(AggregationView):
             query_param="indicator_category",
             fields=("indicator_category_id", "indicator_category__name", "indicator_category__level"),
         ),
-        #GroupBy(
-        #    query_param="get_source",
-        #    fields=("indicator", "indicator_category__name", "unit_of_measure", "country", "source", "file__file_name",
-        #     "file__data_source", "file__title", "file__description", "file__tags" ),
-        #),
         GroupBy(
             query_param="indicator",
             fields="indicator",
