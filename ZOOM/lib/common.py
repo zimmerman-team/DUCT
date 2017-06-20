@@ -1,236 +1,118 @@
-import collections
-from collections import OrderedDict
-import requests
-import jsonref
+from django.conf import settings
+from file_upload.models import File, FileDtypes
+from geodata.models import Country, CountryAltName
+import unicodedata
+import pickle
+import pandas as pd
 import json
-from flattentool.schema import get_property_type_set
-from jsonschema.exceptions import ValidationError
-from jsonschema.validators import Draft4Validator as validator
-from jsonschema import FormatChecker, RefResolver
-import re
-
-import zoom_demo.lib.tools as tools
-
-uniqueItemsValidator = validator.VALIDATORS.pop("uniqueItems")
-
-LANGUAGE_RE = re.compile("^(.*_(((([A-Za-z]{2,3}(-([A-Za-z]{3}(-[A-Za-z]{3}){0,2}))?)|[A-Za-z]{4}|[A-Za-z]{5,8})(-([A-Za-z]{4}))?(-([A-Za-z]{2}|[0-9]{3}))?(-([A-Za-z0-9]{5,8}|[0-9][A-Za-z0-9]{3}))*(-([0-9A-WY-Za-wy-z](-[A-Za-z0-9]{2,8})+))*(-(x(-[A-Za-z0-9]{1,8})+))?)|(x(-[A-Za-z0-9]{1,8})+)))$")
+import os
+import uuid
 
 
-def uniqueIds(validator, uI, instance, schema):
-    if (
-        uI and
-        validator.is_type(instance, "array")
-    ):
-        non_unique_ids = set()
-        all_ids = set()
-        for item in instance:
-            try:
-                item_id = item.get('id')
-            except AttributeError:
-                # if item is not a dict
-                item_id = None
-            if item_id and not isinstance(item_id, list) and not isinstance(item_id, dict):
-                if item_id in all_ids:
-                    non_unique_ids.add(item_id)
-                all_ids.add(item_id)
+def get_dictionaries():#might be better to use a set
+    """Gets dictionaries for checking country data"""
+    iso2_codes = Country.objects.values_list('code')
+    iso3_codes = Country.objects.values_list('iso3')
+    country_names = Country.objects.values_list('name')
+    country_alt_names = CountryAltName.objects.values_list('name')
+    data_lists = [iso2_codes, iso3_codes, country_names, country_alt_names]
+    source = ["iso2", "iso3", "country_name", "country_name"]
+    country_source_dict = {}
+    country_iso2_dict = {}
+
+    for i in range(len(data_lists)):
+        counter = 0
+        
+        #can vectorise this
+        for j in range(len(data_lists[i])):
+            
+            try:#not needed
+                temp_value = str(data_lists[i][j][0].lower())
+            except Exception:#special_character
+                temp_value = str(unicodedata.normalize('NFKD', data_lists[i][j][0]).lower().encode('ascii','ignore'))
+            
+            country_source_dict[temp_value] = source[i] #{NL: {iso2: NL, source:iso2}}
+            
+            if i < (len(data_lists) - 1):
+                country_iso2_dict[temp_value] = iso2_codes[j][0]# just iso2 codes
             else:
-                # if there is any item without an id key, or the item is not a dict
-                # revert to original validator
-                for error in uniqueItemsValidator(validator, uI, instance, schema):
-                    yield error
-                return
+                country_alt_name = CountryAltName.objects.get(name=data_lists[i][j][0]) 
+                country = Country.objects.get(code=country_alt_name.country.code) 
+                country_iso2_dict[temp_value] = country.code
+    return country_source_dict, country_iso2_dict
 
-        if non_unique_ids:
-            yield ValidationError("Non-unique ID Values (first 3 shown):  {}".format(", ".join(str(x) for x in list(non_unique_ids)[:3])))
+def save_validation_data(error_data, file_id, dtypes_dict):
+    """Saves error data for file.
+    
+    Args:
+        error_data ({str:[str]}): error data for each column..
+        file_id (str): ID of file being used.
+        dtypes_dict ({str:str}): stores the data-types for each heading.
+    """
 
+    path = os.path.join(os.path.dirname(settings.BASE_DIR), 'ZOOM/media/tmpfiles')
+    dtype_name = path +  "/" + str(uuid.uuid4()) + ".txt"
+    with open(dtype_name, 'w') as f:
+        pickle.dump(error_data, f)
 
-def required_draft4(validator, required, instance, schema):
-    if not validator.is_type(instance, "object"):
-        return
-    for property in required:
-        if property not in instance:
-            yield ValidationError(property)
+    dict_name = path +  "/" + str(uuid.uuid4()) + ".txt"
+    with open(dict_name, 'w') as f:
+        pickle.dump(dtypes_dict, f)
+    
+    file = File.objects.get(id=file_id)
+    #obj, created = FileDtypes.objects.update_or_create(dtype_name=dict_name, file= file) # error due to one to one field
 
-
-validator.VALIDATORS.pop("patternProperties")
-validator.VALIDATORS["uniqueItems"] = uniqueIds
-validator.VALIDATORS["required"] = required_draft4
-
-
-def fields_present_generator(json_data, prefix=''):
-    if not isinstance(json_data, dict):
-        return
-    for key, value in json_data.items():
-        if isinstance(value, list):
-            for item in value:
-                if isinstance(item, dict):
-                    yield from fields_present_generator(item, prefix + '/' + key)
-            yield prefix + '/' + key
-        elif isinstance(value, dict):
-            yield from fields_present_generator(value, prefix + '/' + key)
-            yield prefix + '/' + key
-        else:
-            yield prefix + '/' + key
-
-
-def get_fields_present(*args, **kwargs):
-    counter = collections.Counter()
-    counter.update(fields_present_generator(*args, **kwargs))
-    return dict(counter)
+    try:
+        instance = FileDtypes.objects.get(file=file)#
+        if instance.dtype_name:
+            os.remove(instance.dtype_name)
+        if instance.dtype_dict_name:
+            os.remove(instance.dtype_dict_name)
+        instance.dtype_name = dtype_name
+        instance.dtype_dict_name = dict_name 
+        instance.save()
+    except Exception:
+        FileDtypes(dtype_name=dtype_name, file=file, dtype_dict_name=dict_name).save()
 
 
-def schema_dict_fields_generator(schema_dict):
-    if 'properties' in schema_dict:
-        for property_name, value in schema_dict['properties'].items():
-            if 'oneOf' in value:
-                property_schema_dicts = value['oneOf']
-            else:
-                property_schema_dicts = [value]
-            for property_schema_dict in property_schema_dicts:
-                property_type_set = get_property_type_set(property_schema_dict)
-                if 'object' in property_type_set:
-                    for field in schema_dict_fields_generator(property_schema_dict):
-                        yield '/' + property_name + field
-                elif 'array' in property_type_set:
-                    fields = schema_dict_fields_generator(property_schema_dict['items'])
-                    for field in fields:
-                        yield '/' + property_name + field
-                yield '/' + property_name
+def get_dtype_data(file_id):
+    """Get data type data for file.
+    
+    Args:
+        file_id (str): ID of file.
+
+    Returns: 
+        error_data ([[int]]): error data, first list is a column ,second is the row.
+        dtypes_dict ({str:str}): stores the data-types found for each heading.
+    """
+
+    file_dtypes = FileDtypes.objects.get(file=File.objects.get(id=file_id)) 
+    
+    with open(str(file_dtypes.dtype_name), 'rb') as f:
+        error_data = pickle.load(f)
+
+    with open(str(file_dtypes.dtype_dict_name), 'rb') as f:
+        dtypes_dict = pickle.load(f)
+
+    return error_data, dtypes_dict
 
 
-class CustomJsonrefLoader(jsonref.JsonLoader):
-    def __init__(self, **kwargs):
-        self.schema_url = kwargs.pop('schema_url', None)
-        super().__init__(**kwargs)
-
-    def get_remote_json(self, uri, **kwargs):
-        # ignore url in ref apart from last part
-        uri = self.schema_url + uri.split('/')[-1]
-        if uri[:4] == 'http':
-            return super().get_remote_json(uri, **kwargs)
-        else:
-            with open(uri) as schema_file:
-                return json.load(schema_file, **kwargs)
+def get_data(file_id):
+    """Gets file in dataframe format"""
+    file_name = File.objects.get(id=file_id).file
+    df_data = pd.read_csv(file_name)
+    return df_data
 
 
-def get_schema_fields(schema_url, schema_name):
-    if schema_url[:4] == 'http':
-        r = requests.get(schema_url + schema_name)
-        json_text = r.text
-    else:
-        with open(schema_url + schema_name) as schema_file:
-            json_text = schema_file.read()
+def save_mapping(file_id, mapping):
+    """Saves user mapping for file"""
+    file = File.objects.get(id=file_id)
+    file.mapping_used = json.dumps(mapping)
+    file.save()
 
-    return set(schema_dict_fields_generator(jsonref.loads(json_text, loader=CustomJsonrefLoader(schema_url=schema_url), object_pairs_hook=OrderedDict)))
-
-
-def get_counts_additional_fields(schema_url, schema_name, json_data, context, current_app):
-    fields_present = get_fields_present(json_data)
-    schema_fields = get_schema_fields(schema_url, schema_name)
-    data_only_all = set(fields_present) - schema_fields
-    data_only = set()
-    for field in data_only_all:
-        parent_field = "/".join(field.split('/')[:-1])
-        # only take fields with parent in schema (and top level fields)
-        # to make results less verbose
-        if not parent_field or parent_field in schema_fields:
-            if current_app == 'cove-ocds':
-                if LANGUAGE_RE.search(field.split('/')[-1]):
-                    continue
-            data_only.add(field)
-
-    return [('/'.join(key.split('/')[:-1]), key.split('/')[-1], fields_present[key]) for key in data_only]
-
-
-class CustomRefResolver(RefResolver):
-    def __init__(self, *args, **kw):
-        self.schema_url = kw.pop('schema_url')
-        super().__init__(*args, **kw)
-
-    def resolve_remote(self, uri):
-        uri = self.schema_url + uri.split('/')[-1]
-        document = self.store.get(uri)
-        if document:
-            return document
-
-        if self.schema_url.startswith("http"):
-            return super().resolve_remote(uri)
-        else:
-            with open(uri) as schema_file:
-                result = json.load(schema_file)
-            if self.cache_remote:
-                self.store[uri] = result
-            return result
-
-
-validation_error_lookup = {"date-time": "Date is not in datetime format",
-                           "uri": "Invalid 'uri' found",
-                           "string": "Value is not a string",
-                           "integer": "Value is not a integer",
-                           "number": "Value is not a number",
-                           "object": "Value is not an object",
-                           "array": "Value is not an array"}
-
-
-def get_schema_validation_errors(json_data, schema_url, schema_name, current_app, cell_source_map, heading_source_map):
-    if schema_url.startswith("http"):
-        schema = requests.get(schema_url + schema_name).json()
-    else:
-        with open(schema_url + schema_name) as schema_file:
-            schema = json.load(schema_file)
-
-    validation_errors = collections.defaultdict(list)
-    format_checker = FormatChecker()
-    if current_app == 'cove-360':
-        format_checker.checkers['date-time'] = (tools.datetime_or_date, ValueError)
-    for n, e in enumerate(validator(schema, format_checker=format_checker, resolver=CustomRefResolver('', schema, schema_url=schema_url)).iter_errors(json_data)):
-        message = e.message
-        path = "/".join(str(item) for item in e.path)
-        path_no_number = "/".join(str(item) for item in e.path if not isinstance(item, int))
-
-        validator_type = e.validator
-        if e.validator in ('format', 'type'):
-            validator_type = e.validator_value
-            if isinstance(e.validator_value, list):
-                validator_type = e.validator_value[0]
-
-            new_message = validation_error_lookup.get(validator_type)
-            if new_message:
-                message = new_message
-
-        value = {"path": path}
-        cell_reference = cell_source_map.get(path)
-
-        if cell_reference:
-            first_reference = cell_reference[0]
-            if len(first_reference) == 4:
-                value["sheet"], value["col_alpha"], value["row_number"], value["header"] = first_reference
-            if len(first_reference) == 2:
-                value["sheet"], value["row_number"] = first_reference
-
-        if not isinstance(e.instance, (dict, list)):
-            value["value"] = e.instance
-
-        if e.validator == 'required':
-            field_name = e.message
-            if len(e.path) > 2:
-                if isinstance(e.path[-2], int):
-                    parent_name = e.path[-1]
-                else:
-                    parent_name = e.path[-2]
-
-                field_name = str(parent_name) + ":" + e.message
-            heading = heading_source_map.get(path_no_number + '/' + e.message)
-            if heading:
-                field_name = heading[0][1]
-                value['header'] = heading[0][1]
-            message = "'{}' is missing but required".format(field_name)
-        if e.validator == 'enum':
-            header = value.get('header')
-            if not header:
-                header = e.path[-1]
-            message = "Invalid code found in '{}'".format(header)
-
-        unique_validator_key = [validator_type, message, path_no_number]
-        validation_errors[json.dumps(unique_validator_key)].append(value)
-    return dict(validation_errors)
+def get_mapping(file_id):
+    """Get user mapping for file"""
+    file = File.objects.get(id=file_id)
+    if file.mapping_used:
+        return {success: 1, mapping: json.loads(file.mapping_used)}
+    return {success: 0, mapping: None}

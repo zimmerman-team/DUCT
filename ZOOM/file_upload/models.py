@@ -46,6 +46,7 @@ class File(models.Model):
     rendered = models.BooleanField(default=False)
     status = models.IntegerField(default=1)
     authorised = models.BooleanField(default=False)
+    mapping_used = models.CharField(max_length=1000, null=True, blank=True)
 
     form_name = models.CharField(
         max_length=20,
@@ -105,6 +106,7 @@ class File(models.Model):
             raise ValueError('No source_url specified.')
 
 class FileDtypes(models.Model):
-    dtype_name = models.CharField(max_length=500, null=True)#location      
+    dtype_name = models.CharField(max_length=500, null=True)#location  
+    dtype_dict_name = models.CharField(max_length=500, null=True)#location    
     file = models.OneToOneField("File", null=True)
     #include method that deletes physical file if row deleted
