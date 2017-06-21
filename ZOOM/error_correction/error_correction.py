@@ -1,5 +1,5 @@
-from lib.common import get_data, get_dtype_data, save_validation_data
-from lib.tools import update_cell_type
+from lib.common import get_data, get_dtype_data, save_validation_data, get_dictionaries
+from lib.tools import update_cell_type, identify_col_dtype, get_prob_list
 from file_upload.models import File
 import pickle
 import json
@@ -12,8 +12,7 @@ def error_correction(request):
     file_id = request.data["file_id"]
     start_pos = request.data["start_pos"]
     end_pos = request.data["end_pos"]
-    apply_filter = ""
-
+    
     ###Future: if type is not csv then error correction being performed on data in data base
     if request.data["type"] == "csv":
         df_data = get_data(file_id)
@@ -54,18 +53,31 @@ def error_correction(request):
 
 def find_and_replace(df_data, request):
     """Searches for a value and replaces if indicated"""
+    file_id = request.data['file_id']
+    heading = request.data["filter_value"]
+    
     if request.data["find_value"] == "nan":
-        apply_filter = df_data[request.data["filter_value"]].isnull()
-    else:    
-        apply_filter = df_data[request.data["filter_value"]] == request.data['find_value']
-
+        filter_applied = df_data[heading].isnull()
+    else: 
+        temp = df_data[heading]
+        temp = temp.astype("str").str.lower()  
+        filter_applied = (temp == str(request.data['find_value']).lower()) 
+        
     if request.data['replace_pressed']:
-        df_data[request.data["filter_value"]][apply_filter] = request.data['replace_value']
-        update_data(File.objects.get(id=file_id).file, df_data)
-
-        df_data = df_data[df_data[request.data["filter_value"]] == request.data['replace_value']]
+        df_data[heading][filter_applied] = request.data['replace_value']
+        column_values = df_data[heading][filter_applied]
+        
+        if len(column_values) > 0:
+            error_data, dtypes_dict = get_dtype_data(file_id)
+            dicts, _ = get_dictionaries()
+            temp_prob_list, temp_error_counter = identify_col_dtype(column_values, heading, dicts)
+            error_data[heading][filter_applied] = temp_error_counter
+            dtypes_dict[heading] = get_prob_list(error_data[heading])
+            save_validation_data(error_data, file_id, dtypes_dict)
+            update_data(File.objects.get(id=file_id).file, df_data)
+        df_data = df_data[df_data[heading] == request.data['replace_value']]
     else:
-        df_data = df_data[apply_filter]
+        df_data = df_data[filter_applied]
     return df_data
 
 
@@ -73,26 +85,21 @@ def filter_for_errors(df_data, request):
     filter_column = request.data['error_filter_value']
     error_data, dtypes_dict = get_dtype_data(request.data['file_id'])
     errors, line_nos = check_dtypes(error_data, dtypes_dict, [filter_column], request.data["start_pos"], request.data["end_pos"])
-    print("Head of data frame")
-    print(df_data.head())
-    print("head of line nos")
-    print(line_nos[filter_column].head())
     return df_data[line_nos[filter_column]]
-    #check if filtering for all
-
+    
 
 #Need to apply optimisation here, put filter here
 def check_dtypes(error_data, dtypes_dict, column_headings, start_pos=0, end_pos=0):
+    """Check cells against the most popular choice"""
     errors = {}
     line_nos = {}
 
+    ###Future: Optimise based on amount needed
     if end_pos == 0:
         end_pos = len(error_data[column_headings[0]])
     
-    line_no_selection = np.array(range(0, len(error_data[column_headings[0]])))
-    print("Column  headings")
-    print(column_headings)
     for i in column_headings:#minus one for line no
+        print("heading ", i)
         if (not dtypes_dict[i][0][0] == "blank"):
             filter_applied = (error_data[i] != dtypes_dict[i][0][0])
             indexes = error_data[i][filter_applied]#[x for x in error_data[i] if (x != dtypes_dict[i][0][0] and (not dtypes_dict[i][0][0] == "blank"))]#use map
@@ -116,14 +123,31 @@ def get_errors(request):
     column_headings = df_data.columns
     error_data, dtypes_dict = get_dtype_data(file_id)
     errors, line_nos = check_dtypes(error_data, dtypes_dict, column_headings)
-    
+    selection = np.array(range(0, len(error_data[column_headings[0]])))
+    amount = end_pos - start_pos
+    print("Getting errors")
+    print(amount)
+
     for i in errors:
         counter = 0
+        line_no_selection = selection[line_nos[i]]#[start_pos:end_pos]
+        errors_selection = errors[i]#[start_pos:end_pos]
 
-        for j in errors[i]:#minus one for line no
+        print("-----")
+        print(i)
+        print(errors[i])
+        print("Line Selection")
+        print(line_no_selection)
+        print(errors_selection)
+        print("Length ", len(errors[i]))
+        print("-----")
+
+
+        for j in errors_selection:#minus one for line no
             message = ("Found " + j + ", should be " + dtypes_dict[i][0][0])
-            line_no = str(line_nos[i][counter])
+            line_no = str(line_no_selection[counter])
             temp_error_message[''.join([line_no,"|",i])] = (message)
+            print(''.join([line_no,"|",i]), " -- ", message)
             counter += 1
 
     context = {"error_messages": temp_error_message}
