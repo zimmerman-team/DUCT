@@ -1,4 +1,4 @@
-from lib.common import get_data, get_dtype_data, save_validation_data, get_dictionaries
+from lib.common import get_file_data, get_dtype_data, save_validation_data, get_dictionaries
 from lib.tools import update_cell_type, identify_col_dtype, get_prob_list
 from file_upload.models import File
 import pickle
@@ -15,7 +15,7 @@ def error_correction(request):
     
     ###Future: if type is not csv then error correction being performed on data in data base
     if request.data["type"] == "csv":
-        df_data = get_data(file_id)
+        df_data = get_file_data(file_id)
         df_columns = df_data.columns
         
         if request.data["filter_toggle"]:      
@@ -119,7 +119,7 @@ def get_errors(request):
     file_id = request.data['file_id']
     start_pos = request.data['start_pos']
     end_pos = request.data['end_pos']
-    df_data = get_data(file_id)
+    df_data = get_file_data(file_id)
     column_headings = df_data.columns
     error_data, dtypes_dict = get_dtype_data(file_id)
     errors, line_nos = check_dtypes(error_data, dtypes_dict, column_headings)
@@ -152,7 +152,7 @@ def update(request):
     """Updates cell that user edits."""
     if request.data['type'] == "csv":
         file_id = request.data['file_id']
-        df_data = get_data(file_id)
+        df_data = get_file_data(file_id)
         error_data, dtypes_dict = get_dtype_data(file_id)
         
         if 'changeHeader' in request.data:
@@ -186,7 +186,7 @@ def update(request):
 def delete_data(request):
     """Deletes data based on request"""
     file_id = request.data['file_id']
-    df_data = get_data(file_id)
+    df_data = get_file_data(file_id)
     row_keys = list(map(int, request.data['row_keys']))
     df_data = df_data.drop(df_data.index[row_keys])
     df_data = df_data.reset_index(drop=True)

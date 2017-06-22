@@ -17,7 +17,7 @@ from indicator.models import *
 from geodata.models import Country
 from lib.converters import convert_to_JSON
 from lib.tools import check_column_data_type, correct_data, convert_df
-from lib.common import get_data, get_dtype_data, save_mapping, get_dictionaries
+from lib.common import get_file_data, get_dtype_data, save_mapping, get_dictionaries
 from file_upload.models import File
 from validate.validator import generate_error_data, save_validation_data
 
@@ -41,7 +41,7 @@ def manual_mapper(data):
                                 unit_of_measure_value, mappings.pop("empty_date", None)]
         relationship_dict = mappings.pop("relationship", None)
         left_over_dict = mappings.pop("left_over", None)
-        df_data = get_data(file_id)
+        df_data = get_file_data(file_id)
         error_data, dtypes_dict = get_dtype_data(file_id)
 
         print("Begining Mapping")
@@ -82,7 +82,7 @@ def manual_mapper(data):
             return context
 
         print("Getting Error types")
-        error_lines, zip_list, summary_results, summary_indexes, new_dtypes_dict = generate_error_data(df_data)
+        error_lines, new_dtypes_dict = generate_error_data(df_data)
         save_validation_data(error_lines, file_id, new_dtypes_dict)
         ###Combine dictionaries
         for key in new_dtypes_dict:

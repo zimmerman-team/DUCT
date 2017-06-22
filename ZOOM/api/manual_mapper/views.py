@@ -4,8 +4,25 @@ from rest_framework.views import APIView
 import django_rq
 
 from manual_mapping.manual_mapper import manual_mapper
+from lib.common import get_headings_data_model, get_file_data, get_dtype_data
 from task_queue.tasks import manual_mapping_job
 from file_upload.models import File
+
+
+@api_view(['POST'])
+def get_data(request):
+    file_id = request.data['file_id']
+    df_data = get_file_data(file_id)
+    _, dtypes_dict = get_dtype_data(file_id)
+    zip_list, summary_results, summary_indexes, remaining_mapping = get_headings_data_model(df_data, dtypes_dict)
+    context = {
+        'success': 1, 
+        "found_list": zip_list, 
+        "summary":zip(summary_indexes, summary_results),
+        "missing_list" : remaining_mapping
+    }
+
+    return Response(context)
 
 
 @api_view(['GET', 'POST'])
@@ -16,6 +33,7 @@ def ManualMapping(request):
         return Response(context)
     else:
         return Response("No file selected");
+
 
 
 class ManualMappingJob(APIView):

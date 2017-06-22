@@ -1,9 +1,11 @@
 from django.conf import settings
+from indicator.models import IndicatorDatapoint
 from file_upload.models import File, FileDtypes
 from geodata.models import Country, CountryAltName
 import unicodedata
 import pickle
 import pandas as pd
+import numpy as np
 import json
 import os
 import uuid
@@ -97,7 +99,7 @@ def get_dtype_data(file_id):
     return error_data, dtypes_dict
 
 
-def get_data(file_id):
+def get_file_data(file_id):
     """Gets file in dataframe format"""
     file_name = File.objects.get(id=file_id).file
     df_data = pd.read_csv(file_name)
@@ -116,3 +118,41 @@ def get_mapping(file_id):
     if file.mapping_used:
         return {success: 1, mapping: json.loads(file.mapping_used)}
     return {success: 0, mapping: None}
+
+def get_headings_data_model(df_file, dtypes_dict):
+    """Get information about columns.
+    
+    Args:
+        df_file (Dataframe): data of csv file in a dataframe.
+        dtypes_dict ({str:str}): stores the data-types for each heading.
+
+    Returns: 
+        zip_list: ([str, str, int]), contains file heading, list of dtypes for heading, amount of empty results.
+        summary_results ([str]): summary results of data.
+        summary_indexes ([str]): summary headings for data.
+    """
+    file_heading_list = df_file.columns
+    validation_results = []
+    dtypes_list = []
+    summary_results = []
+    summary_indexes = []
+    data_model_headings = []
+
+    for heading in file_heading_list:
+        validation_results.append(df_file[heading].isnull().sum())
+        dtypes_list.append(dtypes_dict[heading])
+        column_detail = df_file[heading].describe()
+        summary_results.append(np.array(column_detail).astype('str'))
+        summary_indexes.append(list(column_detail.index))
+
+    #Get datapoint headings
+    for field in IndicatorDatapoint._meta.fields:
+        data_model_headings.append(field.name)#.get_attname_column())
+    #skip first four headings as irrelevant to user input, should use filter for this
+
+    data_model_headings = data_model_headings[4:len(data_model_headings)] 
+    remaining_mapping = data_model_headings    
+
+    zip_list = zip(file_heading_list, dtypes_list, validation_results)
+
+    return zip_list, summary_results, summary_indexes, remaining_mapping
