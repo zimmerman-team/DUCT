@@ -28,9 +28,7 @@ def manual_mapper(data):
         #print("###########################################################")
         #print("Data")
         #print(data)
-        
-        
-        
+       
         order = {}
         index_order = {}
         bulk_list = []

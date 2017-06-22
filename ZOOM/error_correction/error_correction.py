@@ -106,8 +106,8 @@ def check_dtypes(error_data, dtypes_dict, column_headings, start_pos=0, end_pos=
             errors[i] =  indexes
             line_nos[i] = filter_applied
         else:
-            errors[i] = {}
-            line_nos[i] = {}
+            errors[i] = []
+            line_nos[i] = []
 
     return errors, line_nos
 
@@ -125,30 +125,24 @@ def get_errors(request):
     errors, line_nos = check_dtypes(error_data, dtypes_dict, column_headings)
     selection = np.array(range(0, len(error_data[column_headings[0]])))
     amount = end_pos - start_pos
-    print("Getting errors")
-    print(amount)
-
+    
     for i in errors:
-        counter = 0
-        line_no_selection = selection[line_nos[i]]#[start_pos:end_pos]
-        errors_selection = errors[i]#[start_pos:end_pos]
 
-        print("-----")
-        print(i)
-        print(errors[i])
-        print("Line Selection")
-        print(line_no_selection)
-        print(errors_selection)
-        print("Length ", len(errors[i]))
-        print("-----")
+        if len(errors[i]) > 0:
+            counter = 0
+            print(i)
+            print(len(line_nos[i]))
+            print(len(selection))
 
+            line_no_selection = selection[line_nos[i]]#[start_pos:end_pos]
+            errors_selection = errors[i]#[start_pos:end_pos]
 
-        for j in errors_selection:#minus one for line no
-            message = ("Found " + j + ", should be " + dtypes_dict[i][0][0])
-            line_no = str(line_no_selection[counter])
-            temp_error_message[''.join([line_no,"|",i])] = (message)
-            print(''.join([line_no,"|",i]), " -- ", message)
-            counter += 1
+            for j in errors_selection:#minus one for line no
+                message = ("Found " + j + ", should be " + dtypes_dict[i][0][0])
+                line_no = str(line_no_selection[counter])
+                temp_error_message[''.join([line_no,"|",i])] = (message)
+                print(''.join([line_no,"|",i]), " -- ", message)
+                counter += 1
 
     context = {"error_messages": temp_error_message}
     return context
@@ -188,6 +182,26 @@ def update(request):
         update_data(File.objects.get(id=file_id).file, df_data)
 
     return {"success" : 1}
+
+def delete_data(request):
+    """Deletes data based on request"""
+    file_id = request.data['file_id']
+    df_data = get_data(file_id)
+    row_keys = list(map(int, request.data['row_keys']))
+    df_data = df_data.drop(df_data.index[row_keys])
+    df_data = df_data.reset_index(drop=True)
+    error_data, dtypes_dict = get_dtype_data(file_id)
+    error_data, dtypes_dict = remove_entries(error_data, dtypes_dict, row_keys)
+    save_validation_data(error_data, file_id, dtypes_dict)
+    update_data(File.objects.get(id=file_id).file, df_data)
+    return {"success" : 1}
+
+def remove_entries(error_data, dtypes_dict, row_keys):
+    """Remove rows from error_data and dtypes_dict"""
+    for i in error_data:
+        error_data[i] = error_data[i].drop(error_data[i].index[row_keys]).reset_index(drop=True)#np.delete(np.array(error_data[i]), row_keys).reset_index()
+        dtypes_dict[i] = get_prob_list(error_data[i])
+    return error_data, dtypes_dict
 
 def update_data(file_loc, df_data):
     """Updates data at location file_loc"""
