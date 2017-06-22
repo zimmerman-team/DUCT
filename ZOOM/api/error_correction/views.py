@@ -9,6 +9,8 @@ from error_correction.error_correction import *
 def ErrorCorrectionView(request):
     if 'save' in request.data:#split into views
     	context = update(request)
+    elif 'delete' in request.data:
+    	context = delete_data(request)
     elif 'get_errors' in request.data:
     	context = get_errors(request)
     else:	
