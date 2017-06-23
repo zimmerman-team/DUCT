@@ -22,29 +22,32 @@ def error_correction(request):
             df_data = find_and_replace(df_data, request)
         if request.data["error_toggle"]:
             df_data = filter_for_errors(df_data, request)
-
+            
         output_list  = []
         org_data = df_data.copy(deep=True)
         org_data['line_no'] = org_data.index.values
         org_data = org_data.reset_index()
         df_data = df_data.reset_index()
         counter = 0
+        total_amount = 0
         start = start_pos
         
-        for start_pos in range(start, end_pos):
-            if start_pos > len(df_data[df_data.columns[0]]) - 1:
-                break
-            
-            temp_dict={}
-            temp_dict = {"line no.": org_data['line_no'][start_pos]}
+        if len(df_data.columns) > 1:#more columns than just index
+            total_amount = len(df_data[df_data.columns[0]])
+            for start_pos in range(start, end_pos):
+                if start_pos > len(df_data[df_data.columns[0]]) - 1:
+                    break
+                
+                temp_dict={}
+                temp_dict = {"line no.": org_data['line_no'][start_pos]}
 
-            for column in df_data.columns:
-                temp_dict[column] = str(df_data[column][start_pos])
-            
-            output_list.append(temp_dict)
-            counter = counter + 1
+                for column in df_data.columns:
+                    temp_dict[column] = str(df_data[column][start_pos])
+                
+                output_list.append(temp_dict)
+                counter = counter + 1
          
-        context = {"data_table": json.dumps(output_list), "total_amount": len(df_data[df_data.columns[0]]) , "columns": df_columns}#added json dumps, front end couldn't read original format
+        context = {"data_table": json.dumps(output_list), "total_amount": total_amount, "columns": df_columns}#added json dumps, front end couldn't read original format
     else:
         print("not csv")
     
@@ -99,7 +102,6 @@ def check_dtypes(error_data, dtypes_dict, column_headings, start_pos=0, end_pos=
         end_pos = len(error_data[column_headings[0]])
     
     for i in column_headings:#minus one for line no
-        print("heading ", i)
         if (not dtypes_dict[i][0][0] == "blank"):
             filter_applied = (error_data[i] != dtypes_dict[i][0][0])
             indexes = error_data[i][filter_applied]#[x for x in error_data[i] if (x != dtypes_dict[i][0][0] and (not dtypes_dict[i][0][0] == "blank"))]#use map
@@ -108,7 +110,6 @@ def check_dtypes(error_data, dtypes_dict, column_headings, start_pos=0, end_pos=
         else:
             errors[i] = []
             line_nos[i] = []
-
     return errors, line_nos
 
 #should combine with error_correction to optimise?
@@ -130,10 +131,6 @@ def get_errors(request):
 
         if len(errors[i]) > 0:
             counter = 0
-            print(i)
-            print(len(line_nos[i]))
-            print(len(selection))
-
             line_no_selection = selection[line_nos[i]]#[start_pos:end_pos]
             errors_selection = errors[i]#[start_pos:end_pos]
 
@@ -141,7 +138,6 @@ def get_errors(request):
                 message = ("Found " + j + ", should be " + dtypes_dict[i][0][0])
                 line_no = str(line_no_selection[counter])
                 temp_error_message[''.join([line_no,"|",i])] = (message)
-                print(''.join([line_no,"|",i]), " -- ", message)
                 counter += 1
 
     context = {"error_messages": temp_error_message}
