@@ -25,9 +25,9 @@ from validate.validator import generate_error_data, save_validation_data
 def manual_mapper(data):
     """Perfoms manual mapping process."""
     if 'dict' in data:
-        #print("###########################################################")
-        #print("Data")
-        #print(data)
+        print("###########################################################")
+        print("Data")
+        print(data)
        
         order = {}
         index_order = {}

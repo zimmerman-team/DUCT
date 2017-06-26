@@ -50,11 +50,10 @@ class FileValidTestCase(TestCase):
             '/api/validate/?format=json',
             {
             'file_id': res_file_upload.json()['id'],
-            }
+            },
+            format='json'
             )
         
-        # print res_file_validate.json()['found_list']
-
         self.assertEquals(res_file_validate.status_code, 200, res_file_validate.json())
         self.assertIsNotNone(res_file_validate.json()['found_list'])
         self.assertIsNotNone(res_file_validate.json()['missing_list'])

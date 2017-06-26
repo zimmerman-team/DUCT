@@ -36,7 +36,6 @@ class File(models.Model):
     description = models.TextField(null=False, blank=False)
     tags = models.ManyToManyField(FileTag)
     data_source = models.ForeignKey(FileSource, null=True, on_delete=models.SET_NULL)
-
     in_progress = models.BooleanField(default=False)
     source_url = models.URLField(null=True, max_length=2000)
     file = models.FileField(upload_to=upload_to)

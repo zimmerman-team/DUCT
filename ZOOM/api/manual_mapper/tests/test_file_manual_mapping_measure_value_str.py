@@ -9,7 +9,7 @@ class FileManualMappingTestCase(TestCase):
     request_dummy = RequestFactory().get('/')
     c = APIClient()
 
-    def test_file_manual_mapping(self):
+    def test_file_manual_mapping_str_value(self):
 
         #Intialise countries
         ci = CountryImport()
@@ -20,14 +20,14 @@ class FileManualMappingTestCase(TestCase):
         Test 1: Upload file
         '''
 
-        with open('samples/AIDSinfotest.csv') as fp:
+        with open('samples/measure_value string.csv') as fp:
                 res = self.c.post(
                         '/api/file/?format=json', 
                         {
                         'file': fp,
                         'title': 'temp title', 
                         'description': 'temp description', 
-                        'file_name': 'AIDSinfotest.csv',
+                        'file_name': 'measure_value string.csv',
                         })
 
         self.assertEquals(res.status_code, 201, res.json())
@@ -54,67 +54,16 @@ class FileManualMappingTestCase(TestCase):
         '''
         Test 3: File Manual Mapping
         '''
-        manual_mapping_data = {
-            "file_id": res.json()['id'],
-            "dict": {
-                "indicator": [
-                    "Indicator"
-                ],
-                "unit_of_measure": [
-                    "Unit"
-                ],
-                "country": [
-                    "Area ID"
-                ],
-                "measure_value": [
-                    "Data Value"
-                ],
-                "date_value": [
-                    "Time Period"
-                ],
-                "source": [
-                    "Source"
-                ],
-                "other": [
-                    "Footnotes"
-                ],
-                "indicator_category": [
-                    "Subgroup"
-                ]
-            }
-        }
+        manual_mapping_data = {'dict': 
+            {'indicator': [], 'unit_of_measure': [], 'relationship': {'Seen Bambi?': 'indicator_category'}, 'left_over': {'Seen Bambi?': 'measure_value'}, 
+            'country': [], 'empty_indicator': 'Indicator value', 'measure_value': ['Seen Bambi?', 'measure_value'], 'empty_country': 'WW', 'date_value': ['Year'],
+             'source': [], 'other': [], 'indicator_category': ['Sex', 'Seen Bambi?', 'indicator_category'], 'empty_unit_of_measure': {'Seen Bambi?': 'Number'}}, 
+             'file_id': res.json()['id']}
         # print manual_mapping_data
 
         res_file_manual_mapping = self.c.post(
             '/api/manual-mapper/?format=json', 
-            {
-            "file_id": res.json()['id'],
-            "dict": {
-                "indicator": [
-                    "Indicator"
-                ],
-                "unit_of_measure": [
-                    "Unit"
-                ],
-                "country": [
-                    "Area ID"
-                ],
-                "measure_value": [
-                    "Data Value"
-                ],
-                "date_value": [
-                    "Time Period"
-                ],
-                "source": [ 
-                    "Source"
-                ],
-                "other": [
-                    "Footnotes"
-                ],
-                "indicator_category": [
-                    "Subgroup"
-                ]
-            } },
+            manual_mapping_data,
             format='json'
             )
         
