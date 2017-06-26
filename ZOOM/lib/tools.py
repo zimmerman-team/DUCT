@@ -222,7 +222,11 @@ def check_column_data_type(field, dtypes):
     
     elif field == "measure_value":
         if "num" in dtypes:
+            print(dtypes)
+            print("-----------------------returning num num num------------------------------")
             return True, "num" , "num"
+        elif "str" in dtypes:
+            return True, "str" , "num"
         else:
             return False, dtypes[0], "num"
     
@@ -237,13 +241,14 @@ def check_column_data_type(field, dtypes):
 
 
 #use validation error lines to get bad data, would optimise 
-def correct_data(df_data, correction_data, error_data):#correction_data ["country_name, iso2, iso3 etc"]
+def correct_data(df_data, correction_data, error_data, index_order):#correction_data ["country_name, iso2, iso3 etc"]
     """Corrects data for each column according to correction_data.
     
     Args:
         df_data (Dataframe): dataframe of CSV file.
         correction_mappings ({str:(str,str)}): the conversion needed for each file heading.
         error_data ({str:[str]}): error data for each column.
+        index_order ({str: str}): contains data points as headings and columns as values.
 
     Returns: 
         new_df (Dataframe): the converted dataframe.
@@ -277,8 +282,20 @@ def correct_data(df_data, correction_data, error_data):#correction_data ["countr
             filter_applied = not_null_filter & (~numeric_filter)
             df_data[key] = df_data[key].apply(f)
         else:#numeric
-            filter_applied = not_null_filter & (~numeric_filter)
-            df_data[key][filter_applied]  = np.NaN
+            if correction_data[key][0] == "str":
+                if index_order['measure_value'] == key:
+                    #get inidicator category add and group accordingly
+                    df_data[index_order['indicator_category']] = (df_data[index_order['indicator_category']] + "|" + index_order['measure_value'] + ": "
+                                                                + df_data[index_order['measure_value']])
+                    str_data = pd.DataFrame({index_order['measure_value'] + "temp" : df_data.groupby([index_order['indicator'], index_order['indicator_category'], 
+                                                                            index_order['country'], index_order['date_value'], index_order['unit_of_measure'], 
+                                                                            index_order['measure_value']])[index_order['measure_value']
+                                                                            ].count()}).reset_index()
+                    str_data[index_order['measure_value']] = str_data[index_order['measure_value'] + "temp"] 
+                    df_data = str_data.drop(index_order['measure_value'] + "temp", 1)
+            else:
+                filter_applied = not_null_filter & (~numeric_filter)
+                df_data[key][filter_applied]  = np.NaN
 
     return df_data
 
@@ -295,8 +312,8 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
     
     Args:
         mappings ({str:[str]}): the users chosen mappings for a file column.
-        relationship_dict ({str: [str]}): section of the data model mapped to a file heading.
-        left_over_dict_dict ({str: [str]}): section of the data model mapped to the file column values.
+        relationship_dict ({str: [str]}): section of the data model mapped to a file column heading.
+        left_over_dict ({str: [str]}): section of the data model mapped to the file column values.
         df_data (Dataframe): dataframe of CSV file.
         dtypes_dict ({str:str}): stores the data-types found for each heading.
         empty_unit_measure_value (str): value to use if unit of measure has not be mapped.
@@ -324,13 +341,17 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
     columns = list(set(columns))#filter duplicates
     columns_set = list(set(list(columns)) & set(list(df_data.columns)))
     
+    #for col in relationship_dict:
+    #    dtypes_dict[left_over_dict[col]] = []
+
     for col in relationship_dict:
         if relationship_dict[col] == "date_value":
             dtypes_dict[relationship_dict[col]] = [['date', "100%"]]
         else:
             dtypes_dict[relationship_dict[col]] = [['str', "100%"]]
 
-        dtypes_dict[left_over_dict[col]] = [['num', '100%']]
+        ###################Need to combine datatypes for each
+        dtypes_dict[left_over_dict[col]] = dtypes_dict[col]
 
     new_df = pd.DataFrame(columns=df_data.columns)
 
@@ -350,9 +371,6 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
             tmp_df['unit_of_measure'] = empty_unit_measure_value[col]
         new_df = new_df.append(tmp_df)
     
-    print(new_df)
-    print(len(new_df[new_df.columns[0]]))
-    print(len(df_data[df_data.columns[0]]))
     return new_df.reset_index()#filter by columns needed
 
 def check_file_type(file_name):

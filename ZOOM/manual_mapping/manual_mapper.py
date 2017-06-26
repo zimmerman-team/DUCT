@@ -43,7 +43,7 @@ def manual_mapper(data):
         left_over_dict = mappings.pop("left_over", None)
         df_data = get_file_data(file_id)
         error_data, dtypes_dict = get_dtype_data(file_id)
-
+        print(dtypes_dict)
         print("Begining Mapping")
         ###If column mapped to multiple sections in data model
         if relationship_dict:
@@ -94,7 +94,7 @@ def manual_mapper(data):
                 index_order[key] = mappings[key][0]
                 reverse_mapping[mappings[key][0]] = key 
 
-        df_data = correct_data(df_data, correction_mappings, error_lines)
+        df_data = correct_data(df_data, correction_mappings, error_lines, index_order)
         null_values = df_data[mappings['indicator_category'][0]].isnull()
         df_data[mappings['indicator_category'][0]][null_values] = "Default"
         print("Filtering NaNs from measure value, indicator, data and country")
