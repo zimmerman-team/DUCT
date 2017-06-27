@@ -27,6 +27,7 @@ class IndicatorDataFilter(FilterSet):
             'id',
             'file',
             'file__authorised',
+            'file__source',
             'date_format',
             'indicator_category',
             'indicator_category__name',
