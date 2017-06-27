@@ -1,3 +1,4 @@
+from __future__ import division
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.core.cache import cache
@@ -11,6 +12,7 @@ import json
 import datetime
 import time
 import os
+import math
 
 from dateutil.parser import parse
 from indicator.models import *
@@ -25,9 +27,9 @@ from validate.validator import generate_error_data, save_validation_data
 def manual_mapper(data):
     """Perfoms manual mapping process."""
     if 'dict' in data:
-        print("###########################################################")
+        """print("###########################################################")
         print("Data")
-        print(data)
+        print(data)"""
        
         order = {}
         index_order = {}
@@ -384,7 +386,8 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
     bulk_list = vfunc(np.array(data_to_save))
     print("Bulk saving")
 
-    batch_size = 1
-    if len(bulk_list) > 200000:
-        batch_size = len(bulk_list)/5
+    batch_size = int(math.ceil(len(bulk_list)/100000))
+    print(len(bulk_list))
+    print(len(bulk_list)/100000)
+    print(batch_size)
     IndicatorDatapoint.objects.bulk_create(list(bulk_list), batch_size)
