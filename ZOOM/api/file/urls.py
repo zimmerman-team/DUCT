@@ -9,5 +9,4 @@ urlpatterns = [
         url(r'^sources/$', FileSourceListView.as_view(), name='file-source-list'),
         url(r'^(?P<pk>[^@$&+,/:;=?]+)/', FileDetailView.as_view(), name='file-detail'),
         url(r'^(?P<pk>\d+)/tags/$', FileTagListView.as_view(), name='file-tag-list'),
-
 ]
