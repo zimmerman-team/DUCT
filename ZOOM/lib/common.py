@@ -18,7 +18,7 @@ def get_dictionaries():#might be better to use a set
     country_names = Country.objects.values_list('name')
     country_alt_names = CountryAltName.objects.values_list('name')
     data_lists = [iso2_codes, iso3_codes, country_names, country_alt_names]
-    source = ["iso2", "iso3", "country_name", "country_name"]
+    source = ["country(iso2)", "country(iso3)", "country(name)", "country(name)"]
     country_source_dict = {}
     country_iso2_dict = {}
 
@@ -131,6 +131,7 @@ def get_headings_data_model(df_file, dtypes_dict):
         summary_results ([str]): summary results of data.
         summary_indexes ([str]): summary headings for data.
     """
+
     file_heading_list = df_file.columns
     validation_results = []
     dtypes_list = []
@@ -140,11 +141,16 @@ def get_headings_data_model(df_file, dtypes_dict):
 
     for heading in file_heading_list:
         validation_results.append(df_file[heading].isnull().sum())
-        dtypes_list.append(dtypes_dict[heading])
+        data_str = []
+        for types in dtypes_dict[heading]:
+            data_str.append("" + str(types[1]) + " of data identified as a " + str(types[0]) + " value.")
+        dtypes_list.append(data_str)
+        print(data_str)
         column_detail = df_file[heading].describe()
         summary_results.append(np.array(column_detail).astype('str'))
         summary_indexes.append(list(column_detail.index))
 
+    print(dtypes_list)
     #Get datapoint headings
     for field in IndicatorDatapoint._meta.fields:
         data_model_headings.append(field.name)#.get_attname_column())
@@ -154,5 +160,5 @@ def get_headings_data_model(df_file, dtypes_dict):
     remaining_mapping = data_model_headings    
 
     zip_list = zip(file_heading_list, dtypes_list, validation_results)
-
+    print(zip_list)
     return zip_list, summary_results, summary_indexes, remaining_mapping

@@ -23,20 +23,20 @@ def identify_col_dtype(column_values, file_heading, dicts):
     """
 
     reload(sys)
-    sys.setdefaultencoding('utf-8')
+    sys.setdefaultencoding("utf-8")
 
     dtypes_found = []
     error_counter = column_values.astype("str")
     error_counter[:] = np.NaN
     not_null_filter = column_values.notnull()
-    numeric_filter = pd.to_numeric(column_values[not_null_filter], errors='coerce').notnull()
+    numeric_filter = pd.to_numeric(column_values[not_null_filter], errors="coerce").notnull()
 
     ###Checking Date###
     error_counter = check_if_date(file_heading, column_values, not_null_filter, numeric_filter, error_counter)
 
     ###Country Check###
     if(np.sum(error_counter.notnull()) < len(error_counter)):
-        f = (lambda x: str(unicodedata.normalize('NFKD', unicode(x)).lower().encode('ascii','ignore')).strip().replace("_", " "))
+        f = (lambda x: str(unicodedata.normalize("NFKD", unicode(x)).lower().encode("ascii","ignore")).strip().replace("_", " "))
         filter_used = not_null_filter & (~numeric_filter)
         tmp_country_values = column_values[filter_used].apply(f)
         tmp_country_values = tmp_country_values.map(dicts)
@@ -48,10 +48,10 @@ def identify_col_dtype(column_values, file_heading, dicts):
     error_counter[~not_null_filter] = "blank"
     
     filter_used = (error_counter.isnull()) & (not_null_filter & (~numeric_filter))
-    error_counter[filter_used] = "str"
+    error_counter[filter_used] ="text"
     
     filter_used = (error_counter.isnull()) & (not_null_filter & numeric_filter)
-    error_counter[filter_used] = "num"
+    error_counter[filter_used] = "numeric"
 
     dtypes_found = np.unique(error_counter)
     prob_list = get_prob_list(error_counter)
@@ -83,7 +83,7 @@ def check_if_date(file_heading, column_values, not_null_filter, numeric_filter, 
             values = column_values[filter_applied]
             if filter_types[i] == "int":
                values = values.astype(int)
-            tmp_data_values = pd.to_datetime(values.astype("str"), errors = 'coerce')
+            tmp_data_values = pd.to_datetime(values.astype("str"), errors = "coerce")
             date_dtype_values = error_counter[filter_applied]
         
             #get values that are not null => date
@@ -107,7 +107,7 @@ def get_prob_list(error_counter):
 def update_cell_type(value, error_counter, line_no, file_heading):
     """Used when checking just one cell so no vectorisation"""
     reload(sys)
-    sys.setdefaultencoding('utf-8')
+    sys.setdefaultencoding("utf-8")
     date_check_f = (lambda x: "time" in x.lower() or "date" in x.lower() or "year" in x.lower() or "period" in x.lower())
     date_f = (lambda x: date_parser.parse(str(x)))
     
@@ -134,11 +134,11 @@ def update_cell_type(value, error_counter, line_no, file_heading):
                     result = False
 
             if not result:
-                dtype = "num"
+                dtype = "numeric"
         ###String
         except Exception:
             ###Checking Date###
-            f = (lambda x: str(unicodedata.normalize('NFKD', unicode(x)).lower().encode('ascii','ignore')).strip().replace("_", " "))
+            f = (lambda x: str(unicodedata.normalize("NFKD", unicode(x)).lower().encode("ascii","ignore")).strip().replace("_", " "))
             value = f(value)
             result = date_check_f(file_heading)
             if result:
@@ -154,11 +154,8 @@ def update_cell_type(value, error_counter, line_no, file_heading):
                 result, dtype = check_if_cell_country(value) 
 
             if(not result):
-                dtype = "str"
+                dtype ="text"
     
-    print("dtype")
-    print(dtype)
-    print(line_no)
     error_counter[line_no] = dtype   
     prob_list = get_prob_list(error_counter)
     return prob_list, error_counter
@@ -168,19 +165,19 @@ def check_if_cell_country(value):
     """Checks if value is a country"""
     result = Country.objects.filter(code__iexact=value).exists()
     if result:
-        return result, "iso2"
+        return result,"country(iso2)"
 
     result = Country.objects.filter(iso3__iexact=value).exists()
     if result:
-        return result, "iso3"
+        return result, "country(iso3)"
 
     result = Country.objects.filter(name__iexact=value).exists()
     if result:
-        return result, "country_name"
+        return result, "country(name)"
 
     result = CountryAltName.objects.filter(name__iexact=value).exists()
     if result:
-        return result, "country_name"
+        return result, "country(name)"
 
     return False, ""
 
@@ -202,7 +199,7 @@ def check_column_data_type(field, dtypes):
     dtype_set = set()
     result = False
     if field == "country":
-        country_list = ['iso2', 'iso3', "country_name"]
+        country_list = ["country(iso2)", "country(iso3)", "country(name)"]
         dtype_set = set(dtypes) & set(country_list)
         result = bool(dtype_set)   
        
@@ -218,17 +215,15 @@ def check_column_data_type(field, dtypes):
             indexes.sort()
             dtype_set = dtypes[indexes[0]]#pointless??
                 
-        return result, dtype_set, "iso2"
+        return result, dtype_set,"country(iso2)"
     
     elif field == "measure_value":
-        if "num" in dtypes:
-            print(dtypes)
-            print("-----------------------returning num num num------------------------------")
-            return True, "num" , "num"
-        elif "str" in dtypes:
-            return True, "str" , "num"
+        if "numeric" in dtypes:
+            return True, "numeric" , "numeric"
+        elif"text" in dtypes:
+            return True,"text" , "numeric"
         else:
-            return False, dtypes[0], "num"
+            return False, dtypes[0], "numeric"
     
     elif field == "date_value":
         if "date" in dtypes:
@@ -237,7 +232,7 @@ def check_column_data_type(field, dtypes):
         else:
             return False, dtypes[0] , "date"
     else:
-        return True, "str", "str" 
+        return True,"text","text" 
 
 
 #use validation error lines to get bad data, would optimise 
@@ -256,21 +251,21 @@ def correct_data(df_data, correction_data, error_data, index_order):#correction_
 
     value = {}
     _, dicts = get_dictionaries()
-    f = (lambda x: str(unicodedata.normalize('NFKD', unicode(x)).lower().encode('ascii','ignore')).strip().replace("_", " "))
+    f = (lambda x: str(unicodedata.normalize("NFKD", unicode(x)).lower().encode("ascii","ignore")).strip().replace("_", " "))
 
     for key in correction_data:
         not_null_filter = df_data[key].notnull()
-        numeric_filter = pd.to_numeric(df_data[key][not_null_filter], errors='coerce').notnull()
+        numeric_filter = pd.to_numeric(df_data[key][not_null_filter], errors="coerce").notnull()
         
         ###Country
-        if correction_data[key][1] == "iso2":
+        if correction_data[key][1] =="country(iso2)":
             filter_used = not_null_filter & (~numeric_filter) & (error_data[key][error_data[key] == correction_data[key][0]])
             df_data[key] = df_data[key][filter_used].apply(f)               
             df_data[key] = df_data[key][filter_used].map(dicts)
         elif correction_data[key][1] == "date":
             ####Numeric check
             filter_applied1 = ((not_null_filter) & (numeric_filter) & (error_data[key][error_data[key] == correction_data[key][0]]))
-            df_data[key][filter_applied1] = pd.to_datetime(df_data[key][filter_applied1].astype("int").astype('str')).dt.year
+            df_data[key][filter_applied1] = pd.to_datetime(df_data[key][filter_applied1].astype("int").astype("str")).dt.year
 
             ###String check
             filter_applied2 = ((not_null_filter) & (~numeric_filter)) & (error_data[key][error_data[key] == correction_data[key][0]])
@@ -278,21 +273,21 @@ def correct_data(df_data, correction_data, error_data, index_order):#correction_
 
             df_data[key][~(filter_applied1 | filter_applied2)] = np.NaN
         #Applying filter to entire column, example indicator category might be  have numbers 
-        elif correction_data[key][1] == "str":
+        elif correction_data[key][1] =="text":
             filter_applied = not_null_filter & (~numeric_filter)
             df_data[key] = df_data[key].apply(f)
         else:#numeric
-            if correction_data[key][0] == "str":
-                if index_order['measure_value'] == key:
+            if correction_data[key][0] =="text":
+                if index_order["measure_value"] == key:
                     #get inidicator category add and group accordingly
-                    df_data[index_order['indicator_category']] = (df_data[index_order['indicator_category']] + "|" + index_order['measure_value'] + ": "
-                                                                + df_data[index_order['measure_value']])
-                    str_data = pd.DataFrame({index_order['measure_value'] + "temp" : df_data.groupby([index_order['indicator'], index_order['indicator_category'], 
-                                                                            index_order['country'], index_order['date_value'], index_order['unit_of_measure'], 
-                                                                            index_order['measure_value']])[index_order['measure_value']
+                    df_data[index_order["indicator_category"]] = (df_data[index_order["indicator_category"]] + "|" + index_order["measure_value"] + ": "
+                                                                + df_data[index_order["measure_value"]])
+                    str_data = pd.DataFrame({index_order["measure_value"] + "temp" : df_data.groupby([index_order["indicator"], index_order["indicator_category"], 
+                                                                            index_order["country"], index_order["date_value"], index_order["unit_of_measure"], 
+                                                                            index_order["measure_value"]])[index_order["measure_value"]
                                                                             ].count()}).reset_index()
-                    str_data[index_order['measure_value']] = str_data[index_order['measure_value'] + "temp"] 
-                    df_data = str_data.drop(index_order['measure_value'] + "temp", 1)
+                    str_data[index_order["measure_value"]] = str_data[index_order["measure_value"] + "temp"] 
+                    df_data = str_data.drop(index_order["measure_value"] + "temp", 1)
             else:
                 filter_applied = not_null_filter & (~numeric_filter)
                 df_data[key][filter_applied]  = np.NaN
@@ -337,7 +332,7 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
         else: 
             columns.append(col)
 
-    columns.append('unit_of_measure')
+    columns.append("unit_of_measure")
     columns = list(set(columns))#filter duplicates
     columns_set = list(set(list(columns)) & set(list(df_data.columns)))
     
@@ -346,9 +341,9 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
 
     for col in relationship_dict:
         if relationship_dict[col] == "date_value":
-            dtypes_dict[relationship_dict[col]] = [['date', "100%"]]
+            dtypes_dict[relationship_dict[col]] = [["date", "100%"]]
         else:
-            dtypes_dict[relationship_dict[col]] = [['str', "100%"]]
+            dtypes_dict[relationship_dict[col]] = [["text", "100%"]]
 
         ###################Need to combine datatypes for each
         dtypes_dict[left_over_dict[col]] = dtypes_dict[col]
@@ -359,7 +354,7 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
         tmp_df = df_data.copy(deep=True)    
         
         #if more than one relationship ie multiple subgroupd and relationships
-        if col in mappings['indicator_category'] and len(mappings['indicator_category']) > 1:
+        if col in mappings["indicator_category"] and len(mappings["indicator_category"]) > 1:
             tmp_df[relationship_dict[col]] = tmp_df[relationship_dict[col]] + "|" + (col)
             tmp_df[left_over_dict[col]] = tmp_df[col]
             
@@ -368,31 +363,31 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
             tmp_df[left_over_dict[col]] = tmp_df[col]
         
         if col in empty_unit_measure_value:
-            tmp_df['unit_of_measure'] = empty_unit_measure_value[col]
+            tmp_df["unit_of_measure"] = empty_unit_measure_value[col]
         new_df = new_df.append(tmp_df)
     
     return new_df.reset_index()#filter by columns needed
 
 def check_file_type(file_name):
     name = file_name.lower()
-    if name.endswith('.csv'):
-        return True ,{'file_type':'csv', 'success':1}
-    elif name.endswith('.xlsx'):
-        return False, {'file_type':'xlsx', 'success':0, 'error': "Cannot map xlsx files"}
-    elif name.endswith('.json'):
-        return False, {'file_type':'json', 'success':0, 'error': "Cannot map json files"}
+    if name.endswith(".csv"):
+        return True ,{"file_type":"csv", "success":1}
+    elif name.endswith(".xlsx"):
+        return False, {"file_type":"xlsx", "success":0, "error": "Cannot map xlsx files"}
+    elif name.endswith(".json"):
+        return False, {"file_type":"json", "success":0, "error": "Cannot map json files"}
     else:
-        return False, {'file_type':'Unrecognised format', 'success':0, 'error': "Don't recognise file type"}#.txt format??
+        return False, {"file_type":"Unrecognised format", "success":0, "error": "Don't recognise file type"}#.txt format??
 
 def check_file_formatting(file_loc):
     try:
         df_data = pd.read_csv(file_loc)
     except Exception as e:
-        return False, {'success':0, "error":"Couldn't read file, check start of file for text, for malformed columns and  for gaps in data."}
+        return False, {"success":0, "error":"Couldn't read file, check start of file for text, for malformed columns and  for gaps in data."}
     #check column names if unammed give back false
     for key in df_data.columns:
-        if 'Unnamed' in key:
-            return False, {'success':0, "error":"Cannot validate, unnamed columns in data set or unessecary text at start of file."}
+        if "Unnamed" in key:
+            return False, {"success":0, "error":"Cannot validate, unnamed columns in data set or unessecary text at start of file."}
         else:
             nan_indexes = pd.isnull(df_data)
             #for col in df_data.ix[:,0]:
@@ -400,7 +395,7 @@ def check_file_formatting(file_loc):
     resulting_indexes = nan_indexes.apply(lambda x: min(x) == max(x) and min(x) == True, 1)
     result = len(resulting_indexes[resulting_indexes == True]) > 0
     if result:
-        return False, {'success':0, "error":"Files has blank lines or text at end of the file."}#return line number of blank lines?
+        return False, {"success":0, "error":"Files has blank lines or text at end of the file."}#return line number of blank lines?
     return True, {"success":1}
     #check end of file if there is empty line and the df_data lenght is longer than this line then error#
     #get columns with the least amount of empty values 
