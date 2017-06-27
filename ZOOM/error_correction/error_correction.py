@@ -135,7 +135,7 @@ def get_errors(request):
             errors_selection = errors[i]#[start_pos:end_pos]
 
             for j in errors_selection:#minus one for line no
-                message = ("Found " + j + ", should be " + dtypes_dict[i][0][0])
+                message = ("Found a " + j + " value instead of the most populous value " + dtypes_dict[i][0][0] + ".")
                 line_no = str(line_no_selection[counter])
                 temp_error_message[''.join([line_no,"|",i])] = (message)
                 counter += 1

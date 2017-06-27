@@ -13,7 +13,7 @@ class FileManualMappingTestCase(TestCase):
     def test_file_manual_mapping_two_measure_value(self):
 
         #Intialise countries
-        #slow
+        #slow # do this once
         ci = CountryImport()
         ci.update_polygon()
         ci.update_alt_name()
@@ -34,7 +34,6 @@ class FileManualMappingTestCase(TestCase):
 
         self.assertEquals(res.status_code, 201, res.json())
         self.assertIsNotNone(res.json()['id'])
-
 
         '''
         Test 2: Validate

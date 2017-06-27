@@ -383,4 +383,8 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
     vfunc = np.vectorize(f)
     bulk_list = vfunc(np.array(data_to_save))
     print("Bulk saving")
-    IndicatorDatapoint.objects.bulk_create(list(bulk_list))
+
+    batch_size = 1
+    if len(bulk_list) > 200000:
+        batch_size = len(bulk_list)/5
+    IndicatorDatapoint.objects.bulk_create(list(bulk_list), batch_size)
