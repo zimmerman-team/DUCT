@@ -7,6 +7,7 @@ from manual_mapping.manual_mapper import manual_mapper
 from lib.common import get_headings_data_model, get_file_data, get_dtype_data
 from task_queue.tasks import manual_mapping_job
 from file_upload.models import File
+import time
 
 
 @api_view(['POST'])
@@ -27,7 +28,6 @@ def get_data(request):
 
 @api_view(['GET', 'POST'])
 def ManualMapping(request):
-    print request
     if request.method == 'POST':
         context = manual_mapper(request.data)
         return Response(context)
@@ -45,8 +45,11 @@ class ManualMappingJob(APIView):
     def post(self, request):
 
         from manual_mapping.manual_mapper import manual_mapper
+        print("Entering Manual Mapping")
+        print (time.strftime("%H:%M:%S"))
         context = manual_mapper(request.data)
-
+        print("Finished")
+        print(context)
         return Response(context)
 
 

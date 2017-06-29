@@ -22,7 +22,7 @@ from lib.tools import check_column_data_type, correct_data, convert_df
 from lib.common import get_file_data, get_dtype_data, save_mapping, get_dictionaries
 from file_upload.models import File
 from validate.validator import generate_error_data, save_validation_data
-
+import time
 
 def manual_mapper(data):
     """Perfoms manual mapping process."""
@@ -30,7 +30,6 @@ def manual_mapper(data):
         """print("###########################################################")
         print("Data")
         print(data)"""
-       
         order = {}
         index_order = {}
         bulk_list = []
@@ -45,8 +44,8 @@ def manual_mapper(data):
         left_over_dict = mappings.pop("left_over", None)
         df_data = get_file_data(file_id)
         error_data, dtypes_dict = get_dtype_data(file_id)
-        print(dtypes_dict)
         print("Begining Mapping")
+        print (time.strftime("%H:%M:%S"))
         ###If column mapped to multiple sections in data model
         if relationship_dict:
             relationship_dict = clean_data(relationship_dict, "~", " ")
@@ -83,7 +82,7 @@ def manual_mapper(data):
         if not result:
             return context
 
-        print("Getting Error types")
+        print("Getting Error types")###needed?
         error_lines, new_dtypes_dict = generate_error_data(df_data)
         save_validation_data(error_lines, file_id, new_dtypes_dict)
         ###Combine dictionaries
@@ -97,6 +96,9 @@ def manual_mapper(data):
                 reverse_mapping[mappings[key][0]] = key 
 
         df_data = correct_data(df_data, correction_mappings, error_lines, index_order)
+        ###Clear data structures
+        correction_mappings = None
+        error_lines = None
         null_values = df_data[mappings['indicator_category'][0]].isnull()
         df_data[mappings['indicator_category'][0]][null_values] = "Default"
         print("Filtering NaNs from measure value, indicator, data and country")
@@ -254,7 +256,7 @@ def check_mapping_dtypes(mappings, dtypes_dict):
     Returns: 
         result: indicates whether there is a bad mapping or not.
         correction_mappings ({str:(str,str)}): the conversion needed for each file heading.
-        context ({str:data}): the information displayed to the user if mapping is bad.
+        context ({str:[data]}): the information displayed to the user if mapping is bad.
     """
 
     correction_mappings = {}
@@ -268,7 +270,8 @@ def check_mapping_dtypes(mappings, dtypes_dict):
                 if temp_results_check_dtype != False:
                     correction_mappings[mappings[key][0]] = (temp_found_dtype, temp_convert_dtype) 
                 else:
-                    error_message.append(mappings[key][0] + " to " + key + ", found " + temp_found_dtype + ", needed " + temp_convert_dtype + ". ")#datatype blah blah 
+                    error = [mappings[key][0], key, temp_found_dtype, temp_convert_dtype]
+                    error_message.append(error)#datatype blah blah 
 
     context = {"error_messages" : error_message, "success" : 0}
     return (not len(error_message) > 0), correction_mappings, context 
@@ -390,4 +393,16 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
     print(len(bulk_list))
     print(len(bulk_list)/100000)
     print(batch_size)
-    IndicatorDatapoint.objects.bulk_create(list(bulk_list), batch_size)
+    previous_batch = 0
+    next_batch = 0
+    for i in range(1,batch_size + 1):
+        next_batch += 100000 
+        if next_batch > len(bulk_list):
+            next_batch = len(bulk_list) - 1
+            i = batch_size + 1
+        IndicatorDatapoint.objects.bulk_create(list(bulk_list)[previous_batch : next_batch])
+        #print("I ", i)
+        #print("Previous batch ", previous_batch)
+        #print("Next batch ", next_batch)
+        bulk_list[previous_batch:next_batch] = None
+        previous_batch = next_batch

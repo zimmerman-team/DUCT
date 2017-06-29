@@ -143,14 +143,12 @@ def get_headings_data_model(df_file, dtypes_dict):
         validation_results.append(df_file[heading].isnull().sum())
         data_str = []
         for types in dtypes_dict[heading]:
-            data_str.append("" + str(types[1]) + " of data identified as a " + str(types[0]) + " value.")
+            data_str.append("" + str(types[1]) + " of data a " + str(types[0]) + " value.")
         dtypes_list.append(data_str)
-        print(data_str)
         column_detail = df_file[heading].describe()
         summary_results.append(np.array(column_detail).astype('str'))
         summary_indexes.append(list(column_detail.index))
 
-    print(dtypes_list)
     #Get datapoint headings
     for field in IndicatorDatapoint._meta.fields:
         data_model_headings.append(field.name)#.get_attname_column())
