@@ -7,7 +7,8 @@ from api.manual_mapper.views import ManualMappingJobResult, ManualMappingJob, Ma
 
 
 urlpatterns = [
-    url(r'^$', ManualMappingJob.as_view(), name='manual-mapper'),
+    #url(r'^$', ManualMappingJob.as_view(), name='manual-mapper'),
+    url(r'^$', ManualMapping, name='manual-mapper'),
     url(r'^manual_map$', ManualMapping, name='manual-map'),
     url(r'^status$', ManualMappingJobResult.as_view(), name='manual-mapper-result'),
     url(r'^get_data$', get_data, name='manual-mapper-result'),

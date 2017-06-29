@@ -1,7 +1,4 @@
 from __future__ import division
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
-from django.core.cache import cache
 from django.db import connection,transaction
 from django.conf import settings
 from django.http import Http404
@@ -401,8 +398,8 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
             next_batch = len(bulk_list) - 1
             i = batch_size + 1
         IndicatorDatapoint.objects.bulk_create(list(bulk_list)[previous_batch : next_batch])
-        #print("I ", i)
-        #print("Previous batch ", previous_batch)
-        #print("Next batch ", next_batch)
+        print("I ", i)
+        print("Previous batch ", previous_batch)
+        print("Next batch ", next_batch)
         bulk_list[previous_batch:next_batch] = None
         previous_batch = next_batch
