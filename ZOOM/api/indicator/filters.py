@@ -17,12 +17,17 @@ class IndicatorDataFilter(FilterSet):
         name='file__authorised',
         lookup_expr='in')
 
+    file__source = CommaSeparatedStickyCharFilter(
+        name='file__data_source__name',
+        lookup_expr='in')
+
     class Meta:
         model = IndicatorDatapoint
         fields = (
             'id',
             'file',
             'file__authorised',
+            'file__source',
             'date_format',
             'indicator_category',
             'indicator_category__name',
