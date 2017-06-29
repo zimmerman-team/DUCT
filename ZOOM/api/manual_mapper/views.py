@@ -26,10 +26,17 @@ def get_data(request):
     return Response(context)
 
 
-@api_view(['GET', 'POST'])
+@api_view(['POST'])
 def ManualMapping(request):
     if request.method == 'POST':
+        print("Incomming Request")
+        print(request)
+        print("Entering Manual Mapping")
+        print (time.strftime("%H:%M:%S"))
         context = manual_mapper(request.data)
+        print("Finished")
+        print(context)
+        
         return Response(context)
     else:
         return Response("No file selected");
@@ -45,11 +52,7 @@ class ManualMappingJob(APIView):
     def post(self, request):
 
         from manual_mapping.manual_mapper import manual_mapper
-        print("Entering Manual Mapping")
-        print (time.strftime("%H:%M:%S"))
         context = manual_mapper(request.data)
-        print("Finished")
-        print(context)
         return Response(context)
 
 
