@@ -1,38 +1,5 @@
 from django.contrib.gis.db import models as gis_models
 from django.db import models
-import unicodedata
-
-def get_dictionaries():#might be better to use a set
-        iso2_codes = Country.objects.values_list('code')
-        iso3_codes = Country.objects.values_list('iso3')
-        country_names = Country.objects.values_list('name')
-        country_alt_names = CountryAltName.objects.values_list('name')
-        data_lists = [iso2_codes, iso3_codes, country_names, country_alt_names]
-        source = ["iso2", "iso3", "country_name", "country_name"]
-        country_source_dict = {}
-        country_iso2_dict = {}
-
-        for i in range(len(source)):
-            country_iso2_dict[source[i]] = {}
-
-        print("Get dictionaries")
-        for i in range(len(data_lists)):
-            counter = 0
-            for j in range(len(data_lists[i])):
-                
-                try:
-                    temp_value = str(data_lists[i][j][0].lower())
-                except Exception:#special_character
-                    temp_value = str(unicodedata.normalize('NFKD', data_lists[i][j][0]).lower().encode('ascii','ignore'))
-                
-                country_source_dict[temp_value] = source[i] #{NL: {iso2: NL, source:iso2}}
-                if i < (len(data_lists) - 1):
-                    country_iso2_dict[source[i]][temp_value] = iso2_codes[j][0]
-                else:
-                    country_alt_name = CountryAltName.objects.get(name=data_lists[i][j][0]) 
-                    country = Country.objects.get(code=country_alt_name.country.code) 
-                    country_iso2_dict[source[i]][temp_value] = country.code
-        return country_source_dict, country_iso2_dict
 
 
 class Codelist(models.Model):

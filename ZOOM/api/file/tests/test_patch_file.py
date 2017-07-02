@@ -38,7 +38,7 @@ class FilePatchTestCase(TestCase):
         Step 1: Patch file data
         '''
 
-        patch_data = { 
+        patch_data = {
             "title": "Test1", 
             "description": "Description", 
             "tags": ["T"], 
@@ -49,7 +49,7 @@ class FilePatchTestCase(TestCase):
 
         res_file_patch = self.c.patch(
                 '/api/file/{}/?format=json'.format(res_file_upload.json()['id']), 
-                patch_data)
+                patch_data, format='json')
         
         # print res_file_patch.json()
         self.assertEquals(res_file_patch.status_code, 200, res_file_patch.json())
@@ -58,19 +58,16 @@ class FilePatchTestCase(TestCase):
         '''
         Step2: Verify Patch file data
         '''
-
         res_file_patch_updated = self.c.get(
-                '/api/file/{}/?format=json'.format(res_file_upload.json()['id']), 
-                patch_data)
+                '/api/file/{}/?format=json'.format(res_file_upload.json()['id']),format='json')
         
-        # print res_file_patch_updated.json()
         self.assertEquals(res_file_patch_updated.status_code, 200, res_file_patch_updated.json())
         self.assertEquals(res_file_patch_updated.json()['title'], patch_data['title'])
         self.assertEquals(res_file_patch_updated.json()['description'], patch_data['description'])
         self.assertEquals(res_file_patch_updated.json()['data_source']['name'], patch_data['data_source'])
         self.assertEquals(res_file_patch_updated.json()['tags'][0]['name'], patch_data['tags'][0])
         self.assertEquals(res_file_patch_updated.json()['status'], patch_data['status'])
-
+        
         '''
         Step 3: Patch file data Update
         '''
@@ -86,19 +83,18 @@ class FilePatchTestCase(TestCase):
 
         res_file_patch = self.c.patch(
                 '/api/file/{}/?format=json'.format(res_file_upload.json()['id']), 
-                patch_data)
+                patch_data, format='json')
         
         # print res_file_patch.json()
         self.assertEquals(res_file_patch.status_code, 200, res_file_patch.json())
-
+        
     
         '''
         Step4: Verify Patch file data update
         '''
 
         res_file_patch_updated = self.c.get(
-                '/api/file/{}/?format=json'.format(res_file_upload.json()['id']), 
-                patch_data)
+                '/api/file/{}/?format=json'.format(res_file_upload.json()['id']), format='json')
         
         # print res_file_patch_updated.json()
         self.assertEquals(res_file_patch_updated.status_code, 200, res_file_patch_updated.json())
@@ -107,6 +103,4 @@ class FilePatchTestCase(TestCase):
         self.assertEquals(res_file_patch_updated.json()['data_source']['name'], patch_data['data_source'])
         self.assertEquals(res_file_patch_updated.json()['tags'][0]['name'], patch_data['tags'][0])
         self.assertEquals(res_file_patch_updated.json()['status'], patch_data['status'])
-
-
 

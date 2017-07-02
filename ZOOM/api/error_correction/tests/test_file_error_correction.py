@@ -41,7 +41,8 @@ class FileErrorCorrectionTestCase(TestCase):
             "filter_value": "",
             "filter_toggle": False,
             "replace_value": "",
-            "replace_pressed": False
+            "replace_pressed": False,
+            "error_toggle": False
             },
             format='json'
             )
