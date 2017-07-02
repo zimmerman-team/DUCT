@@ -15,7 +15,7 @@ def validate(file_id):
     Returns: 
         context ({str:data}): information related to the validation of file.
     """
-
+    
     print("Begining Validation")
     
     newdoc = [''] ### Future: using array in case user uploads multiple files
