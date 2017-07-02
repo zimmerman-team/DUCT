@@ -52,6 +52,11 @@ class ManualMappingJob(APIView):
     def post(self, request):
 
         from manual_mapping.manual_mapper import manual_mapper
+        print("In Job")
+        print("Incomming Request")
+        print(request)
+        print("Entering Manual Mapping")
+        print (time.strftime("%H:%M:%S"))
         context = manual_mapper(request.data)
         return Response(context)
 

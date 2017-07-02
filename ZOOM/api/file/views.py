@@ -114,6 +114,15 @@ class FileSourceListView(ListCreateAPIView):
     queryset = FileSource.objects.all()
     serializer_class = FileSourceSerializer
 
+@api_view(['POST'])
+def add_remove_source(request):
+    if request.data['action'] == "save":
+        _, created = FileSource.objects.get_or_create(name=request.data['source'])
+    else:#delete
+        FileSource.objects.get(name=request.data['source']).delete()
+
+    return Response({"success": 1})
+
 
 class FileTagListView(ListCreateAPIView):
 
