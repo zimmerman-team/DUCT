@@ -205,7 +205,8 @@ class IndicatorDataAggregations(AggregationView):
         ),
         GroupBy(
             query_param="indicator",
-            fields="indicator",
+            fields=("indicator", "file__data_source__name"),
+            # renamed_fields=("indicator", "source"),
         ),
         GroupBy(
             query_param="date_value",
