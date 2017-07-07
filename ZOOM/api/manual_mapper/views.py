@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
@@ -36,6 +37,10 @@ def ManualMapping(request):
         context = manual_mapper(request.data)
         print("Finished")
         print(context)
+
+        # Clear /indicator/aggregations caches
+        cache.clear()
+        # TODO - check if the above also deletes tasks from the task queue, if so, make separates caches in the settings - 2017-07-05
         
         return Response(context)
     else:
