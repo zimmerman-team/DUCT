@@ -14,8 +14,9 @@ import time
 @api_view(['POST'])
 def get_data(request):
     file_id = request.data['file_id']
+    
     df_data = get_file_data(file_id)
-    _, dtypes_dict = get_dtype_data(file_id)
+    # Future: make faster by only reading in headings or 1st row rather than entire data set
     zip_list, summary_results, summary_indexes, remaining_mapping = get_headings_data_model(df_data)
     #Future: add summary for hover over file heading name
     context = {
