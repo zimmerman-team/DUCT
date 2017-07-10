@@ -16,7 +16,8 @@ def get_data(request):
     file_id = request.data['file_id']
     df_data = get_file_data(file_id)
     _, dtypes_dict = get_dtype_data(file_id)
-    zip_list, summary_results, summary_indexes, remaining_mapping = get_headings_data_model(df_data, dtypes_dict)
+    zip_list, summary_results, summary_indexes, remaining_mapping = get_headings_data_model(df_data)
+    #Future: add summary for hover over file heading name
     context = {
         'success': 1, 
         "found_list": zip_list, 
@@ -30,7 +31,7 @@ def get_data(request):
 @api_view(['POST'])
 def ManualMapping(request):
     if request.method == 'POST':
-        print("Incomming Request")
+        print("Incoming Request")
         print(request)
         print("Entering Manual Mapping")
         print (time.strftime("%H:%M:%S"))
