@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
@@ -13,9 +14,11 @@ import time
 @api_view(['POST'])
 def get_data(request):
     file_id = request.data['file_id']
+    
     df_data = get_file_data(file_id)
-    _, dtypes_dict = get_dtype_data(file_id)
-    zip_list, summary_results, summary_indexes, remaining_mapping = get_headings_data_model(df_data, dtypes_dict)
+    # Future: make faster by only reading in headings or 1st row rather than entire data set
+    zip_list, summary_results, summary_indexes, remaining_mapping = get_headings_data_model(df_data)
+    #Future: add summary for hover over file heading name
     context = {
         'success': 1, 
         "found_list": zip_list, 
@@ -29,13 +32,17 @@ def get_data(request):
 @api_view(['POST'])
 def ManualMapping(request):
     if request.method == 'POST':
-        print("Incomming Request")
+        print("Incoming Request")
         print(request)
         print("Entering Manual Mapping")
         print (time.strftime("%H:%M:%S"))
         context = manual_mapper(request.data)
         print("Finished")
         print(context)
+
+        # Clear /indicator/aggregations caches
+        cache.clear()
+        # TODO - check if the above also deletes tasks from the task queue, if so, make separates caches in the settings - 2017-07-05
         
         return Response(context)
     else:
