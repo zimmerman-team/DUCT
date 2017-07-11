@@ -9,6 +9,7 @@ import numpy as np
 import json
 import os
 import uuid
+import time
 
 
 def get_dictionaries():#might be better to use a set
@@ -42,6 +43,7 @@ def get_dictionaries():#might be better to use a set
                 country = Country.objects.get(code=country_alt_name.country.code) 
                 country_iso2_dict[temp_value] = country.code
     return country_source_dict, country_iso2_dict
+
 
 def save_validation_data(error_data, file_id, dtypes_dict):
     """Saves error data for file.
@@ -119,7 +121,39 @@ def get_mapping(file_id):
         return {success: 1, mapping: json.loads(file.mapping_used)}
     return {success: 0, mapping: None}
 
-def get_headings_data_model(df_file, dtypes_dict):
+def get_headings_data_model(df_file):
+    """Get column headings and data model headings.
+    
+    Args:
+        df_file (Dataframe): data of csv file in a dataframe.
+
+    Returns: 
+        zip_list: ([str, str, int]), contains file headings, the rest is information not needed but kept due to pre-existing dependency on given data structure.
+        summary_indexes ([str]): summary headings for data.
+    """
+
+    print((time.strftime("%H:%M:%S")))
+    file_heading_list = df_file.columns
+    dtypes_list = file_heading_list
+    validation_results = file_heading_list
+    data_model_headings = []
+
+    #Get datapoint headings
+    for field in IndicatorDatapoint._meta.fields:
+        data_model_headings.append(field.name)#.get_attname_column())
+    #skip first four headings as irrelevant to user input, should use filter for this
+    print((time.strftime("%H:%M:%S")))
+    
+    data_model_headings = data_model_headings[4:len(data_model_headings)] 
+    remaining_mapping = data_model_headings    
+    zip_list = zip(file_heading_list, dtypes_list, validation_results)
+    summary_results = file_heading_list##change this to add hover for file heading
+    summary_indexes = file_heading_list##change this 
+    print((time.strftime("%H:%M:%S")))
+    return zip_list, summary_results, summary_indexes, remaining_mapping
+
+
+def get_column_information(df_file, dtypes_dict):
     """Get information about columns.
     
     Args:
@@ -158,5 +192,4 @@ def get_headings_data_model(df_file, dtypes_dict):
     remaining_mapping = data_model_headings    
 
     zip_list = zip(file_heading_list, dtypes_list, validation_results)
-    print(zip_list)
     return zip_list, summary_results, summary_indexes, remaining_mapping

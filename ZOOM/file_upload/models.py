@@ -5,7 +5,6 @@ import rfc6266
 import datetime
 
 from django.db import models
-from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.conf import settings
@@ -109,3 +108,46 @@ class FileDtypes(models.Model):
     dtype_dict_name = models.CharField(max_length=500, null=True)#location    
     file = models.OneToOneField("File", null=True)
     #include method that deletes physical file if row deleted
+
+
+def check_files():
+    """Deletes files not saved in data model."""
+
+    file_objects = File.objects.all()
+    found_files = []
+    found_tmpfiles = []
+
+    for file_ob in file_objects:
+        found_files.append(str(file_ob.file))
+        found_tmpfiles.append(str(FileDtypes.objects.get(file=file_ob).dtype_name))
+        found_tmpfiles.append(str(FileDtypes.objects.get(file=file_ob).dtype_dict_name))
+
+    found_files = set(found_files)
+    found_tmpfiles = set(found_tmpfiles)
+    datasets_path = str(os.path.join(os.path.dirname(settings.BASE_DIR), 'ZOOM/media/datasets'))
+    tmp_path = str(os.path.join(os.path.dirname(settings.BASE_DIR), 'ZOOM/media/tmpfiles'))
+    tmp_dir = (os.listdir(tmp_path))
+    datasets_dir = (os.listdir(datasets_path))
+    datasets_dir = set([str(datasets_path + "/" + s) for s in datasets_dir])
+    tmp_dir = set([str(tmp_path + "/" + s) for s in tmp_dir])
+    
+    diff_files, diff_tmpfiles = datasets_dir.difference(found_files), tmp_dir.difference(found_tmpfiles)
+    file_sets = [diff_files, diff_tmpfiles]
+    
+    print("size datasets", len(datasets_dir))
+    print("size diff", len(diff_files))
+    count = 0
+    
+    for i in range(len(file_sets)):
+        if len(file_sets[i]) > 0:
+            for j in file_sets[i]:
+                os.remove(j)
+                count = count + 1
+                
+    print("Removed files: ", count, "!")
+    #Cycle through files
+    #get all files, validation results and tmp_files
+
+    #get all files in directories
+    #get boolean list of files existing
+    #remove files flagged as false from directories 

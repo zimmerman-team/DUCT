@@ -3,7 +3,7 @@ import pandas as pd
 from lib.tools import identify_col_dtype
 from file_upload.models import File
 from file_upload.models import FileDtypes
-from lib.common import get_dictionaries, save_validation_data, get_headings_data_model
+from lib.common import get_dictionaries, save_validation_data, get_column_information
 
 
 def validate(file_id):
@@ -29,7 +29,7 @@ def validate(file_id):
     
     print("Getting Error Information")
     error_data, dtypes_dict = generate_error_data(df_file)
-    zip_list, summary_results, summary_indexes, remaining_mapping = get_headings_data_model(df_file, dtypes_dict)
+    zip_list, summary_results, summary_indexes, remaining_mapping = get_column_information(df_file, dtypes_dict)
     print("Saving Error Information")
     save_validation_data(error_data, file_id, dtypes_dict)
     context = {
