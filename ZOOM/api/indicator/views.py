@@ -26,7 +26,7 @@ def reset_mapping(request):
 
 
 class IndicatorList(ListAPIView):
-    queryset = Indicator.objects.all()
+    queryset = IndicatorDatapoint.objects.filter(file__authorised = True).values("indicator").distinct() #Indicator.objects.all()
     filter_backends = (DjangoFilterBackend, )
     filter_class = IndicatorFilter
     serializer_class = IndicatorSerializer
@@ -39,7 +39,7 @@ class IndicatorList(ListAPIView):
 
 class IndicatorDataList(ListAPIView):
 
-    queryset = IndicatorDatapoint.objects.all()
+    queryset = IndicatorDatapoint.objects.filter(file__authorised = True)
     filter_backends = (DjangoFilterBackend, )
     filter_class = IndicatorDataFilter
     serializer_class = IndicatorDataSerializer
@@ -88,7 +88,9 @@ Data Post Example:
 
 class IndicatorCategoryDataList(ListAPIView):
 
-    queryset = IndicatorCategory.objects.all()
+    ind = IndicatorDatapoint.objects.filter(file__authorised = True).values("indicator").distinct()
+    queryset = IndicatorCategory.objects.filter(indicator__in = ind)
+    #queryset = IndicatorCategory.objects.all()
     filter_backends = (DjangoFilterBackend, )
     filter_class = IndicatorCategoryDataFilter
     serializer_class = IndicatorCategorySerializer
@@ -102,8 +104,6 @@ class IndicatorCategoryDataList(ListAPIView):
         'child',
         'indicator',
     )
-
-
 
 
 def annotate_measure(query_params, groupings):
@@ -141,8 +141,15 @@ class IndicatorDataAggregations(AggregationView):
     
     This parameter controls result aggregations and
     can be one or more (comma separated values) of:
-
-    - thingiemahbob
+    
+    - `indicator_category`
+    - `indicator`
+    - `date_value`
+    - `country`
+    - `country__region`
+    - `country__name`
+    - `country__region__name`
+    - `unit_of_measure`
 
     ## Aggregation options
 
@@ -151,8 +158,13 @@ class IndicatorDataAggregations(AggregationView):
     This parameter controls result aggregations and
     can be one or more (comma separated values) of:
 
+
     - `count`
     - `count_distinct`
+    - `measure_value`
+    - `mean_value`
+    - `max_value`
+    - `min_value`
 
     ## Request parameters
 
@@ -160,7 +172,7 @@ class IndicatorDataAggregations(AggregationView):
 
     """
 
-    queryset = IndicatorDatapoint.objects.all()
+    queryset = IndicatorDatapoint.objects.filter(file__authorised = True)
 
     filter_backends = (DjangoFilterBackend,)
     filter_class = IndicatorDataFilter
