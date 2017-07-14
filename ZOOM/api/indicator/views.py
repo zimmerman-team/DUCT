@@ -141,8 +141,15 @@ class IndicatorDataAggregations(AggregationView):
     
     This parameter controls result aggregations and
     can be one or more (comma separated values) of:
-
-    - thingiemahbob
+    
+    - `indicator_category`
+    - `indicator`
+    - `date_value`
+    - `country`
+    - `country__region`
+    - `country__name`
+    - `country__region__name`
+    - `unit_of_measure`
 
     ## Aggregation options
 
@@ -151,8 +158,13 @@ class IndicatorDataAggregations(AggregationView):
     This parameter controls result aggregations and
     can be one or more (comma separated values) of:
 
+
     - `count`
     - `count_distinct`
+    - `measure_value`
+    - `mean_value`
+    - `max_value`
+    - `min_value`
 
     ## Request parameters
 
