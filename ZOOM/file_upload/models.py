@@ -43,7 +43,7 @@ class File(models.Model):
     modified = models.DateTimeField(auto_now=True, null=True)
     rendered = models.BooleanField(default=False)
     status = models.IntegerField(default=1)
-    authorised = models.BooleanField(default=False)
+    authorised = models.BooleanField(default=False, db_index=True)
     mapping_used = models.CharField(max_length=1000, null=True, blank=True)
 
     form_name = models.CharField(
