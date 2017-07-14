@@ -62,6 +62,7 @@ def manual_mapper(data):
         ###Convert csv
         if relationship_dict:
             #check if unit of measure exists
+
             df_data = convert_df(mappings, relationship_dict, left_over_dict, df_data, dtypes_dict, unit_of_measure_value)
 
         print("Validating data")
@@ -214,18 +215,18 @@ def apply_missing_values(df_data, mappings, dtypes_dict, empty_values_array):
     if indicator_value:
         mappings['indicator'] = ['indicator']
         df_data['indicator'] = indicator_value
-        dtypes_dict[mappings['indicator'][0]] = [('str', 'str')]
+        dtypes_dict[mappings['indicator'][0]] = [('text', 'text')]
         #add indicator value as column 
 
     if country_value:
         mappings['country'] = ['country']
         df_data['country'] = country_value
-        dtypes_dict[mappings['country'][0]] = [('iso2', 'iso2')]
+        dtypes_dict[mappings['country'][0]] = [('country(iso2)', 'country(iso2)')]
 
     if indicator_category_value:
         mappings['indicator_category'] = ['indicator_category']
         df_data['indicator_category'] = indicator_category_value
-        dtypes_dict[mappings['indicator_category'][0]] = [('str', 'str')]
+        dtypes_dict[mappings['indicator_category'][0]] = [('text', 'text')]
 
     if value_of_date:
         mappings['date_value'] = ['date_value']
@@ -236,10 +237,10 @@ def apply_missing_values(df_data, mappings, dtypes_dict, empty_values_array):
         if len(unit_of_measure_value.keys()) < 2 :#chect each entry emoty unit_of measure a dict
             mappings['unit_of_measure'] = ['unit_of_measure']
             df_data['unit_of_measure'] = unit_of_measure_value[unit_of_measure_value.keys()[0]]
-            dtypes_dict[mappings['unit_of_measure'][0]] = [('str', 'str')]
+            dtypes_dict[mappings['unit_of_measure'][0]] = [('text', 'text')]
         else:
             mappings['unit_of_measure'] = ['unit_of_measure']
-            dtypes_dict[mappings['unit_of_measure'][0]] = [('str', 'str')]
+            dtypes_dict[mappings['unit_of_measure'][0]] = [('text', 'text')]
 
     return df_data, mappings, dtypes_dict
 
@@ -398,7 +399,7 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
             next_batch = len(bulk_list) - 1
             i = batch_size + 1
         IndicatorDatapoint.objects.bulk_create(list(bulk_list)[previous_batch : next_batch])
-        print("I ", i)
+        print("Num ", i)
         print("Previous batch ", previous_batch)
         print("Next batch ", next_batch)
         bulk_list[previous_batch:next_batch] = None
