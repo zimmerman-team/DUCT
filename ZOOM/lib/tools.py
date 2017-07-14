@@ -248,7 +248,7 @@ def correct_data(df_data, correction_data, error_data, index_order):#correction_
     Returns: 
         new_df (Dataframe): the converted dataframe.
     """
-
+    
     value = {}
     _, dicts = get_dictionaries()
     f = (lambda x: str(unicodedata.normalize("NFKD", unicode(x)).lower().encode("ascii","ignore")).strip().replace("_", " "))
@@ -286,6 +286,11 @@ def correct_data(df_data, correction_data, error_data, index_order):#correction_
                                                                             index_order["country"], index_order["date_value"], index_order["unit_of_measure"], 
                                                                             index_order["measure_value"]])[index_order["measure_value"]
                                                                             ].count()}).reset_index()
+                    #Cause we are grouping by sources and other don't make sense
+                    if "source" in index_order:
+                        str_data[index_order["source"]] = ""
+                    if "other" in index_order:
+                        str_data[index_order["other"]] = ""
                     str_data[index_order["measure_value"]] = str_data[index_order["measure_value"] + "temp"] 
                     df_data = str_data.drop(index_order["measure_value"] + "temp", 1)
             else:
