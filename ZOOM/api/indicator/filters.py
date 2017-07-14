@@ -4,6 +4,7 @@ from indicator.models import Indicator, IndicatorDatapoint, IndicatorCategory
 
 from api.generics.filters import CommaSeparatedCharFilter
 from api.generics.filters import CommaSeparatedStickyCharFilter
+from django_filters import BooleanFilter
 from rest_framework import filters
 
 
@@ -13,9 +14,7 @@ class IndicatorDataFilter(FilterSet):
         name='indicator_category__name',
         lookup_expr='in')
 
-    file__authorised = CommaSeparatedStickyCharFilter(
-        name='file__authorised',
-        lookup_expr='in')
+    file__authorised = BooleanFilter(name='file__authorised')
 
     file__source = CommaSeparatedStickyCharFilter(
         name='file__data_source__name',
@@ -44,6 +43,8 @@ class IndicatorDataFilter(FilterSet):
 
 class IndicatorFilter(FilterSet):
 
+    file__authorised = BooleanFilter(name='indicatordatapoint__file__authorised')
+
     class Meta:
         model = Indicator
         fields = (
@@ -52,6 +53,8 @@ class IndicatorFilter(FilterSet):
         )
 
 class IndicatorCategoryDataFilter(FilterSet):
+
+    file__authorised = BooleanFilter(name='indicator__indicatordatapoint__file__authorised')
 
     indicator_category__name = CommaSeparatedStickyCharFilter(
         name='indicator_category__name',
