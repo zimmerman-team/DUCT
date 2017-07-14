@@ -26,7 +26,7 @@ def reset_mapping(request):
 
 
 class IndicatorList(ListAPIView):
-    queryset = IndicatorDatapoint.objects.filter(file__authorised = True).values("indicator").distinct() #Indicator.objects.all()
+    queryset = Indicator.objects.all().distinct() #.values("indicator").distinct() #Indicator.objects.all()
     filter_backends = (DjangoFilterBackend, )
     filter_class = IndicatorFilter
     serializer_class = IndicatorSerializer
@@ -39,7 +39,7 @@ class IndicatorList(ListAPIView):
 
 class IndicatorDataList(ListAPIView):
 
-    queryset = IndicatorDatapoint.objects.filter(file__authorised = True)
+    queryset = IndicatorDatapoint.objects.all()
     filter_backends = (DjangoFilterBackend, )
     filter_class = IndicatorDataFilter
     serializer_class = IndicatorDataSerializer
@@ -88,13 +88,10 @@ Data Post Example:
 
 class IndicatorCategoryDataList(ListAPIView):
 
-    ind = IndicatorDatapoint.objects.filter(file__authorised = True).values("indicator").distinct()
-    queryset = IndicatorCategory.objects.filter(indicator__in = ind)
-    #queryset = IndicatorCategory.objects.all()
+    queryset = IndicatorCategory.objects.all()
     filter_backends = (DjangoFilterBackend, )
     filter_class = IndicatorCategoryDataFilter
     serializer_class = IndicatorCategorySerializer
-    #pagination_class = None
 
     fields = (
         'id',
@@ -172,7 +169,7 @@ class IndicatorDataAggregations(AggregationView):
 
     """
 
-    queryset = IndicatorDatapoint.objects.filter(file__authorised = True)
+    queryset = IndicatorDatapoint.objects.all()
 
     filter_backends = (DjangoFilterBackend,)
     filter_class = IndicatorDataFilter
