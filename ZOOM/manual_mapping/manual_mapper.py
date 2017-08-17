@@ -43,6 +43,9 @@ def manual_mapper(data):
         error_data, dtypes_dict = get_dtype_data(file_id)
         print("Begining Mapping")
         print (time.strftime("%H:%M:%S"))
+        print(relationship_dict)
+        print(left_over_dict)
+
         ###If column mapped to multiple sections in data model
         if relationship_dict:
             relationship_dict = clean_data(relationship_dict, "~", " ")
@@ -63,7 +66,7 @@ def manual_mapper(data):
         if relationship_dict:
             #check if unit of measure exists
 
-            df_data = convert_df(mappings, relationship_dict, left_over_dict, df_data, dtypes_dict, unit_of_measure_value)
+            df_data, dtypes_dict, mappings = convert_df(mappings, relationship_dict, left_over_dict, df_data, dtypes_dict, unit_of_measure_value)
 
         print("Validating data")
         for key in mappings:
@@ -256,7 +259,7 @@ def check_mapping_dtypes(mappings, dtypes_dict):
         correction_mappings ({str:(str,str)}): the conversion needed for each file heading.
         context ({str:[data]}): the information displayed to the user if mapping is bad.
     """
-
+    print("Checking data types")
     correction_mappings = {}
     error_message = []
 
@@ -396,7 +399,7 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
     for i in range(1,batch_size + 1):
         next_batch += 100000 
         if next_batch > len(bulk_list):
-            next_batch = len(bulk_list) - 1
+            next_batch = len(bulk_list)
             i = batch_size + 1
         IndicatorDatapoint.objects.bulk_create(list(bulk_list)[previous_batch : next_batch])
         print("Num ", i)
