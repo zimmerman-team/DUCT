@@ -24,9 +24,6 @@ sudo sh bin/setup/install_dependencies.sh
 ```
 
 Install a python virtual environment
-
-## virtualenv
-
 ```
 sudo apt-get install python-pip;
 sudo pip install virtualenvwrapper;  
@@ -64,3 +61,7 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
+Eventually, you could add your modifications to the Django configuration in a new file at ZOOM/local_settings.py 
+
+
+After all this, you can access the admin area at localhost:8000/admin/. There's not much to see in the admin area, all actions actually happen from the ZOOM end instead of the ZOOM-CSV-MAPPER. To link ZOOM to the CSV-MAPPER, change the url in your ZOOM repo at /app/server/config/urls.js .
