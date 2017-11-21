@@ -1,7 +1,5 @@
 from django.core.management.base import BaseCommand
-from django.contrib.postgres.search import SearchVector
-from indicator.models import IndicatorDatapoint
-
+from indicator.search_vector_update import update_all_unset
 
 class Command(BaseCommand):
     """
@@ -13,11 +11,4 @@ class Command(BaseCommand):
       IndicatorDatapoint.objects.update(search_vector_text=vector)
     """
     def handle(self, *args, **options):
-      vector=SearchVector('indicator', weight='A') + SearchVector('country__name', weight='B')
-      count = 0
-      for datapoint in IndicatorDatapoint.objects.filter(search_vector_text=None).prefetch_related("country").annotate(vector_text=vector):
-          datapoint.search_vector_text = datapoint.vector_text
-          datapoint.save(update_fields=['search_vector_text'])
-          count += 1
-          if count % 1000 == 0:
-            break
+      update_all_unset()
