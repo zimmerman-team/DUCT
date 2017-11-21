@@ -14,8 +14,11 @@ from django.utils import timezone
 from geodata import models as geo_models
 from file_upload.models import File
 
-#Basic data store for the test file being used
+from django.contrib.postgres.search import SearchVectorField
+from django.contrib.postgres.indexes import GinIndex
 
+
+#Basic data store for the test file being used
 
 class Indicator(models.Model):
     id = models.CharField(max_length=255, primary_key=True)
@@ -64,9 +67,9 @@ class MeasureValue(models.Model):
     name = models.CharField(max_length = 100)
     value_type= models.CharField(max_length=50)#might not need
     value = models.DecimalField(max_digits=20, decimal_places = 5)
+
+
 #other
-
-
 class IndicatorDatapoint(models.Model):
     file = models.ForeignKey(File)
     date_created = models.DateTimeField(default=timezone.now)
@@ -80,6 +83,12 @@ class IndicatorDatapoint(models.Model):
     #changed from foreign key to  Decimal and then to CharField as Pandas.to_sql didn't save properly
     measure_value = models.CharField(max_length=40, blank=True, null=True) #models.DecimalField(max_digits=20, decimal_places = 5)#for now leave as char #models.ForeignKey(MeasureValue) # might need more for accuracy
     other = models.CharField(max_length=600, blank=True, null=True) #found instance where it ius bigger than 500 
+    search_vector_text = SearchVectorField(null=True)
+
+    class Meta:
+        indexes = [
+            GinIndex(fields=['search_vector_text'])
+        ]
 
 
 #the mapping betweeen coulmns in the datastore and HXL tags

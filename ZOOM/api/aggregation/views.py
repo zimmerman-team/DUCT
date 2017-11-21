@@ -69,7 +69,6 @@ class AggregationView(GenericAPIView):
         page = params.get('page', None)
 
         result['results'] = self.apply_limit_offset_filters(result['results'], page_size, page)
-        print("agg results ", result)
         return Response(result)
 
 
