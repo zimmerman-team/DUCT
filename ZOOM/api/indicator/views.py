@@ -33,7 +33,9 @@ class IndicatorList(ListAPIView):
 
     fields = (
         'id',
-        'description'
+        'description',
+        'count',
+        'file_source'
     )
 
 

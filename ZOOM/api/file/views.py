@@ -87,10 +87,8 @@ class FileDetailView(RetrieveUpdateDestroyAPIView):
     def delete(self, request, *args, **kwargs):
 
         file_object = self.get_object()
-        print(file_object)
         file_dtypes = FileDtypes.objects.filter(file=file_object)
-        print(file_dtypes)
-
+        
         for i in file_dtypes:
             path = i.dtype_name
             if path:

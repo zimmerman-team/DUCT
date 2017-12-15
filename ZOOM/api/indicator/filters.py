@@ -65,6 +65,8 @@ class IndicatorFilter(FilterSet):
         fields = (
             'id',
             'description',
+            'count',
+            'file_source'
         )
 
 

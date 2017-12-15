@@ -19,6 +19,7 @@ from lib.tools import check_column_data_type, correct_data, convert_df
 from lib.common import get_file_data, get_dtype_data, save_mapping, get_dictionaries
 from file_upload.models import File
 from validate.validator import generate_error_data, save_validation_data
+from api.indicator.views import reset_mapping
 import time
 
 def manual_mapper(data):
@@ -374,6 +375,7 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
         dicts ([str:{str:Model}]): list of dictionaries containing foreign keys.
     """
 
+    file_source = df_data['file'][0].data_source 
     ind_dict, ind_cat_dict, ind_source_dict, ind_country_dict = dicts
     df_data[index_order['indicator_category']] = df_data[index_order['indicator']] + df_data[index_order['indicator_category']]
     df_data[index_order['indicator_category']] = df_data[index_order['indicator_category']].map(ind_cat_dict)
@@ -405,5 +407,27 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
         print("Num ", i)
         print("Previous batch ", previous_batch)
         print("Next batch ", next_batch)
-        bulk_list[previous_batch:next_batch] = None
+        bulk_list[previous_batch:next_batch] = None #release memory
         previous_batch = next_batch
+
+    for i in ind_dict:
+        ind_dict[i].count = IndicatorDatapoint.objects.filter(indicator=(ind_dict[i])).count()
+        ind_dict[i].file_source = file_source
+        ind_dict[i].save()
+        x.all()
+
+'''Remaps all files that have been mapped'''
+def remap_all_files():
+    #from django.http import QueryDict
+    #dict = {'a': 'one', 'b': 'two', }
+    #qdict = QueryDict('', mutable=True)
+    #qdict.update(dict)
+
+    files = File.objects.all()
+    for file in files:
+        if file.status == 5:
+            context = {'data':{'file': str(file.id)}}
+            reset_mapping(json.dumps(context, ensure_ascii=False))#encoding error
+            context = {'data' : {'file_id' : str(file.id), 'dict' : json.loads(file.mapping_used)}}
+            manual_mapper(context)
+

@@ -12,7 +12,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from geodata import models as geo_models
-from file_upload.models import File
+from file_upload.models import File, FileSource
 
 from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import GinIndex
@@ -23,7 +23,8 @@ from django.contrib.postgres.indexes import GinIndex
 class Indicator(models.Model):
     id = models.CharField(max_length=255, primary_key=True)
     description = models.TextField(null=True, blank=True)
-    #source = models.ForeignKey(IndicatorSource, null=True, blank=True)
+    count = models.IntegerField(default=0, null=True)
+    file_source = models.ForeignKey(FileSource, null=True, blank=True)
     #category = models.ForeignKey(IndicatorCategory, null=True, blank=True)
 
 
@@ -78,7 +79,7 @@ class IndicatorDatapoint(models.Model):
     indicator_category = models.ForeignKey(IndicatorCategory, blank=True, null=True)
     unit_of_measure = models.CharField(max_length=50, blank=True, null=True)
     country = models.ForeignKey(geo_models.Country, blank=True, null=True)#should be a foreign key to GeoData
-    date_value = models.CharField(max_length=20, blank=True, null=True) #changed from DecimalField #models.DecimalField(max_digits=20, decimal_places = 5) # identify timezone?
+    date_value = models.CharField(max_length=4, blank=True, null=True) #changed from DecimalField #models.DecimalField(max_digits=20, decimal_places = 5) # identify timezone?
     source = models.ForeignKey(IndicatorSource, blank=True, null=True)
     #changed from foreign key to  Decimal and then to CharField as Pandas.to_sql didn't save properly
     measure_value = models.CharField(max_length=40, blank=True, null=True) #models.DecimalField(max_digits=20, decimal_places = 5)#for now leave as char #models.ForeignKey(MeasureValue) # might need more for accuracy
@@ -101,3 +102,12 @@ class IndicatorDatapoint(models.Model):
 class HXLtags(models.Model):
     id = models.CharField(max_length = 50, primary_key=True)
     value_type = models.CharField(max_length = 40)"""
+
+
+def update_indicator_counts():
+    indicators = Indicator.objects.all()
+    for ind in indicators:
+        filterInd = IndicatorDatapoint.objects.filter(indicator=ind)
+        ind.count = filterInd.count()
+        ind.file_source = filterInd[0].file.data_source
+        ind.save()
