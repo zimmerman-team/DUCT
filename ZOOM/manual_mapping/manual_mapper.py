@@ -414,7 +414,6 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
         ind_dict[i].count = IndicatorDatapoint.objects.filter(indicator=(ind_dict[i])).count()
         ind_dict[i].file_source = file_source
         ind_dict[i].save()
-        x.all()
 
 '''Remaps all files that have been mapped'''
 def remap_all_files():
