@@ -10,7 +10,45 @@ WB = "World Bank"
 CRS = "CRS"
 file_dict = {
 				WB:{}, 
-				CRS:{tag:"CRS", source:"CRS", mapping:[], input_path:"CRS/input/", output_path:"CRS/output/", headings:[] }
+				CRS:{	
+						tag:"CRS", 
+						source:"CRS", 
+						mapping:[], 
+						input_path:"CRS/input/", 
+						output_path:"CRS/output/", 
+						columns:[
+							"Indicator",
+							"Year",
+							"DonorName",	
+							"RecipientName",
+							"IncomegroupName",
+							"FlowName",
+							"Finance_t",
+							"Aid_t",
+							"usd_commitment",
+							"usd_disbursement",	
+							"usd_commitment_defl",
+							"usd_disbursement_defl",	
+							"CurrencyCode",
+							"PurposeName",
+							"SectorName"
+						],
+						nice_name:{
+							"Year": "Year",
+							"DonorName": "Donor",	
+							"RecipientName": "Recipient",
+							"IncomegroupName": "Income Group",
+							"FlowName": "Flow Name",
+							"Finance_t": "Finance type",
+							"Aid_t": "Aid type",
+							"usd_commitment": "commitment",
+							"usd_disbursement": "disbursement",	
+							"usd_commitment_defl": "commitment defl",
+							"usd_disbursement_defl": "disbursement defl",	
+							"CurrencyCode": "Currency Code",
+							"PurposeName": "Purpose",
+							"SectorName": "Sector"
+						} }
 			}
 file_list = [WB, CRS]
 character_sep = {WB: ",", CRS: "|"}
@@ -28,33 +66,37 @@ def main():
 			sys.exit()
 
 	convert_data(file_choice)
-	start_mapping(file_choice)
+	if(file_choice == CRS):
+		flatten_data()
+	
+	#start_mapping(file_choice)
 
 def start_mapping(file_choice):
-	global file _list
+	global file_list
 
 	file_list = os.listdir(file_dict[file_choice].input_path)
 	counter = 0
 
 	for file_name in file_list:
-		print("-------------------------")
-		print("Mapping File", file_name)
-		File(title=)
-		title = models.CharField(max_length=100)
-	    description = models.TextField(null=False, blank=False)
-	    tags = models.ManyToManyField(FileTag)
-	    data_source = models.ForeignKey(FileSource, null=True, on_delete=models.SET_NULL)
-	    in_progress = models.BooleanField(default=False)
-	    source_url = models.URLField(null=True, max_length=2000)
-	    file = models.FileField(upload_to=upload_to)
-	    file_name = models.CharField(max_length = 200, default="default")
-	    created = models.DateTimeField(auto_now_add=True, null=True)
-	    modified = models.DateTimeField(auto_now=True, null=True)
-	    rendered = models.BooleanField(default=False)
-	    status = models.IntegerField(default=1)
-	    authorised = models.BooleanField(default=False, db_index=True)
-	    mapping_used = models.CharField(max_length=100000, null=True, blank=True)
-
+		print("oi")
+		"""print("-------------------------")
+								print("Mapping File", file_name)
+								File(title=)
+								title = models.CharField(max_length=100)
+							    description = models.TextField(null=False, blank=False)
+							    tags = models.ManyToManyField(FileTag)
+							    data_source = models.ForeignKey(FileSource, null=True, on_delete=models.SET_NULL)
+							    in_progress = models.BooleanField(default=False)
+							    source_url = models.URLField(null=True, max_length=2000)
+							    file = models.FileField(upload_to=upload_to)
+							    file_name = models.CharField(max_length = 200, default="default")
+							    created = models.DateTimeField(auto_now_add=True, null=True)
+							    modified = models.DateTimeField(auto_now=True, null=True)
+							    rendered = models.BooleanField(default=False)
+							    status = models.IntegerField(default=1)
+							    authorised = models.BooleanField(default=False, db_index=True)
+							    mapping_used = models.CharField(max_length=100000, null=True, blank=True)
+						"""
 """Year: Date Value
 DonorName:	Category	
 CRSid category UID
@@ -89,12 +131,30 @@ def convert_data(file_choice):
 	
 	for file_name in file_list:
 	    data = pd.read_csv(file_dict[file_choice].input_path + file_name, sep=character_sep[file_choice])
+    	
+    	data = data[file_dict[file_choice].columns]
+    	data.rename(file_dict[file_choice].nice_name, inplace=True)
     	##check column width and size an split accoringly
     	data.to_csv(file_dict[file_choice].output_path + file_name[:-4]+".csv", sep=',', index = False)
     	sys.stdout.write("\r%d%%" % ((counter/len(file_list)) * 100) )
 
 	sys.stdout.flush()
 	#print("All files converted")
+
+def flatten_data():
+	global character_sep, file_dict
+	file_list = os.listdir(file_dict[file_choice].input_path)
+	counter = 0
+	print("Begining Conversion")
+	
+	for file_name in file_list:
+	    data = pd.read_csv(file_dict[file_choice].input_path + file_name, sep=character_sep[file_choice])
+
+    	##check column width and size an split accoringly
+    	data.to_csv(file_dict[file_choice].output_path + file_name[:-4]+".csv", sep=',', index = False)
+    	sys.stdout.write("\r%d%%" % ((counter/len(file_list)) * 100) )
+
+	sys.stdout.flush()
 
 def mapping(mapping_dict, file):
 	print("Begining Mapping ", file)
