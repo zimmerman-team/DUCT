@@ -59,6 +59,10 @@ class IndicatorDataFilter(FilterSet):
 class IndicatorFilter(FilterSet):
 
     file__authorised = BooleanFilter(name='indicatordatapoint__file__authorised')
+    
+    file_source__name = CommaSeparatedStickyCharFilter(
+        name='file_source__name',
+        lookup_expr='in')
 
     class Meta:
         model = Indicator

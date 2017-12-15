@@ -12,12 +12,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from geodata import models as geo_models
-<<<<<<< HEAD
 from file_upload.models import File, FileSource
-=======
-from file_upload.models import File
->>>>>>> 6e3d6e4d5c78916c4d3e3301f2a18dbaa98fb889
-
 from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import GinIndex
 
@@ -27,12 +22,8 @@ from django.contrib.postgres.indexes import GinIndex
 class Indicator(models.Model):
     id = models.CharField(max_length=255, primary_key=True)
     description = models.TextField(null=True, blank=True)
-<<<<<<< HEAD
     count = models.IntegerField(default=0, null=True)
     file_source = models.ForeignKey(FileSource, null=True, blank=True)
-=======
-    #source = models.ForeignKey(IndicatorSource, null=True, blank=True)
->>>>>>> 6e3d6e4d5c78916c4d3e3301f2a18dbaa98fb889
     #category = models.ForeignKey(IndicatorCategory, null=True, blank=True)
 
 
