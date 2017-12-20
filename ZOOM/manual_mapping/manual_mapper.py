@@ -19,6 +19,7 @@ from lib.tools import check_column_data_type, correct_data, convert_df
 from lib.common import get_file_data, get_dtype_data, save_mapping, get_dictionaries
 from file_upload.models import File
 from validate.validator import generate_error_data, save_validation_data
+from api.indicator.views import reset_mapping
 import time
 
 def manual_mapper(data):
@@ -43,6 +44,9 @@ def manual_mapper(data):
         error_data, dtypes_dict = get_dtype_data(file_id)
         print("Begining Mapping")
         print (time.strftime("%H:%M:%S"))
+        print(relationship_dict)
+        print(left_over_dict)
+
         ###If column mapped to multiple sections in data model
         if relationship_dict:
             relationship_dict = clean_data(relationship_dict, "~", " ")
@@ -63,7 +67,7 @@ def manual_mapper(data):
         if relationship_dict:
             #check if unit of measure exists
 
-            df_data = convert_df(mappings, relationship_dict, left_over_dict, df_data, dtypes_dict, unit_of_measure_value)
+            df_data, dtypes_dict, mappings = convert_df(mappings, relationship_dict, left_over_dict, df_data, dtypes_dict, unit_of_measure_value)
 
         print("Validating data")
         for key in mappings:
@@ -256,7 +260,7 @@ def check_mapping_dtypes(mappings, dtypes_dict):
         correction_mappings ({str:(str,str)}): the conversion needed for each file heading.
         context ({str:[data]}): the information displayed to the user if mapping is bad.
     """
-
+    print("Checking data types")
     correction_mappings = {}
     error_message = []
 
@@ -371,6 +375,7 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
         dicts ([str:{str:Model}]): list of dictionaries containing foreign keys.
     """
 
+    file_source = df_data['file'][0].data_source 
     ind_dict, ind_cat_dict, ind_source_dict, ind_country_dict = dicts
     df_data[index_order['indicator_category']] = df_data[index_order['indicator']] + df_data[index_order['indicator_category']]
     df_data[index_order['indicator_category']] = df_data[index_order['indicator_category']].map(ind_cat_dict)
@@ -396,11 +401,32 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
     for i in range(1,batch_size + 1):
         next_batch += 100000 
         if next_batch > len(bulk_list):
-            next_batch = len(bulk_list) - 1
+            next_batch = len(bulk_list)
             i = batch_size + 1
         IndicatorDatapoint.objects.bulk_create(list(bulk_list)[previous_batch : next_batch])
         print("Num ", i)
         print("Previous batch ", previous_batch)
         print("Next batch ", next_batch)
-        bulk_list[previous_batch:next_batch] = None
+        bulk_list[previous_batch:next_batch] = None #release memory
         previous_batch = next_batch
+
+    for i in ind_dict:
+        ind_dict[i].count = IndicatorDatapoint.objects.filter(indicator=(ind_dict[i])).count()
+        ind_dict[i].file_source = file_source
+        ind_dict[i].save()
+
+'''Remaps all files that have been mapped'''
+def remap_all_files():
+    #from django.http import QueryDict
+    #dict = {'a': 'one', 'b': 'two', }
+    #qdict = QueryDict('', mutable=True)
+    #qdict.update(dict)
+
+    files = File.objects.all()
+    for file in files:
+        if file.status == 5:
+            context = {'data':{'file': str(file.id)}}
+            reset_mapping(json.dumps(context, ensure_ascii=False))#encoding error
+            context = {'data' : {'file_id' : str(file.id), 'dict' : json.loads(file.mapping_used)}}
+            manual_mapper(context)
+

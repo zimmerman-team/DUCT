@@ -8,6 +8,21 @@ from django_filters import BooleanFilter
 from rest_framework import filters
 
 
+class SearchFilter(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+
+        query = request.query_params.get('q', None)
+        query_lookup = request.query_params.get('q_lookup', None)
+        lookup_expr = 'exact' #'ft'
+        if query_lookup:
+            lookup_expr = query_lookup
+
+        if query:
+            return queryset.filter(**{'search_vector_text__{0}'.format(lookup_expr): query})
+
+        return queryset
+
+
 class IndicatorDataFilter(FilterSet):
 
     indicator_category__name = CommaSeparatedStickyCharFilter(
@@ -37,20 +52,27 @@ class IndicatorDataFilter(FilterSet):
             'country__region',
             'country__name',
             'measure_value',
-            'unit_of_measure',
+            'unit_of_measure'
         )
 
 
 class IndicatorFilter(FilterSet):
 
     file__authorised = BooleanFilter(name='indicatordatapoint__file__authorised')
+    
+    file_source__name = CommaSeparatedStickyCharFilter(
+        name='file_source__name',
+        lookup_expr='in')
 
     class Meta:
         model = Indicator
         fields = (
             'id',
             'description',
+            'count',
+            'file_source'
         )
+
 
 class IndicatorCategoryDataFilter(FilterSet):
 

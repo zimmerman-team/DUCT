@@ -10,7 +10,7 @@ from rest_framework.decorators import api_view
 from file_upload.models import File
 from indicator.models import IndicatorDatapoint, Indicator, IndicatorCategory
 from api.indicator.serializers import IndicatorSerializer, IndicatorDataSerializer, IndicatorCategorySerializer
-from api.indicator.filters import IndicatorFilter, IndicatorDataFilter, IndicatorCategoryDataFilter
+from api.indicator.filters import IndicatorFilter, IndicatorDataFilter, IndicatorCategoryDataFilter, SearchFilter
 from api.aggregation.views import AggregationView, Aggregation, GroupBy
 from api.generics.views import DynamicListView
 
@@ -33,7 +33,9 @@ class IndicatorList(ListAPIView):
 
     fields = (
         'id',
-        'description'
+        'description',
+        'count',
+        'file_source'
     )
 
 
@@ -171,7 +173,7 @@ class IndicatorDataAggregations(AggregationView):
 
     queryset = IndicatorDatapoint.objects.all()
 
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (SearchFilter, DjangoFilterBackend,)
     filter_class = IndicatorDataFilter
 
     allowed_aggregations = (

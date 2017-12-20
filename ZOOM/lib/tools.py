@@ -320,6 +320,8 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
 
     Returns: 
         new_df (Dataframe): newly formatted dataframe.
+        dtypes_dict ({str:str}): stores the data-types found for each heading.
+        mappings ({str:[str]}): the users chosen mappings for a file column.
     """
 
     if not empty_unit_measure_value:
@@ -346,9 +348,9 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
 
     for col in relationship_dict:
         if relationship_dict[col] == "date_value":
-            dtypes_dict[relationship_dict[col]] = [["date", "100%"]]
+            dtypes_dict[relationship_dict[col]] = [("date", "100%")]
         else:
-            dtypes_dict[relationship_dict[col]] = [["text", "100%"]]
+            dtypes_dict[relationship_dict[col]] = [("text", "100%")]
 
         ###################Need to combine datatypes for each
         dtypes_dict[left_over_dict[col]] = dtypes_dict[col]
@@ -362,7 +364,7 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
         if col in mappings["indicator_category"] and len(mappings["indicator_category"]) > 1:
             tmp_df[relationship_dict[col]] = tmp_df[relationship_dict[col]] + "|" + (col)
             tmp_df[left_over_dict[col]] = tmp_df[col]
-            
+
         else:#normal case
             tmp_df[relationship_dict[col]] = col
             tmp_df[left_over_dict[col]] = tmp_df[col]
@@ -370,8 +372,11 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
         if col in empty_unit_measure_value:
             tmp_df["unit_of_measure"] = empty_unit_measure_value[col]
         new_df = new_df.append(tmp_df)
+
+        mappings[relationship_dict[col]] = relationship_dict[col]
+        mappings[left_over_dict[col]] = left_over_dict[col] 
     
-    return new_df.reset_index()#filter by columns needed
+    return new_df.reset_index(), dtypes_dict, mappings#filter by columns needed
 
 def check_file_type(file_name):
     name = file_name.lower()

@@ -130,13 +130,14 @@ class IndicatorDataSerializer(serializers.ModelSerializer):
 
 
 class IndicatorSerializer(serializers.ModelSerializer):
-
-
+    file_source = FileSourceSerializer()
     class Meta:
         model = indicator_models.Indicator
         fields = (
             'id',
             'description',
+            'count',
+            'file_source'
         )
 
 

@@ -12,20 +12,23 @@ from django.conf import settings
 from django.utils import timezone
 
 from geodata import models as geo_models
-from file_upload.models import File
+from file_upload.models import File, FileSource
+from django.contrib.postgres.search import SearchVectorField
+from django.contrib.postgres.indexes import GinIndex
+
 
 #Basic data store for the test file being used
-
 
 class Indicator(models.Model):
     id = models.CharField(max_length=255, primary_key=True)
     description = models.TextField(null=True, blank=True)
-    #source = models.ForeignKey(IndicatorSource, null=True, blank=True)
+    count = models.IntegerField(default=0, null=True)
+    file_source = models.ForeignKey(FileSource, null=True, blank=True)
     #category = models.ForeignKey(IndicatorCategory, null=True, blank=True)
 
 
 class IndicatorCategory(models.Model):
-    unique_identifier = models.CharField(max_length=255, unique=True)
+    unique_identifier = models.CharField(max_length=500, unique=True)
     name = models.CharField(max_length=255, default=None)#adding default to make transition from old to model to new model error free 
     code = models.CharField(max_length=50)
     indicator = models.ForeignKey(Indicator,null=False, blank=False)
@@ -64,22 +67,28 @@ class MeasureValue(models.Model):
     name = models.CharField(max_length = 100)
     value_type= models.CharField(max_length=50)#might not need
     value = models.DecimalField(max_digits=20, decimal_places = 5)
+
+
 #other
-
-
 class IndicatorDatapoint(models.Model):
     file = models.ForeignKey(File)
     date_created = models.DateTimeField(default=timezone.now)
     date_format = models.ForeignKey(Time, blank=True, null=True)
     indicator = models.ForeignKey(Indicator, blank=True, null=True)
     indicator_category = models.ForeignKey(IndicatorCategory, blank=True, null=True)
-    unit_of_measure = models.CharField(max_length=20, blank=True, null=True)
+    unit_of_measure = models.CharField(max_length=50, blank=True, null=True)
     country = models.ForeignKey(geo_models.Country, blank=True, null=True)#should be a foreign key to GeoData
     date_value = models.CharField(max_length=20, blank=True, null=True) #changed from DecimalField #models.DecimalField(max_digits=20, decimal_places = 5) # identify timezone?
     source = models.ForeignKey(IndicatorSource, blank=True, null=True)
     #changed from foreign key to  Decimal and then to CharField as Pandas.to_sql didn't save properly
     measure_value = models.CharField(max_length=40, blank=True, null=True) #models.DecimalField(max_digits=20, decimal_places = 5)#for now leave as char #models.ForeignKey(MeasureValue) # might need more for accuracy
     other = models.CharField(max_length=600, blank=True, null=True) #found instance where it ius bigger than 500 
+    search_vector_text = SearchVectorField(null=True)
+
+    class Meta:
+        indexes = [
+            GinIndex(fields=['search_vector_text'])
+        ]
 
 
 #the mapping betweeen coulmns in the datastore and HXL tags
@@ -92,3 +101,11 @@ class IndicatorDatapoint(models.Model):
 class HXLtags(models.Model):
     id = models.CharField(max_length = 50, primary_key=True)
     value_type = models.CharField(max_length = 40)"""
+
+def update_indicator_counts():
+    indicators = Indicator.objects.all()
+    for ind in indicators:
+        filterInd = IndicatorDatapoint.objects.filter(indicator=ind)
+        ind.count = filterInd.count()
+        ind.file_source = filterInd[0].file.data_source
+        ind.save()
