@@ -1,3 +1,4 @@
+
 # Django settings for OIPA project.
 import sys
 import os
@@ -187,3 +188,4 @@ CORS_ALLOW_METHODS = ('GET','PUT', 'PATCH', 'DELETE')
 
 ERROR_LOGS_ENABLED = True
 DEFAULT_LANG = None
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240

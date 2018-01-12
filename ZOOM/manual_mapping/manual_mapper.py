@@ -33,8 +33,9 @@ def manual_mapper(data):
         bulk_list = []
         file_id = data['file_id']
         mappings = data['dict']
+        print("--------------Mappings--------------")
+        print(mappings)
         save_mapping(file_id, mappings)
-
         unit_of_measure_value = mappings.pop("empty_unit_of_measure", None)
         empty_values_array = [mappings.pop("empty_indicator", None), mappings.pop("empty_country", None), mappings.pop("empty_indicator_cat", None),
                                 unit_of_measure_value, mappings.pop("empty_date", None)]

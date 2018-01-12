@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
 from file_upload.models import File
-from indicator.models import IndicatorDatapoint, Indicator, IndicatorCategory
+from indicator.models import IndicatorDatapoint, Indicator, IndicatorCategory, update_indicator_counts
 from api.indicator.serializers import IndicatorSerializer, IndicatorDataSerializer, IndicatorCategorySerializer
 from api.indicator.filters import IndicatorFilter, IndicatorDataFilter, IndicatorCategoryDataFilter, SearchFilter
 from api.aggregation.views import AggregationView, Aggregation, GroupBy
@@ -20,8 +20,8 @@ def reset_mapping(request):
     file = File.objects.get(id=request.data['file_id'])
     indicators = IndicatorDatapoint.objects.filter(file=file)
     #foreign keys 
-
     indicators.delete()
+    update_indicator_counts()
     return Response({"success":1})
 
 

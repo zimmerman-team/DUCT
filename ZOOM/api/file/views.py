@@ -44,6 +44,7 @@ class FileListView(ListCreateAPIView):
 
 @api_view(['POST'])
 def update_status(request):
+    print("File status ")
     file = File.objects.get(id=request.data['file_id'])
     file.status = request.data['status']
     file.save()
