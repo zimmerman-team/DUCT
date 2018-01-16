@@ -109,7 +109,6 @@ class FileDtypes(models.Model):
     file = models.OneToOneField("File", null=True)
     #include method that deletes physical file if row deleted
 
-
 def check_files():
     """Deletes files not saved in data model."""
 
@@ -119,8 +118,24 @@ def check_files():
 
     for file_ob in file_objects:
         found_files.append(str(file_ob.file))
-        found_tmpfiles.append(str(FileDtypes.objects.get(file=file_ob).dtype_name))
-        found_tmpfiles.append(str(FileDtypes.objects.get(file=file_ob).dtype_dict_name))
+
+        if FileDtypes.objects.filter(file=file_ob).count() > 0:
+            try:
+                found_tmpfiles.append(str(FileDtypes.objects.get(file=file_ob).dtype_name))
+            except Exception:#make more specfic
+                print(file_ob.title, ", Error, can't find dtype_name")
+            
+            try:
+                found_tmpfiles.append(str(FileDtypes.objects.get(file=file_ob).dtype_dict_name))
+            except Exception:
+                print(file_ob.title, ", Error, can't find dtype_dict_name")
+        else:
+            if(file_ob.status == 5):##shouldn't happen, means no mapping saved for mapped file
+                os.remove(file_ob.file)
+                file_ob.delete()
+
+            ##check are they mapped
+
 
     found_files = set(found_files)
     found_tmpfiles = set(found_tmpfiles)
@@ -144,10 +159,34 @@ def check_files():
                 os.remove(j)
                 count = count + 1
                 
-    print("Removed files: ", count, "!")
-    #Cycle through files
-    #get all files, validation results and tmp_files
+    print("Removed files: ", count)
 
-    #get all files in directories
-    #get boolean list of files existing
-    #remove files flagged as false from directories 
+def remove_unmapped_files():
+    """Deletes files that have not been mapped."""
+
+    count = 0
+    file_objects = File.objects.all()
+    for file_ob in file_objects:
+        if file_ob.status < 5:
+            
+            try:
+                os.remove(str(file_ob.file))
+            except Exception: #shuld,'t happen'
+                print("No file, ", file_ob)
+
+            if FileDtypes.objects.filter(file=file_ob).count() > 0:
+                try:
+                    os.remove(str(FileDtypes.objects.get(file=file_ob).dtype_name))
+                except Exception:#make more specfic
+                    print(file_ob.title, ", Error, can't find dtype_name")
+                
+                try:
+                    os.remove(str(FileDtypes.objects.get(file=file_ob).dtype_dict_name))
+                except Exception:
+                    print(file_ob.title, ", Error, can't find dtype_dict_name")
+                FileDtypes.objects.get(file=file_ob).delete()
+
+            file_ob.delete()
+            count += 1
+                
+    print("Removed: ", count)

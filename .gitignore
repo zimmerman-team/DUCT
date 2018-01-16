@@ -10,6 +10,8 @@ ZOOM/ZOOM/local_settings.py
 ZOOM/ZOOM/local_settings.pyc
 ZOOM/media/
 ZOOM/static_served/*
+ZOOM/scripts/formatters/CRS/*
+ZOOM/scripts/fromatters/World_Bank/*
 
 *.pyc
 *.swp

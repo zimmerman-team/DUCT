@@ -109,3 +109,10 @@ def update_indicator_counts():
         ind.count = filterInd.count()
         ind.file_source = filterInd[0].file.data_source
         ind.save()
+
+def clean_up_indicators():
+    indicators = Indicator.objects.all()
+    for ind in indicators:
+        filterInd = IndicatorDatapoint.objects.filter(indicator=ind)
+        if filterInd.count() == 0:
+            ind.delete()

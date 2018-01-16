@@ -452,7 +452,7 @@ def get_line_index(line_records, line_no):
 #from file_upload.models import File
 
 URL="http://127.0.0.1:8000/api/"
-WB = "World Bank"
+WB = "World_Bank"
 CRS = "CRS"
 DEFAULT_INDICATOR_COLUMN = "indicator" 
 file_dict = {
