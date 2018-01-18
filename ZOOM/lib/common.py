@@ -145,7 +145,10 @@ def get_headings_data_model(df_file):
     print((time.strftime("%H:%M:%S")))
     
     data_model_headings = data_model_headings[4:len(data_model_headings)]
-    data_model_headings = filter(lambda x: "search_vector_text" != x, data_model_headings)
+    data_model_headings = filter(lambda x: "search_vector_text" != x and
+                                            "date_format" != x and
+                                            "date_created" != x and
+                                            "file" != x, data_model_headings)
     remaining_mapping = data_model_headings    
     zip_list = zip(file_heading_list, dtypes_list, validation_results)
     summary_results = file_heading_list##change this to add hover for file heading
