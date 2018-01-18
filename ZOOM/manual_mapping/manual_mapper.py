@@ -358,25 +358,37 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
     df_data = df_data[reverse_mapping.keys()]#should do this earlier
     df_data = df_data.rename(index=str, columns=reverse_mapping)#rename columns to data model
     df_data.drop(['indicator_filter'])
-    data_to_save = df_data.to_dict(orient='records') 
-    
-    f = (lambda x: IndicatorDatapoint(**x) )
-    vfunc = np.vectorize(f)
-    bulk_list = vfunc(np.array(data_to_save))
-    print("Bulk saving")
 
-    batch_size = int(math.ceil(len(bulk_list)/100000))
-    print(len(bulk_list))
-    print(len(bulk_list)/100000)
-    print(batch_size)
+    #### Move this inside the loop to cut down on computaional time/resources ####
+    
+    #### 
+
+    batch_size = int(math.ceil(df_data['indicator'].size/100000))
+    print(df_data['indicator'].size/100000, " batches")
     previous_batch = 0
     next_batch = 0
-    for i in range(1,batch_size + 1):
+    ##last index of IndicatorDataPoint
+
+    for i in range(1, df_data['indicator'].size + 1):
         next_batch += 100000 
-        if next_batch > len(bulk_list):
-            next_batch = len(bulk_list)
+        if next_batch > df_data['indicator'].size:
+            next_batch = df_data['indicator'].size
             i = batch_size + 1
-        IndicatorDatapoint.objects.bulk_create(list(bulk_list)[previous_batch : next_batch])
+
+        data_to_save = df_data[previous_batch:next_batch].to_dict(orient='records') 
+        f1 = (lambda x: IndicatorDatapoint(**x) )
+        f2 = (lambda x: IndicatorFilter (**x))
+        vfunc = np.vectorize(f1)
+        bulk_list = vfunc(np.array(data_to_save))
+        print("Bulk saving")
+        IndicatorDatapoint.objects.bulk_create(list(bulk_list))
+        #save indicator filters
+        bulk_list
+        IndicatorFilter.objects.bulk_create(list())
+
+        df_data[previous_batch:next_batch] = np.nan
+        bulk_list = []
+        
         print("Num ", i)
         print("Previous batch ", previous_batch)
         print("Next batch ", next_batch)
@@ -387,6 +399,7 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
         ind_dict[i].count = IndicatorDatapoint.objects.filter(indicator=(ind_dict[i])).count()
         ind_dict[i].file_source = file_source
         ind_dict[i].save()
+
 
 '''Saves a dataframe temporarily'''
 def temp_save_file(df_data):
