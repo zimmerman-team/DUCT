@@ -109,6 +109,9 @@ def manual_mapper(data):
                         & df_data[index_order['measure_value']].notnull() & df_data[index_order['country']].notnull())
         
         df_data = df_data[filter_applied].reset_index()
+        #Convert all dates to numbers
+        df_data[index_order['date_value']] = pd.to_numeric(df_data[index_order['date_value']]).astype(int)
+        
         file = File.objects.get(id=file_id)
         index_order['file'] = "file"
         reverse_mapping['file'] = "file"
