@@ -1,6 +1,6 @@
 from django_filters import Filter, FilterSet
 from api.generics.filters import CommaSeparatedCharFilter
-from indicator.models import Indicator, IndicatorDatapoint, IndicatorCategory
+from indicator.models import Indicator, IndicatorDatapoint#, IndicatorCategory
 
 from api.generics.filters import CommaSeparatedCharFilter
 from api.generics.filters import CommaSeparatedStickyCharFilter
@@ -25,9 +25,9 @@ class SearchFilter(filters.BaseFilterBackend):
 
 class IndicatorDataFilter(FilterSet):
 
-    indicator_category__name = CommaSeparatedStickyCharFilter(
-        name='indicator_category__name',
-        lookup_expr='in')
+    #indicator_category__name = CommaSeparatedStickyCharFilter(
+    #    name='indicator_category__name',
+    #    lookup_expr='in')
 
     file__authorised = BooleanFilter(name='file__authorised')
 
@@ -43,8 +43,8 @@ class IndicatorDataFilter(FilterSet):
             'file__authorised',
             'file__source',
             'date_format',
-            'indicator_category',
-            'indicator_category__name',
+            #'indicator_category',
+            #'indicator_category__name',
             'indicator',
             'country',
             'date_value',
@@ -74,7 +74,7 @@ class IndicatorFilter(FilterSet):
         )
 
 
-class IndicatorCategoryDataFilter(FilterSet):
+"""class IndicatorCategoryDataFilter(FilterSet):
 
     file__authorised = BooleanFilter(name='indicator__indicatordatapoint__file__authorised')
 
@@ -97,3 +97,4 @@ class IndicatorCategoryDataFilter(FilterSet):
             'parent',
             'indicator',
         )
+"""

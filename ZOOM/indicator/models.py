@@ -27,13 +27,13 @@ class Indicator(models.Model):
     #category = models.ForeignKey(IndicatorCategory, null=True, blank=True)
 
 
-class IndicatorCategory(models.Model):
+"""class IndicatorCategory(models.Model):
     unique_identifier = models.CharField(max_length=500, unique=True)
     name = models.CharField(max_length=255, default=None)#adding default to make transition from old to model to new model error free 
     code = models.CharField(max_length=50)
     indicator = models.ForeignKey(Indicator,null=False, blank=False)
     parent = models.ForeignKey('self', related_name='child', null=True, blank=True)#need child and parent to ensure consistency, ie each entry point to a unique entry
-    level = models.IntegerField(default=0)
+    level = models.IntegerField(default=0)"""
 
 class IndicatorSource(models.Model):
     id = models.CharField(max_length=500, primary_key=True)
@@ -75,7 +75,7 @@ class IndicatorDatapoint(models.Model):
     date_created = models.DateTimeField(default=timezone.now)
     date_format = models.ForeignKey(Time, blank=True, null=True)
     indicator = models.ForeignKey(Indicator, blank=True, null=True)
-    indicator_category = models.ForeignKey(IndicatorCategory, blank=True, null=True)
+    #indicator_category = models.ForeignKey(IndicatorCategory, blank=True, null=True)
     unit_of_measure = models.CharField(max_length=50, blank=True, null=True)
     country = models.ForeignKey(geo_models.Country, blank=True, null=True)#should be a foreign key to GeoData
     date_value = models.CharField(max_length=20, blank=True, null=True) #changed from DecimalField #models.DecimalField(max_digits=20, decimal_places = 5) # identify timezone?
@@ -102,13 +102,28 @@ class HXLtags(models.Model):
     id = models.CharField(max_length = 50, primary_key=True)
     value_type = models.CharField(max_length = 40)"""
 
+
+class IndicatorFilterHeading(models.Model):
+    name = models.CharField(max_length=255, primary_key=True) 
+    
+
+class IndicatorFilter(models.Model):
+    name = models.CharField(max_length=255)
+    indicator = models.ForeignKey(Indicator) 
+    heading = models.ForeignKey(IndicatorFilterHeading)
+    measure_value = models.ForeignKey(IndicatorDatapoint)
+     
+
 def update_indicator_counts():
     indicators = Indicator.objects.all()
     for ind in indicators:
         filterInd = IndicatorDatapoint.objects.filter(indicator=ind)
-        ind.count = filterInd.count()
-        ind.file_source = filterInd[0].file.data_source
-        ind.save()
+        if(filterInd.count() != 0):
+            ind.file_source = filterInd[0].file.data_source
+            ind.count = filterInd.count()
+            ind.save()
+        else:##has no indicators
+            ind.delete()
 
 def clean_up_indicators():
     indicators = Indicator.objects.all()

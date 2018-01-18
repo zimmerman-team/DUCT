@@ -89,7 +89,7 @@ class IndicatorSubCatSerializer(serializers.ModelSerializer):
         file_dict = {"file_name" : file_name, "file_source" : data_source, "file_title" : title, "description" : description, "tags" : tag_list}
         return file_dict
 
-class IndicatorCategorySerializer(serializers.ModelSerializer):
+"""class IndicatorCategorySerializer(serializers.ModelSerializer):
 
     #return list here
     class Meta:
@@ -101,7 +101,7 @@ class IndicatorCategorySerializer(serializers.ModelSerializer):
             'level',
             'child',
             'indicator',
-        )
+        )"""
 
 
 class IndicatorDataSerializer(serializers.ModelSerializer):
@@ -109,7 +109,7 @@ class IndicatorDataSerializer(serializers.ModelSerializer):
     country = CountrySerializer()
     #file = FileSerializer()
     file = FileDataSerializer()
-    indicator_category = IndicatorCategorySerializer()
+    #indicator_category = IndicatorCategorySerializer()
 
     class Meta:
         model = indicator_models.IndicatorDatapoint
@@ -117,7 +117,7 @@ class IndicatorDataSerializer(serializers.ModelSerializer):
             'id',
             'file',
             'date_format',
-            'indicator_category',
+            #'indicator_category',
             'indicator',
             'country',
             'date_value',

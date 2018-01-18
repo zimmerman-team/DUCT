@@ -57,7 +57,7 @@ def manual_mapper(data):
         for key in mappings:
             if mappings[key]:#this is included incase no mapping is given
                 if len(mappings[key]) > 1:#greated than one for subgroups change for indicator scenario
-                    if key == "indicator_category":
+                    if key == "indicator_filter":
                        df_data, mappings, dtypes_dict, tmp_mapping = group_indicator_categories(df_data, mappings, dtypes_dict, relationship_dict,key)
                 else:
                     mappings[key][0] = mappings[key][0].replace("~", " ")
@@ -102,8 +102,8 @@ def manual_mapper(data):
         ###Clear data structures
         correction_mappings = None
         error_lines = None
-        null_values = df_data[mappings['indicator_category'][0]].isnull()
-        df_data[mappings['indicator_category'][0]][null_values] = "Default"
+        null_values = df_data[mappings['indicator_filter'][0]].isnull()
+        df_data[mappings['indicator_filter'][0]][null_values] = "Default"
         print("Filtering NaNs from measure value, indicator, data and country")
         filter_applied = (df_data[index_order['indicator']].notnull() & df_data[index_order['date_value']].notnull() 
                         & df_data[index_order['measure_value']].notnull() & df_data[index_order['country']].notnull())
@@ -178,25 +178,25 @@ def group_indicator_categories(df_data, mappings, dtypes_dict, relationship_dict
 
     #ignore relationship
 
-    df_data["indicator_category"] = ""
-    tmp_mappings = ['indicator_category']
+    df_data["indicator_filter"] = ""
+    tmp_mappings = ['indicator_filter']
     count = 0
     for value in mappings[key]:
         mappings[key][count] = mappings[key][count].replace("~", " ")
         value = value.replace("~", " ")
 
         #loop through data combine with heading name and itself   
-        if not value == 'indicator_category':
+        if not value == 'indicator_filter':
             if not relationship_dict:#no relationshup defined
-                    df_data["indicator_category"] = df_data["indicator_category"] + "|" + value + ": " + df_data[value].map(str)
+                    df_data["indicator_filter"] = df_data["indicator_filter"] + "|" + value + ": " + df_data[value].map(str)
             else:
                 if not (value in relationship_dict):
-                    df_data["indicator_category"] = df_data["indicator_category"] + "|" + value + ": " + df_data[value].map(str)
+                    df_data["indicator_filter"] = df_data["indicator_filter"] + "|" + value + ": " + df_data[value].map(str)
                 else:
                     tmp_mappings.append(value)     
         count += 1
     mappings[key] = tmp_mappings#IF RELATIONSHOip add here????
-    dtypes_dict[mappings['indicator_category'][0]] = [('str','str')]
+    dtypes_dict[mappings['indicator_filter'][0]] = [('str','str')]
 
     return df_data, mappings, dtypes_dict, tmp_mappings
 
@@ -215,7 +215,7 @@ def apply_missing_values(df_data, mappings, dtypes_dict, empty_values_array):
         mappings ({str:[str]}): the users chosen mappings for a file column.
         dtypes_dict ({str:str}): stores the data-types found for each heading.
     """
-    indicator_value, country_value, indicator_category_value, unit_of_measure_value, value_of_date = empty_values_array
+    indicator_value, country_value, indicator_filter_value, unit_of_measure_value, value_of_date = empty_values_array
 
     if indicator_value:
         mappings['indicator'] = ['indicator']
@@ -228,10 +228,10 @@ def apply_missing_values(df_data, mappings, dtypes_dict, empty_values_array):
         df_data['country'] = country_value
         dtypes_dict[mappings['country'][0]] = [('country(iso2)', 'country(iso2)')]
 
-    if indicator_category_value:
-        mappings['indicator_category'] = ['indicator_category']
-        df_data['indicator_category'] = indicator_category_value
-        dtypes_dict[mappings['indicator_category'][0]] = [('text', 'text')]
+    if indicator_filter_value:
+        mappings['indicator_filter'] = ['indicator_filter']
+        df_data['indicator_filter'] = indicator_filter_value
+        dtypes_dict[mappings['indicator_filter'][0]] = [('text', 'text')]
 
     if value_of_date:
         mappings['date_value'] = ['date_value']
@@ -289,7 +289,6 @@ def get_save_unique_datapoints(df_data, index_order):
 
     Returns: 
         ind_dict ({str:Indicator}): dictionary of Indicator objects.
-        ind_cat_dict ({str:IndicatorCategory}): dictionary of IndicatorCategory objects.
         ind_source_dict ({str:IndicatorSource}): dictionary of IndicatorSource objects.
         ind_country_dict ({str:Country}): dictionary of Country objects.
     """
@@ -300,19 +299,16 @@ def get_save_unique_datapoints(df_data, index_order):
     ind_source_dict = {}
     ind_country_dict = {}
     unique_indicator = [] 
-    unique_indicator_cat = [] 
     unique_indicator_source = []
     unique_country = []
 
     if "indicator" in index_order:
         unique_indicator = df_data[index_order["indicator"]].unique()
-    if "indicator_category" in index_order:
-        unique_indicator_cat = df_data.groupby([index_order["indicator"],index_order["indicator_category"]]).size().reset_index()
     if "source" in index_order:
         unique_indicator_source = df_data.groupby([index_order["indicator"],index_order["source"]]).size().reset_index()
     if "country" in index_order:
         unique_country = df_data[index_order['country']].unique()
-    unique_lists = [unique_indicator, unique_indicator_cat, unique_indicator_source, unique_country]
+    unique_lists = [unique_indicator, unique_indicator_source, unique_country]
     count = 0
 
     for unique_list in unique_lists:
@@ -323,37 +319,7 @@ def get_save_unique_datapoints(df_data, index_order):
                     instance = created
                     instance.save()
                 ind_dict[unique_list[i]] = instance
-            elif(count == 1):#indicator_cat
-                if "|" in unique_list[index_order['indicator_category']][i]:
-                    cats = sorted(list(filter(None, np.unique(np.array(unique_list[index_order['indicator_category']][i].split("|"))))))
-                    temp_id = ind_dict[unique_list[index_order['indicator']][i]].id + ("".join(cats[0]))
-                    parent, created = IndicatorCategory.objects.get_or_create(unique_identifier= temp_id,
-                                                                            name=cats[0], 
-                                                                            indicator = ind_dict[unique_list[index_order['indicator']][i]],
-                                                                            level=0)
-                    if not parent:
-                        parent = created  
-
-                    for j in range(1 , len(cats)):                    
-                        temp_id = ind_dict[unique_list[index_order['indicator']][i]].id + ("".join(cats[0:j+1]))
-                        parent, created = IndicatorCategory.objects.get_or_create(unique_identifier=temp_id,
-                                                                                name=cats[j], 
-                                                                                indicator = ind_dict[unique_list[index_order['indicator']][i]],
-                                                                                parent = parent,
-                                                                                level=j)
-                        if not parent:
-                            parent = created
-                    finstance = parent
-                else:
-                    temp_id = ind_dict[unique_list[index_order['indicator']][i]].id + (unique_list[index_order['indicator_category']][i])
-                    finstance, created = IndicatorCategory.objects.get_or_create(unique_identifier=temp_id,
-                                                                                name = unique_list[index_order['indicator_category']][i], 
-                                                                                indicator = ind_dict[unique_list[index_order['indicator']][i]], 
-                                                                                level=0)
-                    if not finstance:
-                        finstance = created          
-                ind_cat_dict[unique_list[index_order['indicator']][i] + unique_list[index_order['indicator_category']][i]] = finstance####wrong here
-            elif(count == 2):#ind_source
+            elif(count == 1):#ind_source
                 instance = IndicatorSource.objects.filter(id = unique_list[index_order['source']][i].decode(errors='ignore'), indicator = ind_dict[unique_list[index_order['indicator']][i]]).first() 
                 if not instance:
                     instance = IndicatorSource(id = unique_list[index_order['source']][i].decode(errors='ignore'), indicator = ind_dict[unique_list[index_order['indicator']][i]])
@@ -364,7 +330,7 @@ def get_save_unique_datapoints(df_data, index_order):
                 ind_country_dict[unique_list[i]] = instance[0]#shold use get?
         count += 1
 
-    return ind_dict, ind_cat_dict, ind_source_dict, ind_country_dict
+    return ind_dict, ind_source_dict, ind_country_dict
 
 def save_datapoints(df_data, index_order, reverse_mapping, dicts):
     """Saves each line that is valid of csv file to data model.
@@ -378,8 +344,12 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
 
     file_source = df_data['file'][0].data_source 
     ind_dict, ind_cat_dict, ind_source_dict, ind_country_dict = dicts
-    df_data[index_order['indicator_category']] = df_data[index_order['indicator']] + df_data[index_order['indicator_category']]
-    df_data[index_order['indicator_category']] = df_data[index_order['indicator_category']].map(ind_cat_dict)
+    #df_data[index_order['indicator_filter']] = df_data[index_order['indicator']] + df_data[index_order['indicator_filter']]
+    #df_data[index_order['indicator_filter']] = df_data[index_order['indicator_filter']].map(ind_cat_dict)
+    
+    ##need to temp save as because if it's a big file it will add to memory
+    temp_name = temp_save_file(df_data)
+
     if 'source' in index_order:
         df_data[index_order['source']] = df_data[index_order['indicator']] + df_data[index_order['source']]
         df_data[index_order['source']] = df_data[index_order['source']].map(ind_source_dict)
@@ -387,7 +357,9 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
     df_data[index_order['country']] = df_data[index_order['country']].map(ind_country_dict)
     df_data = df_data[reverse_mapping.keys()]#should do this earlier
     df_data = df_data.rename(index=str, columns=reverse_mapping)#rename columns to data model
+    df_data.drop(['indicator_filter'])
     data_to_save = df_data.to_dict(orient='records') 
+    
     f = (lambda x: IndicatorDatapoint(**x) )
     vfunc = np.vectorize(f)
     bulk_list = vfunc(np.array(data_to_save))
@@ -415,6 +387,16 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
         ind_dict[i].count = IndicatorDatapoint.objects.filter(indicator=(ind_dict[i])).count()
         ind_dict[i].file_source = file_source
         ind_dict[i].save()
+
+'''Saves a dataframe temporarily'''
+def temp_save_file(df_data):
+    path = os.path.join(os.path.dirname(settings.BASE_DIR), 'ZOOM/media/tmpfiles')
+    dtype_name = path +  "/" + str(uuid.uuid4()) + ".txt"
+    with open(dtype_name, 'w') as f:
+        pickle.dump(df_data, f)
+    return dtype_name
+
+
 
 '''Remaps all files that have been mapped'''
 def remap_all_files():

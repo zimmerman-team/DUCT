@@ -297,9 +297,9 @@ def correct_data(df_data, correction_data, error_data, index_order):#correction_
             if correction_data[key][0] =="text":
                 if index_order["measure_value"] == key:
                     #get inidicator category add and group accordingly
-                    df_data[index_order["indicator_category"]] = (df_data[index_order["indicator_category"]] + "|" + index_order["measure_value"] + ": "
+                    df_data[index_order["indicator_filter"]] = (df_data[index_order["indicator_filter"]] + "|" + index_order["measure_value"] + ": "
                                                                 + df_data[index_order["measure_value"]])
-                    str_data = pd.DataFrame({index_order["measure_value"] + "temp" : df_data.groupby([index_order["indicator"], index_order["indicator_category"], 
+                    str_data = pd.DataFrame({index_order["measure_value"] + "temp" : df_data.groupby([index_order["indicator"], index_order["indicator_filter"], 
                                                                             index_order["country"], index_order["date_value"], index_order["unit_of_measure"], 
                                                                             index_order["measure_value"]])[index_order["measure_value"]
                                                                             ].count()}).reset_index()
@@ -377,13 +377,13 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
 
     for col in relationship_dict:
         #print('#############################')
-        #print("mappings ", mappings["indicator_category"])
+        #print("mappings ", mappings["indicator_filter"])
         #print(col)
     
         tmp_df = df_data.copy(deep=True)    
         
         #if more than one relationship is multiple subgroupd and relationships
-        if col in mappings["indicator_category"] and len(mappings["indicator_category"]) > 1:
+        if col in mappings["indicator_filter"] and len(mappings["indicator_filter"]) > 1:
             """print("Ind Cat " + col);
             print(tmp_df[relationship_dict[col]] + "|" + (col))
             print(tmp_df[col])
@@ -403,7 +403,7 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
     mappings[relationship_dict[col]] = relationship_dict[col]
     mappings[left_over_dict[col]] = left_over_dict[col] 
     
-    #print(new_df.reset_index()['indicator_category']);
+    #print(new_df.reset_index()['indicator_filter']);
     return new_df.reset_index(), dtypes_dict, mappings#filter by columns needed
 
 def check_file_type(file_name):
@@ -566,7 +566,7 @@ file_dict = {
                                                 '2012', '2013', '2014', '2015', '2016', '2017'], 
                             'source': [], 
                             'other': [], 
-                            'indicator_category': ['Indicator Name'], 
+                            'indicator_filter': ['Indicator Name'], 
                             'empty_unit_of_measure': {'2003': 'Number', '1997': 'Number', '1988': 'Number', '1989': 'Number', 
                                                       '1986': 'Number', '1987': 'Number', '1984': 'Number', '1985': 'Number', 
                                                       '1968': 'Number', '1969': 'Number', '1980': 'Number', '1981': 'Number', 
@@ -630,10 +630,10 @@ file_dict = {
                                     'indicator': ['Flow Name'], 
                                     'unit_of_measure': [],
                                     'relationship': {
-                                                    'Commitments Defl': 'indicator_category', 
-                                                    'Disbursements': 'indicator_category', 
-                                                    'Disbursements Defl': 'indicator_category',
-                                                    'Commitments': 'indicator_category'}, 
+                                                    'Commitments Defl': 'indicator_filter', 
+                                                    'Disbursements': 'indicator_filter', 
+                                                    'Disbursements Defl': 'indicator_filter',
+                                                    'Commitments': 'indicator_filter'}, 
                                     'left_over': {
                                                     'Commitments Defl': 'measure_value', 
                                                     'Disbursements': 'measure_value',
@@ -644,7 +644,7 @@ file_dict = {
                                     'date_value': ['Year'], 
                                     'source': [], 
                                     'other': [], 
-                                    'indicator_category': ['Sector', 'Aid Type', 'Income Group', 'Purpose', 'Donor', 'Finance Type', 'Commitments', 'Disbursements', 'Commitments Defl', 'Disbursements Defl'], 
+                                    'indicator_filter': ['Sector', 'Aid Type', 'Income Group', 'Purpose', 'Donor', 'Finance Type', 'Commitments', 'Disbursements', 'Commitments Defl', 'Disbursements Defl'], 
                                     'empty_unit_of_measure': {'Currency': 'Number', 'Disbursements': 'Number', 'Disbursements Defl': 'Number', 'Commitments': 'Number', 'Commitments Defl': 'Number'}
                         }, 
                         "input_path":"../scripts/formatters/" + CRS + "/input/", 
