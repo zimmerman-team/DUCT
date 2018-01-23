@@ -339,7 +339,10 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
         new_df (Dataframe): newly formatted dataframe.
         dtypes_dict ({str:str}): stores the data-types found for each heading.
         mappings ({str:[str]}): the users chosen mappings for a file column.
+        heading_order ([str]): 
     """
+
+    heading_order = []
 
     if not empty_unit_measure_value:
         empty_unit_measure_value = {}
@@ -376,6 +379,7 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
     new_df = pd.DataFrame(columns=df_data.columns)
 
     for col in relationship_dict:
+        heading_order.append(col)
         #print('#############################')
         #print("mappings ", mappings["indicator_filter"])
         #print(col)
@@ -390,8 +394,17 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
             print("------------------")"""
             tmp_df[relationship_dict[col]] = tmp_df[relationship_dict[col]] + "|" + (col)
             tmp_df[left_over_dict[col]] = tmp_df[col]
-
+            if left_over_dict[col] == "measure_value":
+                tmp_df["heading_filter"] = tmp_df['heading_filter'] + "|" + "Measure Value"
+            else:
+                tmp_df["heading_filter"] = tmp_df['heading_filter'] + "|" + col.replace("_", " ").lower().title()
         else:#normal case
+            if col in mappings["indicator_filter"]:
+                if left_over_dict[col] == "measure_value":
+                    tmp_df["heading_filter"] = "Measure Value"
+                else:
+                    tmp_df["heading_filter"] =  col.replace("_", " ").lower().title()  
+            
             tmp_df[relationship_dict[col]] = col
             tmp_df[left_over_dict[col]] = tmp_df[col]
         
@@ -404,7 +417,7 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
     mappings[left_over_dict[col]] = left_over_dict[col] 
     
     #print(new_df.reset_index()['indicator_filter']);
-    return new_df.reset_index(), dtypes_dict, mappings#filter by columns needed
+    return new_df.reset_index(), dtypes_dict, mappings #filter by columns needed
 
 def check_file_type(file_name):
     name = file_name.lower()
@@ -692,7 +705,7 @@ character_sep = {WB: ",", CRS: "|"}
 def add_external_data():
     global character_sep
     checked = False
-    file_choice = WB;#"CRS" #temp
+    file_choice = CRS;#"CRS" #temp
     #file_choice = ""
     """print("Enter one of the following: ", file_list)
                 print("e for escape")
@@ -708,8 +721,8 @@ def add_external_data():
     """
 
     convert_data(file_choice)
-    """if(file_choice == CRS):
-        flatten_data(file_choice)"""
+    if(file_choice == CRS):
+        flatten_data(file_choice)
     checkIfFilesTooBig(file_choice)
     start_mapping(file_choice)
 
@@ -748,7 +761,7 @@ def start_mapping(file_choice):
 
         file_id = res_file_upload.json()['id']
         print('file_id ', file_id)
-        """res = requests.patch(
+        res = requests.patch(
                     URL + 'file/{}/?format=json'.format(file_id), 
                     headers=headers,
                     data=(json.dumps(patch_data))
@@ -768,7 +781,7 @@ def start_mapping(file_choice):
                     "file_id": file_id,
                     "dict": file_dict[file_choice]['mapping']
                 },  format='json')        
-        print("Mapping: ", res)"""
+        print("Mapping: ", res)
         
 
         res = c.post(

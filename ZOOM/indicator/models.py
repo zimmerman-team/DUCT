@@ -109,7 +109,6 @@ class IndicatorFilterHeading(models.Model):
 
 class IndicatorFilter(models.Model):
     name = models.CharField(max_length=255)
-    indicator = models.ForeignKey(Indicator) 
     heading = models.ForeignKey(IndicatorFilterHeading)
     measure_value = models.ForeignKey(IndicatorDatapoint)
      

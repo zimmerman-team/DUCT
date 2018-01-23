@@ -33,16 +33,21 @@ def manual_mapper(data):
         bulk_list = []
         file_id = data['file_id']
         mappings = data['dict']
+        
         print("--------------Mappings--------------")
-        print(mappings)
+        #print(mappings)
         save_mapping(file_id, mappings)
         unit_of_measure_value = mappings.pop("empty_unit_of_measure", None)
         empty_values_array = [mappings.pop("empty_indicator", None), mappings.pop("empty_country", None), mappings.pop("empty_indicator_cat", None),
                                 unit_of_measure_value, mappings.pop("empty_date", None)]
         relationship_dict = mappings.pop("relationship", None)
+        #save headings for filters
+        # = get_ind_heading_filters(relationship_dict, left_over_dict, mappings)
+
         left_over_dict = mappings.pop("left_over", None)
         df_data = get_file_data(file_id)
         error_data, dtypes_dict = get_dtype_data(file_id)
+        
         print("Begining Mapping")
         print (time.strftime("%H:%M:%S"))
         print(relationship_dict)
@@ -61,13 +66,13 @@ def manual_mapper(data):
                        df_data, mappings, dtypes_dict, tmp_mapping = group_indicator_categories(df_data, mappings, dtypes_dict, relationship_dict,key)
                 else:
                     mappings[key][0] = mappings[key][0].replace("~", " ")
+                    if key == "indicator_filter":
+                        df_data['heading_filter'] = "Categories"
 
         df_data, mappings, dtypes_dict = apply_missing_values(df_data, mappings, dtypes_dict, empty_values_array)
 
         ###Convert csv
-        if relationship_dict:
-            #check if unit of measure exists
-
+        if relationship_dict:#check if unit of measure exists
             df_data, dtypes_dict, mappings = convert_df(mappings, relationship_dict, left_over_dict, df_data, dtypes_dict, unit_of_measure_value)
 
         print("Validating data")
@@ -88,6 +93,7 @@ def manual_mapper(data):
         print("Getting Error types")###needed?
         error_lines, new_dtypes_dict = generate_error_data(df_data)
         save_validation_data(error_lines, file_id, new_dtypes_dict)
+        
         ###Combine dictionaries
         for key in new_dtypes_dict:
             dtypes_dict[key] = new_dtypes_dict[key] 
@@ -99,6 +105,7 @@ def manual_mapper(data):
                 reverse_mapping[mappings[key][0]] = key 
 
         df_data = correct_data(df_data, correction_mappings, error_lines, index_order)
+        
         ###Clear data structures
         correction_mappings = None
         error_lines = None
@@ -129,8 +136,8 @@ def manual_mapper(data):
         df_data['date_format'] = instance
 
         print("Save indicators, sources, categories, countries")
-        ind_dict, ind_cat_dict, ind_source_dict, ind_country_dict = get_save_unique_datapoints(df_data, index_order)
-        dicts = [ind_dict, ind_cat_dict, ind_source_dict, ind_country_dict]
+        ind_dict, ind_source_dict, ind_country_dict = get_save_unique_datapoints(df_data, index_order)
+        dicts = [ind_dict, ind_source_dict, ind_country_dict]
         save_datapoints(df_data, index_order, reverse_mapping, dicts)
         
         context = {"success" : 1}
@@ -157,6 +164,7 @@ def clean_data(data, unwanted_str, replace_str):
         data[key] = value
     return data
 
+
 def group_indicator_categories(df_data, mappings, dtypes_dict, relationship_dict, key):
     """Begins process for grouping indicator categories together.
     
@@ -179,6 +187,7 @@ def group_indicator_categories(df_data, mappings, dtypes_dict, relationship_dict
     #ignore relationship
 
     df_data["indicator_filter"] = ""
+    df_data["heading_filter"] = ""
     tmp_mappings = ['indicator_filter']
     count = 0
     for value in mappings[key]:
@@ -188,13 +197,14 @@ def group_indicator_categories(df_data, mappings, dtypes_dict, relationship_dict
         #loop through data combine with heading name and itself   
         if not value == 'indicator_filter':
             if not relationship_dict:#no relationshup defined
-                    df_data["indicator_filter"] = df_data["indicator_filter"] + "|" + value + ": " + df_data[value].map(str)
+                    df_data["indicator_filter"] = df_data["indicator_filter"] + "|" + df_data[value].map(str)
+                    df_data["heading_filter"] = df_data["heading_filter"] + "|" + value
             else:
                 if not (value in relationship_dict):
-                    df_data["indicator_filter"] = df_data["indicator_filter"] + "|" + value + ": " + df_data[value].map(str)
+                    df_data["indicator_filter"] = df_data["indicator_filter"] + "|" + df_data[value].map(str)
+                    df_data["heading_filter"] = df_data["heading_filter"] + "|" + value
                 else:
-                    tmp_mappings.append(value)     
-        count += 1
+                    tmp_mappings.append(value)  
     mappings[key] = tmp_mappings#IF RELATIONSHOip add here????
     dtypes_dict[mappings['indicator_filter'][0]] = [('str','str')]
 
@@ -342,8 +352,10 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
         dicts ([str:{str:Model}]): list of dictionaries containing foreign keys.
     """
 
+    f1 = (lambda x: IndicatorDatapoint(**x) )
+    f2 = (lambda x: IndicatorFilter(**x))    
     file_source = df_data['file'][0].data_source 
-    ind_dict, ind_cat_dict, ind_source_dict, ind_country_dict = dicts
+    ind_dict, ind_source_dict, ind_country_dict = dicts
     #df_data[index_order['indicator_filter']] = df_data[index_order['indicator']] + df_data[index_order['indicator_filter']]
     #df_data[index_order['indicator_filter']] = df_data[index_order['indicator_filter']].map(ind_cat_dict)
     
@@ -355,45 +367,70 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
         df_data[index_order['source']] = df_data[index_order['source']].map(ind_source_dict)
     df_data[index_order['indicator']] = df_data[index_order['indicator']].map(ind_dict)
     df_data[index_order['country']] = df_data[index_order['country']].map(ind_country_dict)
+    reverse_mapping["heading_filter"] = 'heading_filter'##temp
     df_data = df_data[reverse_mapping.keys()]#should do this earlier
     df_data = df_data.rename(index=str, columns=reverse_mapping)#rename columns to data model
-    df_data.drop(['indicator_filter'])
-
-    #### Move this inside the loop to cut down on computaional time/resources ####
     
-    #### 
-
+    df_data_filters = df_data['indicator_filter']
+    df_data_filter_headings = df_data['heading_filter']
+    df_data.drop(['indicator_filter', 'heading_filter'], axis = 1, inplace=True)
+    
     batch_size = int(math.ceil(df_data['indicator'].size/100000))
-    print(df_data['indicator'].size/100000, " batches")
+    print(batch_size, " batches")
     previous_batch = 0
     next_batch = 0
     ##last index of IndicatorDataPoint
 
-    for i in range(1, df_data['indicator'].size + 1):
+    for i in range(batch_size):
         next_batch += 100000 
         if next_batch > df_data['indicator'].size:
             next_batch = df_data['indicator'].size
             i = batch_size + 1
 
-        data_to_save = df_data[previous_batch:next_batch].to_dict(orient='records') 
-        f1 = (lambda x: IndicatorDatapoint(**x) )
-        f2 = (lambda x: IndicatorFilter (**x))
-        vfunc = np.vectorize(f1)
-        bulk_list = vfunc(np.array(data_to_save))
         print("Bulk saving")
-        IndicatorDatapoint.objects.bulk_create(list(bulk_list))
-        #save indicator filters
-        bulk_list
-        IndicatorFilter.objects.bulk_create(list())
-
-        df_data[previous_batch:next_batch] = np.nan
-        bulk_list = []
-        
-        print("Num ", i)
-        print("Previous batch ", previous_batch)
-        print("Next batch ", next_batch)
-        bulk_list[previous_batch:next_batch] = None #release memory
-        previous_batch = next_batch
+        #print plotting values
+        data_to_save = df_data[previous_batch:next_batch].to_dict(orient='records') 
+        if(len(data_to_save) > 0):
+            #print(data_to_save)
+            vfunc = np.vectorize(f1)
+            bulk_list = vfunc(np.array(data_to_save))
+            x = IndicatorDatapoint.objects.bulk_create(list(bulk_list))
+            
+            #save indicator filter
+            heading_split = df_data_filter_headings[previous_batch:next_batch].str.split(pat="|", expand=True) 
+            data_to_save = df_data_filters[previous_batch:next_batch].str.split(pat="|", expand=True)
+            ind_df = pd.DataFrame(data=[], columns=["name", "heading", "measure_value"])#for initialisation
+            
+            for j in data_to_save.columns:
+                if(data_to_save[j][0] != ""):
+                    new_df = pd.DataFrame(data=[], columns=["name", "heading", "measure_value"])
+                    new_df["name"] = data_to_save[j]
+                    ob, created = IndicatorFilterHeading.objects.get_or_create(name=heading_split[j][0])
+                    if created:
+                        ob.save()
+                    new_df["heading"] = ob
+                    new_df["measure_value"] = x
+                    #pd.concat([ind_df, new_df], ignore_index=True)
+                    ind_df = ind_df.append(new_df)
+            
+            data_to_save = ind_df[previous_batch:next_batch].to_dict(orient='records') 
+            vfunc = np.vectorize(f2)
+            bulk_list = vfunc(np.array(data_to_save))
+            x = IndicatorFilter.objects.bulk_create(list(bulk_list))
+            bulk_list = []
+            
+            df_data[previous_batch:next_batch] = np.nan
+            df_data_filters[previous_batch:next_batch] = np.nan
+            print("Num ", i)
+            print("Previous batch ", previous_batch)
+            print("Next batch ", next_batch)
+            previous_batch = next_batch
+        else:
+            print("Nothing to save, error is occuring!!")
+            print("Num ", i)
+            print("Previous batch ", previous_batch)
+            print("Next batch ", next_batch)
+            i =  df_data['indicator'].size + 1
 
     for i in ind_dict:
         ind_dict[i].count = IndicatorDatapoint.objects.filter(indicator=(ind_dict[i])).count()
@@ -408,7 +445,6 @@ def temp_save_file(df_data):
     with open(dtype_name, 'w') as f:
         pickle.dump(df_data, f)
     return dtype_name
-
 
 
 '''Remaps all files that have been mapped'''
