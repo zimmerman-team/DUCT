@@ -383,9 +383,9 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
 
     for i in range(batch_size):
         next_batch += 100000 
-        if next_batch > df_data['indicator'].size:
+        if next_batch > df_data['indicator'].size: #shouldn't be needed
             next_batch = df_data['indicator'].size
-            i = batch_size + 1
+            i = batch_size + 1 #shoildn't happen
 
         print("Bulk saving")
         #print plotting values

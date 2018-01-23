@@ -10,7 +10,6 @@ from rest_framework import filters
 
 class SearchFilter(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
-
         query = request.query_params.get('q', None)
         query_lookup = request.query_params.get('q_lookup', None)
         lookup_expr = 'exact' #'ft'
@@ -23,6 +22,7 @@ class SearchFilter(filters.BaseFilterBackend):
         return queryset
 
 
+#need to change this filter set!!!
 class IndicatorDataFilter(FilterSet):
 
     #indicator_category__name = CommaSeparatedStickyCharFilter(
@@ -30,10 +30,16 @@ class IndicatorDataFilter(FilterSet):
     #    lookup_expr='in')
 
     file__authorised = BooleanFilter(name='file__authorised')
-
     file__source = CommaSeparatedStickyCharFilter(
         name='file__data_source__name',
         lookup_expr='in')
+
+    print("FilterSet ", FilterSet)
+
+    def get_queryset(self):
+        print(self)
+        comments = IndicatorDatapoint.objects.all()
+        return comments
 
     class Meta:
         model = IndicatorDatapoint

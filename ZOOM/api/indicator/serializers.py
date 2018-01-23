@@ -89,19 +89,26 @@ class IndicatorSubCatSerializer(serializers.ModelSerializer):
         file_dict = {"file_name" : file_name, "file_source" : data_source, "file_title" : title, "description" : description, "tags" : tag_list}
         return file_dict
 
-"""class IndicatorCategorySerializer(serializers.ModelSerializer):
+
+class IndicatorFilterHeadingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = indicator_models.IndicatorFilterHeading
+        fields = (
+            'name'
+        )
+
+class IndicatorFilterSerializer(serializers.ModelSerializer):
 
     #return list here
     class Meta:
-        model = indicator_models.IndicatorCategory
+        model = indicator_models.IndicatorFilter
+        heading = IndicatorFilterHeadingSerializer()
+        
         fields = (
-            'id',
-            'unique_identifier',
             'name',
-            'level',
-            'child',
-            'indicator',
-        )"""
+            'heading',
+            'measure_value'
+        )
 
 
 class IndicatorDataSerializer(serializers.ModelSerializer):

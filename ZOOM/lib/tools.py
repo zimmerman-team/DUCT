@@ -702,6 +702,7 @@ file_dict = {
 file_list = [WB, CRS]
 character_sep = {WB: ",", CRS: "|"}
 
+
 def add_external_data():
     global character_sep
     checked = False
@@ -725,6 +726,7 @@ def add_external_data():
         flatten_data(file_choice)
     checkIfFilesTooBig(file_choice)
     start_mapping(file_choice)
+
 
 def start_mapping(file_choice):
     global file_list, file_dict
@@ -814,7 +816,7 @@ def checkIfFilesTooBig(file_choice):
 
 """
 Created on Mon Nov 20 09:42:29 2017
-@author: marco
+@author: marco, kieran
 This script format crs data: 
     The original file uses "|" instead of ","
 """
@@ -873,11 +875,3 @@ def flatten_data(file_choice):
         sys.stdout.write("\r %d%%" % ((counter/len(file_list)) * 100) )
 
     sys.stdout.flush()
-
-def mapping(mapping_dict, file):
-    print("Begining Mapping ", file)
-
-    print("Finished Mapping ", file)
-
-if __name__ == "__main__":
-    main()
