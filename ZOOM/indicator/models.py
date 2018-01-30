@@ -111,6 +111,7 @@ class IndicatorFilter(models.Model):
     name = models.CharField(max_length=255)
     heading = models.ForeignKey(IndicatorFilterHeading)
     measure_value = models.ForeignKey(IndicatorDatapoint)
+    file_source = models.ForeignKey(FileSource, null=True)
      
 
 def update_indicator_counts():

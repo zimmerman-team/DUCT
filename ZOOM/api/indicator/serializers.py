@@ -30,7 +30,7 @@ class CountrySerializer(serializers.ModelSerializer):
 class FileSourceSerializer(serializers.ModelSerializer):
     class Meta:
         model=FileSource
-        filed = (
+        fields = (
             'name',
         )
 
@@ -97,19 +97,6 @@ class IndicatorFilterHeadingSerializer(serializers.ModelSerializer):
             'name'
         )
 
-class IndicatorFilterSerializer(serializers.ModelSerializer):
-
-    #return list here
-    class Meta:
-        model = indicator_models.IndicatorFilter
-        heading = IndicatorFilterHeadingSerializer()
-        
-        fields = (
-            'name',
-            'heading',
-            'measure_value'
-        )
-
 
 class IndicatorDataSerializer(serializers.ModelSerializer):
 
@@ -132,9 +119,27 @@ class IndicatorDataSerializer(serializers.ModelSerializer):
             "measure_value",
             "unit_of_measure",
             'other',
-            'date_created',
+            'date_created'
         )
 
+
+class IndicatorFilterSerializer(serializers.ModelSerializer):
+
+    #return list here
+
+
+    class Meta:
+        model = indicator_models.IndicatorFilter
+        heading = IndicatorFilterHeadingSerializer()
+        measure_value = IndicatorDataSerializer()
+        file_source = FileSourceSerializer()
+        
+        fields = (
+            'name',
+            'heading',
+            'measure_value',
+            'file_source'
+        )
 
 class IndicatorSerializer(serializers.ModelSerializer):
     file_source = FileSourceSerializer()

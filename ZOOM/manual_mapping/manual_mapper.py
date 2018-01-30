@@ -354,7 +354,7 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
 
     f1 = (lambda x: IndicatorDatapoint(**x) )
     f2 = (lambda x: IndicatorFilter(**x))    
-    file_source = df_data['file'][0].data_source 
+    file_source = df_data['file'][0].data_source
     ind_dict, ind_source_dict, ind_country_dict = dicts
     #df_data[index_order['indicator_filter']] = df_data[index_order['indicator']] + df_data[index_order['indicator_filter']]
     #df_data[index_order['indicator_filter']] = df_data[index_order['indicator_filter']].map(ind_cat_dict)
@@ -379,6 +379,7 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
     print(batch_size, " batches")
     previous_batch = 0
     next_batch = 0
+
     ##last index of IndicatorDataPoint
 
     for i in range(batch_size):
@@ -410,6 +411,7 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
                         ob.save()
                     new_df["heading"] = ob
                     new_df["measure_value"] = x
+                    new_df['file_source'] = file_source;
                     #pd.concat([ind_df, new_df], ignore_index=True)
                     ind_df = ind_df.append(new_df)
             

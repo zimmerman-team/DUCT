@@ -82,7 +82,6 @@ class FileDetailView(RetrieveUpdateDestroyAPIView):
         if data_source: 
             data_source_obj, data_source_created = FileSource.objects.get_or_create(name=data_source)
             file.data_source = data_source_obj
-        
         file.save()
 
     def delete(self, request, *args, **kwargs):

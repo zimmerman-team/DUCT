@@ -1,11 +1,13 @@
 from django_filters import Filter, FilterSet
 from api.generics.filters import CommaSeparatedCharFilter
-from indicator.models import Indicator, IndicatorDatapoint#, IndicatorCategory
-
+from indicator.models import Indicator, IndicatorDatapoint, IndicatorFilter#, IndicatorCategory
+from api.indicator.serializers import IndicatorDataSerializer
 from api.generics.filters import CommaSeparatedCharFilter
 from api.generics.filters import CommaSeparatedStickyCharFilter
 from django_filters import BooleanFilter
-from rest_framework import filters
+from rest_framework import filters, generics
+from django.db import models
+from django_filters.fields import Lookup
 
 
 class SearchFilter(filters.BaseFilterBackend):
@@ -22,24 +24,44 @@ class SearchFilter(filters.BaseFilterBackend):
         return queryset
 
 
+class ListFilter(Filter):
+    def filter(self, qs, value):
+        print(qs)
+        print(value)
+        print("==============")
+        ids = IndicatorFilter.objects.filter(name=value).values_list('id', flat=True)
+        print("Nearly ", IndicatorDatapoint.objects.filter(pk__in=ids).count())
+        #value_list = value.split(u',')
+        return IndicatorDatapoint.objects.filter(pk__in=ids) #super(ListFilter, self).filter(qs, lookup(value_list, 'in'))
+
 #need to change this filter set!!!
 class IndicatorDataFilter(FilterSet):
 
     #indicator_category__name = CommaSeparatedStickyCharFilter(
     #    name='indicator_category__name',
     #    lookup_expr='in')
-
+    #serializer_class = IndicatorDataSerializer
     file__authorised = BooleanFilter(name='file__authorised')
+    #id =  BooleanFilter(name='id', method='check_filters')
+    id = ListFilter(name='id')
+
     file__source = CommaSeparatedStickyCharFilter(
         name='file__data_source__name',
         lookup_expr='in')
+    serializer_class = Indicator
 
-    print("FilterSet ", FilterSet)
-
-    def get_queryset(self):
+    def check_filters(self, queryset, name, value):
         print(self)
-        comments = IndicatorDatapoint.objects.all()
-        return comments
+        print(queryset)
+        print(name)
+        print(value)
+        print("==============")
+        # construct the full lookup expression.
+        lookup = '__'.join([name, 'isnull'])
+        return queryset.filter(**{lookup: False})
+
+        # alternatively, it may not be necessary to construct the lookup.
+        return queryset.filter(id__isnull=False)
 
     class Meta:
         model = IndicatorDatapoint
@@ -62,7 +84,23 @@ class IndicatorDataFilter(FilterSet):
         )
 
 
-class IndicatorFilter(FilterSet):
+
+class IndicatorFilterFilters(FilterSet):
+
+    file_source = CommaSeparatedStickyCharFilter(
+        name='file_source__name',
+        lookup_expr='in')
+
+    class Meta:
+        model = IndicatorFilter
+        fields = (
+            'name',
+            'heading',
+            'measure_value',
+            'file_source'
+        )
+
+class IndicatorFilters(FilterSet):
 
     file__authorised = BooleanFilter(name='indicatordatapoint__file__authorised')
     

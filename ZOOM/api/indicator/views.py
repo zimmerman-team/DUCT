@@ -7,13 +7,46 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
-from file_upload.models import File
-from indicator.models import IndicatorDatapoint, Indicator, update_indicator_counts#, IndicatorCategory
-from api.indicator.serializers import IndicatorSerializer, IndicatorDataSerializer#, IndicatorCategorySerializer
-from api.indicator.filters import IndicatorFilter, IndicatorDataFilter, SearchFilter#, IndicatorCategoryDataFilter
+from file_upload.models import File, FileSource
+from indicator.models import IndicatorDatapoint, Indicator, update_indicator_counts, IndicatorFilter, IndicatorFilterHeading
+from api.indicator.serializers import IndicatorSerializer, IndicatorDataSerializer, IndicatorFilterSerializer
+from api.indicator.filters import IndicatorFilters, IndicatorDataFilter, SearchFilter, IndicatorFilterFilters
 from api.aggregation.views import AggregationView, Aggregation, GroupBy
 from api.generics.views import DynamicListView
 
+#Better solution needed here!
+@api_view(['GET'])#should do this using ListAPIView as it already does this but don't have time now
+def show_unique_filters(request):
+    print("###############")
+    print(request)
+    if(not request.GET['dataType']):
+        return Response({"success":0, "results":"Need dataType"})
+    
+    if(not request.GET['heading']):
+        return Response({"success":0, "results":"Need heading"})
+    
+    print("here")
+    data_source = request.GET['dataType']
+    heading = request.GET['heading']
+    x = IndicatorFilter.objects.filter(file_source = FileSource.objects.get(name=data_source), heading = IndicatorFilterHeading.objects.get(name=heading))
+    x = x.values('name').annotate(count=Count('name'))
+    #implement sort here
+    print("Results ", x)
+    return Response({"success":1, "results": x})
+
+@api_view(['GET'])
+def get_filter_headings(request):
+    print(request)
+    if(not request.GET['dataType']):
+        return Response({"success":0, "results":IndicatorFilter.objects.all()})
+    
+    data_source = request.GET['dataType']
+    print(IndicatorFilter.objects.filter(file_source = FileSource.objects.get(name=data_source)))
+    x = IndicatorFilter.objects.filter(file_source = FileSource.objects.get(name="CRS")).values_list("heading")
+    x = [x[0] for x in list(set(x.values_list("heading")))] 
+    print("Results ", x)
+    return Response({"success":1, "results": x})
+#####################################
 
 @api_view(['POST'])
 def reset_mapping(request):
@@ -25,10 +58,23 @@ def reset_mapping(request):
     return Response({"success":1})
 
 
+class IndicatorFilterList(ListAPIView):
+    queryset = IndicatorFilter.objects.all()
+    filter_backends = (DjangoFilterBackend, )
+    filter_class = IndicatorFilterFilters
+    serializer_class = IndicatorFilterSerializer
+
+    fields = (
+        'name',
+        'heading',
+        'measure_value',
+        'file_source'
+    )
+
 class IndicatorList(ListAPIView):
     queryset = Indicator.objects.all().distinct() #.values("indicator").distinct() #Indicator.objects.all()
     filter_backends = (DjangoFilterBackend, )
-    filter_class = IndicatorFilter
+    filter_class = IndicatorFilters
     serializer_class = IndicatorSerializer
 
     fields = (
