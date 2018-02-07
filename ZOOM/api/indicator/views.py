@@ -9,44 +9,75 @@ from rest_framework.decorators import api_view
 
 from file_upload.models import File, FileSource
 from indicator.models import IndicatorDatapoint, Indicator, update_indicator_counts, IndicatorFilter, IndicatorFilterHeading
+from geodata.models import Country
 from api.indicator.serializers import IndicatorSerializer, IndicatorDataSerializer, IndicatorFilterSerializer
 from api.indicator.filters import IndicatorFilters, IndicatorDataFilter, SearchFilter, IndicatorFilterFilters
 from api.aggregation.views import AggregationView, Aggregation, GroupBy
 from api.generics.views import DynamicListView
 
+from rest_framework import serializers
+
 #Better solution needed here!
 @api_view(['GET'])#should do this using ListAPIView as it already does this but don't have time now
 def show_unique_filters(request):
-    print("###############")
-    print(request)
-    if(not request.GET['dataType']):
-        return Response({"success":0, "results":"Need dataType"})
+    if(not 'dataType' in request.GET):
+        return Response({"success":0, "results":"Need data type"})
     
-    if(not request.GET['heading']):
-        return Response({"success":0, "results":"Need heading"})
-    
-    print("here")
     data_source = request.GET['dataType']
-    heading = request.GET['heading']
-    x = IndicatorFilter.objects.filter(file_source = FileSource.objects.get(name=data_source), heading = IndicatorFilterHeading.objects.get(name=heading))
-    x = x.values('name').annotate(count=Count('name'))
-    #implement sort here
-    print("Results ", x)
-    return Response({"success":1, "results": x})
+    
+    if("heading" in request.GET):
+        heading = request.GET['heading']
+        queryset = IndicatorFilter.objects.filter(file_source = FileSource.objects.get(name=data_source), heading = IndicatorFilterHeading.objects.get(name=heading))
+    else:
+        queryset = IndicatorFilter.objects.all()
+
+    if("filters" in request.GET):
+        data_filter = IndicatorDatapoint.objects.all()
+        applied_filters = request.GET['filters'].split(",")
+        filter_set = IndicatorFilter.objects.all()
+        
+        for i in applied_filters:
+            filter_set = filter_set.filter(name=i)
+            filter_set = data_filter.filter(id__in=filter_set.values_list('measure_value'))
+            #need to do this to ensure other filters are not filtered out 
+            queryset = queryset.filter(measure_value__in=filter_set.values_list('id'))
+        
+    if("indicator" in request.GET):
+        ind_filter = Indicator.objects.filter(id=request.GET['indicator'])
+        queryset = queryset.filter(measure_value__in=ind_filter.set.value_list("id"))
+
+
+    if('country__name' in request.GET):
+        country_filter = Country.objects.get(name=request.GET['country__name'])
+        ind_filter = Indicator,objects.filter(country=country_filter)
+        queryset = queryset.filter(measure_value__in=ind_filter.set.value_list("id"))
+
+    queryset = queryset.values('name').annotate(count=Count('name'))    #implement sort here
+    overall_count = queryset.count()
+    
+    if('order_by' in request.GET):
+        queryset = queryset.order_by(request.GET['order_by'])
+    
+    if('page_size' in request.GET and not request.GET['page_size'] == "all"):
+        page_size = int(request.GET['page_size'])
+        if('page' in request.GET and page_size > 0 ):
+            queryset = queryset[(page_size * int(request.GET['page']) - page_size): (page_size * int(request.GET['page']))]
+        else:
+            queryset = queryset[0:page_size]
+
+    return Response({"success":1, "count": overall_count, "results": list(queryset)})
+
 
 @api_view(['GET'])
 def get_filter_headings(request):
-    print(request)
     if(not request.GET['dataType']):
         return Response({"success":0, "results":IndicatorFilter.objects.all()})
     
     data_source = request.GET['dataType']
-    print(IndicatorFilter.objects.filter(file_source = FileSource.objects.get(name=data_source)))
     x = IndicatorFilter.objects.filter(file_source = FileSource.objects.get(name="CRS")).values_list("heading")
     x = [x[0] for x in list(set(x.values_list("heading")))] 
-    print("Results ", x)
     return Response({"success":1, "results": x})
-#####################################
+
 
 @api_view(['POST'])
 def reset_mapping(request):
@@ -57,10 +88,11 @@ def reset_mapping(request):
     update_indicator_counts()
     return Response({"success":1})
 
-
 class IndicatorFilterList(ListAPIView):
     queryset = IndicatorFilter.objects.all()
+    
     filter_backends = (DjangoFilterBackend, )
+    #override method in 
     filter_class = IndicatorFilterFilters
     serializer_class = IndicatorFilterSerializer
 
@@ -71,11 +103,25 @@ class IndicatorFilterList(ListAPIView):
         'file_source'
     )
 
+    #temp
+    """def filter_queryset(self, request, queryset, view):
+        queryset = super(self, IndicatorFilterList).filter_queryset(self, request, queryset, view)
+        ##
+        #get ?sector
+
+        return queryset"""
+
 class IndicatorList(ListAPIView):
     queryset = Indicator.objects.all().distinct() #.values("indicator").distinct() #Indicator.objects.all()
     filter_backends = (DjangoFilterBackend, )
     filter_class = IndicatorFilters
     serializer_class = IndicatorSerializer
+    #ordering = get_ordering
+
+    '''def get_ordering(self):
+        ordering = self.GET.get('ordering', '-indicator')
+        # validate ordering here
+        return ordering'''
 
     fields = (
         'id',
@@ -85,12 +131,29 @@ class IndicatorList(ListAPIView):
     )
 
 
+def check_filters(instance):
+    queryset = instance.queryset
+    request = instance.request.query_params.get('filters') 
+    
+    if request:
+        applied_filters = request.split(",")
+        filter_set = IndicatorFilter.objects.all()
+        for i in applied_filters:
+            filter_set = filter_set.filter(name=i)
+        queryset = queryset.filter(id__in=filter_set.values_list('measure_value'))
+    return queryset
+
+
 class IndicatorDataList(ListAPIView):
 
     queryset = IndicatorDatapoint.objects.all()
     filter_backends = (DjangoFilterBackend, )
     filter_class = IndicatorDataFilter
     serializer_class = IndicatorDataSerializer
+
+    def get_queryset(self):
+        #filter according to filter tag
+        return check_filters(self)
 
     fields = (
         'id',
@@ -103,7 +166,7 @@ class IndicatorDataList(ListAPIView):
         'source',
         'measure_value',
         'unit_of_measure',
-        'other',
+        'other'
     )
 
     # def get_queryset(self):
@@ -221,6 +284,18 @@ class IndicatorDataAggregations(AggregationView):
 
     filter_backends = (SearchFilter, DjangoFilterBackend,)
     filter_class = IndicatorDataFilter
+    
+    fields = (
+        'id',
+        'file',
+        'date_format',
+        'indicator',
+        'country',
+        'date_value',
+        'source',
+        'measure_value',
+        'unit_of_measure',
+    )
 
     allowed_aggregations = (
         Aggregation(
@@ -256,10 +331,6 @@ class IndicatorDataAggregations(AggregationView):
     )
 
     allowed_groupings = (
-        #GroupBy(
-        #    query_param="indicator_category",
-        #    fields=("indicator_category_id", "indicator_category__name", "indicator_category__level"),
-        #),
         GroupBy(
             query_param="indicator",
             fields=("indicator", "file__data_source__name"),
@@ -290,3 +361,7 @@ class IndicatorDataAggregations(AggregationView):
             fields="unit_of_measure",
         ),        
     )
+
+    def get_queryset(self):
+        #filter according to filter tag
+        return check_filters(self)

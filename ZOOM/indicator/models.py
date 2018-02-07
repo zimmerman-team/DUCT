@@ -84,12 +84,15 @@ class IndicatorDatapoint(models.Model):
     measure_value = models.CharField(max_length=40, blank=True, null=True) #models.DecimalField(max_digits=20, decimal_places = 5)#for now leave as char #models.ForeignKey(MeasureValue) # might need more for accuracy
     other = models.CharField(max_length=600, blank=True, null=True) #found instance where it ius bigger than 500 
     search_vector_text = SearchVectorField(null=True)
+    #filters = models.CharField(blank=True, null=True)
 
     class Meta:
         indexes = [
             GinIndex(fields=['search_vector_text'])
         ]
 
+    def __unicode__(self):
+        return unicode(self.id)
 
 #the mapping betweeen coulmns in the datastore and HXL tags
 """class HXLmapping(models.Model): #can be used for other conversions

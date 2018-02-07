@@ -103,7 +103,15 @@ class IndicatorDataSerializer(serializers.ModelSerializer):
     country = CountrySerializer()
     #file = FileSerializer()
     file = FileDataSerializer()
+    filters = serializers.SerializerMethodField()
     #indicator_category = IndicatorCategorySerializer()
+
+    def get_filters(self, obj):
+        #haver to filter here
+        filters = indicator_models.IndicatorFilter.objects.filter(measure_value=obj.id).values_list("name")
+        filters = map((lambda x: x[0]), filters)
+        return filters
+
 
     class Meta:
         model = indicator_models.IndicatorDatapoint
@@ -119,7 +127,8 @@ class IndicatorDataSerializer(serializers.ModelSerializer):
             "measure_value",
             "unit_of_measure",
             'other',
-            'date_created'
+            'date_created',
+            'filters'
         )
 
 

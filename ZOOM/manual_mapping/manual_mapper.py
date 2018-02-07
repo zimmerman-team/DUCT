@@ -38,8 +38,9 @@ def manual_mapper(data):
         #print(mappings)
         save_mapping(file_id, mappings)
         unit_of_measure_value = mappings.pop("empty_unit_of_measure", None)
-        empty_values_array = [mappings.pop("empty_indicator", None), mappings.pop("empty_country", None), mappings.pop("empty_indicator_cat", None),
-                                unit_of_measure_value, mappings.pop("empty_date", None)]
+        empty_values_array = [mappings.pop("empty_indicator", None), mappings.pop("empty_country", None), 
+                              mappings.pop("empty_indicator_cat", None),
+                              unit_of_measure_value, mappings.pop("empty_date", None)]
         relationship_dict = mappings.pop("relationship", None)
         #save headings for filters
         # = get_ind_heading_filters(relationship_dict, left_over_dict, mappings)
@@ -403,7 +404,7 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
             ind_df = pd.DataFrame(data=[], columns=["name", "heading", "measure_value"])#for initialisation
             
             for j in data_to_save.columns:
-                if(data_to_save[j][0] != ""):
+                if(data_to_save[j][0] != ""):#get unique values and place them =
                     new_df = pd.DataFrame(data=[], columns=["name", "heading", "measure_value"])
                     new_df["name"] = data_to_save[j]
                     ob, created = IndicatorFilterHeading.objects.get_or_create(name=heading_split[j][0])
@@ -412,10 +413,8 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
                     new_df["heading"] = ob
                     new_df["measure_value"] = x
                     new_df['file_source'] = file_source;
-                    #pd.concat([ind_df, new_df], ignore_index=True)
                     ind_df = ind_df.append(new_df)
-            
-            data_to_save = ind_df[previous_batch:next_batch].to_dict(orient='records') 
+            data_to_save = ind_df.to_dict(orient='records') 
             vfunc = np.vectorize(f2)
             bulk_list = vfunc(np.array(data_to_save))
             x = IndicatorFilter.objects.bulk_create(list(bulk_list))
@@ -428,7 +427,7 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
             print("Next batch ", next_batch)
             previous_batch = next_batch
         else:
-            print("Nothing to save, error is occuring!!")
+            print("Nothing to save, error is occuring!!")#shouldn't happen
             print("Num ", i)
             print("Previous batch ", previous_batch)
             print("Next batch ", next_batch)

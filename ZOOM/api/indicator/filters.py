@@ -24,44 +24,23 @@ class SearchFilter(filters.BaseFilterBackend):
         return queryset
 
 
+#check if this can be removed
 class ListFilter(Filter):
     def filter(self, qs, value):
-        print(qs)
-        print(value)
-        print("==============")
         ids = IndicatorFilter.objects.filter(name=value).values_list('id', flat=True)
-        print("Nearly ", IndicatorDatapoint.objects.filter(pk__in=ids).count())
         #value_list = value.split(u',')
         return IndicatorDatapoint.objects.filter(pk__in=ids) #super(ListFilter, self).filter(qs, lookup(value_list, 'in'))
 
 #need to change this filter set!!!
 class IndicatorDataFilter(FilterSet):
 
-    #indicator_category__name = CommaSeparatedStickyCharFilter(
-    #    name='indicator_category__name',
-    #    lookup_expr='in')
-    #serializer_class = IndicatorDataSerializer
     file__authorised = BooleanFilter(name='file__authorised')
-    #id =  BooleanFilter(name='id', method='check_filters')
     id = ListFilter(name='id')
 
     file__source = CommaSeparatedStickyCharFilter(
         name='file__data_source__name',
         lookup_expr='in')
     serializer_class = Indicator
-
-    def check_filters(self, queryset, name, value):
-        print(self)
-        print(queryset)
-        print(name)
-        print(value)
-        print("==============")
-        # construct the full lookup expression.
-        lookup = '__'.join([name, 'isnull'])
-        return queryset.filter(**{lookup: False})
-
-        # alternatively, it may not be necessary to construct the lookup.
-        return queryset.filter(id__isnull=False)
 
     class Meta:
         model = IndicatorDatapoint
