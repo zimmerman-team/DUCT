@@ -16,6 +16,7 @@ from api.aggregation.views import AggregationView, Aggregation, GroupBy
 from api.generics.views import DynamicListView
 
 from rest_framework import serializers
+import numpy as np
 
 #Better solution needed here!
 @api_view(['GET'])#should do this using ListAPIView as it already does this but don't have time now
@@ -37,20 +38,20 @@ def show_unique_filters(request):
         filter_set = IndicatorFilter.objects.all()
         
         for i in applied_filters:
-            filter_set = filter_set.filter(name=i)
-            filter_set = data_filter.filter(id__in=filter_set.values_list('measure_value'))
+            new_filter_set = filter_set.filter(name=i).values_list('measure_value')
+            new_filter_set = data_filter.filter(id__in=new_filter_set).values_list('id')
             #need to do this to ensure other filters are not filtered out 
-            queryset = queryset.filter(measure_value__in=filter_set.values_list('id'))
-        
+            queryset = queryset.filter(measure_value__in=new_filter_set)
+            
     if("indicator" in request.GET):
-        ind_filter = Indicator.objects.filter(id=request.GET['indicator'])
-        queryset = queryset.filter(measure_value__in=ind_filter.set.value_list("id"))
-
-
+        ind_filter = Indicator.objects.filter(id=request.GET['indicator']).values_list("id")
+        ind_filter = np.unique(IndicatorDatapoint.objects.filter(indicator__in=ind_filter).values_list("id"))
+        queryset = queryset.filter(measure_value__in=ind_filter)
+        
     if('country__name' in request.GET):
         country_filter = Country.objects.get(name=request.GET['country__name'])
         ind_filter = Indicator,objects.filter(country=country_filter)
-        queryset = queryset.filter(measure_value__in=ind_filter.set.value_list("id"))
+        queryset = queryset.filter(measure_value__in=ind_filter.values_list("id"))
 
     queryset = queryset.values('name').annotate(count=Count('name'))    #implement sort here
     overall_count = queryset.count()
