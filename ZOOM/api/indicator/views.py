@@ -135,13 +135,26 @@ class IndicatorList(ListAPIView):
 def check_filters(instance):
     queryset = instance.queryset
     request = instance.request.query_params.get('filters') 
-    
+    #filter on indicator filter
     if request:
         applied_filters = request.split(",")
         filter_set = IndicatorFilter.objects.all()
         for i in applied_filters:
             filter_set = filter_set.filter(name=i)
         queryset = queryset.filter(id__in=filter_set.values_list('measure_value'))
+
+    #filter based on date
+    request1 = instance.request.query_params.get('start_date_gte') 
+    request2 = instance.request.query_params.get('end_date_lte')
+     
+    if request1:
+        print("recieved r1", request1)
+        queryset = queryset.filter(date_value__lte=request1)
+
+    if request2:
+        print("recieved r2", request2)
+        queryset = queryset.filter(date_value__gte=request2)
+
     return queryset
 
 

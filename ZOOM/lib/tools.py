@@ -464,6 +464,7 @@ def get_line_index(line_records, line_no):
 
 #from file_upload.models import File
 
+#URL="http://perspective-csvmapper.zz-demos.net/api/"
 URL="http://127.0.0.1:8000/api/"
 WB = "World_Bank"
 CRS = "CRS"
@@ -735,7 +736,9 @@ def start_mapping(file_choice):
     counter = 0
     request_dummy = RequestFactory().get('/')
     c = APIClient()
-
+    print("###################################")
+    print(URL)
+    print("###################################")
     for file_name in file_list:
         
         headers = {'Content-type': 'multipart/form-data'}
@@ -761,6 +764,7 @@ def start_mapping(file_choice):
             "status": 1
         }
 
+
         file_id = res_file_upload.json()['id']
         print('file_id ', file_id)
         res = requests.patch(
@@ -769,6 +773,8 @@ def start_mapping(file_choice):
                     data=(json.dumps(patch_data))
                 )#""""""
         print("Update file: ", res)
+
+        #b.god
 
         res = c.post(
                 URL + 'validate/?format=json', 
