@@ -558,8 +558,7 @@ file_dict = {
                                             '2001': 'measure_value', '2006': 'measure_value', '2007': 'measure_value', 
                                             '2004': 'measure_value', '1998': 'measure_value', '2008': 'measure_value', 
                                             '2009': 'measure_value'}, 
-                            'country': ['Country Code'], 
-                            'empty_indicator': 'test', 
+                            'country': ['Country Code'],  
                             'measure_value': [  '1960', '1961', '1962', '1963', '1964', '1965', '1966', 
                                                 '1967', '1968', '1969', '1970', '1971', '1972', '1973', 
                                                 '1974', '1975', '1976', '1977', '1978', '1979', '1980', 
@@ -707,7 +706,7 @@ character_sep = {WB: ",", CRS: "|"}
 def add_external_data():
     global character_sep
     checked = False
-    file_choice = CRS;#"CRS" #temp
+    file_choice = WB;#"CRS" #temp
     #file_choice = ""
     """print("Enter one of the following: ", file_list)
                 print("e for escape")

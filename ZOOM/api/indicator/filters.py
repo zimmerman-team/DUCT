@@ -93,7 +93,8 @@ class IndicatorFilters(FilterSet):
             'id',
             'description',
             'count',
-            'file_source'
+            'file_source',
+            'file_source__name'
         )
 
 

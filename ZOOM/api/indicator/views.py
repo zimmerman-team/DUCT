@@ -75,7 +75,7 @@ def get_filter_headings(request):
         return Response({"success":0, "results":IndicatorFilter.objects.all()})
     
     data_source = request.GET['dataType']
-    x = IndicatorFilter.objects.filter(file_source = FileSource.objects.get(name="CRS")).values_list("heading")
+    x = IndicatorFilter.objects.filter(file_source = FileSource.objects.get(name=data_source)).values_list("heading")
     x = [x[0] for x in list(set(x.values_list("heading")))] 
     return Response({"success":1, "results": x})
 
@@ -148,12 +148,10 @@ def check_filters(instance):
     request2 = instance.request.query_params.get('end_date_lte')
      
     if request1:
-        print("recieved r1", request1)
-        queryset = queryset.filter(date_value__lte=request1)
+        queryset = queryset.filter(date_value__gte=request1)
 
     if request2:
-        print("recieved r2", request2)
-        queryset = queryset.filter(date_value__gte=request2)
+        queryset = queryset.filter(date_value__lte=request2)
 
     return queryset
 
