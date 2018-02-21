@@ -48,11 +48,11 @@ def show_unique_filters(request):
         ind_filter = np.unique(IndicatorDatapoint.objects.filter(indicator__in=ind_filter).values_list("id"))
         queryset = queryset.filter(measure_value__in=ind_filter)
         
-    if('country__name' in request.GET):
-        country_filter = Country.objects.get(name=request.GET['country__name'])
-        ind_filter = Indicator,objects.filter(country=country_filter)
+    if('country' in request.GET):
+        country_filter = Country.objects.get(code=request.GET['country'])
+        ind_filter = IndicatorDatapoint.objects.filter(country=country_filter)
         queryset = queryset.filter(measure_value__in=ind_filter.values_list("id"))
-
+        
     queryset = queryset.values('name').annotate(count=Count('name'))    #implement sort here
     overall_count = queryset.count()
     

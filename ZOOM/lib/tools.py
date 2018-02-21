@@ -706,7 +706,7 @@ character_sep = {WB: ",", CRS: "|"}
 def add_external_data():
     global character_sep
     checked = False
-    file_choice = WB;#"CRS" #temp
+    file_choice = CRS #temp
     #file_choice = ""
     """print("Enter one of the following: ", file_list)
                 print("e for escape")
