@@ -93,8 +93,9 @@ def manual_mapper(data):
 
         print("Getting Error types")###needed?
         error_lines, new_dtypes_dict = generate_error_data(df_data)
+        print("check1")
         save_validation_data(error_lines, file_id, new_dtypes_dict)
-        
+        print("check2")
         ###Combine dictionaries
         for key in new_dtypes_dict:
             dtypes_dict[key] = new_dtypes_dict[key] 
@@ -106,7 +107,7 @@ def manual_mapper(data):
                 reverse_mapping[mappings[key][0]] = key 
 
         df_data = correct_data(df_data, correction_mappings, error_lines, index_order)
-        
+        print("check3")
         ###Clear data structures
         correction_mappings = None
         error_lines = None
@@ -388,9 +389,11 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
         if next_batch > df_data['indicator'].size: #shouldn't be needed
             next_batch = df_data['indicator'].size
             i = batch_size + 1 #shoildn't happen
+            print("Last batch, i set to ", i)
 
         print("Bulk saving")
         #print plotting values
+        #print("data to save ", df_data.columns)
         data_to_save = df_data[previous_batch:next_batch].to_dict(orient='records') 
         if(len(data_to_save) > 0):
             #print(data_to_save)
@@ -407,6 +410,7 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
                 if(data_to_save[j][0] != ""):#get unique values and place them =
                     new_df = pd.DataFrame(data=[], columns=["name", "heading", "measure_value"])
                     new_df["name"] = data_to_save[j]
+                    #print("Filter heading name ", heading_split[j][0])
                     ob, created = IndicatorFilterHeading.objects.get_or_create(name=heading_split[j][0])
                     if created:
                         ob.save()
@@ -422,13 +426,13 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
             
             df_data[previous_batch:next_batch] = np.nan
             df_data_filters[previous_batch:next_batch] = np.nan
-            print("Num ", i)
+            print("I ", i)
             print("Previous batch ", previous_batch)
             print("Next batch ", next_batch)
             previous_batch = next_batch
         else:
             print("Nothing to save, error is occuring!!")#shouldn't happen
-            print("Num ", i)
+            print("I ", i)
             print("Previous batch ", previous_batch)
             print("Next batch ", next_batch)
             i =  df_data['indicator'].size + 1

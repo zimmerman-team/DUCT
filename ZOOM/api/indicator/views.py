@@ -17,6 +17,7 @@ from api.generics.views import DynamicListView
 
 from rest_framework import serializers
 import numpy as np
+import urllib
 
 #Better solution needed here!
 @api_view(['GET'])#should do this using ListAPIView as it already does this but don't have time now
@@ -27,7 +28,7 @@ def show_unique_filters(request):
     data_source = request.GET['dataType']
     
     if("heading" in request.GET):
-        heading = request.GET['heading']
+        heading = urllib.unquote(request.GET['heading'])
         queryset = IndicatorFilter.objects.filter(file_source = FileSource.objects.get(name=data_source), heading = IndicatorFilterHeading.objects.get(name=heading))
     else:
         queryset = IndicatorFilter.objects.all()
@@ -38,18 +39,18 @@ def show_unique_filters(request):
         filter_set = IndicatorFilter.objects.all()
         
         for i in applied_filters:
-            new_filter_set = filter_set.filter(name=i).values_list('measure_value')
+            new_filter_set = filter_set.filter(name=urllib.unquote(i)).values_list('measure_value')
             new_filter_set = data_filter.filter(id__in=new_filter_set).values_list('id')
             #need to do this to ensure other filters are not filtered out 
             queryset = queryset.filter(measure_value__in=new_filter_set)
             
     if("indicator" in request.GET):
-        ind_filter = Indicator.objects.filter(id=request.GET['indicator']).values_list("id")
+        ind_filter = Indicator.objects.filter(id=urllib.unquote(request.GET['indicator'])).values_list("id")
         ind_filter = np.unique(IndicatorDatapoint.objects.filter(indicator__in=ind_filter).values_list("id"))
         queryset = queryset.filter(measure_value__in=ind_filter)
         
     if('country' in request.GET):
-        country_filter = Country.objects.get(code=request.GET['country'])
+        country_filter = Country.objects.get(code=urllib.unquote(request.GET['country']))
         ind_filter = IndicatorDatapoint.objects.filter(country=country_filter)
         queryset = queryset.filter(measure_value__in=ind_filter.values_list("id"))
         
@@ -57,7 +58,7 @@ def show_unique_filters(request):
     overall_count = queryset.count()
     
     if('order_by' in request.GET):
-        queryset = queryset.order_by(request.GET['order_by'])
+        queryset = queryset.order_by(urllib.unquote(request.GET['order_by']))
     
     if('page_size' in request.GET and not request.GET['page_size'] == "all"):
         page_size = int(request.GET['page_size'])
@@ -74,7 +75,7 @@ def get_filter_headings(request):
     if(not request.GET['dataType']):
         return Response({"success":0, "results":IndicatorFilter.objects.all()})
     
-    data_source = request.GET['dataType']
+    data_source = urllib.unquote(request.GET['dataType'])
     x = IndicatorFilter.objects.filter(file_source = FileSource.objects.get(name=data_source)).values_list("heading")
     x = [x[0] for x in list(set(x.values_list("heading")))] 
     return Response({"success":1, "results": x})
@@ -140,7 +141,7 @@ def check_filters(instance):
         applied_filters = request.split(",")
         filter_set = IndicatorFilter.objects.all()
         for i in applied_filters:
-            filter_set = filter_set.filter(name=i)
+            filter_set = filter_set.filter(name=urllib.unquote(i))
         queryset = queryset.filter(id__in=filter_set.values_list('measure_value'))
 
     #filter based on date

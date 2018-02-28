@@ -13,6 +13,7 @@ import unicodedata
 from collections import Counter
 from django.test import RequestFactory, Client
 from rest_framework.test import APIClient
+import math
 #import complier
 
 def identify_col_dtype(column_values, file_heading, dicts):
@@ -739,7 +740,7 @@ def start_mapping(file_choice):
     print(URL)
     print("###################################")
     for file_name in file_list:
-        
+        print("Mapping file ", file_name)
         headers = {'Content-type': 'multipart/form-data'}
         with open(path + file_name, 'rb') as fp:
                 res_file_upload = c.post(
@@ -783,7 +784,7 @@ def start_mapping(file_choice):
         print("Validation: ", res)
         
         res = c.post(
-                URL + 'manual-mapper/?format=json', 
+                URL + 'manual-mapper/', 
                 {
                     "file_id": file_id,
                     "dict": file_dict[file_choice]['mapping']
@@ -801,7 +802,7 @@ def start_mapping(file_choice):
 
 def checkIfFilesTooBig(file_choice):
     global file_list, file_dict
-    SPLIT_SIZE = 5500000
+    SPLIT_SIZE = 4000000
     path = file_dict[file_choice]["output_path"]
     file_list = os.listdir(path)
     counter = 0
@@ -809,15 +810,16 @@ def checkIfFilesTooBig(file_choice):
     for file_name in file_list:
         size = os.path.getsize(path + file_name)
         if(size > SPLIT_SIZE):#over 5.5mb split
-            data = pd.read_csv(path + file_name, sep=character_sep[file_choice])
+            data = pd.read_csv(path + file_name, sep=",")
             print("Size of file: ", size)
-            split_range = math.ceil(size/SPLIT_SIZE)
+            split_range = int(math.ceil(size/SPLIT_SIZE))
+            print("Split file: ", split_range )
             data_split = np.array_split(data, split_range)
             for i in range(split_range):
-                data_split[i].to_csv(file_dict[file_choice]["output_path"] + file_name[:-4]+ "(" + i + ")" + ".csv", sep=',', index = False)  
+                data_split[i].to_csv(file_dict[file_choice]["output_path"] + file_name[:-4]+ "(" + str(i) + ")" + ".csv",
+                 sep=",", index = False)  
             os.remove(path + file_name)
 
-            print("Split file: ", split_range )
 
 """
 Created on Mon Nov 20 09:42:29 2017
