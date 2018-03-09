@@ -6,8 +6,8 @@ from django.views.decorators.cache import cache_page
 from api.indicator.views import IndicatorList
 from api.indicator.views import IndicatorDataList
 from api.indicator.views import IndicatorDataAggregations
-from api.indicator.views import IndicatorFilterList
-from api.indicator.views import reset_mapping, get_filter_headings, show_unique_filters
+from api.indicator.views import IndicatorFilterList, IndicatorFilterHeadingList
+from api.indicator.views import reset_mapping, show_unique_filters
 
 
 urlpatterns = [
@@ -22,7 +22,7 @@ urlpatterns = [
         IndicatorFilterList.as_view(),
         name='indicator_category-list'),
     url(r'^reset_mapping/$', reset_mapping, name='reset_mapping'),
-    url(r'^get_filter_headings/$', get_filter_headings, name='get_filter_headings'),
+    url(r'^get_filter_headings/$', IndicatorFilterHeadingList.as_view(), name='get_filter_headings'),
     url(r'^aggregations/$',
         cache_page(settings.API_CACHE_SECONDS)(IndicatorDataAggregations.as_view()),
         name='indicator-aggregations'),

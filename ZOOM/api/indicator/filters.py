@@ -1,6 +1,6 @@
 from django_filters import Filter, FilterSet
 from api.generics.filters import CommaSeparatedCharFilter
-from indicator.models import Indicator, IndicatorDatapoint, IndicatorFilter#, IndicatorCategory
+from indicator.models import Indicator, IndicatorDatapoint, IndicatorFilter, IndicatorFilterHeading#, IndicatorCategory
 from api.indicator.serializers import IndicatorDataSerializer
 from api.generics.filters import CommaSeparatedCharFilter
 from api.generics.filters import CommaSeparatedStickyCharFilter
@@ -30,6 +30,8 @@ class ListFilter(Filter):
         ids = IndicatorFilter.objects.filter(name=value).values_list('id', flat=True)
         #value_list = value.split(u',')
         return IndicatorDatapoint.objects.filter(pk__in=ids) #super(ListFilter, self).filter(qs, lookup(value_list, 'in'))
+
+
 
 #need to change this filter set!!!
 class IndicatorDataFilter(FilterSet):
@@ -62,7 +64,17 @@ class IndicatorDataFilter(FilterSet):
             'unit_of_measure'
         )
 
+class IndicatorFilterHeadingFilter(FilterSet):
+    file_source = CommaSeparatedStickyCharFilter(
+        name='file_source__name',
+        lookup_expr='in')
 
+    class Meta:
+        model = IndicatorFilterHeading
+        fields = (
+            'name',
+            'file_source'
+        )
 
 class IndicatorFilterFilters(FilterSet):
 

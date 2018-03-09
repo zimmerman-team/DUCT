@@ -411,7 +411,7 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
                     new_df = pd.DataFrame(data=[], columns=["name", "heading", "measure_value"])
                     new_df["name"] = data_to_save[j]
                     #print("Filter heading name ", heading_split[j][0])
-                    ob, created = IndicatorFilterHeading.objects.get_or_create(name=heading_split[j][0])
+                    ob, created = IndicatorFilterHeading.objects.get_or_create(name=heading_split[j][0], file_source=file_source)
                     if created:
                         ob.save()
                     new_df["heading"] = ob

@@ -708,7 +708,7 @@ def add_external_data():
     global character_sep
     checked = False
     file_choice = CRS #temp
-    #file_choice = ""
+    #file_choice = "" 
     """print("Enter one of the following: ", file_list)
                 print("e for escape")
                 while(not checked):
@@ -784,7 +784,7 @@ def start_mapping(file_choice):
         print("Validation: ", res)
         
         res = c.post(
-                URL + 'manual-mapper/', 
+                URL + 'manual-mapper/manual_map/?format=json', 
                 {
                     "file_id": file_id,
                     "dict": file_dict[file_choice]['mapping']
@@ -802,7 +802,7 @@ def start_mapping(file_choice):
 
 def checkIfFilesTooBig(file_choice):
     global file_list, file_dict
-    SPLIT_SIZE = 4000000
+    SPLIT_SIZE = 1000000 #use small values, will be faster as less data is held in memory
     path = file_dict[file_choice]["output_path"]
     file_list = os.listdir(path)
     counter = 0
@@ -835,11 +835,11 @@ def convert_data(file_choice):
     print("Begining Conversion")
     
     for file_name in file_list:
-        data = pd.read_csv(file_dict[file_choice]["input_path"] + file_name, sep=character_sep[file_choice])
+        data = pd.read_csv(file_dict[file_choice]["input_path"] + file_name, sep=character_sep[file_choice], error_bad_lines=False)
         if file_choice == WB:
             data[DEFAULT_INDICATOR_COLUMN] = data[data.columns[0]]
             data[DEFAULT_INDICATOR_COLUMN] = file_name[:-4]
-            data = data.iloc[4:]#remove first 4 rows
+            #data = data.iloc[4:]#remove first 4 rows
         data = data[file_dict[file_choice]["columns"]]
         if "nice_name" in file_dict[file_choice]:
             data.rename(columns=file_dict[file_choice]["nice_name"], inplace=True)

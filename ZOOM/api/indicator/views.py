@@ -10,14 +10,15 @@ from rest_framework.decorators import api_view
 from file_upload.models import File, FileSource
 from indicator.models import IndicatorDatapoint, Indicator, update_indicator_counts, IndicatorFilter, IndicatorFilterHeading
 from geodata.models import Country
-from api.indicator.serializers import IndicatorSerializer, IndicatorDataSerializer, IndicatorFilterSerializer
-from api.indicator.filters import IndicatorFilters, IndicatorDataFilter, SearchFilter, IndicatorFilterFilters
+from api.indicator.serializers import IndicatorSerializer, IndicatorDataSerializer, IndicatorFilterSerializer, IndicatorFilterHeadingSerializer
+from api.indicator.filters import IndicatorFilters, IndicatorDataFilter, SearchFilter, IndicatorFilterFilters, IndicatorFilterHeadingFilter
 from api.aggregation.views import AggregationView, Aggregation, GroupBy
 from api.generics.views import DynamicListView
 
 from rest_framework import serializers
 import numpy as np
 import urllib
+import datetime
 
 #Better solution needed here!
 @api_view(['GET'])#should do this using ListAPIView as it already does this but don't have time now
@@ -70,16 +71,20 @@ def show_unique_filters(request):
     return Response({"success":1, "count": overall_count, "results": list(queryset)})
 
 
-@api_view(['GET'])
+"""@api_view(['GET'])
 def get_filter_headings(request):
+    print("-----------------------")
     if(not request.GET['dataType']):
         return Response({"success":0, "results":IndicatorFilter.objects.all()})
-    
     data_source = urllib.unquote(request.GET['dataType'])
+    print("Data source ", data_source)
+    print("1 ",datetime.datetime.now().time())
     x = IndicatorFilter.objects.filter(file_source = FileSource.objects.get(name=data_source)).values_list("heading")
-    x = [x[0] for x in list(set(x.values_list("heading")))] 
+    print("2 ",datetime.datetime.now().time())
+    x = [x[0] for x in list(set(x.values_list("heading")))]
+    print("3 ",datetime.datetime.now().time())
     return Response({"success":1, "results": x})
-
+"""
 
 @api_view(['POST'])
 def reset_mapping(request):
@@ -89,6 +94,27 @@ def reset_mapping(request):
     indicators.delete()
     update_indicator_counts()
     return Response({"success":1})
+
+class IndicatorFilterHeadingList(ListAPIView):
+    queryset = IndicatorFilterHeading.objects.all()
+    
+    filter_backends = (DjangoFilterBackend, )
+    #override method in 
+    filter_class = IndicatorFilterHeadingFilter
+    serializer_class = IndicatorFilterHeadingSerializer
+
+    fields = (
+        'name',
+        'file_source',
+    )
+
+    #temp
+    """def filter_queryset(self, request, queryset, view):
+        queryset = super(self, IndicatorFilterList).filter_queryset(self, request, queryset, view)
+        ##
+        #get ?sector
+
+        return queryset"""
 
 class IndicatorFilterList(ListAPIView):
     queryset = IndicatorFilter.objects.all()

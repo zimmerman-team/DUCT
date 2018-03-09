@@ -107,7 +107,8 @@ class HXLtags(models.Model):
 
 
 class IndicatorFilterHeading(models.Model):
-    name = models.CharField(max_length=255, primary_key=True) 
+    name = models.CharField(max_length=255, primary_key=True)
+    file_source = models.ForeignKey(FileSource, null=True)
     
 
 class IndicatorFilter(models.Model):

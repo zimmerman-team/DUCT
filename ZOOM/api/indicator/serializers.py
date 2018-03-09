@@ -94,7 +94,8 @@ class IndicatorFilterHeadingSerializer(serializers.ModelSerializer):
     class Meta:
         model = indicator_models.IndicatorFilterHeading
         fields = (
-            'name'
+            'name',
+            'file_source'
         )
 
 
