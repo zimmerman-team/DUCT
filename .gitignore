@@ -12,6 +12,8 @@ ZOOM/media/
 ZOOM/static_served/*
 ZOOM/scripts/formatters/CRS/*
 ZOOM/scripts/fromatters/World_Bank/*
+mapper.log
+sql_backups/
 
 *.pyc
 *.swp

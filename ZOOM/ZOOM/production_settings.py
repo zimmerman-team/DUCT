@@ -39,7 +39,7 @@ STATICFILES_DIRS = (
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'ZOOM.wsgi.application'
 
-ERROR_LOGS_ENABLED = False
+ERROR_LOGS_ENABLED = True
 
 try:
     from local_settings import *

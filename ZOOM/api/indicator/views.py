@@ -17,11 +17,18 @@ from api.generics.views import DynamicListView
 
 @api_view(['POST'])
 def reset_mapping(request):
-    file = File.objects.get(id=request.data['file_id'])
-    indicators = IndicatorDatapoint.objects.filter(file=file)
-    #foreign keys 
-    indicators.delete()
-    update_indicator_counts()
+    try:
+        file = File.objects.get(id=request.data['file_id'])
+        indicators = IndicatorDatapoint.objects.filter(file=file)
+        #foreign keys 
+        indicators.delete()
+        update_indicator_counts() #not needed any more
+    except:
+        logger = logging.getLogger("django")
+        logger.exception("--------" + str(datetime.datetime.now()) + " Error when resetting mapping --------")
+        context['error'] = "Error when resetting mapping"
+        context['success'] = 0
+        raise #temp 
     return Response({"success":1})
 
 
