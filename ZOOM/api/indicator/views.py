@@ -163,8 +163,9 @@ def check_filters(instance):
     queryset = instance.queryset
     request = instance.request.query_params.get('filters') 
     #filter on indicator filter
+    #instance.request.query_params.get('indicator') = urllib.unquote(instance.request.query_params.get('indicator'))
     if request:
-        applied_filters = request.split(",")
+        applied_filters = request.split("~~")
         filter_set = IndicatorFilter.objects.all()
         for i in applied_filters:
             filter_set = filter_set.filter(name=urllib.unquote(i))
@@ -180,6 +181,13 @@ def check_filters(instance):
     if request2:
         queryset = queryset.filter(date_value__lte=request2)
 
+    """request = instance.request.query_params.get('indicator')
+    print("---------------------request ", request)
+    if request:
+        ind = Indicator.objects.get(id=urllib.unquote(request))
+        queryset = queryset.filter(indicator=ind)
+        print("Results")
+        print(queryset.count())"""
     return queryset
 
 

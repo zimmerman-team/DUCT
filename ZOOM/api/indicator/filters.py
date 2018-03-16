@@ -1,4 +1,4 @@
-from django_filters import Filter, FilterSet
+from django_filters import Filter, FilterSet, CharFilter
 from api.generics.filters import CommaSeparatedCharFilter
 from indicator.models import Indicator, IndicatorDatapoint, IndicatorFilter, IndicatorFilterHeading#, IndicatorCategory
 from api.indicator.serializers import IndicatorDataSerializer
@@ -8,7 +8,7 @@ from django_filters import BooleanFilter
 from rest_framework import filters, generics
 from django.db import models
 from django_filters.fields import Lookup
-
+import urllib
 
 class SearchFilter(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
@@ -32,20 +32,31 @@ class ListFilter(Filter):
         return IndicatorDatapoint.objects.filter(pk__in=ids) #super(ListFilter, self).filter(qs, lookup(value_list, 'in'))
 
 
+class IndicatorListFilter(Filter):
+    def filter(self, qs, value):
+        print("qs ", qs)
+        print("value ", value)
+        ind = Indicator.objects.get(id=urllib.unquote(value))
+        print("ids ", ind)
+        #print(qs.filter(indicator=ind).count())
+        #value_list = value.split(u',')
+        return qs.filter(indicator=ind) #super(ListFilter, self).filter(qs, lookup(value_list, 'in'))
 
 #need to change this filter set!!!
 class IndicatorDataFilter(FilterSet):
 
     file__authorised = BooleanFilter(name='file__authorised')
     id = ListFilter(name='id')
+    indicator = CharFilter(method='ind_filter')
 
     file__source = CommaSeparatedStickyCharFilter(
         name='file__data_source__name',
         lookup_expr='in')
-    serializer_class = Indicator
+    #serializer_class = Indicator
 
     class Meta:
         model = IndicatorDatapoint
+        exclude = ['indicator']
         fields = (
             'id',
             'file',
@@ -63,6 +74,12 @@ class IndicatorDataFilter(FilterSet):
             'measure_value',
             'unit_of_measure'
         )
+    
+    def ind_filter(self, qs, name, value):
+        ind = Indicator.objects.get(id=urllib.unquote(value))
+        #print(qs.filter(indicator=ind).count())
+        #value_list = value.split(u',')
+        return qs.filter(indicator=ind) #super(ListFilter, self).filter(qs, lookup(value_list, 'in'))
 
 class IndicatorFilterHeadingFilter(FilterSet):
     file_source = CommaSeparatedStickyCharFilter(
