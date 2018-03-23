@@ -23,9 +23,10 @@ def reset_mapping(request):
         #foreign keys 
         indicators.delete()
         update_indicator_counts() #not needed any more
-    except:
+    except Exception as e:
         logger = logging.getLogger("django")
-        logger.exception("--------" + str(datetime.datetime.now()) + " Error when resetting mapping --------")
+        logger.exception("--Error when resetting mapping")
+        context = {}
         context['error'] = "Error when resetting mapping"
         context['success'] = 0
         raise #temp 

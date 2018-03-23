@@ -28,9 +28,9 @@ def get_data(request):
             "summary":zip(summary_indexes, summary_results),
             "missing_list" : remaining_mapping
         }
-    except:
+    except Exception as e:
         logger = logging.getLogger("django")
-        logger.exception("--------" + str(datetime.datetime.now()) + " Error in get data occurred --------")
+        logger.exception("--Error in get data occurred")
         context['error'] = "Problem retrieving column name from file"
         context['success'] = 0
         raise
@@ -41,17 +41,13 @@ def get_data(request):
 def ManualMapping(request):
     context = {}
     if request.method == 'POST':
+        logger = logging.getLogger("django")
         try:
-            print("Incoming Request")
-            print(request)
-            print("Entering Manual Mapping")
-            print (time.strftime("%H:%M:%S"))
+            logger.info("Entering Manual Mapping")
             context = manual_mapper(request.data)
-            print("Finished")
-            print(context)
-        except:
-            logger = logging.getLogger("django")
-            logger.exception("--------" + str(datetime.datetime.now()) + " Error in manual mapping process --------")
+            logger.info("Successful mapping")
+        except Exception as e:
+            logger.exception("--Error in manual mapping process")
             context['error'] = "Error occured when attempting to map file"
             context['success'] = 0
             raise #temp
@@ -74,16 +70,14 @@ class ManualMappingJob(APIView):
     def post(self, request):
         from manual_mapping.manual_mapper import manual_mapper
         context = {}
-        print("In Job")
-        print("Incomming Request")
-        print(request)
-        print("Entering Manual Mapping")
-        print (time.strftime("%H:%M:%S"))
+        logger = logging.getLogger("django")
+        logger.info("Entering Manual Mapping Job")
         try:
             context = manual_mapper(request.data)
-        except:
+            logger.info("Successful mapping")
+        except Exception as e:
             logger = logging.getLogger("django")
-            logger.exception("--------" + str(datetime.datetime.now()) + " Error in manual mapping process --------")
+            logger.exception("--Error in manual mapping process")
             context['error'] = "Error occured when attempting to map file"
             context['success'] = 0
             raise #temp

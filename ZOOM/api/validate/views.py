@@ -16,9 +16,10 @@ class Validate(APIView):
             else:
                 return Response("No file selected")
             context = validate(file_id)
-        except:
+        except Exception as e:
             logger = logging.getLogger("django")
-            logger.exception("--------" + str(datetime.datetime.now()) + " Error when validating file --------")
+            logger.exception("--Error when validating file")
+            context = {}
             context['error'] = "Error when validating file"
             context['success'] = 0
             raise #temp 
@@ -45,9 +46,9 @@ def check_file_valid(request):
             os.remove(file_loc) 
             File.objects.get(id=request.data['file_id']).delete()
             return Response(result[1])
-    except:
+    except Exception as e:
         logger = logging.getLogger("django")
-        logger.exception("--------" + str(datetime.datetime.now()) + " Error when checking if file valid --------")
+        logger.exception("--Error when checking if file valid")
         context['error'] = "Error when checking if file is valid"
         context['success'] = 0
         raise #temp 

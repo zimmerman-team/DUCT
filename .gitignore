@@ -12,7 +12,7 @@ ZOOM/media/
 ZOOM/static_served/*
 ZOOM/scripts/formatters/CRS/*
 ZOOM/scripts/fromatters/World_Bank/*
-mapper.log
+logs/
 sql_backups/
 
 *.pyc
