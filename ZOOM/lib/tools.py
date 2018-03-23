@@ -9,11 +9,11 @@ import os
 import requests
 import json
 import re
+import math
 import unicodedata
 from collections import Counter
 from django.test import RequestFactory, Client
 from rest_framework.test import APIClient
-import math
 #import complier
 
 def identify_col_dtype(column_values, file_heading, dicts):
@@ -298,9 +298,9 @@ def correct_data(df_data, correction_data, error_data, index_order):#correction_
             if correction_data[key][0] =="text":
                 if index_order["measure_value"] == key:
                     #get inidicator category add and group accordingly
-                    df_data[index_order["indicator_filter"]] = (df_data[index_order["indicator_filter"]] + "|" + index_order["measure_value"] + ": "
+                    df_data[index_order["indicator_category"]] = (df_data[index_order["indicator_category"]] + "|" + index_order["measure_value"] + ": "
                                                                 + df_data[index_order["measure_value"]])
-                    str_data = pd.DataFrame({index_order["measure_value"] + "temp" : df_data.groupby([index_order["indicator"], index_order["indicator_filter"], 
+                    str_data = pd.DataFrame({index_order["measure_value"] + "temp" : df_data.groupby([index_order["indicator"], index_order["indicator_category"], 
                                                                             index_order["country"], index_order["date_value"], index_order["unit_of_measure"], 
                                                                             index_order["measure_value"]])[index_order["measure_value"]
                                                                             ].count()}).reset_index()
@@ -340,10 +340,7 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
         new_df (Dataframe): newly formatted dataframe.
         dtypes_dict ({str:str}): stores the data-types found for each heading.
         mappings ({str:[str]}): the users chosen mappings for a file column.
-        heading_order ([str]): 
     """
-
-    heading_order = []
 
     if not empty_unit_measure_value:
         empty_unit_measure_value = {}
@@ -380,32 +377,22 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
     new_df = pd.DataFrame(columns=df_data.columns)
 
     for col in relationship_dict:
-        heading_order.append(col)
         #print('#############################')
-        #print("mappings ", mappings["indicator_filter"])
+        #print("mappings ", mappings["indicator_category"])
         #print(col)
     
         tmp_df = df_data.copy(deep=True)    
         
         #if more than one relationship is multiple subgroupd and relationships
-        if col in mappings["indicator_filter"] and len(mappings["indicator_filter"]) > 1:
+        if col in mappings["indicator_category"] and len(mappings["indicator_category"]) > 1:
             """print("Ind Cat " + col);
             print(tmp_df[relationship_dict[col]] + "|" + (col))
             print(tmp_df[col])
             print("------------------")"""
             tmp_df[relationship_dict[col]] = tmp_df[relationship_dict[col]] + "|" + (col)
             tmp_df[left_over_dict[col]] = tmp_df[col]
-            if left_over_dict[col] == "measure_value":
-                tmp_df["heading_filter"] = tmp_df['heading_filter'] + "|" + "Measure Value"
-            else:
-                tmp_df["heading_filter"] = tmp_df['heading_filter'] + "|" + col.replace("_", " ").lower().title()
+
         else:#normal case
-            if col in mappings["indicator_filter"]:
-                if left_over_dict[col] == "measure_value":
-                    tmp_df["heading_filter"] = "Measure Value"
-                else:
-                    tmp_df["heading_filter"] =  col.replace("_", " ").lower().title()  
-            
             tmp_df[relationship_dict[col]] = col
             tmp_df[left_over_dict[col]] = tmp_df[col]
         
@@ -417,8 +404,8 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
     mappings[relationship_dict[col]] = relationship_dict[col]
     mappings[left_over_dict[col]] = left_over_dict[col] 
     
-    #print(new_df.reset_index()['indicator_filter']);
-    return new_df.reset_index(), dtypes_dict, mappings #filter by columns needed
+    #print(new_df.reset_index()['indicator_category']);
+    return new_df.reset_index(), dtypes_dict, mappings#filter by columns needed
 
 def check_file_type(file_name):
     name = file_name.lower()
@@ -465,7 +452,6 @@ def get_line_index(line_records, line_no):
 
 #from file_upload.models import File
 
-#URL="http://perspective-csvmapper.zz-demos.net/api/"
 URL="http://127.0.0.1:8000/api/"
 WB = "World_Bank"
 CRS = "CRS"
@@ -559,7 +545,8 @@ file_dict = {
                                             '2001': 'measure_value', '2006': 'measure_value', '2007': 'measure_value', 
                                             '2004': 'measure_value', '1998': 'measure_value', '2008': 'measure_value', 
                                             '2009': 'measure_value'}, 
-                            'country': ['Country Code'],  
+                            'country': ['Country Code'], 
+                            'empty_indicator': 'test', 
                             'measure_value': [  '1960', '1961', '1962', '1963', '1964', '1965', '1966', 
                                                 '1967', '1968', '1969', '1970', '1971', '1972', '1973', 
                                                 '1974', '1975', '1976', '1977', '1978', '1979', '1980', 
@@ -580,7 +567,7 @@ file_dict = {
                                                 '2012', '2013', '2014', '2015', '2016', '2017'], 
                             'source': [], 
                             'other': [], 
-                            'indicator_filter': ['Indicator Name'], 
+                            'indicator_category': ['Indicator Name'], 
                             'empty_unit_of_measure': {'2003': 'Number', '1997': 'Number', '1988': 'Number', '1989': 'Number', 
                                                       '1986': 'Number', '1987': 'Number', '1984': 'Number', '1985': 'Number', 
                                                       '1968': 'Number', '1969': 'Number', '1980': 'Number', '1981': 'Number', 
@@ -644,10 +631,10 @@ file_dict = {
                                     'indicator': ['Flow Name'], 
                                     'unit_of_measure': [],
                                     'relationship': {
-                                                    'Commitments Defl': 'indicator_filter', 
-                                                    'Disbursements': 'indicator_filter', 
-                                                    'Disbursements Defl': 'indicator_filter',
-                                                    'Commitments': 'indicator_filter'}, 
+                                                    'Commitments Defl': 'indicator_category', 
+                                                    'Disbursements': 'indicator_category', 
+                                                    'Disbursements Defl': 'indicator_category',
+                                                    'Commitments': 'indicator_category'}, 
                                     'left_over': {
                                                     'Commitments Defl': 'measure_value', 
                                                     'Disbursements': 'measure_value',
@@ -658,7 +645,7 @@ file_dict = {
                                     'date_value': ['Year'], 
                                     'source': [], 
                                     'other': [], 
-                                    'indicator_filter': ['Sector', 'Aid Type', 'Income Group', 'Purpose', 'Donor', 'Finance Type', 'Commitments', 'Disbursements', 'Commitments Defl', 'Disbursements Defl'], 
+                                    'indicator_category': ['Sector', 'Aid Type', 'Income Group', 'Purpose', 'Donor', 'Finance Type', 'Commitments', 'Disbursements', 'Commitments Defl', 'Disbursements Defl'], 
                                     'empty_unit_of_measure': {'Currency': 'Number', 'Disbursements': 'Number', 'Disbursements Defl': 'Number', 'Commitments': 'Number', 'Commitments Defl': 'Number'}
                         }, 
                         "input_path":"../scripts/formatters/" + CRS + "/input/", 
@@ -703,12 +690,11 @@ file_dict = {
 file_list = [WB, CRS]
 character_sep = {WB: ",", CRS: "|"}
 
-
 def add_external_data():
     global character_sep
     checked = False
-    file_choice = CRS #temp
-    #file_choice = "" 
+    file_choice = CRS#WB;#"CRS" #temp
+    #file_choice = ""
     """print("Enter one of the following: ", file_list)
                 print("e for escape")
                 while(not checked):
@@ -723,11 +709,10 @@ def add_external_data():
     """
 
     convert_data(file_choice)
-    if(file_choice == CRS):
-        flatten_data(file_choice)
-    checkIfFilesTooBig(file_choice)
-    start_mapping(file_choice)
-
+    """if(file_choice == CRS):
+        flatten_data(file_choice)"""
+    #checkIfFilesTooBig(file_choice)
+    #start_mapping(file_choice)
 
 def start_mapping(file_choice):
     global file_list, file_dict
@@ -736,11 +721,9 @@ def start_mapping(file_choice):
     counter = 0
     request_dummy = RequestFactory().get('/')
     c = APIClient()
-    print("###################################")
-    print(URL)
-    print("###################################")
+
     for file_name in file_list:
-        print("Mapping file ", file_name)
+        
         headers = {'Content-type': 'multipart/form-data'}
         with open(path + file_name, 'rb') as fp:
                 res_file_upload = c.post(
@@ -764,17 +747,14 @@ def start_mapping(file_choice):
             "status": 1
         }
 
-
         file_id = res_file_upload.json()['id']
         print('file_id ', file_id)
-        res = requests.patch(
+        """res = requests.patch(
                     URL + 'file/{}/?format=json'.format(file_id), 
                     headers=headers,
                     data=(json.dumps(patch_data))
                 )#""""""
         print("Update file: ", res)
-
-        #b.god
 
         res = c.post(
                 URL + 'validate/?format=json', 
@@ -784,12 +764,12 @@ def start_mapping(file_choice):
         print("Validation: ", res)
         
         res = c.post(
-                URL + 'manual-mapper/manual_map/?format=json', 
+                URL + 'manual-mapper/?format=json', 
                 {
                     "file_id": file_id,
                     "dict": file_dict[file_choice]['mapping']
                 },  format='json')        
-        print("Mapping: ", res)
+        print("Mapping: ", res)"""
         
 
         res = c.post(
@@ -802,7 +782,7 @@ def start_mapping(file_choice):
 
 def checkIfFilesTooBig(file_choice):
     global file_list, file_dict
-    SPLIT_SIZE = 1000000 #use small values, will be faster as less data is held in memory
+    SPLIT_SIZE = 5500000
     path = file_dict[file_choice]["output_path"]
     file_list = os.listdir(path)
     counter = 0
@@ -810,20 +790,19 @@ def checkIfFilesTooBig(file_choice):
     for file_name in file_list:
         size = os.path.getsize(path + file_name)
         if(size > SPLIT_SIZE):#over 5.5mb split
-            data = pd.read_csv(path + file_name, sep=",")
+            data = pd.read_csv(path + file_name, sep=character_sep[file_choice])
             print("Size of file: ", size)
             split_range = int(math.ceil(size/SPLIT_SIZE))
-            print("Split file: ", split_range )
             data_split = np.array_split(data, split_range)
             for i in range(split_range):
-                data_split[i].to_csv(file_dict[file_choice]["output_path"] + file_name[:-4]+ "(" + str(i) + ")" + ".csv",
-                 sep=",", index = False)  
+                data_split[i].to_csv(file_dict[file_choice]["output_path"] + file_name[:-4]+ "(" + i + ")" + ".csv", sep=',', index = False)  
             os.remove(path + file_name)
 
+            print("Split file: ", split_range )
 
 """
 Created on Mon Nov 20 09:42:29 2017
-@author: marco, kieran
+@author: marco
 This script format crs data: 
     The original file uses "|" instead of ","
 """
@@ -835,11 +814,11 @@ def convert_data(file_choice):
     print("Begining Conversion")
     
     for file_name in file_list:
-        data = pd.read_csv(file_dict[file_choice]["input_path"] + file_name, sep=character_sep[file_choice], error_bad_lines=False)
+        data = pd.read_csv(file_dict[file_choice]["input_path"] + file_name, sep=character_sep[file_choice])
         if file_choice == WB:
             data[DEFAULT_INDICATOR_COLUMN] = data[data.columns[0]]
             data[DEFAULT_INDICATOR_COLUMN] = file_name[:-4]
-            #data = data.iloc[4:]#remove first 4 rows
+            data = data.iloc[4:]#remove first 4 rows
         data = data[file_dict[file_choice]["columns"]]
         if "nice_name" in file_dict[file_choice]:
             data.rename(columns=file_dict[file_choice]["nice_name"], inplace=True)
@@ -882,3 +861,11 @@ def flatten_data(file_choice):
         sys.stdout.write("\r %d%%" % ((counter/len(file_list)) * 100) )
 
     sys.stdout.flush()
+
+def mapping(mapping_dict, file):
+    print("Begining Mapping ", file)
+
+    print("Finished Mapping ", file)
+
+if __name__ == "__main__":
+    main()
