@@ -1,6 +1,7 @@
 import os
 import json
-
+import logging
+import datetime
 from django.shortcuts import get_object_or_404
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.parsers import FormParser, MultiPartParser
@@ -36,18 +37,34 @@ class FileListView(ListCreateAPIView):
         'rendered')
 
     def perform_create(self, serializer):
-        serializer.save(
-            file=self.request.data.get('file'), 
-            file_name=self.request.data.get('file_name')
-        )
+        try:
+            serializer.save(
+                file=self.request.data.get('file'), 
+                file_name=self.request.data.get('file_name')
+            )
+        except Exception as e:
+            logger = logging.getLogger("django")
+            logger.exception("--Problem saving file")
+            context = {}
+            context['error'] = "Error occured when saving file"
+            context['success'] = 0
+            raise #temp 
 
 
 @api_view(['POST'])
 def update_status(request):
-    print("File status ")
-    file = File.objects.get(id=request.data['file_id'])
-    file.status = request.data['status']
-    file.save()
+    try:
+        print("File status ")
+        file = File.objects.get(id=request.data['file_id'])
+        file.status = request.data['status']
+        file.save()
+    except Exception as e:
+            logger = logging.getLogger("django")#don't need the logger
+            logger.exception("--Error in updating status of file")
+            context = {}
+            context['error'] = "Error occured when updating status of file"
+            context['success'] = 0
+            raise #temp 
     return Response({"success":1})
 
 
@@ -87,23 +104,31 @@ class FileDetailView(RetrieveUpdateDestroyAPIView):
 
     def delete(self, request, *args, **kwargs):
 
-        file_object = self.get_object()
-        file_dtypes = FileDtypes.objects.filter(file=file_object)
-        
-        for i in file_dtypes:
-            path = i.dtype_name
-            if path:
-                try:
-                    os.remove(path)
-                except Exception:
-                    continue
+        try:
+            file_object = self.get_object()
+            file_dtypes = FileDtypes.objects.filter(file=file_object)
+            
+            for i in file_dtypes:
+                path = i.dtype_name
+                if path:
+                    try:
+                        os.remove(path)
+                    except Exception:
+                        continue
 
-            path = i.dtype_dict_name
-            if path:
-                try:
-                    os.remove(path)
-                except Exception:
-                    continue
+                path = i.dtype_dict_name
+                if path:
+                    try:
+                        os.remove(path)
+                    except Exception:
+                        continue
+        except:
+            logger = logging.getLogger("django")
+            logger.exception("--Error when deleting file")
+            context = {}
+            context['error'] = "Error when deleting file"
+            context['success'] = 0
+            raise #temp 
 
         return self.destroy(request, *args, **kwargs)
 
@@ -115,10 +140,18 @@ class FileSourceListView(ListCreateAPIView):
 
 @api_view(['POST'])
 def add_remove_source(request):
-    if request.data['action'] == "save":
-        _, created = FileSource.objects.get_or_create(name=request.data['source'])
-    else:#delete
-        FileSource.objects.get(name=request.data['source']).delete()
+    try:
+        if request.data['action'] == "save":
+            _, created = FileSource.objects.get_or_create(name=request.data['source'])
+        else:#delete
+            FileSource.objects.get(name=request.data['source']).delete()
+    except Exception as e:
+        logger = logging.getLogger("django")
+        logger.exception("--Error when removing source")
+        context = {}
+        context['error'] = "Error when removing source"
+        context['success'] = 0
+        raise #temp 
 
     return Response({"success": 1})
 
@@ -132,7 +165,15 @@ class FileTagListView(ListCreateAPIView):
         return self.queryset.filter(file_id=self.kwargs.get('file_source_pk'))
 
     def perform_create(self, serializer):
-        file_id = get_object_or_404(
-            FileSource, pk = self.kwargs.get('file_source_pk'))
-        serializer.save(file_id=file_id)
+        context = {}
+        try:
+            file_id = get_object_or_404(
+                FileSource, pk = self.kwargs.get('file_source_pk'))
+            serializer.save(file_id=file_id)
+        except Exception as e:
+            logger = logging.getLogger("django")
+            logger.exception("--Error in creating file tag")
+            context['error'] = "Error in creating file tag"
+            context['success'] = 0
+            raise #temp 
 

@@ -9,37 +9,48 @@ from lib.common import get_headings_data_model, get_file_data, get_dtype_data
 from task_queue.tasks import manual_mapping_job
 from file_upload.models import File
 import time
-
+import logging
+import datetime
 
 @api_view(['POST'])
 def get_data(request):
-    file_id = request.data['file_id']
-    
-    df_data = get_file_data(file_id)
-    # Future: make faster by only reading in headings or 1st row rather than entire data set
-    zip_list, summary_results, summary_indexes, remaining_mapping = get_headings_data_model(df_data)
-    #Future: add summary for hover over file heading name
-    context = {
-        'success': 1, 
-        "found_list": zip_list, 
-        "summary":zip(summary_indexes, summary_results),
-        "missing_list" : remaining_mapping
-    }
-
+    context = {'success':0}
+    try:
+        file_id = request.data['file_id']
+        
+        df_data = get_file_data(file_id)
+        # Future: make faster by only reading in headings or 1st row rather than entire data set
+        zip_list, summary_results, summary_indexes, remaining_mapping = get_headings_data_model(df_data)
+        #Future: add summary for hover over file heading name
+        context = {
+            'success': 1, 
+            "found_list": zip_list, 
+            "summary":zip(summary_indexes, summary_results),
+            "missing_list" : remaining_mapping
+        }
+    except Exception as e:
+        logger = logging.getLogger("django")
+        logger.exception("--Error in get data occurred")
+        context['error'] = "Problem retrieving column name from file"
+        context['success'] = 0
+        raise
     return Response(context)
 
 
 @api_view(['POST'])
 def ManualMapping(request):
+    context = {}
     if request.method == 'POST':
-        print("Incoming Request")
-        print(request)
-        print("Entering Manual Mapping")
-        print (time.strftime("%H:%M:%S"))
-        context = manual_mapper(request.data)
-        print("Finished")
-        print(context)
-
+        logger = logging.getLogger("django")
+        try:
+            logger.info("Entering Manual Mapping")
+            context = manual_mapper(request.data)
+            logger.info("Successful mapping")
+        except Exception as e:
+            logger.exception("--Error in manual mapping process")
+            context['error'] = "Error occured when attempting to map file"
+            context['success'] = 0
+            raise #temp
         # Clear /indicator/aggregations caches
         cache.clear()
         # TODO - check if the above also deletes tasks from the task queue, if so, make separates caches in the settings - 2017-07-05
@@ -57,14 +68,19 @@ class ManualMappingJob(APIView):
     # permission_classes = (PublisherPermissions, )
     
     def post(self, request):
-
         from manual_mapping.manual_mapper import manual_mapper
-        print("In Job")
-        print("Incomming Request")
-        print(request)
-        print("Entering Manual Mapping")
-        print (time.strftime("%H:%M:%S"))
-        context = manual_mapper(request.data)
+        context = {}
+        logger = logging.getLogger("django")
+        logger.info("Entering Manual Mapping Job")
+        try:
+            context = manual_mapper(request.data)
+            logger.info("Successful mapping")
+        except Exception as e:
+            logger = logging.getLogger("django")
+            logger.exception("--Error in manual mapping process")
+            context['error'] = "Error occured when attempting to map file"
+            context['success'] = 0
+            raise #temp
         return Response(context)
 
 
