@@ -1,8 +1,9 @@
 # Sample production settings, change as needed
-
+import os
 from ZOOM.base_settings import *
 
 DEBUG = True
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 
 MIDDLEWARE_CLASSES += [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
@@ -12,8 +13,10 @@ INSTALLED_APPS += {
     'debug_toolbar',
 }
 
+
 def custom_show_toolbar(self):
     return True
+
 
 SECRET_KEY = '__DEV_SECRET_KEY__'
 
@@ -36,11 +39,11 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static_served/')
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-     os.path.join(BASE_DIR, 'static/'),
+    os.path.join(BASE_DIR, 'static/'),
 )
 
 FIXTURE_DIRS = (
-     os.path.join(BASE_DIR, '../fixtures/'),
+    os.path.join(BASE_DIR, '../fixtures/'),
 )
 
 API_CACHE_SECONDS = 0
@@ -49,5 +52,3 @@ try:
     from local_settings import *
 except ImportError:
     pass
-
-

@@ -1,5 +1,5 @@
 # Sample production settings, change as required
-
+import os
 from ZOOM.base_settings import *
 
 BASE_DIR = os.path.dirname(os.path.realpath(__name__))
