@@ -379,6 +379,7 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
         dicts ([str:{str:Model}]): list of dictionaries containing foreign keys.
     """
 
+    file = df_data['file'][0]
     file_source = df_data['file'][0].data_source 
     ind_dict, ind_cat_dict, ind_source_dict, ind_country_dict = dicts
     df_data[index_order['indicator_category']] = df_data[index_order['indicator']] + df_data[index_order['indicator_category']]
@@ -418,6 +419,9 @@ def save_datapoints(df_data, index_order, reverse_mapping, dicts):
         ind_dict[i].count = IndicatorDatapoint.objects.filter(indicator=(ind_dict[i])).count()
         ind_dict[i].file_source = file_source
         ind_dict[i].save()
+
+    file.status = '5' #Indicate map is saved
+    file.save()
 
 '''Remaps all files that have been mapped'''
 def remap_all_files():
