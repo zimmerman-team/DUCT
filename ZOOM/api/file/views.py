@@ -7,6 +7,7 @@ from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework import filters
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from rest_framework.pagination import PageNumberPagination
 
 from file_upload.models import File, FileSource, FileTag, FileDtypes
 from indicator.models import IndicatorDatapoint
@@ -107,10 +108,15 @@ class FileDetailView(RetrieveUpdateDestroyAPIView):
         return self.destroy(request, *args, **kwargs)
 
 
+class FileSourceListViewPagination(PageNumberPagination):
+    page_size = 100
+    page_size_query_param = 'page_size'
+
 class FileSourceListView(ListCreateAPIView):
 
     queryset = FileSource.objects.all()
     serializer_class = FileSourceSerializer
+    pagination_class = FileSourceListViewPagination
 
 @api_view(['POST'])
 def add_remove_source(request):
