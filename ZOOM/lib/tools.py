@@ -384,7 +384,7 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
         tmp_df = df_data.copy(deep=True)    
         
         #if more than one relationship is multiple subgroupd and relationships
-        if col in mappings["indicator_category"] and len(mappings["indicator_category"]) > 1:
+        if col in mappings["indicator_filter"] and len(mappings["indicator_=filter"]) > 1:
             """print("Ind Cat " + col);
             print(tmp_df[relationship_dict[col]] + "|" + (col))
             print(tmp_df[col])
@@ -567,7 +567,7 @@ file_dict = {
                                                 '2012', '2013', '2014', '2015', '2016', '2017'], 
                             'source': [], 
                             'other': [], 
-                            'indicator_category': ['Indicator Name'], 
+                            'indicator_filter': ['Indicator Name'],
                             'empty_unit_of_measure': {'2003': 'Number', '1997': 'Number', '1988': 'Number', '1989': 'Number', 
                                                       '1986': 'Number', '1987': 'Number', '1984': 'Number', '1985': 'Number', 
                                                       '1968': 'Number', '1969': 'Number', '1980': 'Number', '1981': 'Number', 
@@ -645,7 +645,7 @@ file_dict = {
                                     'date_value': ['Year'], 
                                     'source': [], 
                                     'other': [], 
-                                    'indicator_category': ['Sector', 'Aid Type', 'Income Group', 'Purpose', 'Donor', 'Finance Type', 'Commitments', 'Disbursements', 'Commitments Defl', 'Disbursements Defl'], 
+                                    'indicator_filter': ['Sector', 'Aid Type', 'Income Group', 'Purpose', 'Donor', 'Finance Type', 'Commitments', 'Disbursements', 'Commitments Defl', 'Disbursements Defl'],
                                     'empty_unit_of_measure': {'Currency': 'Number', 'Disbursements': 'Number', 'Disbursements Defl': 'Number', 'Commitments': 'Number', 'Commitments Defl': 'Number'}
                         }, 
                         "input_path":"../scripts/formatters/" + CRS + "/input/", 
@@ -693,7 +693,7 @@ character_sep = {WB: ",", CRS: "|"}
 def add_external_data():
     global character_sep
     checked = False
-    file_choice = CRS#WB;#"CRS" #temp
+    file_choice = CRS#WB#CRS #temp
     #file_choice = ""
     """print("Enter one of the following: ", file_list)
                 print("e for escape")
@@ -709,10 +709,10 @@ def add_external_data():
     """
 
     convert_data(file_choice)
-    """if(file_choice == CRS):
-        flatten_data(file_choice)"""
-    #checkIfFilesTooBig(file_choice)
-    #start_mapping(file_choice)
+    if(file_choice == CRS):
+        flatten_data(file_choice)
+    checkIfFilesTooBig(file_choice)
+    start_mapping(file_choice)
 
 def start_mapping(file_choice):
     global file_list, file_dict
@@ -749,7 +749,7 @@ def start_mapping(file_choice):
 
         file_id = res_file_upload.json()['id']
         print('file_id ', file_id)
-        """res = requests.patch(
+        res = requests.patch(
                     URL + 'file/{}/?format=json'.format(file_id), 
                     headers=headers,
                     data=(json.dumps(patch_data))
@@ -769,7 +769,7 @@ def start_mapping(file_choice):
                     "file_id": file_id,
                     "dict": file_dict[file_choice]['mapping']
                 },  format='json')        
-        print("Mapping: ", res)"""
+        print("Mapping: ", res)
         
 
         res = c.post(
@@ -795,17 +795,11 @@ def checkIfFilesTooBig(file_choice):
             split_range = int(math.ceil(size/SPLIT_SIZE))
             data_split = np.array_split(data, split_range)
             for i in range(split_range):
-                data_split[i].to_csv(file_dict[file_choice]["output_path"] + file_name[:-4]+ "(" + i + ")" + ".csv", sep=',', index = False)  
+                data_split[i].to_csv(file_dict[file_choice]["output_path"] + file_name[:-4]+ "(" + str(i) + ")" + ".csv", sep=',', index = False)
             os.remove(path + file_name)
 
             print("Split file: ", split_range )
 
-"""
-Created on Mon Nov 20 09:42:29 2017
-@author: marco
-This script format crs data: 
-    The original file uses "|" instead of ","
-"""
 def convert_data(file_choice):
     global character_sep, file_dict
     file_list = os.listdir(file_dict[file_choice]["input_path"])
@@ -814,7 +808,11 @@ def convert_data(file_choice):
     print("Begining Conversion")
     
     for file_name in file_list:
+        print('File being converted: ', file_dict[file_choice]["input_path"] + file_name)
         data = pd.read_csv(file_dict[file_choice]["input_path"] + file_name, sep=character_sep[file_choice])
+        rm_cols = filter(lambda k: 'Unnamed:' in k, data.columns)
+        data.drop(columns=rm_cols, inplace=True)
+
         if file_choice == WB:
             data[DEFAULT_INDICATOR_COLUMN] = data[data.columns[0]]
             data[DEFAULT_INDICATOR_COLUMN] = file_name[:-4]
@@ -846,6 +844,7 @@ def flatten_data(file_choice):
     print("Begining Conversion")
     
     for file_name in file_list:
+        print(file_dict[file_choice]["output_path"] + file_name)
         data = pd.read_csv(file_dict[file_choice]["output_path"] + file_name)
         data.fillna(value=0, inplace=True)
         data["Aid Type"] = data["Aid Type"].map(aid_t_conv)

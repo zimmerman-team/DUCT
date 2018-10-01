@@ -51,8 +51,6 @@ def manual_mapper(data):
         
         print("Begining Mapping")
         print (time.strftime("%H:%M:%S"))
-        print(relationship_dict)
-        print(left_over_dict)
 
         ###If column mapped to multiple sections in data model
         if relationship_dict:
@@ -84,7 +82,7 @@ def manual_mapper(data):
                 if not mappings[key][0] in df_data.columns:
                     mappings[key][0] = mappings[key][0].replace("~", " ")
 
-        print("Corrceting dtypes")
+        print("Correcting dtypes")
         result, correction_mappings, context = check_mapping_dtypes(mappings, dtypes_dict)
         
         ###Checking if mapping is bad or not
@@ -93,9 +91,9 @@ def manual_mapper(data):
 
         print("Getting Error types")###needed?
         error_lines, new_dtypes_dict = generate_error_data(df_data)
-        print("check1")
+        print("Save validation data")
         save_validation_data(error_lines, file_id, new_dtypes_dict)
-        print("check2")
+        print('Combine dicts')
         ###Combine dictionaries
         for key in new_dtypes_dict:
             dtypes_dict[key] = new_dtypes_dict[key] 
@@ -104,13 +102,14 @@ def manual_mapper(data):
         for key in mappings:
             if mappings[key]:
                 index_order[key] = mappings[key][0]
-                reverse_mapping[mappings[key][0]] = key 
+                reverse_mapping[mappings[key][0]] = key
 
+        print("Correcting data")
         df_data = correct_data(df_data, correction_mappings, error_lines, index_order)
-        print("check3")
         ###Clear data structures
         correction_mappings = None
         error_lines = None
+        print('mappings ', mappings)
         null_values = df_data[mappings['indicator_filter'][0]].isnull()
         df_data[mappings['indicator_filter'][0]][null_values] = "Default"
         print("Filtering NaNs from measure value, indicator, data and country")
