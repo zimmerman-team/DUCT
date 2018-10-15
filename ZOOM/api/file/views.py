@@ -1,18 +1,15 @@
 import os
-import json
 import logging
-import datetime
 from django.shortcuts import get_object_or_404
-from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.parsers import FormParser, MultiPartParser
-from rest_framework import filters
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.pagination import PageNumberPagination
 
-from file_upload.models import File, FileSource, FileTag, FileDtypes
-from indicator.models import IndicatorDatapoint
-from api.file.serializers import FileSerializer, FileSourceSerializer, FileTagSerializer
+from metadata.models import File, FileSource
+from indicator.models import Datapoints
+from api.file.serializers import FileSerializer, FileSourceSerializer
 
 
 class FileListView(ListCreateAPIView):
@@ -79,17 +76,6 @@ class FileDetailView(RetrieveUpdateDestroyAPIView):
         pk = self.kwargs.get('pk')
 
         file = File.objects.get(pk=pk)
-        file.tags = []
-
-        # update tags / source
-        tags = self.request.data.get('tags')
-
-        if tags:
-            for i in range(len(tags)):
-                tag = tags[i]
-                file_tag, file_tag_created = FileTag.objects.get_or_create(name=tag)
-                file.tags.add(file_tag)
-
         file.title = self.request.data.get('title')
         file.description = self.request.data.get('description')
         file.authorised = self.request.data.get('authorised')
@@ -107,7 +93,7 @@ class FileDetailView(RetrieveUpdateDestroyAPIView):
 
         try:
             file_object = self.get_object()
-            file_dtypes = FileDtypes.objects.filter(file=file_object)
+            file_dtypes = file_object.datatypes_overview_file_location
             
             for i in file_dtypes:
                 path = i.dtype_name
@@ -160,26 +146,3 @@ def add_remove_source(request):
         raise #temp 
 
     return Response({"success": 1})
-
-
-class FileTagListView(ListCreateAPIView):
-
-    queryset = FileTag.objects.all()
-    serializer_class = FileTagSerializer
-
-    def get_queryset(self):
-        return self.queryset.filter(file_id=self.kwargs.get('file_source_pk'))
-
-    def perform_create(self, serializer):
-        context = {}
-        try:
-            file_id = get_object_or_404(
-                FileSource, pk = self.kwargs.get('file_source_pk'))
-            serializer.save(file_id=file_id)
-        except Exception as e:
-            logger = logging.getLogger("django")
-            logger.exception("--Error in creating file tag")
-            context['error'] = "Error in creating file tag"
-            context['success'] = 0
-            raise #temp 
-

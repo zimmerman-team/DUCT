@@ -103,6 +103,10 @@ MIDDLEWARE_CLASSES = [
     'admin_reorder.middleware.ModelAdminReorder',
 ]
 
+MIDDLEWARE = [
+'debug_toolbar.middleware.DebugToolbarMiddleware'
+]
+
 ROOT_URLCONF = 'ZOOM.urls'
 
 # Application definition
@@ -126,13 +130,13 @@ INSTALLED_APPS = [
     'error_correction',
     'manual_mapping',
     'indicator',
-    'geodata.apps.GeodataConfig',
+    'geodata',
     'task_queue',
-    'djsupervisor',
+    #'djsupervisor',
     'django_extensions',
     'test_without_migrations',
     'admin_reorder',
-    'file_upload',
+    'metadata',
 ]
 
 ADMIN_REORDER = (
@@ -148,7 +152,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'api.pagination.CustomPagination',
     'PAGE_SIZE': 10,
     'DEFAULT_FILTER_BACKENDS': (
-        'rest_framework.filters.DjangoFilterBackend',
+        'django_filters.rest_framework.DjangoFilterBackend',
     ),
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',

@@ -1,31 +1,8 @@
 from rest_framework import serializers
 from indicator import models as indicator_models
 from geodata import models as geo_models
-from file_upload.models import File, FileTag, FileSource
+from metadata.models import File, FileSource
 from api.generics.serializers import DynamicFieldsModelSerializer
-
-
-class RegionSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = geo_models.Region
-        fields = (
-            'code',
-            'name',
-        )
-
-
-class CountrySerializer(serializers.ModelSerializer):
-
-    region = RegionSerializer()
-    
-    class Meta:
-        model = geo_models.Country
-        fields = (
-            'code',
-            'name',
-            'region',
-        )
 
 class FileSourceSerializer(serializers.ModelSerializer):
     class Meta:
@@ -34,33 +11,18 @@ class FileSourceSerializer(serializers.ModelSerializer):
             'name',
         )
 
-class FileTagSerializer(serializers.ModelSerializer):
-    
-    class Meta:
-        model = FileTag
-        fields = (
-            'name',
-        )
-
-
 class FileSerializer(serializers.ModelSerializer):
-    file_tags = FileTagSerializer(source="tags", many=True, read_only=True)
 
     class Meta:
         model = File
         fields = (
-            'id',
-            'file_name',
-            'created',
-            'file_tags',
-            'status',
-            'authorised',
+            'file_id',
         )
 
     #data_source = FileSourceSerializer()
 
 #getting error when adding data source to file serializer, think it's due to nested serializers therefore using this cutsom serializer instead
-class FileDataSerializer(serializers.ModelSerializer):
+'''class FileDataSerializer(serializers.ModelSerializer):
     def to_representation(self, value):
         file_name = value.file_name
         data_source = value.data_source.name
@@ -75,6 +37,7 @@ class FileDataSerializer(serializers.ModelSerializer):
         file_dict = {"file_name" : file_name, "file_source" : data_source, "file_title" : title, "description" : description, "authorised" : authorised, "tags" : tag_list}
         return file_dict
 
+''''''
 class IndicatorSubCatSerializer(serializers.ModelSerializer):
     def to_representation(self, value):
         file_name = value.file_name
@@ -127,7 +90,7 @@ class IndicatorDataSerializer(serializers.ModelSerializer):
             'other',
             'date_created',
         )
-
+'''
 
 class IndicatorSerializer(serializers.ModelSerializer):
     file_source = FileSourceSerializer()
@@ -136,7 +99,6 @@ class IndicatorSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'description',
-            'count',
             'file_source'
         )
 

@@ -1,10 +1,8 @@
 from lib.common import get_file_data, get_dtype_data, save_validation_data, get_dictionaries
 from lib.tools import update_cell_type, identify_col_dtype, get_prob_list
-from file_upload.models import File
-import pickle
+from metadata.models import File
 import json
 import numpy as np
-import pandas as pd
 
 def error_correction(request):
     """Gets data needed for error correction."""

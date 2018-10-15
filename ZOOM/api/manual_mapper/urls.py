@@ -1,10 +1,8 @@
 from django.conf.urls import url
-
-from . import views
 from rest_framework.urlpatterns import format_suffix_patterns
-
 from api.manual_mapper.views import ManualMappingJobResult, ManualMappingJob, ManualMapping, get_data
 
+app_name = 'manaual_map'
 
 urlpatterns = [
     url(r'^$', ManualMappingJob.as_view(), name='manual-mapper'),

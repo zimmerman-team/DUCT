@@ -1,8 +1,7 @@
 from django.conf import settings
-from indicator.models import IndicatorDatapoint
-from file_upload.models import File, FileDtypes
-from geodata.models import Country, CountryAltName
-import unicodedata
+from indicator.models import Datapoints
+from metadata.models import File
+from geodata.models import Geolocation
 import pickle
 import pandas as pd
 import numpy as np
@@ -14,7 +13,8 @@ import time
 
 def get_dictionaries():#might be better to use a set
     """Gets dictionaries for checking country data"""
-    iso2_codes = Country.objects.values_list('code')
+    print('TODO')
+    '''iso2_codes = Country.objects.values_list('code')
     iso3_codes = Country.objects.values_list('iso3')
     country_names = Country.objects.values_list('name')
     country_alt_names = CountryAltName.objects.values_list('name')
@@ -42,7 +42,7 @@ def get_dictionaries():#might be better to use a set
                 country_alt_name = CountryAltName.objects.get(name=data_lists[i][j][0]) 
                 country = Country.objects.get(code=country_alt_name.country.code) 
                 country_iso2_dict[temp_value] = country.code
-    return country_source_dict, country_iso2_dict
+    return country_source_dict, country_iso2_dict'''
 
 
 def save_validation_data(error_data, file_id, dtypes_dict):
@@ -64,19 +64,15 @@ def save_validation_data(error_data, file_id, dtypes_dict):
         pickle.dump(dtypes_dict, f)
     
     file = File.objects.get(id=file_id)
-    #obj, created = FileDtypes.objects.update_or_create(dtype_name=dict_name, file= file) # error due to one to one field
 
-    try:
-        instance = FileDtypes.objects.get(file=file)#
-        if instance.dtype_name:
-            os.remove(instance.dtype_name)
-        if instance.dtype_dict_name:
-            os.remove(instance.dtype_dict_name)
-        instance.dtype_name = dtype_name
-        instance.dtype_dict_name = dict_name 
-        instance.save()
-    except Exception:
-        FileDtypes(dtype_name=dtype_name, file=file, dtype_dict_name=dict_name).save()
+    #try:
+    instance = File.objects.get(file=file)#
+    if instance.datatypes_overview_file_location:
+        os.remove(instance.datatypes_overview_file_location)
+    instance.datatypes_overview_file_location = dtype_name
+    instance.save()
+    #except Exception:
+    #   #FileDtypes(dtype_name=dtype_name, file=file, dtype_dict_name=dict_name).save()
 
 
 def get_dtype_data(file_id):
@@ -90,7 +86,7 @@ def get_dtype_data(file_id):
         dtypes_dict ({str:str}): stores the data-types found for each heading.
     """
 
-    file_dtypes = FileDtypes.objects.get(file=File.objects.get(id=file_id)) 
+    file_dtypes = File.objects.get(id=file_id).datatypes_overview_file_location
     
     with open(str(file_dtypes.dtype_name), 'rb') as f:
         error_data = pickle.load(f)
@@ -139,7 +135,7 @@ def get_headings_data_model(df_file):
     data_model_headings = []
 
     #Get datapoint headings
-    for field in IndicatorDatapoint._meta.fields:
+    for field in Datapoints._meta.fields:
         data_model_headings.append(field.name)#.get_attname_column())
     #skip first four headings as irrelevant to user input, should use filter for this
     print((time.strftime("%H:%M:%S")))
@@ -188,7 +184,7 @@ def get_column_information(df_file, dtypes_dict):
         summary_indexes.append(list(column_detail.index))
 
     #Get datapoint headings
-    for field in IndicatorDatapoint._meta.fields:
+    for field in Datapoints._meta.fields:
         data_model_headings.append(field.name)#.get_attname_column())
     #skip first four headings as irrelevant to user input, should use filter for this
 

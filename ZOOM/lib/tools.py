@@ -1,19 +1,16 @@
-from geodata.models import Country, CountryAltName
-from indicator.models import IndicatorDatapoint
+from geodata.models import Geolocation
+from indicator.models import Datapoints
 from lib.common import get_dictionaries
 import dateutil.parser as date_parser
 import pandas as pd
 import numpy as np
 import sys
 import os
-import requests
-import json
 import re
 import unicodedata
 from collections import Counter
 from django.test import RequestFactory, Client
 from rest_framework.test import APIClient
-#import complier
 
 def identify_col_dtype(column_values, file_heading, dicts):
     """Identify the data types for each value in a column.

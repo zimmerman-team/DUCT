@@ -1,41 +1,42 @@
 import os
-import requests
-import rfc6266
 from django.db import models
 from django.conf import settings
-from geodata.models import GeoLocation
+from django.contrib.postgres.fields import JSONField
+from geodata.models import Geolocation
 
 class FileSource(models.Model):
-    name = models.CharField(max_length=100)
+    file_source_id = models.AutoField(primary_key=True, editable=False)
+    name = models.CharField(unique=True ,max_length=100, null=False, blank=True)
 
-class Metadata(models.Model):
+class File(models.Model):
     ## Metadata related fileds ##
-    metadata_id = models.AutoField(primary_key=True, editable=False)
-    title = models.CharField(max_length=100, null=False, blank=False)
-    description = models.TextField(null=False, blank=False)
-    contains_subnational_data = models.BooleanField(null=False, blank=False)
-    source  = models.ForeignKey(FileSource, on_delete=models.CASCADE, null=False, blank=False)
-    organisation = models.CharField(max_length=100, null=False, blank=False)
+    file_id = models.AutoField(primary_key=True, editable=False)
+    title = models.CharField(max_length=100,)
+    description = models.TextField()
+    contains_subnational_data = models.BooleanField()
+    organisation = models.CharField(max_length=100)
     maintainer = models.CharField(max_length=100)
-    data_of_dataset = models.DateField(null=False, blank=False)
-    location = models.ForeignKey(GeoLocation, null=False, blank=False)
-    methodology = models.CharField(max_length=150, null=False, blank=False)
+    data_of_dataset = models.DateField()
+    methodology = models.CharField(max_length=150)
     define_methodology = models.TextField()
     update_frequency = models.CharField(max_length=100)
     comments = models.TextField() # caveats
-    accessibility = models.CharField(max_length=100, choices = ['open', 'private', 'request'], null=False, blank=False)
+    accessibility = models.CharField(max_length=100, choices = (('o','open'), ('p','private'), ('r','request')))
     data_quality = models.CharField(max_length=1000)
-    number_of_rows = models.IntegerField(null=False, help_text='No. of rows within dataset')
+    number_of_rows = models.IntegerField(help_text='No. of rows within dataset')
     number_of_rows_saved = models.IntegerField(null=True, help_text='No. of rows from dataset saved within ZOOM')
-    file_types = models.CharField(max_length=100, choices = ['csv', 'json'], null=False, blank=False)
-    data_uploaded = models.DateField(null=False, blank=False)
-    last_updated = models.DateField(null=False, blank=False)
+    file_types = models.CharField(max_length=100, choices = (('csv','csv'), ('json', 'json')))
+    data_uploaded = models.DateField()
+    last_updated = models.DateField()
+
+    location = models.ForeignKey(Geolocation, on_delete=models.SET_NULL, null=True)
+    source = models.ForeignKey(FileSource, on_delete=models.CASCADE)
 
     ## Back-end operational fields ##
-    original_file_location = models.CharField(null=False, blank=False)
-    mapping_used = models.JSONField(null=True) # thge Mapping used for the file
-    file_status = models.CharField(max_length=100, choices=['Uploaded', 'Error Correction', 'Mapping', 'Saved'])
-    datatypes_overview_file_location = models.CharField(max_length=500, null=True)#location
+    original_file_location = models.CharField(max_length=300)
+    mapping_used = JSONField() # thge Mapping used for the file
+    file_status = models.CharField(max_length=100, choices=(('1','Uploaded'), ('2','Error Correction'), ('3','Mapping'), ('4','Saved')))
+    datatypes_overview_file_location = models.CharField(max_length=500)#location
 
     def filename(self):
         return os.path.basename(self.file.name)

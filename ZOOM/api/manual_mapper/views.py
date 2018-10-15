@@ -7,7 +7,7 @@ import django_rq
 from manual_mapping.manual_mapper import manual_mapper
 from lib.common import get_headings_data_model, get_file_data, get_dtype_data
 from task_queue.tasks import manual_mapping_job
-from file_upload.models import File
+from metadata.models import File
 import time
 import logging
 import datetime

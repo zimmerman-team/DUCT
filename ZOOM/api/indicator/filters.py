@@ -1,6 +1,6 @@
 from django_filters import Filter, FilterSet
 from api.generics.filters import CommaSeparatedCharFilter
-from indicator.models import Indicator, IndicatorDatapoint, IndicatorCategory
+from indicator.models import Indicator#, IndicatorDatapoint, IndicatorCategory
 
 from api.generics.filters import CommaSeparatedCharFilter
 from api.generics.filters import CommaSeparatedStickyCharFilter
@@ -23,7 +23,7 @@ class SearchFilter(filters.BaseFilterBackend):
         return queryset
 
 
-class IndicatorDataFilter(FilterSet):
+'''class IndicatorDataFilter(FilterSet):
 
     indicator_category__name = CommaSeparatedStickyCharFilter(
         name='indicator_category__name',
@@ -36,7 +36,7 @@ class IndicatorDataFilter(FilterSet):
         lookup_expr='in')
 
     class Meta:
-        model = IndicatorDatapoint
+        model = Datapoints
         fields = (
             'id',
             'file',
@@ -54,11 +54,11 @@ class IndicatorDataFilter(FilterSet):
             'measure_value',
             'unit_of_measure'
         )
-
+'''
 
 class IndicatorFilter(FilterSet):
 
-    file__authorised = BooleanFilter(name='indicatordatapoint__file__authorised')
+    #file__authorised = BooleanFilter(name='indicatordatapoint__file__authorised')
     
     file_source__name = CommaSeparatedStickyCharFilter(
         name='file_source__name',
@@ -67,14 +67,13 @@ class IndicatorFilter(FilterSet):
     class Meta:
         model = Indicator
         fields = (
-            'id',
+            'indicator_id',
             'description',
-            'count',
             'file_source'
         )
 
 
-class IndicatorCategoryDataFilter(FilterSet):
+'''class IndicatorCategoryDataFilter(FilterSet):
 
     file__authorised = BooleanFilter(name='indicator__indicatordatapoint__file__authorised')
 
@@ -97,3 +96,4 @@ class IndicatorCategoryDataFilter(FilterSet):
             'parent',
             'indicator',
         )
+'''

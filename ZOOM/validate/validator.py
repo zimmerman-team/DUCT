@@ -1,10 +1,7 @@
-import numpy as np
 import pandas as pd
 from lib.tools import identify_col_dtype
-from file_upload.models import File
-from file_upload.models import FileDtypes
+from metadata.models import File
 from lib.common import get_dictionaries, save_validation_data, get_column_information
-
 
 def validate(file_id):
     """Perform validation check on file.

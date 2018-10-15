@@ -1,17 +1,16 @@
 from django.db.models import Count, Sum, F, Avg, Max, Min
 from django.db.models import FloatField
 from django.db.models.functions import Cast
-from rest_framework.filters import DjangoFilterBackend
-from rest_framework.generics import RetrieveAPIView, GenericAPIView, ListAPIView
-from rest_framework.views import APIView
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
-from file_upload.models import File
-from indicator.models import IndicatorDatapoint, Indicator, IndicatorCategory, update_indicator_counts
-from api.indicator.serializers import IndicatorSerializer, IndicatorDataSerializer, IndicatorCategorySerializer
-from api.indicator.filters import IndicatorFilter, IndicatorDataFilter, IndicatorCategoryDataFilter, SearchFilter
-from api.aggregation.views import AggregationView, Aggregation, GroupBy
+from metadata.models import File
+from indicator.models import Datapoints, Indicator#, IndicatorCategory, update_indicator_counts
+from api.indicator.serializers import IndicatorSerializer#, IndicatorDataSerializer, IndicatorCategorySerializer
+from api.indicator.filters import IndicatorFilter#, IndicatorDataFilter, IndicatorCategoryDataFilter, SearchFilter
+#from api.aggregation.views import AggregationView, Aggregation, GroupBy
 from api.generics.views import DynamicListView
 
 
@@ -19,17 +18,17 @@ from api.generics.views import DynamicListView
 def reset_mapping(request):
     try:
         file = File.objects.get(id=request.data['file_id'])
-        indicators = IndicatorDatapoint.objects.filter(file=file)
+        '''indicators = IndicatorDatapoint.objects.filter(file=file)
         #foreign keys 
         indicators.delete()
-        update_indicator_counts() #not needed any more
+        update_indicator_counts() #not needed any more'''
     except Exception as e:
-        logger = logging.getLogger("django")
+        '''logger = logging.getLogger("django")
         logger.exception("--Error when resetting mapping")
         context = {}
         context['error'] = "Error when resetting mapping"
         context['success'] = 0
-        raise #temp 
+        raise #temp'''
     return Response({"success":1})
 
 
@@ -46,7 +45,7 @@ class IndicatorList(ListAPIView):
         'file_source'
     )
 
-
+'''
 class IndicatorDataList(ListAPIView):
 
     queryset = IndicatorDatapoint.objects.all()
@@ -73,7 +72,7 @@ class IndicatorDataList(ListAPIView):
     #         return IndicatorDatapoint.objects.none()
     #     return IndicatorDatapoint.objects.all()
 
-'''
+''''''
 Data Post Example:
 
 # Without date_value filter:
@@ -94,7 +93,7 @@ Data Post Example:
             "indicator_category_y": "Stocks",
             "date_value": "2004"
 }
-'''
+''''''
 
 class IndicatorCategoryDataList(ListAPIView):
 
@@ -252,3 +251,4 @@ class IndicatorDataAggregations(AggregationView):
             fields="unit_of_measure",
         ),        
     )
+'''

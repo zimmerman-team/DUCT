@@ -11,7 +11,7 @@ urlpatterns = [
     url(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/queue/', include('django_rq.urls')),
     url(r'^admin/task_queue/', include('task_queue.urls')),
-    url(r'^admin/', include(admin.site.urls)),
+    #url(r'^admin/', include(admin.site.urls)),
     url(r'^api/', include('api.urls')),
 ]
 

@@ -1,23 +1,13 @@
-from __future__ import division
-from django.db import connection,transaction
-from django.conf import settings
-from django.http import Http404
 import numpy as np
 import pandas as pd
-import pickle 
 import json
 import datetime
-import time
-import os
 import math
-
-from dateutil.parser import parse
 from indicator.models import *
 from geodata.models import Country
-from lib.converters import convert_to_JSON
 from lib.tools import check_column_data_type, correct_data, convert_df
 from lib.common import get_file_data, get_dtype_data, save_mapping, get_dictionaries
-from file_upload.models import File
+from metadata.models import File
 from validate.validator import generate_error_data, save_validation_data
 from api.indicator.views import reset_mapping
 import time

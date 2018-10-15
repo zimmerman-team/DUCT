@@ -1,27 +1,20 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
-from django.core.cache import cache
-from django.db import connection,transaction
 from indicator.models import *
-from geodata.models import Country
-from lib.converters import convert_to_JSON # check if this works
-from django.conf import settings
-from sqlalchemy import create_engine
+from geodata.models import GeoLocation
 from lib.tools import check_column_data, correct_data, convert_df
-import numpy as np
 import pandas as pd
 import pickle 
 import json
 import datetime
-import time
-import os
 
 def index(request):
     
     if request.method == 'POST':    
         #check data types
         # add validation check here
-        if 'dict' in request.POST:
+        print('Todo')
+        '''if 'dict' in request.POST:
             mappings = json.loads(request.POST['dict']) 
             mappings.pop("null", None)
             mappings.pop("unit_measure", None)#change later
@@ -298,8 +291,8 @@ def index(request):
 
         context = {"files" : request.session['files'], "missing_headings" : missing, "remaining_headings" : request.session['remaining_headings'], "dict_values" : dict_values}
         return render(request, 'manual_mapping/manual_mapping.html', context)
-
-
+    '''
+'''
 def tags(request, file_id):
     try:
         file_source = FileSource.objects.get(pk=file_id)
@@ -325,4 +318,6 @@ def tags(request, file_id):
     except:
         context = {}
     return render(request, 'manual_mapping/tags.html', context)
+'''
+
 

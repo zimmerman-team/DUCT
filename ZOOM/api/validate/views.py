@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view
 import os
 
 from lib.tools import check_file_formatting, check_file_type
-from file_upload.models import File
+from metadata.models import File
 from validate.validator import validate
 
 
