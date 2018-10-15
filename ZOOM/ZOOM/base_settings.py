@@ -71,6 +71,7 @@ USE_TZ = False
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
 MEDIA_URL = '/media/'
+DATASETS_URL = '/datasets/'
 
 # Additional locations of static files
 # STATICFILES_DIRS = (

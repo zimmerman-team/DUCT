@@ -1,26 +1,9 @@
 from django.contrib.gis.db import models as gis_models
 from django.db import models
 
-
-class Codelist(models.Model):
+class GeoLocation:
+    geolocation_id = models.AutoField(primary_key=True, editable=False)
     name = models.CharField(primary_key=True, max_length=100)
-    description = models.TextField(max_length=1000, blank=True, null=True)
-    count = models.CharField(max_length=10, blank=True, null=True)
-    fields = models.CharField(max_length=255, blank=True, null=True)
-    date_updated = models.DateTimeField(auto_now=True, editable=False)
-
-    def __unicode__(self,):
-        return "%s" % self.name
-
-
-class RegionVocabulary(models.Model):
-    code = models.CharField(primary_key=True, max_length=40)
-    name = models.CharField(max_length=100)
-    description = models.TextField(default="")
-
-    def __unicode__(self,):
-        return "%s - %s" % (self.code, self.name)
-
 
 
 class Region(gis_models.Model):
@@ -61,11 +44,6 @@ class Country(gis_models.Model):
         return self.name
 
 
-class CountryAltName(models.Model):
-   country = models.ForeignKey(Country)
-   name = models.CharField(max_length=100, db_index=True, primary_key=True)
-
-
 class City(gis_models.Model):
     geoname_id = gis_models.IntegerField(null=True, blank=True)
     name = gis_models.CharField(max_length=200)
@@ -87,7 +65,7 @@ class City(gis_models.Model):
         verbose_name_plural = "cities"
 
 
-class Adm1Region(gis_models.Model):
+class SubNational(gis_models.Model):
     adm1_code = gis_models.CharField(primary_key=True, max_length=10)
     OBJECTID_1 = gis_models.IntegerField(null=True, blank=True)
     diss_me = gis_models.IntegerField(null=True, blank=True)
@@ -154,5 +132,25 @@ class Adm1Region(gis_models.Model):
 
     class Meta:
         verbose_name_plural = "admin1 regions"
+
+class Coordnates(gis_models.Model):
+    geoname_id = gis_models.IntegerField(null=True, blank=True)
+    name = gis_models.CharField(max_length=200)
+    country = gis_models.ForeignKey(Country, null=True, blank=True)
+    location = gis_models.PointField(null=True, blank=True)
+    ascii_name = gis_models.CharField(max_length=200, null=True, blank=True)
+    alt_name = gis_models.CharField(max_length=200, null=True, blank=True)
+    namepar = gis_models.CharField(max_length=200, null=True, blank=True)
+    objects = gis_models.GeoManager()
+
+    @property
+    def is_capital(self):
+        return hasattr(self, 'capital_of')
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = "cities"
 
 
