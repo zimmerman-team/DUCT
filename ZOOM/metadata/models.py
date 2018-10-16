@@ -5,7 +5,7 @@ from django.contrib.postgres.fields import JSONField
 from geodata.models import Geolocation
 
 def upload_to(instance, filename='test'):
-    return os.path.join(settings.MEDIA_ROOT, settings.DATASETS_URL, filename)
+    return os.path.join(os.path.join(settings.MEDIA_ROOT, settings.DATASETS_URL), filename)
 
 class FileSource(models.Model):
     file_source_id = models.AutoField(primary_key=True, editable=False)
@@ -37,12 +37,13 @@ class File(models.Model):
 
     ## Back-end operational fields ##
     original_file_location = models.CharField(max_length=300)
-    mapping_used = JSONField() # thge Mapping used for the file
+    mapping_used = JSONField(null=True) # thge Mapping used for the file
     file_status = models.CharField(max_length=100, choices=(('1','Uploaded'), ('2','Error Correction'), ('3','Mapping'), ('4','Saved')))
     datatypes_overview_file_location = models.CharField(max_length=500)#location
     file = models.FileField(upload_to=upload_to)
 
     def filename(self):
+        print('check')
         return os.path.basename(self.file.name)
 
     def update_filename(self, updated_name):
@@ -50,6 +51,7 @@ class File(models.Model):
         self.save()
 
     def get_file_path(self):
+        print('check56')
         return os.path.join(settings.MEDIA_ROOT, settings.DATASETS_URL, os.path.basename(self.file.name))
 
 

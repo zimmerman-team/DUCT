@@ -47,7 +47,7 @@ class FileErrorCorrectionTestCase(TestCase):
             format='json'
             )
 
-        print res_file_error_correction
+        print(res_file_error_correction)
 
         self.assertEquals(res_file_error_correction.status_code, 200, res_file_error_correction.json())
         self.assertIsNotNone(res_file_error_correction.json()['data_table'])

@@ -4,6 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 class Geolocation(models.Model):
+    geolocation_id = gis_models.AutoField(primary_key=True, editable=False)
     tag = models.CharField(max_length=200)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
@@ -17,8 +18,6 @@ class Geolocation(models.Model):
     def __str__(self):
         return self.tag
 
-#class Geolocation(gis_models.Model):
-#    name = gis_models.CharField(primary_key=True, max_length=200)
 
 class Region(gis_models.Model):
     region_id = gis_models.AutoField(primary_key=True, editable=False)

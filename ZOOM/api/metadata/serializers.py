@@ -7,6 +7,7 @@ class FileSourceSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = FileSource
 		fields = (
+			'file_source_id',
 			'name',
 			)
 

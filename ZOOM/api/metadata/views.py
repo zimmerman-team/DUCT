@@ -1,14 +1,11 @@
 import os
 import logging
-from django.shortcuts import get_object_or_404
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.parsers import FormParser, MultiPartParser
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
 from rest_framework.pagination import PageNumberPagination
 
+from geodata.models import Geolocation
 from metadata.models import File, FileSource
-from indicator.models import Datapoints
 from api.metadata.serializers import FileSerializer, FileSourceSerializer
 
 
@@ -43,12 +40,11 @@ class FileListView(ListCreateAPIView):
     )
 
     def perform_create(self, serializer):
-        print('-------------------------######----------------------------------')
         try:
-            serializer.save(
-                file=self.request.data.get('file'), 
-                title=self.request.data.get('title')
-            )
+            data = self.request.data
+            data['location'] = Geolocation.objects.get(geolocation_id  = data['location'])
+            data['source'] = FileSource.objects.get(file_source_id= data['source'])
+            serializer.save(**data.dict())
         except Exception as e:
             logger = logging.getLogger("django")
             logger.exception("--Problem saving file")
@@ -64,7 +60,6 @@ class FileDetailView(RetrieveUpdateDestroyAPIView):
     serializer_class = FileSerializer 
 
     def perform_update(self, serializer):
-
         pk = self.kwargs.get('pk')
 
         file = File.objects.get(pk=pk)
@@ -84,22 +79,6 @@ class FileDetailView(RetrieveUpdateDestroyAPIView):
 
         try:
             file_object = self.get_object()
-            file_dtypes = file_object.datatypes_overview_file_location
-            
-            for i in file_dtypes:
-                path = i.dtype_name
-                if path:
-                    try:
-                        os.remove(path)
-                    except Exception:
-                        continue
-
-                path = i.dtype_dict_name
-                if path:
-                    try:
-                        os.remove(path)
-                    except Exception:
-                        continue
         except:
             logger = logging.getLogger("django")
             logger.exception("--Error when deleting file")
@@ -120,20 +99,40 @@ class FileSourceListView(ListCreateAPIView):
     queryset = FileSource.objects.all()
     serializer_class = FileSourceSerializer
     pagination_class = FileSourceListViewPagination
+    parser_classes = (MultiPartParser, FormParser,)
 
-@api_view(['POST'])
-def add_remove_source(request):
-    try:
-        if request.data['action'] == "save":
-            _, created = FileSource.objects.get_or_create(name=request.data['source'])
-        else:#delete
-            FileSource.objects.get(name=request.data['source']).delete()
-    except Exception as e:
-        logger = logging.getLogger("django")
-        logger.exception("--Error when removing source")
-        context = {}
-        context['error'] = "Error when removing source"
-        context['success'] = 0
-        raise #temp 
+    fields = (
+        'file_source_id',
+        'name',
+    )
 
-    return Response({"success": 1})
+    def perform_create(self, serializer):
+        try:
+            serializer.save(
+                name=self.request.data.get('name'),
+            )
+        except Exception as e:
+            logger = logging.getLogger("django")
+            logger.exception("--Problem saving source")
+            context = {}
+            context['error'] = "Error occured when saving source. Check if source already exists"
+            context['success'] = 0
+            raise
+
+
+class FileSourceDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = FileSource.objects.all()
+    serializer_class = FileSourceSerializer
+
+    def delete(self, request, *args, **kwargs):
+        try:
+            file_source_object = self.get_object()
+        except:
+            logger = logging.getLogger("django")
+            logger.exception("--Error when deleting file source")
+            context = {}
+            context['error'] = "Error when deleting file source"
+            context['success'] = 0
+            raise  # temp
+
+        return self.destroy(request, *args, **kwargs)
