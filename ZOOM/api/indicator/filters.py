@@ -1,16 +1,11 @@
-from django_filters import Filter, FilterSet
-from api.generics.filters import CommaSeparatedCharFilter
+from django_filters import FilterSet
 from indicator.models import Indicator#, IndicatorDatapoint, IndicatorCategory
-
-from api.generics.filters import CommaSeparatedCharFilter
 from api.generics.filters import CommaSeparatedStickyCharFilter
-from django_filters import BooleanFilter
 from rest_framework import filters
-
+import urllib
 
 class SearchFilter(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
-
         query = request.query_params.get('q', None)
         query_lookup = request.query_params.get('q_lookup', None)
         lookup_expr = 'exact' #'ft'
@@ -22,18 +17,34 @@ class SearchFilter(filters.BaseFilterBackend):
 
         return queryset
 
+#check if this can be removed
+'''class ListFilter(Filter):
+    def filter(self, qs, value):
+        ids = IndicatorFilter.objects.filter(name=value).values_list('id', flat=True)
+        #value_list = value.split(u',')
+        return IndicatorDatapoint.objects.filter(pk__in=ids) #super(ListFilter, self).filter(qs, lookup(value_list, 'in'))
 
-'''class IndicatorDataFilter(FilterSet):
+class IndicatorListFilter(Filter):
+    def filter(self, qs, value):
+        print("qs ", qs)
+        print("value ", value)
+        ind = Indicator.objects.get(id=urllib.unquote(value))
+        print("ids ", ind)
+        #print(qs.filter(indicator=ind).count())
+        #value_list = value.split(u',')
+        return qs.filter(indicator=ind) #super(ListFilter, self).filter(qs, lookup(value_list, 'in'))
 
-    indicator_category__name = CommaSeparatedStickyCharFilter(
-        name='indicator_category__name',
-        lookup_expr='in')
+#need to change this filter set!!!
+class IndicatorDataFilter(FilterSet):
 
     file__authorised = BooleanFilter(name='file__authorised')
+    id = ListFilter(name='id')
+    indicator = CharFilter(method='ind_filter')
 
     file__source = CommaSeparatedStickyCharFilter(
         name='file__data_source__name',
         lookup_expr='in')
+    #serializer_class = Indicator
 
     class Meta:
         model = Datapoints
@@ -43,8 +54,8 @@ class SearchFilter(filters.BaseFilterBackend):
             'file__authorised',
             'file__source',
             'date_format',
-            'indicator_category',
-            'indicator_category__name',
+            #'indicator_category',
+            #'indicator_category__name',
             'indicator',
             'country',
             'date_value',
@@ -56,7 +67,40 @@ class SearchFilter(filters.BaseFilterBackend):
         )
 '''
 
-class IndicatorFilter(FilterSet):
+'''    
+    def ind_filter(self, qs, name, value):
+        ind = Indicator.objects.get(id=urllib.unquote(value))
+        #print(qs.filter(indicator=ind).count())
+        #value_list = value.split(u',')
+        return qs.filter(indicator=ind) #super(ListFilter, self).filter(qs, lookup(value_list, 'in'))
+
+class IndicatorFilterHeadingFilter(FilterSet):
+    file_source = CommaSeparatedStickyCharFilter(
+        name='file_source__name',
+        lookup_expr='in')
+
+    class Meta:
+        model = IndicatorFilterHeading
+        fields = (
+            'name',
+            'file_source'
+        )
+
+class IndicatorFilterFilters(FilterSet):
+    file_source = CommaSeparatedStickyCharFilter(
+        name='file_source__name',
+        lookup_expr='in')
+
+    class Meta:
+        model = IndicatorFilter
+        fields = (
+            'name',
+            'heading',
+            'measure_value',
+            'file_source'
+        )
+
+class IndicatorFilters(FilterSet):
 
     #file__authorised = BooleanFilter(name='indicatordatapoint__file__authorised')
     
@@ -72,28 +116,11 @@ class IndicatorFilter(FilterSet):
             'file_source'
         )
 
-
+'''
 '''class IndicatorCategoryDataFilter(FilterSet):
-
-    file__authorised = BooleanFilter(name='indicator__indicatordatapoint__file__authorised')
-
-    indicator_category__name = CommaSeparatedStickyCharFilter(
-        name='indicator_category__name',
-        lookup_expr='in')
-
-    #child  = CommaSeparatedStickyCharFilter(
-    #    name='child__id',
-    #    lookup_expr='in')
-
-    #excluded child below
-    class Meta:
-        model = IndicatorCategory
-        fields = (
-            'id',
-            'unique_identifier',
-            'name',
-            'level',
-            'parent',
-            'indicator',
+            'count',
+            'file_source',
+            'file_source__name'
         )
+
 '''

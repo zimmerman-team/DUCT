@@ -6,7 +6,7 @@ app_name = 'manaual_map'
 
 urlpatterns = [
     url(r'^$', ManualMappingJob.as_view(), name='manual-mapper'),
-    url(r'^manual_map$', ManualMapping, name='manual-map'),
+    url(r'^manual_map/$', ManualMapping, name='manual-map'),
     url(r'^status$', ManualMappingJobResult.as_view(), name='manual-mapper-result'),
     url(r'^get_data$', get_data, name='manual-mapper-result'),
 ]

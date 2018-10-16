@@ -5,14 +5,84 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-
 from metadata.models import File
 from indicator.models import Datapoints, Indicator#, IndicatorCategory, update_indicator_counts
-from api.indicator.serializers import IndicatorSerializer#, IndicatorDataSerializer, IndicatorCategorySerializer
-from api.indicator.filters import IndicatorFilter#, IndicatorDataFilter, IndicatorCategoryDataFilter, SearchFilter
+#from api.indicator.serializers import IndicatorSerializer#, IndicatorDataSerializer, IndicatorCategorySerializer
+#from api.indicator.filters import IndicatorFilter#, IndicatorDataFilter, IndicatorCategoryDataFilter, SearchFilter
 #from api.aggregation.views import AggregationView, Aggregation, GroupBy
-from api.generics.views import DynamicListView
+#from api.generics.views import DynamicListView
 
+from rest_framework import serializers
+import numpy as np
+import urllib
+import datetime
+
+'''
+#Better solution needed here!
+@api_view(['GET'])#should do this using ListAPIView as it already does this but don't have time now
+def show_unique_filters(request):
+    if(not 'dataType' in request.GET):
+        return Response({"success":0, "results":"Need data type"})
+    
+    data_source = request.GET['dataType']
+    
+    if("heading" in request.GET):
+        heading = urllib.unquote(request.GET['heading'])
+        queryset = IndicatorFilter.objects.filter(file_source = FileSource.objects.get(name=data_source), heading = IndicatorFilterHeading.objects.get(name=heading))
+    else:
+        queryset = IndicatorFilter.objects.all()
+
+    if("filters" in request.GET):
+        data_filter = IndicatorDatapoint.objects.all()
+        applied_filters = request.GET['filters'].split(",")
+        filter_set = IndicatorFilter.objects.all()
+        
+        for i in applied_filters:
+            new_filter_set = filter_set.filter(name=urllib.unquote(i)).values_list('measure_value')
+            new_filter_set = data_filter.filter(id__in=new_filter_set).values_list('id')
+            #need to do this to ensure other filters are not filtered out 
+            queryset = queryset.filter(measure_value__in=new_filter_set)
+            
+    if("indicator" in request.GET):
+        ind_filter = Indicator.objects.filter(id=urllib.unquote(request.GET['indicator'])).values_list("id")
+        ind_filter = np.unique(IndicatorDatapoint.objects.filter(indicator__in=ind_filter).values_list("id"))
+        queryset = queryset.filter(measure_value__in=ind_filter)
+        
+    if('country' in request.GET):
+        country_filter = Country.objects.get(code=urllib.unquote(request.GET['country']))
+        ind_filter = IndicatorDatapoint.objects.filter(country=country_filter)
+        queryset = queryset.filter(measure_value__in=ind_filter.values_list("id"))
+        
+    queryset = queryset.values('name').annotate(count=Count('name'))    #implement sort here
+    overall_count = queryset.count()
+    
+    if('order_by' in request.GET):
+        queryset = queryset.order_by(urllib.unquote(request.GET['order_by']))
+    
+    if('page_size' in request.GET and not request.GET['page_size'] == "all"):
+        page_size = int(request.GET['page_size'])
+        if('page' in request.GET and page_size > 0 ):
+            queryset = queryset[(page_size * int(request.GET['page']) - page_size): (page_size * int(request.GET['page']))]
+        else:
+            queryset = queryset[0:page_size]
+
+    return Response({"success":1, "count": overall_count, "results": list(queryset)})
+
+'''
+"""@api_view(['GET'])
+def get_filter_headings(request):
+    print("-----------------------")
+    if(not request.GET['dataType']):
+        return Response({"success":0, "results":IndicatorFilter.objects.all()})
+    data_source = urllib.unquote(request.GET['dataType'])
+    print("Data source ", data_source)
+    print("1 ",datetime.datetime.now().time())
+    x = IndicatorFilter.objects.filter(file_source = FileSource.objects.get(name=data_source)).values_list("heading")
+    print("2 ",datetime.datetime.now().time())
+    x = [x[0] for x in list(set(x.values_list("heading")))]
+    print("3 ",datetime.datetime.now().time())
+    return Response({"success":1, "results": x})
+"""
 
 @api_view(['POST'])
 def reset_mapping(request):
@@ -31,12 +101,63 @@ def reset_mapping(request):
         raise #temp'''
     return Response({"success":1})
 
+'''
+class IndicatorFilterHeadingList(ListAPIView):
+    queryset = IndicatorFilterHeading.objects.all()
+    
+    filter_backends = (DjangoFilterBackend, )
+    #override method in 
+    filter_class = IndicatorFilterHeadingFilter
+    serializer_class = IndicatorFilterHeadingSerializer
 
+    fields = (
+        'name',
+        'file_source',
+    )
+
+    #temp
+    """def filter_queryset(self, request, queryset, view):
+        queryset = super(self, IndicatorFilterList).filter_queryset(self, request, queryset, view)
+        ##
+        #get ?sector
+
+        return queryset"""
+''''''
+class IndicatorFilterList(ListAPIView):
+    queryset = IndicatorFilter.objects.all()
+    
+    filter_backends = (DjangoFilterBackend, )
+    #override method in 
+    filter_class = IndicatorFilterFilters
+    serializer_class = IndicatorFilterSerializer
+
+    fields = (
+        'name',
+        'heading',
+        'measure_value',
+        'file_source'
+    )
+
+    #temp
+    """def filter_queryset(self, request, queryset, view):
+        queryset = super(self, IndicatorFilterList).filter_queryset(self, request, queryset, view)
+        ##
+        #get ?sector
+
+        return queryset"""
+'''
+'''
 class IndicatorList(ListAPIView):
     queryset = Indicator.objects.all().distinct() #.values("indicator").distinct() #Indicator.objects.all()
     filter_backends = (DjangoFilterBackend, )
-    filter_class = IndicatorFilter
+    filter_class = IndicatorFilters
     serializer_class = IndicatorSerializer
+    #ordering = get_ordering
+
+    '''def get_ordering(self):
+        ordering = self.GET.get('ordering', '-indicator')
+        # validate ordering here
+        return ordering'''
 
     fields = (
         'id',
@@ -45,7 +166,40 @@ class IndicatorList(ListAPIView):
         'file_source'
     )
 
-'''
+''''''
+
+def check_filters(instance):
+    queryset = instance.queryset
+    request = instance.request.query_params.get('filters') 
+    #filter on indicator filter
+    #instance.request.query_params.get('indicator') = urllib.unquote(instance.request.query_params.get('indicator'))
+    if request:
+        applied_filters = request.split("~~")
+        filter_set = IndicatorFilter.objects.all()
+        for i in applied_filters:
+            filter_set = filter_set.filter(name=urllib.unquote(i))
+        queryset = queryset.filter(id__in=filter_set.values_list('measure_value'))
+
+    #filter based on date
+    request1 = instance.request.query_params.get('start_date_gte') 
+    request2 = instance.request.query_params.get('end_date_lte')
+     
+    if request1:
+        queryset = queryset.filter(date_value__gte=request1)
+
+    if request2:
+        queryset = queryset.filter(date_value__lte=request2)
+
+    """request = instance.request.query_params.get('indicator')
+    print("---------------------request ", request)
+    if request:
+        ind = Indicator.objects.get(id=urllib.unquote(request))
+        queryset = queryset.filter(indicator=ind)
+        print("Results")
+        print(queryset.count())"""
+    return queryset
+
+
 class IndicatorDataList(ListAPIView):
 
     queryset = IndicatorDatapoint.objects.all()
@@ -53,18 +207,22 @@ class IndicatorDataList(ListAPIView):
     filter_class = IndicatorDataFilter
     serializer_class = IndicatorDataSerializer
 
+    def get_queryset(self):
+        #filter according to filter tag
+        return check_filters(self)
+
     fields = (
         'id',
         'file',
         'date_format',
-        'indicator_category',
+        #'indicator_category',
         'indicator',
         'country',
         'date_value',
         'source',
         'measure_value',
         'unit_of_measure',
-        'other',
+        'other'
     )
 
     # def get_queryset(self):
@@ -95,7 +253,7 @@ Data Post Example:
 }
 ''''''
 
-class IndicatorCategoryDataList(ListAPIView):
+"""class IndicatorCategoryDataList(ListAPIView):
 
     queryset = IndicatorCategory.objects.all()
     filter_backends = (DjangoFilterBackend, )
@@ -109,7 +267,7 @@ class IndicatorCategoryDataList(ListAPIView):
         'level',
         'child',
         'indicator',
-    )
+    )"""
 
 
 def annotate_measure(query_params, groupings):
@@ -182,6 +340,18 @@ class IndicatorDataAggregations(AggregationView):
 
     filter_backends = (SearchFilter, DjangoFilterBackend,)
     filter_class = IndicatorDataFilter
+    
+    fields = (
+        'id',
+        'file',
+        'date_format',
+        'indicator',
+        'country',
+        'date_value',
+        'source',
+        'measure_value',
+        'unit_of_measure',
+    )
 
     allowed_aggregations = (
         Aggregation(
@@ -218,10 +388,6 @@ class IndicatorDataAggregations(AggregationView):
 
     allowed_groupings = (
         GroupBy(
-            query_param="indicator_category",
-            fields=("indicator_category_id", "indicator_category__name", "indicator_category__level"),
-        ),
-        GroupBy(
             query_param="indicator",
             fields=("indicator", "file__data_source__name"),
             # renamed_fields=("indicator", "source"),
@@ -251,4 +417,11 @@ class IndicatorDataAggregations(AggregationView):
             fields="unit_of_measure",
         ),        
     )
+
+'''
+'''
+    def get_queryset(self):
+        #filter according to filter tag
+        return check_filters(self)
+
 '''

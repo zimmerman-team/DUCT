@@ -29,9 +29,12 @@ class AggregationView(GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-
         params = request.query_params
-
+        #temp_params = request.query_params
+        #params = temp_params.copy()
+        #params.pop('indicator', None)
+        #params.pop(' technology', None)
+        
         aggregations = filter(None, params.get('aggregations', "").split(','))
         groupings = filter(None, params.get('group_by', "").split(','))
         orderings = filter(None, params.get('order_by', "").split(','))

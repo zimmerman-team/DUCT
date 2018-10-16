@@ -18,7 +18,6 @@ def apply_annotations(queryset, selected_groupings, selected_aggregations, query
     queryset = queryset \
         .extra(**group_extras) \
         .annotate(**rename_annotations) 
-
     # null filter should not be applied to:
     # - group by's that also has a filter on the group by
     # - group by's that have extra's (null filter would not be correct)
@@ -199,7 +198,10 @@ def aggregate(queryset, request, selected_groupings, selected_aggregations, sele
     """
     # remove any existing ordering
     queryset = queryset.order_by()
-    params = request.query_params
+    #params = request.query_params
+    temp_params = request.query_params
+    params = temp_params.copy()
+    params.pop('indicator', None)
 
     # TODO: just throw exceptions here and catch in view - 2016-04-08
 
@@ -211,7 +213,6 @@ def aggregate(queryset, request, selected_groupings, selected_aggregations, sele
     # filters that reduce the amount of "items" returned in the group_by
     # These filters must be applied directly instead of through "activity id" IN filters
     queryset = apply_group_filters(queryset, selected_groupings, params)
-
     # from here, queryset is a list
     result = apply_annotations(queryset, selected_groupings, selected_aggregations, params)
 
@@ -221,7 +222,6 @@ def aggregate(queryset, request, selected_groupings, selected_aggregations, sele
     # TODO: Can we let db do the ordering? - 2016-04-07
     result = apply_ordering(result, selected_orderings)
     result = serialize_foreign_keys(result, selected_groupings, request)
-
     return {
         'count': count,
         'results': result

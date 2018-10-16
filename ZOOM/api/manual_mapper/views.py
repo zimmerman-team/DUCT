@@ -52,10 +52,12 @@ def ManualMapping(request):
             context['success'] = 0
             raise #temp
         # Clear /indicator/aggregations caches
-        cache.clear()
+        #cache.clear()
+        print("Should respond")
         # TODO - check if the above also deletes tasks from the task queue, if so, make separates caches in the settings - 2017-07-05
-        
-        return Response(context)
+        print("reponse, ", Response())
+        return Response()
+        #return Response(context)
     else:
         return Response("No file selected");
 

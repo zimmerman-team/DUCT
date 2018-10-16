@@ -7,7 +7,7 @@ from api.generics.serializers import DynamicFieldsModelSerializer
 class FileSourceSerializer(serializers.ModelSerializer):
     class Meta:
         model=FileSource
-        filed = (
+        fields = (
             'name',
         )
 
@@ -52,18 +52,13 @@ class IndicatorSubCatSerializer(serializers.ModelSerializer):
         file_dict = {"file_name" : file_name, "file_source" : data_source, "file_title" : title, "description" : description, "tags" : tag_list}
         return file_dict
 
-class IndicatorCategorySerializer(serializers.ModelSerializer):
 
-    #return list here
+class IndicatorFilterHeadingSerializer(serializers.ModelSerializer):
     class Meta:
-        model = indicator_models.IndicatorCategory
+        model = indicator_models.IndicatorFilterHeading
         fields = (
-            'id',
-            'unique_identifier',
             'name',
-            'level',
-            'child',
-            'indicator',
+            'file_source'
         )
 
 
@@ -72,7 +67,15 @@ class IndicatorDataSerializer(serializers.ModelSerializer):
     country = CountrySerializer()
     #file = FileSerializer()
     file = FileDataSerializer()
-    indicator_category = IndicatorCategorySerializer()
+    filters = serializers.SerializerMethodField()
+    #indicator_category = IndicatorCategorySerializer()
+
+    def get_filters(self, obj):
+        #haver to filter here
+        filters = indicator_models.IndicatorFilter.objects.filter(measure_value=obj.id).values_list("name")
+        filters = map((lambda x: x[0]), filters)
+        return filters
+
 
     class Meta:
         model = indicator_models.IndicatorDatapoint
@@ -80,7 +83,7 @@ class IndicatorDataSerializer(serializers.ModelSerializer):
             'id',
             'file',
             'date_format',
-            'indicator_category',
+            #'indicator_category',
             'indicator',
             'country',
             'date_value',
@@ -89,8 +92,28 @@ class IndicatorDataSerializer(serializers.ModelSerializer):
             "unit_of_measure",
             'other',
             'date_created',
+            'filters'
         )
 '''
+
+'''
+class IndicatorFilterSerializer(serializers.ModelSerializer):
+
+    #return list here
+
+
+    class Meta:
+        model = indicator_models.IndicatorFilter
+        heading = IndicatorFilterHeadingSerializer()
+        measure_value = IndicatorDataSerializer()
+        file_source = FileSourceSerializer()
+        
+        fields = (
+            'name',
+            'heading',
+            'measure_value',
+            'file_source'
+        )
 
 class IndicatorSerializer(serializers.ModelSerializer):
     file_source = FileSourceSerializer()
@@ -103,3 +126,4 @@ class IndicatorSerializer(serializers.ModelSerializer):
         )
 
 
+'''
