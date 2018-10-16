@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from metadata.models import File
 from indicator.models import Datapoints, Indicator#, IndicatorCategory, update_indicator_counts
-#from api.indicator.serializers import IndicatorSerializer#, IndicatorDataSerializer, IndicatorCategorySerializer
+from api.indicator.serializers import IndicatorSerializer#, IndicatorDataSerializer, IndicatorCategorySerializer
 #from api.indicator.filters import IndicatorFilter#, IndicatorDataFilter, IndicatorCategoryDataFilter, SearchFilter
 #from api.aggregation.views import AggregationView, Aggregation, GroupBy
 #from api.generics.views import DynamicListView
@@ -146,28 +146,27 @@ class IndicatorFilterList(ListAPIView):
 
         return queryset"""
 '''
-'''
+
 class IndicatorList(ListAPIView):
     queryset = Indicator.objects.all().distinct() #.values("indicator").distinct() #Indicator.objects.all()
-    filter_backends = (DjangoFilterBackend, )
-    filter_class = IndicatorFilters
+    #filter_backends = (DjangoFilterBackend, )
+    #filter_class = IndicatorFilters
     serializer_class = IndicatorSerializer
     #ordering = get_ordering
 
-    '''def get_ordering(self):
+    def get_ordering(self):
         ordering = self.GET.get('ordering', '-indicator')
         # validate ordering here
-        return ordering'''
+        return ordering
 
     fields = (
-        'id',
+        'indicator_id',
         'description',
-        'count',
-        'file_source'
+        'file_source__file_source_id'
     )
 
-''''''
 
+'''
 def check_filters(instance):
     queryset = instance.queryset
     request = instance.request.query_params.get('filters') 

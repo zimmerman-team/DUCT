@@ -4,6 +4,9 @@ from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from geodata.models import Geolocation
 
+def upload_to(instance, filename='test'):
+    return os.path.join(settings.MEDIA_ROOT, settings.DATASETS_URL, filename)
+
 class FileSource(models.Model):
     file_source_id = models.AutoField(primary_key=True, editable=False)
     name = models.CharField(unique=True ,max_length=100, null=False, blank=True)
@@ -26,8 +29,8 @@ class File(models.Model):
     number_of_rows = models.IntegerField(help_text='No. of rows within dataset')
     number_of_rows_saved = models.IntegerField(null=True, help_text='No. of rows from dataset saved within ZOOM')
     file_types = models.CharField(max_length=100, choices = (('csv','csv'), ('json', 'json')))
-    data_uploaded = models.DateField()
-    last_updated = models.DateField()
+    data_uploaded = models.DateField(auto_now_add=True)
+    last_updated = models.DateField(auto_now=True)
 
     location = models.ForeignKey(Geolocation, on_delete=models.SET_NULL, null=True)
     source = models.ForeignKey(FileSource, on_delete=models.CASCADE)
@@ -37,6 +40,7 @@ class File(models.Model):
     mapping_used = JSONField() # thge Mapping used for the file
     file_status = models.CharField(max_length=100, choices=(('1','Uploaded'), ('2','Error Correction'), ('3','Mapping'), ('4','Saved')))
     datatypes_overview_file_location = models.CharField(max_length=500)#location
+    file = models.FileField(upload_to=upload_to)
 
     def filename(self):
         return os.path.basename(self.file.name)
@@ -48,8 +52,6 @@ class File(models.Model):
     def get_file_path(self):
         return os.path.join(settings.MEDIA_ROOT, settings.DATASETS_URL, os.path.basename(self.file.name))
 
-def upload_to(instance, filename=''):
-    return os.path.join(settings.MEDIA_ROOT + '/datasets/', filename)
 
 def check_files():
     print('TODO')

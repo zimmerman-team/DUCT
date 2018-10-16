@@ -3,13 +3,12 @@ from unittest import skip
 from django.test import RequestFactory, Client
 from rest_framework.test import APIClient
 
-
 class FilePatchTestCase(TestCase):
     request_dummy = RequestFactory().get('/')
     c = APIClient()
 
     def test_patch_file_valid(self):
-
+        print('test_patch_file')
         with open('samples/successful_file_patch_test.csv') as fp:
                 res_file_upload = self.c.post(
                         '/api/file/?format=json', 

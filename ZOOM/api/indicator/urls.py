@@ -3,19 +3,19 @@ from django.conf.urls import url
 
 from django.views.decorators.cache import cache_page
 
-#from api.indicator.views import IndicatorList
+from api.indicator.views import IndicatorList
 #from api.indicator.views import IndicatorDataList
 #from api.indicator.views import IndicatorDataAggregations
 #from api.indicator.views import IndicatorCategoryDataList
 #from api.indicator.views import reset_mapping
 
 
-#app_name = 'indicator'
+app_name = 'indicator'
 
-#urlpatterns = [
-#    url(r'^indicator/',
-#        IndicatorList.as_view(),
-#        name='indicator'),]
+urlpatterns = [
+    url(r'^$',
+        IndicatorList.as_view(),
+        name=''),]
 ''' url(r'^data/$',
         IndicatorDataList.as_view(),
         name='indicator-data-list'),

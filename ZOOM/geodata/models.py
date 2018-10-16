@@ -1,7 +1,24 @@
 from django.contrib.gis.db import models as gis_models
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+from django.db import models
 
-class Geolocation(gis_models.Model):
-    name = gis_models.CharField(primary_key=True, max_length=200)
+class Geolocation(models.Model):
+    tag = models.CharField(max_length=200)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+    type = models.CharField(max_length=100, choices = (('country','country'),
+                                                       ('region', 'region'),
+                                                       ('subnational', 'subnational'),
+                                                       ('city', 'city'),
+                                                       ('pointbased', 'pointbased')))
+
+    def __str__(self):
+        return self.tag
+
+#class Geolocation(gis_models.Model):
+#    name = gis_models.CharField(primary_key=True, max_length=200)
 
 class Region(gis_models.Model):
     region_id = gis_models.AutoField(primary_key=True, editable=False)
@@ -22,7 +39,7 @@ class Region(gis_models.Model):
 
 class Country(gis_models.Model):
     country_id = gis_models.AutoField(primary_key=True, editable=False)
-    name = gis_models.CharField(unique= True, max_length=100, db_index=True)
+    name = gis_models.CharField(unique=True, max_length=100, db_index=True)
     iso2 = gis_models.CharField(max_length=2) #iso2
     iso3 = gis_models.CharField(max_length=3, null=True, blank=True)
     numerical_code_un = gis_models.IntegerField(null=True, blank=True)

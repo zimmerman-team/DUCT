@@ -9,6 +9,7 @@ class FileSourceSerializer(serializers.ModelSerializer):
         model=FileSource
         fields = (
             'name',
+            'file_source_id'
         )
 
 class FileSerializer(serializers.ModelSerializer):
@@ -114,16 +115,14 @@ class IndicatorFilterSerializer(serializers.ModelSerializer):
             'measure_value',
             'file_source'
         )
-
+'''
 class IndicatorSerializer(serializers.ModelSerializer):
-    file_source = FileSourceSerializer()
+    #file_source = FileSourceSerializer()
     class Meta:
         model = indicator_models.Indicator
         fields = (
-            'id',
+            'indicator_id',
             'description',
-            'file_source'
+            #'file_source__file_source_id'
         )
 
-
-'''

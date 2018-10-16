@@ -7,6 +7,21 @@ from rest_framework.response import Response
 
 
 @api_view(('GET',))
+def overview(request, format=None):
+    """
+    ### ZOOM-CSV-MAPPER Rest API ###
+
+    The REST API provides programmatic access to read (and soon also write) indicator data.
+    The REST API responses are available in JSON.
+
+    ## Available endpoints
+
+    * Indicators: [`/api/indicators`](/api/indicators)
+
+    """
+    return Response('TODO go to api/')
+
+@api_view(('GET',))
 def welcome(request, format=None):
     """
     ## REST API
@@ -19,7 +34,7 @@ def welcome(request, format=None):
     * Indicators: [`/api/indicators`](/api/indicators)
 
     """
-    return Response({
+    return Response('''{
         'endpoints': {
             'indicators': reverse(
                 'indicators:indicator-list',
@@ -38,7 +53,7 @@ def welcome(request, format=None):
                 request=request,
                 format=format),
         }
-    })
+    }''')
 
 
 

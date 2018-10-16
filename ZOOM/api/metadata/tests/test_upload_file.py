@@ -9,19 +9,31 @@ class FileSaveTestCase(TestCase):
     c = APIClient()
 
     def test_post_file(self):
-
         '''
         Test 1: Upload file
         '''
 
         with open('samples/successful_upload_test.csv') as fp:
                 res = self.c.post(
-                        '/api/file/?format=json', 
+                        '/api/metadata/?format=json',
                         {
                         'file': fp,
                         'title': 'temp title', 
-                        'description': 'temp description', 
-                        'file_name': 'successful_upload_test.csv',
+                        'description': 'temp description',
+                        'contains_subnational_data': True,
+                        'organisation': 'ZZ',
+                        'maintainer': 'kieran',
+                        'data_of_dataset': '2009-08-06',
+                        'methodology': 'Testing',
+                        'define_methodology': 'Really tesring',
+                        'update_frequency': 'All the time',
+                        'comments': 'Good stuff',
+                        'accessibility': 'p',
+                        'data_quality': 'good',
+                        'number_of_rows': 200,
+                        'file_types': 'csv',
+                        'location': 'Country',
+                        'source': 'The best',
                         })
 
         self.assertEquals(res.status_code, 201, res.json())

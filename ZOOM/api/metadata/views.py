@@ -9,7 +9,7 @@ from rest_framework.pagination import PageNumberPagination
 
 from metadata.models import File, FileSource
 from indicator.models import Datapoints
-from api.file.serializers import FileSerializer, FileSourceSerializer
+from api.metadata.serializers import FileSerializer, FileSourceSerializer
 
 
 class FileListView(ListCreateAPIView):
@@ -19,26 +19,35 @@ class FileListView(ListCreateAPIView):
     parser_classes = (MultiPartParser, FormParser,)
 
     fields = (
-        'id',
+        'file_id',
         'title',
         'description',
+        'contains_subnational_data',
+        'organisation',
+        'maintainer',
+        'data_of_dataset',
+        'methodology',
+        'define_methodology',
+        'update_frequency',
+        'comments',
+        'accessibility',
+        'data_quality',
+        'number_of_rows',
+        'number_of_rows_saved',
+        'file_types',
+        'data_uploaded',
+        'last_updated',
+        'location',
+        'source',
         'file',
-        'file_name',
-        'in_progress',
-        'source_url',
-        'data_source',
-        'status',
-        'authorised',
-        'tags',
-        'created',
-        'modified',
-        'rendered')
+    )
 
     def perform_create(self, serializer):
+        print('-------------------------######----------------------------------')
         try:
             serializer.save(
                 file=self.request.data.get('file'), 
-                file_name=self.request.data.get('file_name')
+                title=self.request.data.get('title')
             )
         except Exception as e:
             logger = logging.getLogger("django")
@@ -46,24 +55,7 @@ class FileListView(ListCreateAPIView):
             context = {}
             context['error'] = "Error occured when saving file"
             context['success'] = 0
-            raise #temp 
-
-
-@api_view(['POST'])
-def update_status(request):
-    try:
-        print("File status ")
-        file = File.objects.get(id=request.data['file_id'])
-        file.status = request.data['status']
-        file.save()
-    except Exception as e:
-            logger = logging.getLogger("django")#don't need the logger
-            logger.exception("--Error in updating status of file")
-            context = {}
-            context['error'] = "Error occured when updating status of file"
-            context['success'] = 0
-            raise #temp 
-    return Response({"success":1})
+            raise #temp
 
 
 class FileDetailView(RetrieveUpdateDestroyAPIView):
