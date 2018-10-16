@@ -40,6 +40,7 @@ class Region(gis_models.Model):
 class Country(gis_models.Model):
     country_id = gis_models.AutoField(primary_key=True, editable=False)
     name = gis_models.CharField(unique=True, max_length=100, db_index=True)
+    primary_name = gis_models.BooleanField(default=False)#Used as primary name for a country
     iso2 = gis_models.CharField(max_length=2) #iso2
     iso3 = gis_models.CharField(max_length=3, null=True, blank=True)
     numerical_code_un = gis_models.IntegerField(null=True, blank=True)
