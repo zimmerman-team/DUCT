@@ -132,6 +132,8 @@ INSTALLED_APPS = [
     'test_without_migrations',
     'admin_reorder',
     'file_upload',
+    'graphene_django',
+    'gql',
 ]
 
 ADMIN_REORDER = (
@@ -189,6 +191,15 @@ CORS_ALLOW_METHODS = ('GET','PUT', 'PATCH', 'DELETE')
 ERROR_LOGS_ENABLED = True
 DEFAULT_LANG = None
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240
+
+
+# GraphQL setting
+
+GRAPHENE = {
+    'SCHEMA': 'gql.schema.schema',
+    'SCHEMA_OUTPUT': 'data/schema.json'
+}
+
 
 LOGGING = {
     'version': 1,
