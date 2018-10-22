@@ -7,7 +7,7 @@ class FileSourceSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = FileSource
 		fields = (
-			'file_source_id',
+			'id',
 			'name',
 			)
 
@@ -18,13 +18,13 @@ class FileSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = File
 		fields = (
-			'file_id',
+			'id',
 			'title',
 			'description',
 			'contains_subnational_data',
 			'organisation',
 			'maintainer',
-			'data_of_dataset',
+			'date_of_dataset',
 			'methodology',
 			'define_methodology',
 			'update_frequency',

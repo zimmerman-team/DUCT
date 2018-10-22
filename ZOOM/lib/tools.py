@@ -744,10 +744,10 @@ def start_mapping(file_choice):
             "status": 1
         }
 
-        file_id = res_file_upload.json()['id']
-        print('file_id ', file_id)
+        id = res_file_upload.json()['id']
+        print('id ', id)
         res = requests.patch(
-                    URL + 'file/{}/?format=json'.format(file_id), 
+                    URL + 'file/{}/?format=json'.format(id),
                     headers=headers,
                     data=(json.dumps(patch_data))
                 )#""""""
@@ -756,14 +756,14 @@ def start_mapping(file_choice):
         res = c.post(
                 URL + 'validate/?format=json', 
                 {
-                    "file_id": file_id
+                    "id": id
                 },  format='json')
         print("Validation: ", res)
         
         res = c.post(
                 URL + 'manual-mapper/?format=json', 
                 {
-                    "file_id": file_id,
+                    "id": id,
                     "dict": file_dict[file_choice]['mapping']
                 },  format='json')        
         print("Mapping: ", res)
@@ -772,7 +772,7 @@ def start_mapping(file_choice):
         res = c.post(
                 URL + 'file/update_status/?format=json', 
                 {
-                    "file_id": file_id,
+                    "id": id,
                     "status": 5
                 })        
         print("Status: ", res.json())

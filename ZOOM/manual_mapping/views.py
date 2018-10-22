@@ -154,12 +154,12 @@ def index(request):
             bulk_list = []
 
             #cycle through dataset and save each line
-            order["file_source_id"] = request.session['files'][0] 
-            instance = FileSource(file_name = order['file_source_id'])
+            order["id"] = request.session['files'][0] 
+            instance = FileSource(file_name = order['id'])
             instance.save()
-            file_id = instance.id
+            id = instance.id
 
-            order['file_source_id'] = instance 
+            order['id'] = instance 
             order["date_created"] = datetime.datetime.now()
             instance = Time(date_type = "YYYY")
             instance.save()
@@ -278,7 +278,7 @@ def index(request):
             #os.remove(dict_name)#remove tmp file with datatypes
             #Transgender people: HIV prevalence, 
              #convert_to_JSON("Transgender people: HIV prevalence", "Transgender people: Population size estimate")#allow user to choose these
-            return HttpResponseRedirect('tags/%d'%file_id)
+            return HttpResponseRedirect('tags/%d'%id)
         #return nothing
     else:
         #cache.clear() # check if necessary for ctrf token?   
@@ -293,23 +293,23 @@ def index(request):
         return render(request, 'manual_mapping/manual_mapping.html', context)
     '''
 '''
-def tags(request, file_id):
+def tags(request, id):
     try:
-        file_source = FileSource.objects.get(pk=file_id)
+        file_source = FileSource.objects.get(pk=id)
         file_name = file_source.file_name
         if request.method == 'POST':
-            FileTags.objects.filter(file_id=file_source).delete()
+            FileTags.objects.filter(id=file_source).delete()
             for i in range(0,len(request.POST)-1):
                 tag = request.POST['tags[' + str(i) + '][tag]']
-                FileTags.objects.create(file_id=file_source, tag=tag)
+                FileTags.objects.create(id=file_source, tag=tag)
             return HttpResponse('')
-        tags_saved = FileTags.objects.filter(file_id=file_source)
+        tags_saved = FileTags.objects.filter(id=file_source)
         tags_array = []
         if tags_saved.count() > 0:
             for tg in tags_saved:
                 tags_array.append(tg.tag)
         context = {
-        "file_id" : file_id,
+        "id" : id,
         "tags_array": tags_array,
         "file_name": file_name.split("/")[-1]
         }

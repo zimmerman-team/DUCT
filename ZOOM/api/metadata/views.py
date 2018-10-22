@@ -16,13 +16,13 @@ class FileListView(ListCreateAPIView):
     parser_classes = (MultiPartParser, FormParser,)
 
     fields = (
-        'file_id',
+        'id',
         'title',
         'description',
         'contains_subnational_data',
         'organisation',
         'maintainer',
-        'data_of_dataset',
+        'date_of_dataset',
         'methodology',
         'define_methodology',
         'update_frequency',
@@ -42,8 +42,8 @@ class FileListView(ListCreateAPIView):
     def perform_create(self, serializer):
         try:
             data = self.request.data
-            data['location'] = Geolocation.objects.get(geolocation_id  = data['location'])
-            data['source'] = FileSource.objects.get(file_source_id= data['source'])
+            data['location'] = Geolocation.objects.get(id  = data['location'])
+            data['source'] = FileSource.objects.get(id= data['source'])
             serializer.save(**data.dict())
         except Exception as e:
             logger = logging.getLogger("django")
@@ -61,19 +61,33 @@ class FileDetailView(RetrieveUpdateDestroyAPIView):
 
     def perform_update(self, serializer):
         pk = self.kwargs.get('pk')
+        file = File.objects.filter(pk=pk)
+        source = self.request.data.get('source')
+        location = self.request.data.get('location')
+        data = self.request.data
 
-        file = File.objects.get(pk=pk)
-        file.title = self.request.data.get('title')
+        if source:
+            obj = FileSource.objects.get(id=source)
+            data['source'] = obj
+
+        if location:
+            obj = Geolocation.objects.get(id=source)
+            data['location'] = obj
+
+        '''file.title = self.request.data.get('title')
         file.description = self.request.data.get('description')
-        file.authorised = self.request.data.get('authorised')
-
-        data_source = self.request.data.get('data_source')
-        file.status = self.request.data.get('status')
-
-        if data_source: 
-            data_source_obj, data_source_created = FileSource.objects.get_or_create(name=data_source)
-            file.data_source = data_source_obj
-        file.save()
+        file.contains_subnational_data = self.request.data.get('contains_subnational_data')
+        file.organisation = self.request.data.get('organisation')
+        file.maintainer = self.request.data.get('maintainer')
+        file.date_of_dataset = self.request.data.get('date_of_dataset')
+        file.methodology = self.request.data.get('methodology')
+        file.update_frequency = self.request.data.get('update_frequency')
+        file.comments = self.request.data.get('comments')
+        file.accessibility = self.request.data.get('accessibility')
+        file.data_quality = self.request.data.get('data_quality')
+        file.number_of_rows = self.request.data.get('number_of_rows')'''
+        file.update(**data)
+        #file.save()
 
     def delete(self, request, *args, **kwargs):
 
@@ -102,7 +116,7 @@ class FileSourceListView(ListCreateAPIView):
     parser_classes = (MultiPartParser, FormParser,)
 
     fields = (
-        'file_source_id',
+        'id',
         'name',
     )
 

@@ -17,9 +17,9 @@ class FileSaveTestCase(TestCase):
             })
 
         self.assertEquals(res.status_code, 201, res.json())
-        self.assertIsNotNone(res.json()['file_source_id'])
+        self.assertIsNotNone(res.json()['id'])
 
-        res_delete = self.c.delete('/api/metadata/sources/{}/?format=json'.format(res.json()['file_source_id']))
+        res_delete = self.c.delete('/api/metadata/sources/{}/?format=json'.format(res.json()['id']))
         self.assertEquals(res_delete.status_code, 204)
 
     def test_post_file(self):
@@ -37,8 +37,8 @@ class FileSaveTestCase(TestCase):
             })
 
         self.assertEquals(res.status_code, 201, res.json())
-        self.assertIsNotNone(res.json()['file_source_id'])
-        file_source_id = res.json()['file_source_id']
+        self.assertIsNotNone(res.json()['id'])
+        id = res.json()['id']
 
         '''
         Test 1: Upload file
@@ -54,7 +54,7 @@ class FileSaveTestCase(TestCase):
                     'contains_subnational_data': True,
                     'organisation': 'ZZ',
                     'maintainer': 'kieran',
-                    'data_of_dataset': '2009-08-06',
+                    'date_of_dataset': '2009-08-06',
                     'methodology': 'Testing',
                     'define_methodology': 'Really tesring',
                     'update_frequency': 'All the time',
@@ -64,26 +64,18 @@ class FileSaveTestCase(TestCase):
                     'number_of_rows': 200,
                     'file_types': 'csv',
                     'location': 1,
-                    'source': file_source_id,
+                    'source': id,
                 })
 
         self.assertEquals(res.status_code, 201, res.json())
-        self.assertIsNotNone(res.json()['file_id'])
+        self.assertIsNotNone(res.json()['id'])
 
         '''
         Test 2: delete File
         '''
 
-        res_delete = self.c.delete('/api/metadata/{}/?format=json'.format(res.json()['file_id']))
+        res_delete = self.c.delete('/api/metadata/{}/?format=json'.format(res.json()['id']))
 
         self.assertEquals(res_delete.status_code, 204)
-
-        '''
-        Test 3: Verify file deletion
-        '''
-
-        #res_verify = self.c.get('/api/metadata/{}/?format=json'.format(res.json()['file_id']))
-
-        #self.assertEquals(res_verify.status_code, 404)
 
 

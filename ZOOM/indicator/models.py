@@ -3,24 +3,24 @@ from metadata.models import File, FileSource
 from geodata.models import Geolocation
 
 class DateFormat(models.Model):
-    date_format_id = models.AutoField(primary_key=True, editable=False)
+    id = models.AutoField(primary_key=True, editable=False)
     type = models.CharField(unique=True, max_length=200)
 
 
 class ValueFormat(models.Model):
-    value_format_id = models.AutoField(primary_key=True, editable=False)
+    id = models.AutoField(primary_key=True, editable=False)
     type = models.CharField(unique=True, max_length=200)
 
 
 class Indicator(models.Model):
-    indicator_id = models.AutoField(primary_key=True, editable=False)
+    id = models.AutoField(primary_key=True, editable=False)
     name = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
     file_source = models.ForeignKey(FileSource, null=True, blank=True, on_delete=models.CASCADE)
 
 
 class Datapoints(models.Model):
-    datapoints_id = models.AutoField(primary_key=True, editable=False)
+    id = models.AutoField(primary_key=True, editable=False)
     value = models.FloatField()
     date = models.DateField()#Int
     comment = models.TextField(null=True, blank=True)
@@ -34,7 +34,7 @@ class Datapoints(models.Model):
 
 
 class FilterHeadings(models.Model):
-    filter_heading_id = models.AutoField(primary_key=True, editable=False)
+    id = models.AutoField(primary_key=True, editable=False)
     name = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
     aggregation_allowed = models.BooleanField(default=False, null=True, blank=True)# Allow aggrgeation on a column within ZOOM
@@ -42,7 +42,7 @@ class FilterHeadings(models.Model):
 
 
 class Filters(models.Model):
-    filter_id = models.AutoField(primary_key=True, editable=False)
+    id = models.AutoField(primary_key=True, editable=False)
     name = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
 

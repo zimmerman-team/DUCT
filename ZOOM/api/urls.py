@@ -8,7 +8,7 @@ urlpatterns = [
     url(r'^$', welcome, name='api-root'),
     url(r'^metadata/', include('api.metadata.urls', namespace='metadata')),
     url(r'^indicators/', include('api.indicator.urls', namespace='indicators')),
-    #url(r'^validate/', include('api.validate.urls', namespace='validate')),
+    url(r'^validate/', include('api.validate.urls', namespace='validate')),
     #url(r'^manual-mapper/', include('api.manual_mapper.urls', namespace='manual-mapper')),
     #url(r'^error-correction/', include('api.error_correction.urls', namespace='error-correction'))
 ]

@@ -7,13 +7,13 @@ import numpy as np
 def error_correction(request):
     """Gets data needed for error correction."""
 
-    file_id = request.data["file_id"]
+    id = request.data["id"]
     start_pos = request.data["start_pos"]
     end_pos = request.data["end_pos"]
     
     ###Future: if type is not csv then error correction being performed on data in data base
     if request.data["type"] == "csv":
-        df_data = get_file_data(file_id)
+        df_data = get_file_data(id)
         df_columns = df_data.columns
         
         if request.data["filter_toggle"]:      
@@ -54,7 +54,7 @@ def error_correction(request):
 
 def find_and_replace(df_data, request):
     """Searches for a value and replaces if indicated"""
-    file_id = request.data['file_id']
+    id = request.data['id']
     heading = request.data["filter_value"]
     
     if request.data["find_value"] == "nan":
@@ -69,13 +69,13 @@ def find_and_replace(df_data, request):
         column_values = df_data[heading][filter_applied]
         
         if len(column_values) > 0:
-            error_data, dtypes_dict = get_dtype_data(file_id)
+            error_data, dtypes_dict = get_dtype_data(id)
             dicts, _ = get_dictionaries()
             temp_prob_list, temp_error_counter = identify_col_dtype(column_values, heading, dicts)
             error_data[heading][filter_applied] = temp_error_counter
             dtypes_dict[heading] = get_prob_list(error_data[heading])
-            save_validation_data(error_data, file_id, dtypes_dict)
-            update_data(File.objects.get(id=file_id).file, df_data)
+            save_validation_data(error_data, id, dtypes_dict)
+            update_data(File.objects.get(id=id).file, df_data)
         df_data = df_data[df_data[heading] == request.data['replace_value']]
     else:
         df_data = df_data[filter_applied]
@@ -84,7 +84,7 @@ def find_and_replace(df_data, request):
 
 def filter_for_errors(df_data, request):
     filter_column = request.data['error_filter_value']
-    error_data, dtypes_dict = get_dtype_data(request.data['file_id'])
+    error_data, dtypes_dict = get_dtype_data(request.data['id'])
     errors, line_nos = check_dtypes(error_data, dtypes_dict, [filter_column], request.data["start_pos"], request.data["end_pos"])
     return df_data[line_nos[filter_column]]
     
@@ -115,12 +115,12 @@ def get_errors(request):
     """Gets data that does not match the most probable data type found for each column."""
     
     temp_error_message = {}
-    file_id = request.data['file_id']
+    id = request.data['id']
     start_pos = request.data['start_pos']
     end_pos = request.data['end_pos']
-    df_data = get_file_data(file_id)
+    df_data = get_file_data(id)
     column_headings = df_data.columns
-    error_data, dtypes_dict = get_dtype_data(file_id)
+    error_data, dtypes_dict = get_dtype_data(id)
     errors, line_nos = check_dtypes(error_data, dtypes_dict, column_headings)
     selection = np.array(range(0, len(error_data[column_headings[0]])))
     amount = end_pos - start_pos
@@ -145,9 +145,9 @@ def get_errors(request):
 def update(request):
     """Updates cell that user edits."""
     if request.data['type'] == "csv":
-        file_id = request.data['file_id']
-        df_data = get_file_data(file_id)
-        error_data, dtypes_dict = get_dtype_data(file_id)
+        id = request.data['id']
+        df_data = get_file_data(id)
+        error_data, dtypes_dict = get_dtype_data(id)
         
         if 'changeHeader' in request.data:
             count = 2
@@ -172,22 +172,22 @@ def update(request):
             dtypes_dict[heading] = prob_list
             error_data[heading] = error_count
 
-        save_validation_data(error_data, file_id, dtypes_dict)
-        update_data(File.objects.get(id=file_id).file, df_data)
+        save_validation_data(error_data, id, dtypes_dict)
+        update_data(File.objects.get(id=id).file, df_data)
 
     return {"success" : 1}
 
 def delete_data(request):
     """Deletes data based on request"""
-    file_id = request.data['file_id']
-    df_data = get_file_data(file_id)
+    id = request.data['id']
+    df_data = get_file_data(id)
     row_keys = list(map(int, request.data['row_keys']))
     df_data = df_data.drop(df_data.index[row_keys])
     df_data = df_data.reset_index(drop=True)
-    error_data, dtypes_dict = get_dtype_data(file_id)
+    error_data, dtypes_dict = get_dtype_data(id)
     error_data, dtypes_dict = remove_entries(error_data, dtypes_dict, row_keys)
-    save_validation_data(error_data, file_id, dtypes_dict)
-    update_data(File.objects.get(id=file_id).file, df_data)
+    save_validation_data(error_data, id, dtypes_dict)
+    update_data(File.objects.get(id=id).file, df_data)
     return {"success" : 1}
 
 def remove_entries(error_data, dtypes_dict, row_keys):

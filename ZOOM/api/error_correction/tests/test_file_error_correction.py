@@ -33,7 +33,7 @@ class FileErrorCorrectionTestCase(TestCase):
 
         res_file_error_correction = self.c.post('/api/error-correction/?format=json', 
             {            
-            "file_id": res_file_upload.json()['id'],
+            "id": res_file_upload.json()['id'],
             "start_pos": 0,
             "end_pos": 10,
             "type": "csv",
