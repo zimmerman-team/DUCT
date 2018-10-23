@@ -1,6 +1,6 @@
 import graphene
 
-from gql import geodata, metadata
+from gql.query import metadata, geodata
 
 
 class Query(geodata.Query, metadata.Query, graphene.ObjectType):
