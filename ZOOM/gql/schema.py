@@ -1,9 +1,11 @@
 import graphene
 
-from gql.query import metadata, geodata
+import gql.geodata.schema
+import gql.metadata.schema
 
 
-class Query(geodata.Query, metadata.Query, graphene.ObjectType):
+class Query(gql.geodata.schema.Query, gql.metadata.schema.Query,
+            graphene.ObjectType):
     pass
 
 

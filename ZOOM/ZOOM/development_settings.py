@@ -27,7 +27,7 @@ DEBUG_TOOLBAR_CONFIG = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'zoomnew',
+        'NAME': 'zoom1',
         'USER': 'zimmerman',
         'PASSWORD': '',
         'HOST': '127.0.0.1',
