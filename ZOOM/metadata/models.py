@@ -40,6 +40,7 @@ class File(models.Model):
     mapping_used = JSONField(null=True) # thge Mapping used for the file
     file_status = models.CharField(max_length=100, choices=(('1','Uploaded'), ('2','Error Correction'), ('3','Mapping'), ('4','Saved')))
     datatypes_overview_file_location = models.CharField(max_length=500)#location
+    error_file_location = models.CharField(max_length=500)  # location
     file = models.FileField(upload_to=upload_to)
 
     def filename(self):

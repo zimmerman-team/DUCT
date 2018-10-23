@@ -9,7 +9,6 @@ class FilePatchTestCase(TestCase):
     c = APIClient()
 
     def test_patch_file_valid(self):
-        print('test_patch_file')
         ci = CountryImport()
         ci.update_polygon()
         ci.update_alt_name()

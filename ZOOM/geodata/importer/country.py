@@ -37,7 +37,7 @@ class CountryImport():
             c, created = Country.objects.get_or_create(iso2=country_iso2, iso3=country_iso3, name=name, primary_name=True)
             if created:
                 c.save()
-                Geolocation(content_object=c, tag=name, type='country').save()
+                Geolocation(content_object=c, tag=name, type='country', iso2=country_iso2, iso3=country_iso3).save()
 
     def update_country_center(self):
         country_centers = self.get_json_data("/../data_backup/country_center.json")

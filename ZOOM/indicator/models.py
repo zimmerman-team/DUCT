@@ -2,6 +2,8 @@ from django.db import models
 from metadata.models import File, FileSource
 from geodata.models import Geolocation
 
+DATAMODEL_HEADINGS = {'indicator', 'filter', 'geolocation', 'date', 'value_format', 'value', 'comment'}
+
 class DateFormat(models.Model):
     id = models.AutoField(primary_key=True, editable=False)
     type = models.CharField(unique=True, max_length=200)

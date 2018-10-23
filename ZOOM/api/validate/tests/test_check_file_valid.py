@@ -19,9 +19,8 @@ class FileValidTestCase(TestCase):
                         '/api/file/?format=json', 
                         {
                         'file': fp,
-                        'title': 'temp title', 
-                        'description': 'temp description', 
-                        'file_name': 'check_file_valid_test_success.csv',
+                        'description': 'temp description',
+                        'title': 'check_file_valid_test_success.csv',
                         })
 
         self.assertEquals(res_file_upload.status_code, 201, res_file_upload.json())
