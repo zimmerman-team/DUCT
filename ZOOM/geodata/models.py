@@ -6,6 +6,8 @@ from django.db import models
 class Geolocation(models.Model):
     id = gis_models.AutoField(primary_key=True, editable=False)
     tag = models.CharField(max_length=200)
+    iso2 = models.CharField(max_length=2, null=True)
+    iso3 = models.CharField(max_length=3, null=True)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')

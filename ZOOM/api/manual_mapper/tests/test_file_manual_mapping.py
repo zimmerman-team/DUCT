@@ -17,17 +17,44 @@ class FileManualMappingTestCase(TestCase):
         ci.update_alt_name()
 
         '''
+        Test 0: Upload file
+        '''
+
+        res = self.c.post(
+            '/api/metadata/sources/?format=json',
+            {
+                'name': 'The one',
+            })
+
+        self.assertEquals(res.status_code, 201, res.json())
+        self.assertIsNotNone(res.json()['id'])
+        id = res.json()['id']
+
+        '''
         Test 1: Upload file
         '''
 
         with open('samples/AIDSinfotest.csv') as fp:
                 res = self.c.post(
-                        '/api/file/?format=json', 
+                        '/api/metadata/?format=json',
                         {
                         'file': fp,
-                        'title': 'temp title', 
-                        'description': 'temp description', 
-                        'file_name': 'AIDSinfotest.csv',
+                        'description': 'temp description',
+                        'title': 'AIDSinfotest.csv',
+                        'contains_subnational_data': True,
+                        'organisation': 'ZZ',
+                        'maintainer': 'kieran',
+                        'date_of_dataset': '2009-08-06',
+                        'methodology': 'Testing',
+                        'define_methodology': 'Really tesring',
+                        'update_frequency': 'All the time',
+                        'comments': 'Good stuff',
+                        'accessibility': 'p',
+                        'data_quality': 'good',
+                        'number_of_rows': 200,
+                        'file_types': 'csv',
+                        'location': 1,
+                        'source': id,
                         })
 
         self.assertEquals(res.status_code, 201, res.json())
@@ -55,66 +82,46 @@ class FileManualMappingTestCase(TestCase):
         Test 3: File Manual Mapping
         '''
         manual_mapping_data = {
-            "id": res.json()['id'],
-            "dict": {
-                "indicator": [
-                    "Indicator"
+            'id': res.json()['id'],
+            'dict': {
+                'indicator': [
+                    'Indicator'
                 ],
-                "unit_of_measure": [
-                    "Unit"
+                'value_format': [
+                    'Unit'
                 ],
-                "country": [
-                    "Area ID"
+                'geolocation': [
+                    'Area ID'
                 ],
-                "measure_value": [
-                    "Data Value"
+                'geolocation': [
+                    'Area'
                 ],
-                "date_value": [
-                    "Time Period"
+                'value': [
+                    'Data Value'
                 ],
-                "source": [
-                    "Source"
+                'date': [
+                    'Time Period'
                 ],
-                "other": [
-                    "Footnotes"
+                'comment': [
+                    'Source'
                 ],
-                "indicator_category": [
-                    "Subgroup"
-                ]
+                'comment': [
+                    'Footnotes'
+                ],
+                'filter': [
+                    'Subgroup'
+                ],
+                'filter_heading_name': {
+                    'Subgroup':'Subgroup'
+                }
             }
         }
         # print manual_mapping_data
 
         res_file_manual_mapping = self.c.post(
             '/api/manual-mapper/?format=json', 
-            {
-            "id": res.json()['id'],
-            "dict": {
-                "indicator": [
-                    "Indicator"
-                ],
-                "unit_of_measure": [
-                    "Unit"
-                ],
-                "country": [
-                    "Area ID"
-                ],
-                "measure_value": [
-                    "Data Value"
-                ],
-                "date_value": [
-                    "Time Period"
-                ],
-                "source": [ 
-                    "Source"
-                ],
-                "other": [
-                    "Footnotes"
-                ],
-                "indicator_category": [
-                    "Subgroup"
-                ]
-            } },
+                **manual_mapping_data
+            ,
             format='json'
             )
         

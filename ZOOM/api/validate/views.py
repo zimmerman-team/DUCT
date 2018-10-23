@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 import os
+import logging
 
 from lib.tools import check_file_formatting, check_file_type
 from metadata.models import File
