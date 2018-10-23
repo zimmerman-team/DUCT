@@ -45,12 +45,12 @@ def get_dictionaries():#might be better to use a set
     return country_source_dict, country_iso2_dict'''
 
 
-def save_validation_data(error_data, file_id, dtypes_dict):
+def save_validation_data(error_data, id, dtypes_dict):
     """Saves error data for file.
     
     Args:
         error_data ({str:[str]}): error data for each column..
-        file_id (str): ID of file being used.
+        id (str): ID of file being used.
         dtypes_dict ({str:str}): stores the data-types for each heading.
     """
 
@@ -63,7 +63,7 @@ def save_validation_data(error_data, file_id, dtypes_dict):
     with open(dict_name, 'w') as f:
         pickle.dump(dtypes_dict, f)
     
-    file = File.objects.get(id=file_id)
+    file = File.objects.get(id=id)
 
     #try:
     instance = File.objects.get(file=file)#
@@ -75,18 +75,18 @@ def save_validation_data(error_data, file_id, dtypes_dict):
     #   #FileDtypes(dtype_name=dtype_name, file=file, dtype_dict_name=dict_name).save()
 
 
-def get_dtype_data(file_id):
+def get_dtype_data(id):
     """Get data type data for file.
     
     Args:
-        file_id (str): ID of file.
+        id (str): ID of file.
 
     Returns: 
         error_data ([[int]]): error data, first list is a column ,second is the row.
         dtypes_dict ({str:str}): stores the data-types found for each heading.
     """
 
-    file_dtypes = File.objects.get(id=file_id).datatypes_overview_file_location
+    file_dtypes = File.objects.get(id=id).datatypes_overview_file_location
     
     with open(str(file_dtypes.dtype_name), 'rb') as f:
         error_data = pickle.load(f)
@@ -97,22 +97,22 @@ def get_dtype_data(file_id):
     return error_data, dtypes_dict
 
 
-def get_file_data(file_id):
+def get_file_data(id):
     """Gets file in dataframe format"""
-    file_name = File.objects.get(id=file_id).file
+    file_name = File.objects.get(id=id).file
     df_data = pd.read_csv(file_name)
     return df_data
 
 
-def save_mapping(file_id, mapping):
+def save_mapping(id, mapping):
     """Saves user mapping for file"""
-    file = File.objects.get(id=file_id)
+    file = File.objects.get(id=id)
     file.mapping_used = json.dumps(mapping)
     file.save()
 
-def get_mapping(file_id):
+def get_mapping(id):
     """Get user mapping for file"""
-    file = File.objects.get(id=file_id)
+    file = File.objects.get(id=id)
     if file.mapping_used:
         return {success: 1, mapping: json.loads(file.mapping_used)}
     return {success: 0, mapping: None}

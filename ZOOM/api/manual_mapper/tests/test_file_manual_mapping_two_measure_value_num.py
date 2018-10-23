@@ -42,7 +42,7 @@ class FileManualMappingTestCase(TestCase):
         res_file_validate = self.c.post(
             '/api/validate/?format=json',
             {
-            'file_id':res.json()['id'],
+            'id':res.json()['id'],
             }, format='json'
             )
         
@@ -65,7 +65,7 @@ class FileManualMappingTestCase(TestCase):
                             "empty_indicator":"Indicator value","measure_value": ["Count","Rate","measure_value","measure_value"],
                             "date_value": ["Year"],"source": ["Source"],"other": [],"indicator_category": 
                             ["Count","Rate","indicator_category","indicator_category"],"empty_unit_of_measure": 
-                            {"Count":"Number","Rate":"Number"}},"file_id": res.json()["id"]
+                            {"Count":"Number","Rate":"Number"}},"id": res.json()["id"]
             }, format = 'json'
             )
         # print res_file_manual_mapping

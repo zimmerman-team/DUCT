@@ -40,7 +40,7 @@ class FileManualMappingTestCase(TestCase):
         res_file_validate = self.c.post(
             '/api/validate/?format=json',
             {
-            'file_id': res.json()['id'],
+            'id': res.json()['id'],
             }, format='json'
             )
         
@@ -55,7 +55,7 @@ class FileManualMappingTestCase(TestCase):
         Test 3: File Manual Mapping
         '''
         manual_mapping_data = {
-            "file_id": res.json()['id'],
+            "id": res.json()['id'],
             "dict": {
                 "indicator": [
                     "Indicator"
@@ -88,7 +88,7 @@ class FileManualMappingTestCase(TestCase):
         res_file_manual_mapping = self.c.post(
             '/api/manual-mapper/?format=json', 
             {
-            "file_id": res.json()['id'],
+            "id": res.json()['id'],
             "dict": {
                 "indicator": [
                     "Indicator"

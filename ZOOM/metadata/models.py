@@ -8,18 +8,18 @@ def upload_to(instance, filename='test'):
     return os.path.join(os.path.join(settings.MEDIA_ROOT, settings.DATASETS_URL), filename)
 
 class FileSource(models.Model):
-    file_source_id = models.AutoField(primary_key=True, editable=False)
+    id = models.AutoField(primary_key=True, editable=False)
     name = models.CharField(unique=True ,max_length=100, null=False, blank=True)
 
 class File(models.Model):
     ## Metadata related fileds ##
-    file_id = models.AutoField(primary_key=True, editable=False)
+    id = models.AutoField(primary_key=True, editable=False)
     title = models.CharField(max_length=100,)
     description = models.TextField()
     contains_subnational_data = models.BooleanField()
     organisation = models.CharField(max_length=100)
     maintainer = models.CharField(max_length=100)
-    data_of_dataset = models.DateField()
+    date_of_dataset = models.DateField()
     methodology = models.CharField(max_length=150)
     define_methodology = models.TextField()
     update_frequency = models.CharField(max_length=100)

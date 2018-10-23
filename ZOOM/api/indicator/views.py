@@ -87,7 +87,7 @@ def get_filter_headings(request):
 @api_view(['POST'])
 def reset_mapping(request):
     try:
-        file = File.objects.get(id=request.data['file_id'])
+        file = File.objects.get(id=request.data['id'])
         '''indicators = IndicatorDatapoint.objects.filter(file=file)
         #foreign keys 
         indicators.delete()
@@ -162,7 +162,7 @@ class IndicatorList(ListAPIView):
     fields = (
         'indicator_id',
         'description',
-        'file_source__file_source_id'
+        'file_source__id'
     )
 
 

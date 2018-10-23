@@ -16,13 +16,13 @@ class FileListView(ListCreateAPIView):
     parser_classes = (MultiPartParser, FormParser,)
 
     fields = (
-        'file_id',
+        'id',
         'title',
         'description',
         'contains_subnational_data',
         'organisation',
         'maintainer',
-        'data_of_dataset',
+        'date_of_dataset',
         'methodology',
         'define_methodology',
         'update_frequency',
@@ -42,8 +42,8 @@ class FileListView(ListCreateAPIView):
     def perform_create(self, serializer):
         try:
             data = self.request.data
-            data['location'] = Geolocation.objects.get(geolocation_id  = data['location'])
-            data['source'] = FileSource.objects.get(file_source_id= data['source'])
+            data['location'] = Geolocation.objects.get(id  = data['location'])
+            data['source'] = FileSource.objects.get(id= data['source'])
             serializer.save(**data.dict())
         except Exception as e:
             logger = logging.getLogger("django")
@@ -61,19 +61,21 @@ class FileDetailView(RetrieveUpdateDestroyAPIView):
 
     def perform_update(self, serializer):
         pk = self.kwargs.get('pk')
+        file = File.objects.filter(pk=pk)
+        source = self.request.data.get('source')
+        location = self.request.data.get('location')
+        data = self.request.data
 
-        file = File.objects.get(pk=pk)
-        file.title = self.request.data.get('title')
-        file.description = self.request.data.get('description')
-        file.authorised = self.request.data.get('authorised')
+        if source:
+            obj = FileSource.objects.get(id=source)
+            data['source'] = obj
 
-        data_source = self.request.data.get('data_source')
-        file.status = self.request.data.get('status')
+        if location:
+            obj = Geolocation.objects.get(id=location)
+            data['location'] = obj
 
-        if data_source: 
-            data_source_obj, data_source_created = FileSource.objects.get_or_create(name=data_source)
-            file.data_source = data_source_obj
-        file.save()
+        file.update(**data)
+        #file.save()
 
     def delete(self, request, *args, **kwargs):
 
@@ -102,7 +104,7 @@ class FileSourceListView(ListCreateAPIView):
     parser_classes = (MultiPartParser, FormParser,)
 
     fields = (
-        'file_source_id',
+        'id',
         'name',
     )
 

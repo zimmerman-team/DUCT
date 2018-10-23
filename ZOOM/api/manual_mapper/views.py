@@ -16,9 +16,9 @@ import datetime
 def get_data(request):
     context = {'success':0}
     try:
-        file_id = request.data['file_id']
+        id = request.data['id']
         
-        df_data = get_file_data(file_id)
+        df_data = get_file_data(id)
         # Future: make faster by only reading in headings or 1st row rather than entire data set
         zip_list, summary_results, summary_indexes, remaining_mapping = get_headings_data_model(df_data)
         #Future: add summary for hover over file heading name
@@ -103,7 +103,7 @@ class ManualMappingJobResult(APIView):
             ret = {'status':'completed', 'result': job.return_value}
 
             try:
-                file = File.objects.get(id=request.data["file_id"])
+                file = File.objects.get(id=request.data["id"])
             except File.DoesNotExist:
                 return Response({
                     'status': 'failed',

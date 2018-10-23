@@ -22,12 +22,12 @@ def manual_mapper(data):
         order = {}
         index_order = {}
         bulk_list = []
-        file_id = data['file_id']
+        id = data['id']
         mappings = data['dict']
         
         print("--------------Mappings--------------")
         #print(mappings)
-        save_mapping(file_id, mappings)
+        save_mapping(id, mappings)
         unit_of_measure_value = mappings.pop("empty_unit_of_measure", None)
         empty_values_array = [mappings.pop("empty_indicator", None), mappings.pop("empty_country", None), 
                               mappings.pop("empty_indicator_cat", None),
@@ -37,8 +37,8 @@ def manual_mapper(data):
         # = get_ind_heading_filters(relationship_dict, left_over_dict, mappings)
 
         left_over_dict = mappings.pop("left_over", None)
-        df_data = get_file_data(file_id)
-        error_data, dtypes_dict = get_dtype_data(file_id)
+        df_data = get_file_data(id)
+        error_data, dtypes_dict = get_dtype_data(id)
         
         print("Begining Mapping")
         print (time.strftime("%H:%M:%S"))
@@ -83,7 +83,7 @@ def manual_mapper(data):
         print("Getting Error types")###needed?
         error_lines, new_dtypes_dict = generate_error_data(df_data)
         print("Save validation data")
-        save_validation_data(error_lines, file_id, new_dtypes_dict)
+        save_validation_data(error_lines, id, new_dtypes_dict)
         print('Combine dicts')
         ###Combine dictionaries
         for key in new_dtypes_dict:
@@ -111,7 +111,7 @@ def manual_mapper(data):
         #Convert all dates to numbers
         df_data[index_order['date_value']] = pd.to_numeric(df_data[index_order['date_value']]).astype(int)
         
-        file = File.objects.get(id=file_id)
+        file = File.objects.get(id=id)
         index_order['file'] = "file"
         reverse_mapping['file'] = "file"
         date_object = datetime.datetime.now()
@@ -466,6 +466,6 @@ def remap_all_files():
         if file.status == 5:
             context = {'data':{'file': str(file.id)}}
             reset_mapping(json.dumps(context, ensure_ascii=False))#encoding error
-            context = {'data' : {'file_id' : str(file.id), 'dict' : json.loads(file.mapping_used)}}
+            context = {'data' : {'id' : str(file.id), 'dict' : json.loads(file.mapping_used)}}
             manual_mapper(context)
 

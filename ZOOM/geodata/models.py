@@ -4,7 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 class Geolocation(models.Model):
-    geolocation_id = gis_models.AutoField(primary_key=True, editable=False)
+    id = gis_models.AutoField(primary_key=True, editable=False)
     tag = models.CharField(max_length=200)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
@@ -20,7 +20,7 @@ class Geolocation(models.Model):
 
 
 class Region(gis_models.Model):
-    region_id = gis_models.AutoField(primary_key=True, editable=False)
+    id = gis_models.AutoField(primary_key=True, editable=False)
     name = gis_models.CharField(unique=True, max_length=200)
     code = gis_models.CharField(max_length=100)
 
@@ -37,7 +37,7 @@ class Region(gis_models.Model):
 
 
 class Country(gis_models.Model):
-    country_id = gis_models.AutoField(primary_key=True, editable=False)
+    id = gis_models.AutoField(primary_key=True, editable=False)
     name = gis_models.CharField(unique=True, max_length=100, db_index=True)
     primary_name = gis_models.BooleanField(default=False)#Used as primary name for a country
     iso2 = gis_models.CharField(max_length=2) #iso2
@@ -66,7 +66,7 @@ class Country(gis_models.Model):
 
 
 class City(gis_models.Model):
-    city_id = gis_models.AutoField(primary_key=True, editable=False)
+    id = gis_models.AutoField(primary_key=True, editable=False)
     name = gis_models.CharField(unique= True, max_length=200)
     ascii_name = gis_models.CharField(max_length=200, null=True, blank=True)
     country = gis_models.ForeignKey(Country, null=True, blank=True, on_delete=gis_models.SET_NULL)
@@ -90,7 +90,7 @@ class City(gis_models.Model):
 
 
 class SubNational(gis_models.Model):
-    subnational_id = gis_models.AutoField(primary_key=True, editable=False)
+    id = gis_models.AutoField(primary_key=True, editable=False)
     name = gis_models.CharField(unique=True, max_length=100)
     iso_3166_2 = gis_models.CharField(null=True, blank=True, max_length=2)
     code_local = gis_models.CharField(null=True, blank=True, max_length=100)
@@ -113,7 +113,7 @@ class SubNational(gis_models.Model):
         verbose_name_plural = "admin1 regions"
 
 class PointBased(gis_models.Model):
-    pointbased_id = gis_models.AutoField(primary_key=True, editable=False)
+    id = gis_models.AutoField(primary_key=True, editable=False)
     name = gis_models.CharField(max_length=200)
     type = gis_models.CharField(max_length=200, null=True, blank=True) #choices=['hospital', 'encounter', 'general_marker'])
 
