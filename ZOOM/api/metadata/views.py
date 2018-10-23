@@ -71,21 +71,9 @@ class FileDetailView(RetrieveUpdateDestroyAPIView):
             data['source'] = obj
 
         if location:
-            obj = Geolocation.objects.get(id=source)
+            obj = Geolocation.objects.get(id=location)
             data['location'] = obj
 
-        '''file.title = self.request.data.get('title')
-        file.description = self.request.data.get('description')
-        file.contains_subnational_data = self.request.data.get('contains_subnational_data')
-        file.organisation = self.request.data.get('organisation')
-        file.maintainer = self.request.data.get('maintainer')
-        file.date_of_dataset = self.request.data.get('date_of_dataset')
-        file.methodology = self.request.data.get('methodology')
-        file.update_frequency = self.request.data.get('update_frequency')
-        file.comments = self.request.data.get('comments')
-        file.accessibility = self.request.data.get('accessibility')
-        file.data_quality = self.request.data.get('data_quality')
-        file.number_of_rows = self.request.data.get('number_of_rows')'''
         file.update(**data)
         #file.save()
 

@@ -136,7 +136,5 @@ class FilePatchTestCase(TestCase):
         self.assertEquals(res_file_patch_updated.status_code, 200, res_file_patch_updated.json())
         self.assertEquals(res_file_patch_updated.json()['title'], patch_data['title'])
         self.assertEquals(res_file_patch_updated.json()['description'], patch_data['description'])
-        self.assertEquals(res_file_patch_updated.json()['data_source']['name'], patch_data['data_source'])
-        self.assertEquals(res_file_patch_updated.json()['tags'][0]['name'], patch_data['tags'][0])
-        self.assertEquals(res_file_patch_updated.json()['status'], patch_data['status'])
+        self.assertEquals(res_file_patch_updated.json()['location'], patch_data['location'])
 
