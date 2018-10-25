@@ -14,8 +14,6 @@ class FileSourceSerializer(serializers.ModelSerializer):
 
 
 class FileSerializer(serializers.ModelSerializer):
-    file = serializers.FileField()
-    source = FileSourceSerializer(read_only=True)
 
     class Meta:
         model = File
@@ -40,5 +38,5 @@ class FileSerializer(serializers.ModelSerializer):
             'last_updated',
             'location',
             'source',
-            'file'
+            'file',
         )
