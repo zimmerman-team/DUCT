@@ -54,6 +54,12 @@ class FileMutation(SerializerMutation):
         )
         input['file'] = instance.file
 
+        # Some bugs on SerializerMutation
+        # We need to validate before continue to the next process
+        serializer = FileSerializer(data=input)
+        if not serializer.is_valid():
+            raise Exception(serializer.errors)
+
         return {'data': input, 'partial': True}
 
 
