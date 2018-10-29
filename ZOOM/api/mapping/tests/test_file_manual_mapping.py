@@ -1,5 +1,6 @@
 from django.test import TestCase
 from unittest import skip
+import json
 from django.test import RequestFactory, Client
 from rest_framework.test import APIClient
 from geodata.importer.country import CountryImport
@@ -118,14 +119,41 @@ class FileManualMappingTestCase(TestCase):
         }
         # print manual_mapping_data
 
+        # **manual_mapping_data,
         res_file_manual_mapping = self.c.post(
-            '/api/manual-mapper/?format=json', 
-                **manual_mapping_data
-            ,
+            '/api/mapping/?format=json',
+            {
+                'id': res.json()['id'],
+                'dict': {
+                    'indicator': [
+                        'Indicator'
+                    ],
+                    'value_format': [
+                        'Unit'
+                    ],
+                    'geolocation': [
+                        'Area', #'Area ID'
+                    ],
+                    'value': [
+                        'Data Value'
+                    ],
+                    'date': [
+                        'Time Period'
+                    ],
+                    'comment': [
+                        'Source', #'Footnotes'
+                    ],
+
+                    'filters': [
+                        'Subgroup'
+                    ],
+                    'headings': {
+                        'Subgroup': 'Subgroup'
+                    }
+                },
+            },
             format='json'
             )
-        
-        # print res_file_manual_mapping
         
         self.assertEquals(res_file_manual_mapping.status_code, 200, res_file_manual_mapping.json())
         self.assertEquals(res_file_manual_mapping.json()['success'], 1)

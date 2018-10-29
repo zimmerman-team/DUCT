@@ -4,9 +4,8 @@ from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 import django_rq
 
-from manual_mapping.manual_mapper import manual_mapper
+from mapping.mapper import begin_mapping
 from lib.common import get_headings_data_model, get_file_data, get_dtype_data
-from task_queue.tasks import manual_mapping_job
 from metadata.models import File
 import time
 import logging
@@ -37,57 +36,30 @@ def get_data(request):
     return Response(context)
 
 
-@api_view(['POST'])
-def ManualMapping(request):
-    context = {}
-    if request.method == 'POST':
-        logger = logging.getLogger("django")
-        try:
-            logger.info("Entering Manual Mapping")
-            context = manual_mapper(request.data)
-            logger.info("Successful mapping")
-        except Exception as e:
-            logger.exception("--Error in manual mapping process")
-            context['error'] = "Error occured when attempting to map file"
-            context['success'] = 0
-            raise #temp
-        # Clear /indicator/aggregations caches
-        #cache.clear()
-        print("Should respond")
-        # TODO - check if the above also deletes tasks from the task queue, if so, make separates caches in the settings - 2017-07-05
-        print("reponse, ", Response())
-        return Response()
-        #return Response(context)
-    else:
-        return Response("No file selected");
-
-
-
-class ManualMappingJob(APIView):
-    """Manual Mapping Job"""
+class MappingJob(APIView):
+    """Mapping Job"""
 
     # authentication_classes = (authentication.TokenAuthentication,)
     # permission_classes = (PublisherPermissions, )
     
     def post(self, request):
-        from manual_mapping.manual_mapper import manual_mapper
         context = {}
         logger = logging.getLogger("django")
-        logger.info("Entering Manual Mapping Job")
+        logger.info("Entering Mapping Job")
         try:
-            context = manual_mapper(request.data)
+            context = begin_mapping(request.data)
             logger.info("Successful mapping")
         except Exception as e:
             logger = logging.getLogger("django")
-            logger.exception("--Error in manual mapping process")
+            logger.exception("--Error in mapping process")
             context['error'] = "Error occured when attempting to map file"
             context['success'] = 0
             raise #temp
         return Response(context)
 
 
-class ManualMappingJobResult(APIView):
-    """Manual Mapping Job Results"""
+class MappingJobResult(APIView):
+    """ Mapping Job Results"""
 
     # authentication_classes = (authentication.TokenAuthentication,)
     # permission_classes = (PublisherPermissions, )

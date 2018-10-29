@@ -128,7 +128,7 @@ INSTALLED_APPS = [
     'validate',
     'lib',
     'error_correction',
-    'manual_mapping',
+    'mapping',
     'indicator',
     'geodata',
     'task_queue',
