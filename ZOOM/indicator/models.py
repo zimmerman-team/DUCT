@@ -33,7 +33,7 @@ class FilterHeadings(models.Model):
 class Datapoints(models.Model):
     id = models.AutoField(primary_key=True, editable=False)
     value = models.FloatField()
-    date = models.DateField()#Int
+    date = models.CharField(max_length=200)#Int
     comment = models.TextField(null=True, blank=True)
 
     value_format = models.ForeignKey(ValueFormat, on_delete=models.SET_NULL, null=True)

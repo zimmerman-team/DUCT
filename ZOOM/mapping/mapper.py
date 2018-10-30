@@ -320,6 +320,8 @@ def get_save_unique_datapoints(df_data, final_file_headings, file_source):
                 if created:
                     instance.save()
 
+                filters_dict[unique_list[final_file_headings['indicator']][i] + unique_list[final_file_headings['headings']][i]
+                                          + unique_list[final_file_headings['filters']][i]] = instance
                 ##Loop here
                 #instance.value_formats =  [unique_filter_value_formats[final_file_headings['value_format']][i]] + instance.value_formats
                 #instance.date_formats = [unique_filter_value_formats[final_file_headings['value_format']][i]] + instance.date_formats
@@ -358,6 +360,8 @@ def save_datapoints(df_data, final_file_headings, reverse_mapping, dicts):
     #ind_dict, ind_source_dict, ind_country_dict = dicts
     df_data[final_file_headings['filters']] = df_data[final_file_headings['indicator']] + df_data[
         final_file_headings['headings']] + df_data[final_file_headings['filters']]
+    df_data[final_file_headings['filters']] = df_data[final_file_headings['filters']].map(filters_dict)
+
     df_data[final_file_headings['indicator']] = df_data[final_file_headings['indicator']].map(ind_dict)
     df_data[final_file_headings['value_format']] = df_data[final_file_headings['value_format']].map(value_format_dict)
     #df_data[final_file_headings['value_format']].map(value_format_dict)
@@ -367,10 +371,12 @@ def save_datapoints(df_data, final_file_headings, reverse_mapping, dicts):
     #df_data[final_file_headings['headings']].map(headings_dict)
     print(df_data.columns)
 
-    df_data[final_file_headings['filters']] = df_data[final_file_headings['filters']].map(headings_dict)
-
     df_data.drop(['headings'], axis=1, inplace=True)
     reverse_mapping.pop('headings')
+
+    ##TMP
+    df_data.drop([final_file_headings['filters']], axis=1, inplace=True)
+    reverse_mapping.pop(final_file_headings['filters'])
 
     ##need to temp save as because if it's a big file it will add to memory
     #temp_name = temp_save_file(df_data)
@@ -391,9 +397,6 @@ def save_datapoints(df_data, final_file_headings, reverse_mapping, dicts):
     print(batch_size, ' batches')
     previous_batch = 0
     next_batch = 0
-
-    print('data.columns ', df_data.columns)
-    print('data being used ', df_data)
 
     ##last index of IndicatorDataPoint
 
