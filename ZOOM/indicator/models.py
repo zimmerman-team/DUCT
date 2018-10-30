@@ -54,8 +54,10 @@ class Filters(models.Model):
     datapoints = models.ManyToManyField(Datapoints, related_name='filters')
     geolocations = models.ManyToManyField(Geolocation)
 
-    value_formats = models.ManyToManyField(ValueFormat)
-    date_formats = models.ManyToManyField(DateFormat)
+    value_format = models.ForeignKey(ValueFormat, on_delete=models.SET_NULL, null=True)
+    date_format = models.ForeignKey(DateFormat, on_delete=models.SET_NULL, null=True)
+    #value_formats = models.ManyToManyField(ValueFormat)#models.ManyToManyField(ValueFormat) #Many to many doesn't make sense
+    #date_formats = models.ManyToManyField(DateFormat)
 
 
 def clean_up_indicators():
