@@ -49,7 +49,7 @@ FIXTURE_DIRS = (
 API_CACHE_SECONDS = 0
 
 try:
-    from local_settings import *
+    from .local_settings import *
 except ImportError as e:
     print(e)
     pass
