@@ -346,6 +346,8 @@ def save_datapoints(df_data, final_file_headings, reverse_mapping, dicts):
         dicts ([str:{str:Model}]): list of dictionaries containing foreign keys.
     '''
 
+    metadata = df_data['metadata'][0]
+
     ind_dict, headings_dict, geolocation_dict, value_format_dict, filters_dict = dicts
     f1 = (lambda x: Datapoints(**x) )
     f2 = (lambda x, y: x.datapoints.add(y))##remove save()will be slow
@@ -355,98 +357,60 @@ def save_datapoints(df_data, final_file_headings, reverse_mapping, dicts):
     vfunc2 = np.vectorize(f2)
     vfunc3 = np.vectorize(f3)
 
-    ##LOOP here for filters
+    ###########TODO LOOP here for filters###################
     df_data[final_file_headings['filters']] = df_data[final_file_headings['indicator']] + df_data[
         final_file_headings['headings']] + df_data[final_file_headings['filters']]
     df_data[final_file_headings['filters']] = df_data[final_file_headings['filters']].map(filters_dict)
 
+    ##TMP #Loop here
+    df_filters = df_data[final_file_headings['filters']]
+    df_data.drop([final_file_headings['filters']], axis=1, inplace=True)
+    ######################################
     df_data[final_file_headings['indicator']] = df_data[final_file_headings['indicator']].map(ind_dict)
     df_data[final_file_headings['value_format']] = df_data[final_file_headings['value_format']].map(value_format_dict)
     df_data[final_file_headings['geolocation']] = df_data[final_file_headings['geolocation']].map(geolocation_dict)
 
     #df_data[final_file_headings['headings']] = df_data[final_file_headings['indicator']] + df_data[final_file_headings['headings']]
     #df_data[final_file_headings['headings']].map(headings_dict)
-    print(df_data.columns)
 
+    #Not part of Datapoints table
     df_data.drop(['headings'], axis=1, inplace=True)
     reverse_mapping.pop('headings')
 
-    ##TMP #Loop here
-    df_filters = df_data[final_file_headings['filters']]
-    df_data.drop([final_file_headings['filters']], axis=1, inplace=True)
-    reverse_mapping.pop(final_file_headings['filters'])
+    reverse_mapping.pop(final_file_headings['filters'])##We don't use headings in data model
 
-    ##need to temp save as because if it's a big file it will add to memory
-    #temp_name = temp_save_file(df_data)
-
-    #>>>>>>> 232ed0f88270d8c06d5b3767cc5b04d7ee7b8769
     column_list = list(reverse_mapping.keys())
-    print(column_list)
 
     df_data = df_data[column_list]#should do this earlier
     df_data = df_data.rename(index=str, columns=reverse_mapping)#rename columns to data model
 
-    print('New columns ', df_data.columns)
-    #df_data_filters = df_data['indicator_filter']
-    #df_data_filter_headings = df_data['heading_filter']
-    #df_data.drop(['indicator_filter', 'heading_filter'], axis = 1, inplace=True)
-    
     batch_size = int(math.ceil(df_data['indicator'].size/100000))
     print(batch_size, ' batches')
     previous_batch = 0
     next_batch = 0
 
-    ##last index of IndicatorDataPoint
-
     for i in range(batch_size):
         next_batch += 100000 
         if next_batch > df_data['indicator'].size: #shouldn't be needed
             next_batch = df_data['indicator'].size
-            i = batch_size + 1 #shoildn't happen
+            i = batch_size + 1 #shouldn't happen
             print('Last batch, i set to ', i)
 
         print('Bulk saving')
-        #print plotting values
-        #print('data to save ', df_data.columns)
-        data_to_save = df_data[previous_batch:next_batch].to_dict(orient='records')
+        data_to_save = df_data[previous_batch:next_batch].to_dict(orient='records')#Get batch
 
         if(len(data_to_save) > 0):
-            #print(data_to_save)
-            bulk_list = vfunc(np.array(data_to_save))
-            data = Datapoints.objects.bulk_create(list(bulk_list))
-            
-            #save indicator filter
-            #heading_split = df_data_filter_headings[previous_batch:next_batch].str.split(pat='|', expand=True)
-            #data_to_save = df_data_filters[previous_batch:next_batch].str.split(pat='|', expand=True)
-            #ind_df = pd.DataFrame(data=[], columns=['name', 'heading', 'measure_value'])#for initialisation
-            
-            #for j in data_to_save.columns:
-            #    if(data_to_save[j][0] != ''):#get unique values and place them =
-            #        new_df = pd.DataFrame(data=[], columns=['name', 'heading', 'measure_value'])
-            #        new_df['name'] = data_to_save[j]
-            #        #print('Filter heading name ', heading_split[j][0])
-            #        ob, created = IndicatorFilterHeading.objects.get_or_create(name=heading_split[j][0], file_source=file_source)
-            #        if created:
-            #            ob.save()
-            '''     new_df['heading'] = ob
-                    new_df['measure_value'] = x
-                    new_df['file_source'] = file_source;
-                    ind_df = ind_df.append(new_df)
-            data_to_save = ind_df.to_dict(orient='records') 
-            vfunc = np.vectorize(f2)
-            bulk_list = vfunc(np.array(data_to_save))
-            x = IndicatorFilter.objects.bulk_create(list(bulk_list))
-            '''
-            bulk_list = []
+            bulk_list = vfunc(np.array(data_to_save))#Vectorised operation, convert batch into datapoint objects
+            data = Datapoints.objects.bulk_create(list(bulk_list))#Bulk create datapoints
+            bulk_list = [] #Bulk list emptied to free space
 
-            ##Attach filters to datapoints
-            ##Loop here through filters
-            filter_data = np.array(df_filters[previous_batch:next_batch])
-            vfunc2(filter_data, np.array(data))
-            vfunc3(filter_data)
-            df_data[previous_batch:next_batch] = np.nan
-            #df_data_filters[previous_batch:next_batch] = np.nan
-            print('I ', i)
+            #######TODO: Loop here through filters######
+            filter_data = np.array(df_filters[previous_batch:next_batch])#Get filter batch
+            vfunc2(filter_data, np.array(data))#vectorised operation to add many to many mapping between filters and datapoints
+            vfunc3(filter_data)#vectorised operation to save new addition methods, maybe best to do this last
+            #########################################
+            df_data[previous_batch:next_batch] = np.nan #Done to free space
+
             print('Previous batch ', previous_batch)
             print('Next batch ', next_batch)
             previous_batch = next_batch
@@ -457,13 +421,8 @@ def save_datapoints(df_data, final_file_headings, reverse_mapping, dicts):
             print('Next batch ', next_batch)
             i =  df_data['indicator'].size + 1
 
-    '''for i in ind_dict:
-        ind_dict[i].count = IndicatorDatapoint.objects.filter(indicator=(ind_dict[i])).count()
-        ind_dict[i].file_source = file_source
-        ind_dict[i].save()
-    '''
-    '''file.status = '5' #Indicate map is saved
-    file.save()'''
+    metadata.file_status = 4
+    metadata.save()
 
 '''Saves a dataframe temporarily'''
 def temp_save_file(df_data):
