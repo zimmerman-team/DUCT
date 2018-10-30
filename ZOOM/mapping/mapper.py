@@ -292,8 +292,6 @@ def get_save_unique_datapoints(df_data, final_file_headings, file_source, date_f
 
     ##unique list is not always the same datatype, consists of lists and dataframes
     for unique_list in unique_lists:
-        print('-------------')
-        print(unique_list)
         for i in range(len(unique_list)):
             if(count == 0):#indicator
                 instance, created = Indicator.objects.get_or_create(name=unique_list[i], file_source=file_source)
@@ -316,6 +314,7 @@ def get_save_unique_datapoints(df_data, final_file_headings, file_source, date_f
                     instance.save()
                 value_format_dict[unique_list[i]] = instance
             else:#Filters
+                ##Loop if mutiple fields
                 instance, created = Filters.objects.get_or_create(
                     name=unique_list[final_file_headings['filters']][i],
                     heading=headings_dict[unique_list[final_file_headings['indicator']][i] + unique_list[final_file_headings['headings']][i]])
@@ -328,16 +327,11 @@ def get_save_unique_datapoints(df_data, final_file_headings, file_source, date_f
                 instance.value_format =  value_format_dict[unique_filter_value_formats[final_file_headings['value_format']][i]]
                 instance.date_format = date_format#[df_data[final_file_headings['date_format']][i]] + instance.date_formats
                 instance.metadata = df_data['metadata'][0]
-                #for j in unique_filter_geolocation_formats[unique_filter_geolocation_formats[=] == unique_list[final_file_headings['filters']][i]]:
-                #instance.geolocations = [unique_filter_value_formats[final_file_headings['value_format']][i]] + instance.geolocations
-                ##add all countries, value_formats and date formats associated with it
+                geo_filter = unique_filter_geolocation_formats[final_file_headings['filters']] == unique_list[final_file_headings['filters']][i]
+                print(geo_filter)
+                for index, row in unique_filter_geolocation_formats[geo_filter].iterrows():
+                    instance.geolocations.add(geolocation_dict[row[final_file_headings['geolocation']]])
                 instance.save()
-
-                #field=[GeoLocationGeolocation]
-                '''metadata=df_data['file'][0]
-                geolocation=geolocation_dict[unique_list[i]] 
-                value_formats=df_data['date_format']
-                date_formats='''
 
         count += 1
     return ind_dict, headings_dict, geolocation_dict, value_format_dict, filters_dict
