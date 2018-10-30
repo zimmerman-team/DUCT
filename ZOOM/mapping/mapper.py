@@ -329,7 +329,7 @@ def get_save_unique_datapoints(df_data, final_file_headings, file_source, date_f
                 instance.metadata = df_data['metadata'][0]
                 geo_filter = unique_filter_geolocation_formats[final_file_headings['filters']] == unique_list[final_file_headings['filters']][i]
                 print(geo_filter)
-                for index, row in unique_filter_geolocation_formats[geo_filter].iterrows():
+                for index, row in unique_filter_geolocation_formats[geo_filter].iterrows(): #TODO Vectorise
                     instance.geolocations.add(geolocation_dict[row[final_file_headings['geolocation']]])
                 instance.save()
 
@@ -349,12 +349,13 @@ def save_datapoints(df_data, final_file_headings, reverse_mapping, dicts):
     #<<<<<<< HEAD
     #file = df_data['file'][0]
     #file_source = df_data['file'][0].data_source
-    print(dicts)
     ind_dict, headings_dict, geolocation_dict, value_format_dict, filters_dict = dicts
     #df_data[final_file_headings['indicator_category']] = df_data[final_file_headings['indicator']] + df_data[final_file_headings['indicator_category']]
     #=======
     f1 = (lambda x: Datapoints(**x) )
-    #f2 = (lambda x: IndicatorFilter(**x))
+    f2 = (lambda x, y: x.datapoints.add(y))##remove save()will be slow
+    f3 = (lambda x: x.save())##remove save()will be slow
+
     #file_source = df_data['file'][0].data_source
     #ind_dict, ind_source_dict, ind_country_dict = dicts
     df_data[final_file_headings['filters']] = df_data[final_file_headings['indicator']] + df_data[
@@ -373,7 +374,8 @@ def save_datapoints(df_data, final_file_headings, reverse_mapping, dicts):
     df_data.drop(['headings'], axis=1, inplace=True)
     reverse_mapping.pop('headings')
 
-    ##TMP
+    ##TMP #Loop here
+    df_filters = df_data[final_file_headings['filters']]
     df_data.drop([final_file_headings['filters']], axis=1, inplace=True)
     reverse_mapping.pop(final_file_headings['filters'])
 
@@ -409,12 +411,13 @@ def save_datapoints(df_data, final_file_headings, reverse_mapping, dicts):
         print('Bulk saving')
         #print plotting values
         #print('data to save ', df_data.columns)
-        data_to_save = df_data[previous_batch:next_batch].to_dict(orient='records') 
+        data_to_save = df_data[previous_batch:next_batch].to_dict(orient='records')
+
         if(len(data_to_save) > 0):
             #print(data_to_save)
             vfunc = np.vectorize(f1)
             bulk_list = vfunc(np.array(data_to_save))
-            Datapoints.objects.bulk_create(list(bulk_list))
+            data = Datapoints.objects.bulk_create(list(bulk_list))
             
             #save indicator filter
             #heading_split = df_data_filter_headings[previous_batch:next_batch].str.split(pat='|', expand=True)
@@ -429,7 +432,7 @@ def save_datapoints(df_data, final_file_headings, reverse_mapping, dicts):
             #        ob, created = IndicatorFilterHeading.objects.get_or_create(name=heading_split[j][0], file_source=file_source)
             #        if created:
             #            ob.save()
-            '''        new_df['heading'] = ob
+            '''     new_df['heading'] = ob
                     new_df['measure_value'] = x
                     new_df['file_source'] = file_source;
                     ind_df = ind_df.append(new_df)
@@ -439,7 +442,14 @@ def save_datapoints(df_data, final_file_headings, reverse_mapping, dicts):
             x = IndicatorFilter.objects.bulk_create(list(bulk_list))
             '''
             bulk_list = []
-            
+
+            ##Attach filters to datapoints
+            ##Loop here through filters
+            filter_data = np.array(df_filters[previous_batch:next_batch])
+            vfunc2 = np.vectorize(f2)
+            vfunc2(filter_data, np.array(data))
+            vfunc3 = np.vectorize(f3)
+            vfunc3(filter_data)
             df_data[previous_batch:next_batch] = np.nan
             #df_data_filters[previous_batch:next_batch] = np.nan
             print('I ', i)
