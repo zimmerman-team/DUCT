@@ -82,44 +82,6 @@ class FileManualMappingTestCase(TestCase):
         '''
         Test 3: File Manual Mapping
         '''
-        manual_mapping_data = {
-            'id': res.json()['id'],
-            'dict': {
-                'indicator': [
-                    'Indicator'
-                ],
-                'value_format': [
-                    'Unit'
-                ],
-                'geolocation': [
-                    'Area ID'
-                ],
-                'geolocation': [
-                    'Area'
-                ],
-                'value': [
-                    'Data Value'
-                ],
-                'date': [
-                    'Time Period'
-                ],
-                'comment': [
-                    'Source'
-                ],
-                'comment': [
-                    'Footnotes'
-                ],
-                'filter': [
-                    'Subgroup'
-                ],
-                'filter_heading_name': {
-                    'Subgroup':'Subgroup'
-                }
-            }
-        }
-        # print manual_mapping_data
-
-        # **manual_mapping_data,
         res_file_manual_mapping = self.c.post(
             '/api/mapping/?format=json',
             {

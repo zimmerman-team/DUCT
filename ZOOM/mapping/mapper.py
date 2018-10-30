@@ -34,32 +34,26 @@ def begin_mapping(data):
             return context  # Bad mapping
 
         # TODO multiple categories/date situation
-        if len(data_model_dict['date']) > 1 or len(data_model_dict['filters']) > 1:
+        if len(data_model_dict['date']) > 1 or len(data_model_dict['value']) > 1:
+            ###Convert csv
+            # if multi_entry_dict['relationship']:#check if unit of measure exists
+            #    df_data, dtypes_dict, mappings = convert_df(df_data, multi_entry_dict, data_model_dict, filter_headings_dict, empty_values_array[4], dtypes_dict)
             print('TODO')
-        else:
+            #convert file into standard format
+
+        ###TODO Group categories here
+        if len(mappings['filters']):
+            # if len(mappings['filter']) > 1:
+            #   df_data, mappings, dtypes_dict, tmp_mapping = group_filters(df_data, dtypes_dict, multi_entry_dict, data_model_dict, filter_headings_dict)
+            print('TODO')
+        else:###TODO normal situation
             filter_file_column = data_model_dict['filters'][0]
             df_data['headings'] = filter_headings_dict['headings'][filter_file_column]
             data_model_dict['headings'] = ['headings']
-            print('Creating heading')
-        # TODO normal situation
 
-        # if len(mappings['filter']) > 1:
-        #   df_data, mappings, dtypes_dict, tmp_mapping = group_filters(df_data, dtypes_dict, multi_entry_dict, data_model_dict, filter_headings_dict)
-
-        ###Convert csv
-        #if multi_entry_dict['relationship']:#check if unit of measure exists
-        ###TODO Group categories here
-        #    df_data, dtypes_dict, mappings = convert_df(df_data, multi_entry_dict, data_model_dict, filter_headings_dict, empty_values_array[4], dtypes_dict)
-
-        #Checking results
-
-        #print('Getting Error types')###needed?
+        ##Need to change this
         error_lines, new_dtypes_dict = generate_error_data(df_data)
-
-        #print('Save validation data')
         save_validation_data(error_lines, id, new_dtypes_dict)
-        #print('Combine dicts')
-        ###Combine dictionaries
 
         for key in new_dtypes_dict:
             dtypes_dict[key] = new_dtypes_dict[key]
@@ -73,7 +67,7 @@ def begin_mapping(data):
         print('Normalise data')
         df_data = correct_data(df_data, correction_mappings, error_lines, final_file_headings)
 
-        #The sections of data model are not allowed to be empty
+        #The sections of data model that are not allowed to be empty
         filter_applied = (df_data[final_file_headings['indicator']].notnull() & df_data[final_file_headings['date']].notnull()
                         & df_data[final_file_headings['value']].notnull() & df_data[final_file_headings['geolocation']].notnull())
 
@@ -232,7 +226,6 @@ def check_mapping_dtypes(mappings, dtypes_dict):
 
     for key in mappings:
             if mappings[key]:#this is included incase no mapping is given
-                print(mappings[key])
                 correction_mappings[mappings[key][0]] = []
                 temp_results_check_dtype, temp_found_dtype, temp_convert_dtype = check_column_data_type(key, dtypes_dict[mappings[key][0]])
 
@@ -328,7 +321,6 @@ def get_save_unique_datapoints(df_data, final_file_headings, file_source, date_f
                 instance.date_format = date_format#[df_data[final_file_headings['date_format']][i]] + instance.date_formats
                 instance.metadata = df_data['metadata'][0]
                 geo_filter = unique_filter_geolocation_formats[final_file_headings['filters']] == unique_list[final_file_headings['filters']][i]
-                print(geo_filter)
                 for index, row in unique_filter_geolocation_formats[geo_filter].iterrows(): #TODO Vectorise
                     instance.geolocations.add(geolocation_dict[row[final_file_headings['geolocation']]])
                 instance.save()

@@ -55,10 +55,20 @@ class FileManualMappingTestCase(TestCase):
         Test 3: File Manual Mapping
         '''
         manual_mapping_data = {'dict': 
-            {'indicator': [], 'unit_of_measure': [], 'relationship': {'Seen Bambi?': 'indicator_category'}, 'left_over': {'Seen Bambi?': 'measure_value'}, 
-            'country': [], 'empty_indicator': 'Indicator value', 'measure_value': ['Seen Bambi?', 'measure_value'], 'empty_country': 'WW', 'date_value': ['Year'],
-             'source': [], 'other': [], 'indicator_category': ['Sex', 'Seen Bambi?', 'indicator_category'], 'empty_unit_of_measure': {'Seen Bambi?': 'Number'}}, 
-             'id': res.json()['id']}
+            {
+                'indicator': [],
+                'unit_of_measure': [],
+                'special_column_headings': {'Seen Bambi?': 'indicator_category'},
+                'special_column_values': {'Seen Bambi?': 'measure_value'},
+                'country': [],
+                'empty_indicator': 'Indicator value',
+                'measure_value': ['Seen Bambi?'],
+                'empty_country': 'WW',
+                'date_value': ['Year'],
+                'comment': [],
+                'filters': ['Sex', 'Seen Bambi?'],
+                'empty_value_format': {'Seen Bambi?': 'Number'}},
+                'id': res.json()['id']}
         # print manual_mapping_data
 
         res_file_manual_mapping = self.c.post(

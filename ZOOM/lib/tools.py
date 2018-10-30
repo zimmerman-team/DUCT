@@ -211,9 +211,6 @@ def check_column_data_type(field, dtypes):
         geotype_list = GEOTYPE_HEADINGS
         dtype_set = set(dtypes) & set(geotype_list)
         result = bool(dtype_set)   
-        print(set(geotype_list))
-        print(set(dtypes))
-        print(dtype_set)
 
         if not result:
             dtype_set = dtypes[0]

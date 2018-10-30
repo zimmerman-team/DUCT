@@ -108,7 +108,6 @@ def get_headings_data_model(df_file):
         summary_indexes ([str]): summary headings for data.
     """
 
-    print((time.strftime("%H:%M:%S")))
     file_heading_list = df_file.columns
     dtypes_list = file_heading_list
     validation_results = file_heading_list
@@ -118,8 +117,7 @@ def get_headings_data_model(df_file):
     for field in Datapoints._meta.fields:
         data_model_headings.append(field.name)#.get_attname_column())
     #skip first four headings as irrelevant to user input, should use filter for this
-    print((time.strftime("%H:%M:%S")))
-    
+
     data_model_headings = data_model_headings[4:len(data_model_headings)]
     data_model_headings = filter(lambda x: "search_vector_text" != x and
                                             "date_format" != x and
@@ -129,7 +127,6 @@ def get_headings_data_model(df_file):
     zip_list = zip(file_heading_list, dtypes_list, validation_results)
     summary_results = file_heading_list##change this to add hover for file heading
     summary_indexes = file_heading_list##change this 
-    print((time.strftime("%H:%M:%S")))
     return zip_list, summary_results, summary_indexes, remaining_mapping
 
 
