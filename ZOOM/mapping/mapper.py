@@ -346,25 +346,22 @@ def save_datapoints(df_data, final_file_headings, reverse_mapping, dicts):
         dicts ([str:{str:Model}]): list of dictionaries containing foreign keys.
     '''
 
-    #<<<<<<< HEAD
-    #file = df_data['file'][0]
-    #file_source = df_data['file'][0].data_source
     ind_dict, headings_dict, geolocation_dict, value_format_dict, filters_dict = dicts
-    #df_data[final_file_headings['indicator_category']] = df_data[final_file_headings['indicator']] + df_data[final_file_headings['indicator_category']]
-    #=======
     f1 = (lambda x: Datapoints(**x) )
     f2 = (lambda x, y: x.datapoints.add(y))##remove save()will be slow
     f3 = (lambda x: x.save())##remove save()will be slow
 
-    #file_source = df_data['file'][0].data_source
-    #ind_dict, ind_source_dict, ind_country_dict = dicts
+    vfunc = np.vectorize(f1)
+    vfunc2 = np.vectorize(f2)
+    vfunc3 = np.vectorize(f3)
+
+    ##LOOP here for filters
     df_data[final_file_headings['filters']] = df_data[final_file_headings['indicator']] + df_data[
         final_file_headings['headings']] + df_data[final_file_headings['filters']]
     df_data[final_file_headings['filters']] = df_data[final_file_headings['filters']].map(filters_dict)
 
     df_data[final_file_headings['indicator']] = df_data[final_file_headings['indicator']].map(ind_dict)
     df_data[final_file_headings['value_format']] = df_data[final_file_headings['value_format']].map(value_format_dict)
-    #df_data[final_file_headings['value_format']].map(value_format_dict)
     df_data[final_file_headings['geolocation']] = df_data[final_file_headings['geolocation']].map(geolocation_dict)
 
     #df_data[final_file_headings['headings']] = df_data[final_file_headings['indicator']] + df_data[final_file_headings['headings']]
@@ -415,7 +412,6 @@ def save_datapoints(df_data, final_file_headings, reverse_mapping, dicts):
 
         if(len(data_to_save) > 0):
             #print(data_to_save)
-            vfunc = np.vectorize(f1)
             bulk_list = vfunc(np.array(data_to_save))
             data = Datapoints.objects.bulk_create(list(bulk_list))
             
@@ -446,9 +442,7 @@ def save_datapoints(df_data, final_file_headings, reverse_mapping, dicts):
             ##Attach filters to datapoints
             ##Loop here through filters
             filter_data = np.array(df_filters[previous_batch:next_batch])
-            vfunc2 = np.vectorize(f2)
             vfunc2(filter_data, np.array(data))
-            vfunc3 = np.vectorize(f3)
             vfunc3(filter_data)
             df_data[previous_batch:next_batch] = np.nan
             #df_data_filters[previous_batch:next_batch] = np.nan
