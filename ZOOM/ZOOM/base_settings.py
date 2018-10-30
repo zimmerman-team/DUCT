@@ -94,7 +94,7 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     # 'django_otp.middleware.OTPMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
@@ -104,7 +104,15 @@ MIDDLEWARE_CLASSES = [
 ]
 
 MIDDLEWARE = [
-'debug_toolbar.middleware.DebugToolbarMiddleware'
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 ROOT_URLCONF = 'ZOOM.urls'
@@ -137,6 +145,8 @@ INSTALLED_APPS = [
     'test_without_migrations',
     'admin_reorder',
     'metadata',
+    'graphene_django',
+    'gql',
 ]
 
 ADMIN_REORDER = (
@@ -188,12 +198,26 @@ GRAPPELLI_ADMIN_TITLE = 'ZOOM admin'
 LOGIN_REDIRECT_URL = '/admin/'
 
 CORS_ORIGIN_ALLOW_ALL = True
-CORS_URLS_REGEX = r'^/api/.*$'
-CORS_ALLOW_METHODS = ('GET','PUT', 'PATCH', 'DELETE')
+CORS_URLS_REGEX = r'^/graphql/.*$'
+CORS_ALLOW_METHODS = (
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+)
 
 ERROR_LOGS_ENABLED = True
 DEFAULT_LANG = None
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240
+
+# GraphQL setting
+
+GRAPHENE = {
+    'SCHEMA': 'gql.schema.schema',
+    'SCHEMA_OUTPUT': 'data/schema.json'
+}
 
 LOGGING = {
     'version': 1,

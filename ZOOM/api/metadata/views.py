@@ -1,8 +1,16 @@
 import os
 import logging
+
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
+
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.parsers import FormParser, MultiPartParser
+from rest_framework.parsers import (
+    FormParser, MultiPartParser, FileUploadParser
+)
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
 from geodata.models import Geolocation
 from metadata.models import File, FileSource
@@ -138,3 +146,19 @@ class FileSourceDetailView(RetrieveUpdateDestroyAPIView):
             raise  # temp
 
         return self.destroy(request, *args, **kwargs)
+
+
+class FileUploadView(APIView):
+    parser_classes = (FileUploadParser,)
+
+    def put(self, request, filename, format=None):
+        file_obj = request.data['file']
+        fs = FileSystemStorage(
+            location=os.path.join(settings.MEDIA_ROOT, settings.DATASETS_URL)
+        )
+        filename = fs.save(file_obj.name, file_obj)
+        file_url = '{datasets_url}{filename}'.format(
+            datasets_url=settings.DATASETS_URL,
+            filename=filename
+        )
+        return Response(data={"url": file_url}, status=202)
