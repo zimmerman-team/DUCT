@@ -16,8 +16,8 @@ class CountryImport():
     def update_alt_name(self):
         admin_countries = self.get_json_data("/../data_backup/alternative_names.json")
         for k in admin_countries:
-            country_iso2 = k.get('iso2')
-            name = k.get('name')
+            country_iso2 = k.get('iso2').lower()
+            name = k.get('name').lower()
             c, created = Country.objects.get_or_create(name=name, iso2=country_iso2)
             if created:
                 c.save()
@@ -27,9 +27,9 @@ class CountryImport():
         admin_countries = self.get_json_data("/../data_backup/allcountrycodes.json")
 
         for k in admin_countries:#.get('features'):
-            country_iso2 = k.get('alpha-2')
-            name = k.get('name')
-            country_iso3 = k.get('alpha-3')
+            country_iso2 = k.get('alpha-2').lower()
+            name = k.get('name').lower()
+            country_iso3 = k.get('alpha-3').lower()
 
             if not country_iso2:
                 continue

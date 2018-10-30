@@ -3,9 +3,12 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
+GEOTYPE_HEADINGS = {'country', 'region', 'subnational', 'city', 'pointbased', 'iso3', 'iso2'}
+SAVED_TYPES = {'country', 'region', 'subnational', 'city'}
+
 class Geolocation(models.Model):
     id = gis_models.AutoField(primary_key=True, editable=False)
-    tag = models.CharField(max_length=200)
+    tag = models.CharField(unique=True, max_length=200)
     iso2 = models.CharField(max_length=2, null=True)
     iso3 = models.CharField(max_length=3, null=True)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)

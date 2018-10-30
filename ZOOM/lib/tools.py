@@ -1,4 +1,4 @@
-from geodata.models import Geolocation, Country
+from geodata.models import Geolocation, Country, GEOTYPE_HEADINGS
 from indicator.models import Datapoints
 from lib.common import get_geolocation_dictionary
 import dateutil.parser as date_parser
@@ -204,14 +204,17 @@ def check_column_data_type(field, dtypes):
         conversion_dtype (str): the data type the column needs to be converted to.
     """
 
-    dtypes = [(i[0]) for i in dtypes]
+    dtypes = [i for i in dtypes]
     dtype_set = set()
     result = False
-    if field == "country":
-        country_list = ["country(iso2)", "country(iso3)", "country(name)"]
-        dtype_set = set(dtypes) & set(country_list)
+    if field == "geolocation":
+        geotype_list = GEOTYPE_HEADINGS
+        dtype_set = set(dtypes) & set(geotype_list)
         result = bool(dtype_set)   
-       
+        print(set(geotype_list))
+        print(set(dtypes))
+        print(dtype_set)
+
         if not result:
             dtype_set = dtypes[0]
         else:
@@ -224,9 +227,9 @@ def check_column_data_type(field, dtypes):
             indexes.sort()
             dtype_set = dtypes[indexes[0]]#pointless??
                 
-        return result, dtype_set,"country(iso2)"
+        return result, dtype_set, "geotype"
     
-    elif field == "measure_value":
+    elif field == "value":
         if "numeric" in dtypes:
             return True, "numeric" , "numeric"
         elif"text" in dtypes:
@@ -234,7 +237,7 @@ def check_column_data_type(field, dtypes):
         else:
             return False, dtypes[0], "numeric"
     
-    elif field == "date_value":
+    elif field == "date":
         if "date" in dtypes:
             ###Future: include format of date
             return True, "date" , "date"
@@ -260,17 +263,16 @@ def correct_data(df_data, correction_data, error_data, index_order):#correction_
     
     value = {}
     dicts = get_geolocation_dictionary()
-    f = (lambda x: str(unicodedata.normalize("NFKD", unicode(x)).lower().encode("ascii","ignore")).strip().replace("_", " "))
 
     for key in correction_data:
         not_null_filter = df_data[key].notnull()
         numeric_filter = pd.to_numeric(df_data[key][not_null_filter], errors="coerce").notnull()
         
-        ###Country
-        if correction_data[key][1] =="country(iso2)":
+        ###Geolocation
+        if correction_data[key][1] == 'geotype':
+            df_data[key] = df_data[key].str.lower()
             filter_used = not_null_filter & (~numeric_filter) & (error_data[key][error_data[key] == correction_data[key][0]])
-            df_data[key] = df_data[key][filter_used].apply(f)               
-            df_data[key] = df_data[key][filter_used].map(dicts)
+            df_data[key] = df_data[key][filter_used]
         elif correction_data[key][1] == "date":
             ####Numeric check
             filter_applied1 = ((not_null_filter) & (numeric_filter) & (error_data[key][error_data[key] == correction_data[key][0]]))
@@ -284,10 +286,12 @@ def correct_data(df_data, correction_data, error_data, index_order):#correction_
         #Applying filter to entire column, example indicator category might be  have numbers 
         elif correction_data[key][1] =="text":
             filter_applied = not_null_filter & (~numeric_filter)
-            df_data[key] = df_data[key].apply(f)
+            #df_data[key] = df_data[key].apply(f)
         else:#numeric
             if correction_data[key][0] =="text":
-                if index_order["measure_value"] == key:
+                if index_order["value"] == key:
+                    print('TODO')
+                    '''
                     #get inidicator category add and group accordingly
                     df_data[index_order["indicator_category"]] = (df_data[index_order["indicator_category"]] + "|" + index_order["measure_value"] + ": "
                                                                 + df_data[index_order["measure_value"]])
@@ -302,6 +306,7 @@ def correct_data(df_data, correction_data, error_data, index_order):#correction_
                         str_data[index_order["other"]] = ""
                     str_data[index_order["measure_value"]] = str_data[index_order["measure_value"] + "temp"] 
                     df_data = str_data.drop(index_order["measure_value"] + "temp", 1)
+                    '''
             else:
                 filter_applied = not_null_filter & (~numeric_filter)
                 df_data[key][filter_applied]  = np.NaN
@@ -316,7 +321,7 @@ def lookForError(f, default, x):
         value = default
     return default
 
-def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict, empty_unit_measure_value):
+def convert_df(df_data, multi_entry_dict, data_model_dict, filter_headings_dict, value_format_value, dtypes_dict):
     """Remaps dataframe based on relationship between columns and data model.
     
     Args:
@@ -333,10 +338,13 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
         mappings ({str:[str]}): the users chosen mappings for a file column.
     """
 
-    if not empty_unit_measure_value:
-        empty_unit_measure_value = {}
+    if not value_format_value:
+        value_format_value = {}
 
+    relationship_dict = multi_entry_dict['relationship']
+    left_over_dict = multi_entry_dict['left_over']
     columns = []
+
     ###Get columns not in relationship dict
     for col in df_data.columns: 
         temp = str(col)
@@ -348,7 +356,7 @@ def convert_df(mappings,relationship_dict, left_over_dict, df_data, dtypes_dict,
         else: 
             columns.append(col)
 
-    columns.append("unit_of_measure")
+    columns.append("value_format")
     columns = list(set(columns))#filter duplicates
     columns_set = list(set(list(columns)) & set(list(df_data.columns)))
     

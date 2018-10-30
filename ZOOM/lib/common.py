@@ -66,12 +66,12 @@ def get_dtype_data(id):
         dtypes_dict ({str:str}): stores the data-types found for each heading.
     """
 
-    file_dtypes = File.objects.get(id=id).datatypes_overview_file_location
+    file = File.objects.get(id=id)
     
-    with open(str(file_dtypes.dtype_name), 'rb') as f:
+    with open(str(file.datatypes_overview_file_location), 'rb') as f:
         error_data = pickle.load(f)
 
-    with open(str(file_dtypes.dtype_dict_name), 'rb') as f:
+    with open(str(file.error_file_location), 'rb') as f:
         dtypes_dict = pickle.load(f)
 
     return error_data, dtypes_dict
@@ -94,8 +94,8 @@ def get_mapping(id):
     """Get user mapping for file"""
     file = File.objects.get(id=id)
     if file.mapping_used:
-        return {success: 1, mapping: json.loads(file.mapping_used)}
-    return {success: 0, mapping: None}
+        return {'success': 1, 'mapping': json.loads(file.mapping_used)}
+    return {'success': 0, 'mapping': None}
 
 def get_headings_data_model(df_file):
     """Get column headings and data model headings.
