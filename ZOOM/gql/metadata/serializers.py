@@ -1,6 +1,5 @@
 from rest_framework import serializers
 
-from geodata.models import Geolocation
 from metadata.models import File, FileSource
 
 
