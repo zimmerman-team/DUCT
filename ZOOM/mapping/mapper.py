@@ -411,9 +411,11 @@ def get_save_unique_datapoints(
                 if created:
                     instance.save()
 
-                filters_dict[unique_list[final_file_headings['indicator']][i] +
-                             unique_list[final_file_headings['headings']][i] +
-                             unique_list[final_file_headings['filters']][i]] = instance
+                filters_dict[
+                    unique_list[final_file_headings['indicator']][i]
+                    + unique_list[final_file_headings['headings']][i]
+                    + unique_list[final_file_headings['filters']][i]] \
+                    = instance
                 # Loop here
                 instance.value_format = value_format_dict[
                     unique_filter_value_formats[final_file_headings[
