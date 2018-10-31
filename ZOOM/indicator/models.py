@@ -75,8 +75,6 @@ class Filters(models.Model):
         ValueFormat, on_delete=models.SET_NULL, null=True)
     date_format = models.ForeignKey(
         DateFormat, on_delete=models.SET_NULL, null=True)
-    # value_formats = models.ManyToManyField(ValueFormat)#models.ManyToManyField(ValueFormat) #Many to many doesn't make sense
-    #date_formats = models.ManyToManyField(DateFormat)
 
 
 def clean_up_indicators():
