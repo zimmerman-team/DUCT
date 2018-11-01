@@ -16,3 +16,15 @@ class CountryFactory(NoDatabaseFactory):
 
     name = 'Afghanistan'
     center_longlat = Point(1, 3)
+
+
+class GeolocationFactory(NoDatabaseFactory):
+    class Meta:
+        model = models.Geolocation
+
+
+    tag = 'Albania'
+    iso2 = 'al'
+    iso3 = 'alb'
+    object_id = 4
+    content_type_id = 15
