@@ -62,6 +62,7 @@ def save_validation_data(error_data, id, dtypes_dict):
         os.remove(instance.error_file_location)
     instance.datatypes_overview_file_location = dtypes_overview
     instance.error_file_location = error_file
+
     instance.save()
 
 
@@ -195,4 +196,5 @@ def get_column_information(df_file, dtypes_dict):
     remaining_mapping = data_model_headings
 
     zip_list = zip(file_heading_list, dtypes_list, validation_results)
-    return zip_list, summary_results, summary_indexes, remaining_mapping
+    return zip_list, summary_results, summary_indexes, \
+        remaining_mapping, file_heading_list

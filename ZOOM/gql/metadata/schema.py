@@ -1,3 +1,4 @@
+import json
 import graphene
 from graphene import relay
 from graphene_django import DjangoObjectType
@@ -39,6 +40,7 @@ class FileSourcFilter(FilterSet):
 
 class FileNode(DjangoObjectType):
     entry_id = graphene.String()
+    file_heading_list = graphene.JSONString()
 
     class Meta:
         model = File
@@ -46,6 +48,9 @@ class FileNode(DjangoObjectType):
 
     def resolve_entry_id(self, context, **kwargs):
         return self.id
+
+    def resolve_file_heading_list(self, context, **kwargs):
+        return json.loads(self.file_heading_list)
 
 
 class FileFilter(FilterSet):

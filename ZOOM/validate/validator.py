@@ -1,7 +1,9 @@
 import pandas as pd
+
 from lib.tools import identify_col_dtype
 from metadata.models import File
-from lib.common import get_geolocation_dictionary, save_validation_data, get_column_information
+from lib.common import get_geolocation_dictionary, save_validation_data, \
+    get_column_information
 
 
 def validate(id):
@@ -25,8 +27,15 @@ def validate(id):
 
     df_file = pd.read_csv(newdoc[0])
     error_data, dtypes_dict = generate_error_data(df_file)
-    zip_list, summary_results, summary_indexes, remaining_mapping = \
-        get_column_information(df_file, dtypes_dict)
+    zip_list, summary_results, summary_indexes, remaining_mapping, \
+        file_heading_list = get_column_information(df_file, dtypes_dict)
+
+    # The frontend is needed file heading to mapping it
+    # with the data model heading
+    instance = File.objects.get(id=id)
+    instance.file_heading_list = pd.Series(file_heading_list).to_json()
+    instance.save()
+
     print("Saving Error Information")
     save_validation_data(error_data, id, dtypes_dict)
     context = {

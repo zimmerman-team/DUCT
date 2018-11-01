@@ -1,7 +1,7 @@
 import os
 from django.db import models
 from django.conf import settings
-from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.fields import JSONField, ArrayField
 from geodata.models import Geolocation
 
 
@@ -56,7 +56,7 @@ class File(models.Model):
 
     ## Back-end operational fields ##
     original_file_location = models.CharField(max_length=300)
-    mapping_used = JSONField(null=True)  # thge Mapping used for the file
+    mapping_used = JSONField(null=True)  # the Mapping used for the file
     file_status = models.CharField(max_length=100, choices=(
         ('1', 'Uploaded'), ('2', 'Error Correction'), ('3', 'Mapping'),
         ('4', 'Saved')))
@@ -64,6 +64,10 @@ class File(models.Model):
         max_length=500)  # location
     error_file_location = models.CharField(max_length=500)  # location
     file = models.FileField(upload_to=upload_to)
+
+    # Do you think we need the file heading list for frontend side?
+    # So user can map it manually.
+    file_heading_list = JSONField(null=True)
 
     def filename(self):
         print('check')
