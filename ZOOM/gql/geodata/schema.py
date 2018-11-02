@@ -85,7 +85,7 @@ class Query(object):
         CountryNode, filterset_class=CountryFilter
     )
 
-    gelocation = relay.Node.Field(GeolocationNode)
-    all_gelocations = DjangoFilterConnectionField(
+    geolocation = relay.Node.Field(GeolocationNode)
+    all_geolocations = DjangoFilterConnectionField(
         GeolocationNode, filterset_class=GeolocatioFilter
     )
