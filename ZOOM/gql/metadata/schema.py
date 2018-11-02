@@ -56,15 +56,8 @@ class FileNode(DjangoObjectType):
         return json.loads(self.file_heading_list)
 
     def resolve_data_model_heading(self, info):
-        return json.loads(pd.Series([
-            'indicator',
-            'filters',
-            'geolocation',
-            'date',
-            'value_format',
-            'value',
-            'comment'
-        ]).to_json())
+        return json.loads(pd.Series(
+            [heading for heading in DATAMODEL_HEADINGS]).to_json())
 
 
 class FileFilter(FilterSet):
