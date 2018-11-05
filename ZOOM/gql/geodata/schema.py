@@ -61,12 +61,13 @@ class GeolocationNode(DjangoObjectType):
 class GeolocatioFilter(FilterSet):
     entry_id = NumberFilter(method='filter_entry_id')
     entry_id__in = CharFilter(method='filter_entry_id__in')
+    object_id__in = CharFilter(method='filter_object_id__in')
 
     class Meta:
         model = Geolocation
         fields = {
-            'tag': ['exact', 'icontains', 'istartswith', 'in'],
-            'object_id': ['exact', 'in'],
+            'tag': ['exact', 'icontains', 'istartswith','in'],
+            'object_id': ['exact'],
             'type': ['exact', 'in'],
         }
 
@@ -77,6 +78,10 @@ class GeolocatioFilter(FilterSet):
     def filter_entry_id__in(self, queryset, name, value):
         name = 'id__in'
         return queryset.filter(**{name: eval(value)})
+
+    def filter_object_id__in(self,queryset,name,value):
+        name = 'object_id__in'
+        return queryset.filter(**{name:eval(value)})
 
 
 class Query(object):
