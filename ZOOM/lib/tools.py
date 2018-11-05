@@ -50,6 +50,9 @@ def identify_col_dtype(column_values, file_heading, dicts):
         country_filter = tmp_country_values.notnull()
         error_counter[filter_used] = tmp_country_values[country_filter]
 
+    #Check if coordinates
+    filter_used = (error_counter.isnull()) & (not_null_filter & (~numeric_filter))
+
     ###Clean up###
     error_counter[~not_null_filter] = "blank"
     
