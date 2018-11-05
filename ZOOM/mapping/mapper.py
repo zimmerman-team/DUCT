@@ -42,7 +42,7 @@ def begin_mapping(data):
             #convert file into standard format
 
         ###TODO Group categories here
-        if len(mappings['filters']):
+        if len(mappings['filters']) > 1:
             # if len(mappings['filter']) > 1:
             #   df_data, mappings, dtypes_dict, tmp_mapping = group_filters(df_data, dtypes_dict, multi_entry_dict, data_model_dict, filter_headings_dict)
             print('TODO')
@@ -93,6 +93,7 @@ def begin_mapping(data):
 
         ind_dict, headings_dict, geolocation_dict, value_format_dict, filters_dict = get_save_unique_datapoints(df_data, final_file_headings, metadata.source, instance)
         dicts = [ind_dict, headings_dict, geolocation_dict, value_format_dict, filters_dict]
+
         print('save datapoints')
         save_datapoints(df_data, final_file_headings, reverse_mapping, dicts)
 
@@ -174,6 +175,7 @@ def apply_missing_values(df_data, mappings, dtypes_dict, empty_values_array):
         dtypes_dict ({str:str}): stores the data-types found for each heading.
     '''
     indicator_value, geolocation_value, geolocation_type_value, filter_value, value_format_value, date_value = empty_values_array
+    print('empty_value_array ', empty_values_array)
 
     if indicator_value:
         mappings['indicator'] = ['indicator']
@@ -196,13 +198,11 @@ def apply_missing_values(df_data, mappings, dtypes_dict, empty_values_array):
         df_data['date'] = date_value
         dtypes_dict[mappings['date'][0]] = [('date', 'date')]
 
-    if value_format_value:
+    if value_format_value:##Only for one category
         if len(value_format_value.keys()) < 2 :#chect each entry emoty unit_of measure a dict
             mappings['value_format'] = ['value_format']
-            df_data['value_format'] = value_format_value[value_format_value.keys()[0]]
-            dtypes_dict[mappings['value_format'][0]] = [('text', 'text')]
-        else:
-            mappings['value_format'] = ['value_format']
+            print(value_format_value.keys())
+            df_data['value_format'] = value_format_value[list(value_format_value.keys())[0]]
             dtypes_dict[mappings['value_format'][0]] = [('text', 'text')]
 
     return df_data, mappings, dtypes_dict

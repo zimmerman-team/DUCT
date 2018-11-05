@@ -19,7 +19,7 @@ class FileManualMappingTestCase(TestCase):
         '''
         Test 0: Upload file
         '''
-
+        print('Upload source')
         res = self.c.post(
             '/api/metadata/sources/?format=json',
             {
@@ -33,7 +33,7 @@ class FileManualMappingTestCase(TestCase):
         '''
         Test 1: Upload file
         '''
-
+        print('Upload file')
         with open('samples/AIDSinfotest.csv') as fp:
             res = self.c.post(
                 '/api/metadata/?format=json',
@@ -63,6 +63,7 @@ class FileManualMappingTestCase(TestCase):
         '''
         Test 2: Validate
         '''
+        print('Validate')
         res_file_validate = self.c.post(
             '/api/validate/?format=json',
             {
@@ -79,20 +80,23 @@ class FileManualMappingTestCase(TestCase):
         '''
         Test 3: File Manual Mapping
         '''
-        
+
+        print('Manual Mapping')
+
+
         res_file_manual_mapping = self.c.post(
-            '/api/manual-mapper/?format=json',
+            '/api/mapping/?format=json',
             {
                 'id': res.json()['id'],
                 'dict': {
                     'indicator': [],
                     'value_format': [],
                     'geolocation': ['Country'],
-                    'empty_indicator': 'Indicator value',
                     'value': ['test'],
                     'date': ['Date'],
                     'comment': ['This is a test'],
                     'filters': ['Sex', 'Seen Transformers?', 'Seen Bambi?'],
+                    'empty_indicator': 'Indicator value',
                     'empty_value_format': {'test': 'Number'},
                     'headings': {
                         'Sex': 'Gender',
