@@ -43,8 +43,7 @@ class FiltersGeolocationsTestCase(TestCase):
         query = """
                 {
                       allGeolocations(first:1) {
-                         
-                        edges {
+                         edges {
                           cursor
                           node {
                               id
@@ -201,7 +200,7 @@ class FiltersGeolocationsTestCase(TestCase):
 
     def test_filter_objectId_In_geolocations(self):
 
-        geolocation = Geolocation.objects.filter(object_id__in=[4.0,7.0])
+        geolocation = Geolocation.objects.filter(object_id__in=[4.0, 7.0])
 
         query = """
                         {
@@ -251,7 +250,7 @@ class FiltersGeolocationsTestCase(TestCase):
 
     def test_filter_type_In_geolocations(self):
 
-        geolocation = Geolocation.objects.filter(type__in=['country','city'])
+        geolocation = Geolocation.objects.filter(type__in=['country', 'city'])
 
         query = """
                         {
@@ -298,7 +297,7 @@ class FiltersGeolocationsTestCase(TestCase):
                                   }
                               }
                         }
-                        """ %(id)
+                        """ % id
 
         result = schema.execute(query)
         self.assertEqual(result.data['allGeolocations']['edges'][0]['node']
@@ -309,7 +308,6 @@ class FiltersGeolocationsTestCase(TestCase):
         geolocation = Geolocation.objects.all()[:2]
         id_one = str(geolocation[0].id)
         id_two = str(geolocation[1].id)
-
 
         query = """
                         {
@@ -325,7 +323,7 @@ class FiltersGeolocationsTestCase(TestCase):
                                   }
                               }
                         }
-                        """ %(id_one,id_two)
+                        """ % (id_one, id_two)
 
         result = schema.execute(query)
         self.assertEqual(result.data['allGeolocations']['edges'][0]['node']
