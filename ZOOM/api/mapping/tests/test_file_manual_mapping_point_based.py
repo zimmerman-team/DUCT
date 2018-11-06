@@ -1,20 +1,23 @@
 from django.test import TestCase
-from unittest import skip
 from django.test import RequestFactory, Client
 from rest_framework.test import APIClient
+from geodata.importer.region import RegionImport
 from geodata.importer.country import CountryImport
-import json
+from geodata.importer.subnational import SubnationalImport
 
 
 class FileManualMappingTestCase(TestCase):
     request_dummy = RequestFactory().get('/')
     c = APIClient()
 
-    def test_file_manual_mapping_point_based(self):
+    def test_file_manual_mapping(self):
         # Intialise countries
         ci = CountryImport()
         ci.update_polygon()
         ci.update_alt_name()
+
+        si = SubnationalImport()
+        si.update_polygon()
 
         '''
         Test 0: Upload file
@@ -76,22 +79,42 @@ class FileManualMappingTestCase(TestCase):
         self.assertIsNotNone(res_file_validate.json()['found_list'])
         self.assertIsNotNone(res_file_validate.json()['missing_list'])
         self.assertIsNotNone(res_file_validate.json()['summary'])
-        f.g
+
         '''
         Test 3: File Manual Mapping
         '''
-
+        # **manual_mapping_data,
         res_file_manual_mapping = self.c.post(
-            '/api/manual-mapper/?format=json',
-            {'dict': {'indicator': [], 'unit_of_measure': [], 'country': ['Country'],
-                      'empty_indicator': 'Indicator value',
-                      'measure_value': ['test'], 'date_value': ['Date'], 'source': [], 'other': [],
-                      'indicator_category': ['Sex',
-                                             'Seen Transformers?', 'Seen Bambi?'],
-                      'empty_unit_of_measure': {'test': 'Number'}},
-             'id': res.json()['id']}, format='json'
+            '/api/mapping/?format=json',
+            {
+                'id': res.json()['id'],
+                'dict': {
+                    'indicator': [],
+                    'value_format': [],
+                    'geolocation': [
+                        'Lat location 1',
+                        'Long location 1',
+                    ],
+                    'value': [
+                        'new infections'
+                    ],
+                    'date': [],
+                    'comment': [],
+                    'filters': [],
+                    'headings': {
+                        'filters': 'filters'
+                    },
+                    'empty_indicator': 'Test region',
+                    'empty_geolocation_type': '',
+                    'empty_filter': 'Default',
+                    'empty_value_format': {'value_format': 'Numeric'},
+                    'empty_date': '2016',
+                    'additional_geolocation_info': {'coord': {'lat': 'Lat location 1',
+                              'lon': 'Long location 1'}}
+                },
+            },
+            format='json'
         )
-        # print res_file_manual_mapping
-        
+
         self.assertEquals(res_file_manual_mapping.status_code, 200, res_file_manual_mapping.json())
         self.assertEquals(res_file_manual_mapping.json()['success'], 1)
