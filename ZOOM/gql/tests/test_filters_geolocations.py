@@ -7,52 +7,53 @@ from geodata.models import Geolocation
 class FiltersGeolocationsTestCase(TestCase):
 
     def setUp(self):
-        dummy_country_one = factory.GeolocationFactory(tag='Albania',
-                                                       iso2='al',
-                                                       iso3='alb',
-                                                       object_id=4,
-                                                       content_type_id=15,
-                                                       type='country'
-                                                       )
+        # Dummy geolocations
+        factory.GeolocationFactory(tag='Albania',
+                                   iso2='al',
+                                   iso3='alb',
+                                   object_id=4,
+                                   content_type_id=15,
+                                   type='country'
+                                   )
 
-        dummy_country_two = factory.GeolocationFactory(tag='Andora',
-                                                       iso2='ad',
-                                                       iso3='and',
-                                                       object_id=7,
-                                                       content_type_id=15,
-                                                       type='country'
-                                                       )
+        factory.GeolocationFactory(tag='Andora',
+                                   iso2='ad',
+                                   iso3='and',
+                                   object_id=7,
+                                   content_type_id=15,
+                                   type='country'
+                                   )
 
-        dummy_country_three = factory.GeolocationFactory(tag='Bahamas',
-                                                         iso2='bs',
-                                                         iso3='bhs',
-                                                         object_id=18,
-                                                         content_type_id=15,
-                                                         type='country'
-                                                         )
+        factory.GeolocationFactory(tag='Bahamas',
+                                   iso2='bs',
+                                   iso3='bhs',
+                                   object_id=18,
+                                   content_type_id=15,
+                                   type='country'
+                                   )
 
-        dummy_city_one = factory.GeolocationFactory(tag='london',
-                                                    content_type_id=14,
-                                                    type='city'
-                                                    )
+        factory.GeolocationFactory(tag='london',
+                                   content_type_id=14,
+                                   type='city'
+                                   )
 
     def test_filter_first_geolocations(self):
 
         geolocation = Geolocation.objects.first()
 
         query = """
-                {
-                      allGeolocations(first:1) {
-                         edges {
-                          cursor
-                          node {
-                              id
-                              tag
-                            }
-                          }
-                      }
+        {
+            allGeolocations(first:1) {
+                edges {
+                    cursor
+                    node {
+                        id
+                        tag
+                    }
                 }
-                """
+            }
+        }
+        """
 
         result = schema.execute(query)
         self.assertEqual(result.data['allGeolocations']['edges'][0]['node']
@@ -63,18 +64,18 @@ class FiltersGeolocationsTestCase(TestCase):
         geolocation = Geolocation.objects.last()
 
         query = """
-                {
-                      allGeolocations(last:1) {
-                            edges {
-                                cursor
-                                node {
-                                    id
-                                    tag
-                                }
-                            }
-                      }
+        {
+            allGeolocations(last:1) {
+                edges {
+                    cursor
+                    node {
+                        id
+                        tag
+                    }
                 }
-                """
+            }
+        }
+        """
 
         result = schema.execute(query)
         self.assertEqual(result.data['allGeolocations']['edges'][0]['node']
@@ -85,19 +86,18 @@ class FiltersGeolocationsTestCase(TestCase):
         geolocation = Geolocation.objects.filter(tag='Albania')
 
         query = """
-                {
-                      allGeolocations(tag:"Albania") {
-
-                        edges {
-                          cursor
-                          node {
-                                    id
-                                    tag
-                                }
-                          }
-                      }
+        {
+            allGeolocations(tag:"Albania") {
+                edges {
+                    cursor
+                    node {
+                        id
+                        tag
+                    }
                 }
-                """
+            }
+        }
+        """
 
         result = schema.execute(query)
         self.assertEqual(result.data['allGeolocations']['edges'][0]['node']
@@ -108,19 +108,18 @@ class FiltersGeolocationsTestCase(TestCase):
         geolocation = Geolocation.objects.filter(tag__contains="lb")
 
         query = """
-                        {
-                              allGeolocations(tag_Icontains:"lb") {
-
-                                edges {
-                                  cursor
-                                  node {
-                                            id
-                                            tag
-                                        }
-                                  }
-                              }
-                        }
-                        """
+        {
+            allGeolocations(tag_Icontains:"lb") {
+                edges {
+                    cursor
+                    node {
+                        id
+                        tag
+                    }
+                }
+            }
+        }
+        """
 
         result = schema.execute(query)
         self.assertEqual(result.data['allGeolocations']['edges'][0]['node']
@@ -131,19 +130,18 @@ class FiltersGeolocationsTestCase(TestCase):
         geolocation = Geolocation.objects.filter(tag__startswith="Al")
 
         query = """
-                        {
-                              allGeolocations(tag_Istartswith:"Al") {
-
-                                edges {
-                                  cursor
-                                  node {
-                                            id
-                                            tag
-                                        }
-                                  }
-                              }
-                        }
-                        """
+        {
+            allGeolocations(tag_Istartswith:"Al") {
+                edges {
+                    cursor
+                    node {
+                        id
+                        tag
+                    }
+                }
+            }
+        }
+        """
 
         result = schema.execute(query)
         self.assertEqual(result.data['allGeolocations']['edges'][0]['node']
@@ -154,19 +152,18 @@ class FiltersGeolocationsTestCase(TestCase):
         geolocation = Geolocation.objects.filter(tag__in=["Albania", "Andora"])
 
         query = """
-                        {
-                              allGeolocations(tag_In:"Albania,Andora") {
-
-                                edges {
-                                  cursor
-                                  node {
-                                            id
-                                            tag
-                                        }
-                                  }
-                              }
-                        }
-                        """
+        {
+            allGeolocations(tag_In:"Albania,Andora") {
+                edges {
+                    cursor
+                    node {
+                        id
+                        tag
+                    }
+                }
+            }
+        }
+        """
 
         result = schema.execute(query)
         self.assertEqual(result.data['allGeolocations']['edges'][0]['node']
@@ -179,20 +176,19 @@ class FiltersGeolocationsTestCase(TestCase):
         geolocation = Geolocation.objects.filter(object_id=4.0)
 
         query = """
-                        {
-                              allGeolocations(objectId:4.0) {
-
-                                edges {
-                                  cursor
-                                  node {
-                                            id
-                                            tag
-                                            objectId
-                                        }
-                                  }
-                              }
-                        }
-                        """
+        {
+            allGeolocations(objectId:4.0) {
+                edges {
+                    cursor
+                    node {
+                        id
+                        tag
+                        objectId
+                    }
+                }
+            }
+        }
+        """
 
         result = schema.execute(query)
         self.assertEqual(result.data['allGeolocations']['edges'][0]['node']
@@ -203,20 +199,19 @@ class FiltersGeolocationsTestCase(TestCase):
         geolocation = Geolocation.objects.filter(object_id__in=[4.0, 7.0])
 
         query = """
-                        {
-                              allGeolocations(objectId_In:"4,7") {
-
-                                edges {
-                                  cursor
-                                  node {
-                                            id
-                                            tag
-                                            objectId
-                                        }
-                                  }
-                              }
-                        }
-                        """
+        {
+            allGeolocations(objectId_In:"4,7") {
+                edges {
+                    cursor
+                    node {
+                        id
+                        tag
+                        objectId
+                    }
+                }
+            }
+        }
+        """
 
         result = schema.execute(query)
         self.assertEqual(result.data['allGeolocations']['edges'][0]['node']
@@ -229,20 +224,19 @@ class FiltersGeolocationsTestCase(TestCase):
         geolocation = Geolocation.objects.filter(type="city")
 
         query = """
-                        {
-                              allGeolocations(type:"city") {
-
-                                edges {
-                                  cursor
-                                  node {
-                                            id
-                                            tag
-                                            objectId
-                                        }
-                                  }
-                              }
-                        }
-                        """
+        {
+            allGeolocations(type:"city") {
+                edges {
+                    cursor
+                    node {
+                        id
+                        tag
+                        objectId
+                    }
+                }
+            }
+        }
+        """
 
         result = schema.execute(query)
         self.assertEqual(result.data['allGeolocations']['edges'][0]['node']
@@ -253,20 +247,19 @@ class FiltersGeolocationsTestCase(TestCase):
         geolocation = Geolocation.objects.filter(type__in=['country', 'city'])
 
         query = """
-                        {
-                              allGeolocations(type_In:"city,country") {
-
-                                edges {
-                                  cursor
-                                  node {
-                                            id
-                                            tag
-                                            objectId
-                                        }
-                                  }
-                              }
-                        }
-                        """
+        {
+            allGeolocations(type_In:"city,country") {
+                edges {
+                    cursor
+                    node {
+                        id
+                        tag
+                        objectId
+                    }
+                }
+            }
+        }
+        """
 
         result = schema.execute(query)
         self.assertEqual(result.data['allGeolocations']['edges'][0]['node']
@@ -284,20 +277,19 @@ class FiltersGeolocationsTestCase(TestCase):
         geolocation_id = geolocation.id
 
         query = """
-                        {
-                              allGeolocations(entryId:%d) {
-
-                                edges {
-                                  cursor
-                                  node {
-                                            id
-                                            tag
-                                            objectId
-                                        }
-                                  }
-                              }
-                        }
-                        """ % geolocation_id
+        {
+            allGeolocations(entryId:%d) {
+                edges {
+                    cursor
+                    node {
+                        id
+                        tag
+                        objectId
+                    }
+                }
+            }
+        }
+        """ % geolocation_id
 
         result = schema.execute(query)
         self.assertEqual(result.data['allGeolocations']['edges'][0]['node']
@@ -310,20 +302,19 @@ class FiltersGeolocationsTestCase(TestCase):
         id_two = str(geolocation[1].id)
 
         query = """
-                        {
-                              allGeolocations(entryId_In:"%s,%s") {
-
-                                edges {
-                                  cursor
-                                  node {
-                                            id
-                                            tag
-                                            objectId
-                                        }
-                                  }
-                              }
-                        }
-                        """ % (id_one, id_two)
+        {
+            allGeolocations(entryId_In:"%s,%s") {
+                edges {
+                    cursor
+                    node {
+                        id
+                        tag
+                        objectId
+                    }
+                }
+            }
+        }
+        """ % (id_one, id_two)
 
         result = schema.execute(query)
         self.assertEqual(result.data['allGeolocations']['edges'][0]['node']

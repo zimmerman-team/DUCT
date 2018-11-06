@@ -122,19 +122,18 @@ class FiltersCountriesTestCase(TestCase):
         country = Country.objects.filter(name__in=["Albania", "Andora"])
 
         query = """
-                        {
-                              allCountries(name_In:"Albania,Andora") {
-
-                                edges {
-                                  cursor
-                                  node {
-                                            id
-                                            name
-                                        }
-                                  }
-                              }
-                        }
-                        """
+        {
+            allCountries(name_In:"Albania,Andora") {
+                edges {
+                    cursor
+                    node {
+                        id
+                        name
+                    }
+                }
+            }
+        }
+        """
 
         result = schema.execute(query)
         self.assertEqual(result.data['allCountries']['edges'][0]['node']
@@ -152,13 +151,13 @@ class FiltersCountriesTestCase(TestCase):
                 edges {
                     cursor
                     node {
-                                    id
-                                    iso2
-                                }
-                          }
-                      }
+                        id
+                        iso2
+                    }
                 }
-                """
+            }
+        }
+        """
 
         result = schema.execute(query)
         self.assertEqual(result.data['allCountries']['edges'][0]['node']
@@ -169,19 +168,18 @@ class FiltersCountriesTestCase(TestCase):
         country = Country.objects.filter(iso2__contains='al')
 
         query = """
-                {
-                      allCountries(iso2_Icontains:"al") {
-
-                        edges {
-                          cursor
-                          node {
-                                    id
-                                    iso2
-                                }
-                          }
-                      }
+        {
+            allCountries(iso2_Icontains:"al") {
+                edges {
+                    cursor
+                    node {
+                        id
+                        iso2
+                    }
                 }
-                """
+            }
+        }
+        """
 
         result = schema.execute(query)
         self.assertEqual(result.data['allCountries']['edges'][0]['node']
@@ -192,19 +190,18 @@ class FiltersCountriesTestCase(TestCase):
         country = Country.objects.filter(iso2__istartswith='al')
 
         query = """
-                {
-                      allCountries(iso2_Istartswith:"al") {
-
-                        edges {
-                          cursor
-                          node {
-                                    id
-                                    iso2
-                                }
-                          }
-                      }
+        {
+            allCountries(iso2_Istartswith:"al") {
+                edges {
+                    cursor
+                    node {
+                        id
+                        iso2
+                    }
                 }
-                """
+            }
+        }
+        """
 
         result = schema.execute(query)
         self.assertEqual(result.data['allCountries']['edges'][0]['node']
@@ -215,19 +212,18 @@ class FiltersCountriesTestCase(TestCase):
         country = Country.objects.filter(iso2__in=['al', 'bs'])
 
         query = """
-                {
-                      allCountries(iso2_In:"al,bs") {
-
-                        edges {
-                          cursor
-                          node {
-                                    id
-                                    iso2
-                                }
-                          }
-                      }
+        {
+            allCountries(iso2_In:"al,bs") {
+                edges {
+                    cursor
+                    node {
+                        id
+                        iso2
+                    }
                 }
-                """
+            }
+        }
+         """
 
         result = schema.execute(query)
         self.assertEqual(result.data['allCountries']['edges'][0]['node']
@@ -241,19 +237,18 @@ class FiltersCountriesTestCase(TestCase):
         country = Country.objects.filter(iso3='alb')
 
         query = """
-                {
-                      allCountries(iso3:"alb") {
-
-                        edges {
-                          cursor
-                          node {
-                                    id
-                                    iso3
-                                }
-                          }
-                      }
+        {
+            allCountries(iso3:"alb") {
+                edges {
+                    cursor
+                    node {
+                        id
+                        iso3
+                    }
                 }
-                """
+            }
+        }
+        """
 
         result = schema.execute(query)
         self.assertEqual(result.data['allCountries']['edges'][0]['node']
@@ -264,19 +259,18 @@ class FiltersCountriesTestCase(TestCase):
         country = Country.objects.filter(iso3__contains='al')
 
         query = """
-                {
-                      allCountries(iso3_Icontains:"al") {
-
-                        edges {
-                          cursor
-                          node {
-                                    id
-                                    iso3
-                                }
-                          }
-                      }
+        {
+            allCountries(iso3_Icontains:"al") {
+                edges {
+                    cursor
+                    node {
+                        id
+                        iso3
+                    }
                 }
-                """
+            }
+        }
+         """
 
         result = schema.execute(query)
         self.assertEqual(result.data['allCountries']['edges'][0]['node']
@@ -287,19 +281,18 @@ class FiltersCountriesTestCase(TestCase):
         country = Country.objects.filter(iso2__istartswith='al')
 
         query = """
-                {
-                      allCountries(iso3_Istartswith:"al") {
-
-                        edges {
-                          cursor
-                          node {
-                                    id
-                                    iso3
-                                }
-                          }
-                      }
+        {
+            allCountries(iso3_Istartswith:"al") {
+                edges {
+                    cursor
+                    node {
+                        id
+                        iso3
+                    }
                 }
-                """
+            }
+        }
+        """
 
         result = schema.execute(query)
         self.assertEqual(result.data['allCountries']['edges'][0]['node']
@@ -310,19 +303,18 @@ class FiltersCountriesTestCase(TestCase):
         country = Country.objects.filter(iso3__in=['alb', 'aus'])
 
         query = """
-                {
-                      allCountries(iso3_In:"alb,aus") {
-
-                        edges {
-                          cursor
-                          node {
-                                    id
-                                    iso3
-                                }
-                          }
-                      }
+        {
+            allCountries(iso3_In:"alb,aus") {
+                edges {
+                    cursor
+                    node {
+                        id
+                        iso3
+                    }
                 }
-                """
+            }
+        }
+        """
 
         result = schema.execute(query)
         self.assertEqual(result.data['allCountries']['edges'][0]['node']
@@ -337,19 +329,18 @@ class FiltersCountriesTestCase(TestCase):
         country_id = country.id
 
         query = """
-                        {
-                              allCountries(entryId:%d) {
-
-                                edges {
-                                  cursor
-                                  node {
-                                            id
-                                            name
-                                        }
-                                  }
-                              }
-                        }
-                        """ % country_id
+        {
+            allCountries(entryId:%d) {
+                edges {
+                    cursor
+                    node {
+                        id
+                        name
+                    }
+                }
+            }
+        }
+        """ % country_id
 
         result = schema.execute(query)
         self.assertEqual(result.data['allCountries']['edges'][0]['node']
@@ -362,19 +353,18 @@ class FiltersCountriesTestCase(TestCase):
         country_id_two = str(country[1].id)
 
         query = """
-                        {
-                              allCountries(entryId_In:"%s,%s") {
-
-                                edges {
-                                  cursor
-                                  node {
-                                            id
-                                            name
-                                        }
-                                  }
-                              }
-                        }
-                        """ % (country_id_one, country_id_two)
+        {
+            allCountries(entryId_In:"%s,%s") {
+                edges {
+                    cursor
+                    node {
+                        id
+                        name
+                    }
+                }
+            }
+        }
+        """ % (country_id_one, country_id_two)
 
         result = schema.execute(query)
         self.assertEqual(result.data['allCountries']['edges'][0]['node']
