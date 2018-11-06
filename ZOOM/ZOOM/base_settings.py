@@ -199,7 +199,7 @@ GRAPPELLI_ADMIN_TITLE = 'ZOOM admin'
 LOGIN_REDIRECT_URL = '/admin/'
 
 CORS_ORIGIN_ALLOW_ALL = True
-CORS_URLS_REGEX = r'^/graphql/.*$'
+# CORS_URLS_REGEX = r'^/graphql/.*$'
 CORS_ALLOW_METHODS = (
     'DELETE',
     'GET',
