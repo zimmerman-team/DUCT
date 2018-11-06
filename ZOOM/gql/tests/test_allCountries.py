@@ -10,9 +10,7 @@ class CountryTestCase(TestCase):
         factory.CountryFactory.create()
 
     def test_allCountries(self):
-
         country = Country.objects.first()
-
         query = """
             {allCountries
                 {edges

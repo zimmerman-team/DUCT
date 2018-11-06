@@ -30,16 +30,29 @@ class CountryImport():
             country_iso2 = k.get('alpha-2').lower()
             name = k.get('name').lower()
             country_iso3 = k.get('alpha-3').lower()
-            polygon = json.dumps(k.get('geometry'))
 
             if not country_iso2:
                 continue
 
             c, created = Country.objects.get_or_create(iso2=country_iso2, iso3=country_iso3, name=name, primary_name=True)
             if created:
-                c.polygons(polygon)
                 c.save()
                 Geolocation(content_object=c, tag=name, type='country', iso2=country_iso2, iso3=country_iso3).save()
+
+        poly_countries = self.get_json_data("/../data_backup/country_data.json").get('features')
+        for k in poly_countries:  # .get('features'):
+            if 'iso2' in k.get('properties'):
+                iso2 = k.get('properties').get('iso2').lower()
+                filtered_set = Country.objects.filter(iso2=iso2, primary_name=True)
+                if len(filtered_set) > 0:
+                    c = filtered_set[0]
+                else:
+                    name = k.get('properties').get('name').lower()
+                    c = Country(name=name, iso2=iso2, primary_name=True)
+                    c.save()
+                    Geolocation(content_object=c, tag=name, type='country', iso2=iso2).save()
+                c.polygons = json.dumps(k.get('geometry'))
+                c.save()
 
     def update_country_center(self):
         country_centers = self.get_json_data("/../data_backup/country_center.json")
