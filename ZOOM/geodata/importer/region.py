@@ -18,7 +18,7 @@ class RegionImport():
         region_poly = self.get_json_data("/../data_backup/continents.json")
 
         for region in  region_poly.get('features'):
-            name = region.get('properties').get('CONTINENT')
+            name = region.get('properties').get('CONTINENT').lower()
             polygon = json.dumps(region.get('geometry'))
             instance, created = Region.objects.get_or_create(name=name, polygons=polygon)
             if created:
