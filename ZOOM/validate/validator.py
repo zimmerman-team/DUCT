@@ -1,5 +1,4 @@
 import pandas as pd
-
 from lib.tools import identify_col_dtype
 from metadata.models import File
 from lib.common import get_geolocation_dictionary, save_validation_data, \
@@ -11,11 +10,10 @@ def validate(id):
 
     Args:
         id (int): ID of file.
-
     Returns:
         context ({str:data}): information related to the validation of file.
     """
-
+    
     print("Begining Validation")
 
     newdoc = ['']  # Future: using array in case user uploads multiple files
