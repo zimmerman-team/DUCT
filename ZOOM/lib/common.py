@@ -2,6 +2,7 @@ from django.conf import settings
 from indicator.models import Datapoints, DATAMODEL_HEADINGS
 from metadata.models import File
 from geodata.models import Geolocation
+from mapping.models import Mapping
 import pickle
 import pandas as pd
 import numpy as np
@@ -99,7 +100,10 @@ def get_file_data(id):
 def save_mapping(id, mapping):
     """Saves user mapping for file"""
     file = File.objects.get(id=id)
-    file.mapping_used = json.dumps(mapping)
+    c, created = Mapping.objects.get_or_create(data=json.dumps(mapping))
+    if created:
+        c.save()
+    file.mapping_used = c
     file.save()
 
 
