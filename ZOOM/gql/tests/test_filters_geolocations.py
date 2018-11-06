@@ -281,7 +281,7 @@ class FiltersGeolocationsTestCase(TestCase):
     def test_filter_entryId_geolocations(self):
 
         geolocation = Geolocation.objects.first()
-        id = geolocation.id
+        geolocation_id = geolocation.id
 
         query = """
                         {
@@ -297,7 +297,7 @@ class FiltersGeolocationsTestCase(TestCase):
                                   }
                               }
                         }
-                        """ % id
+                        """ % geolocation_id
 
         result = schema.execute(query)
         self.assertEqual(result.data['allGeolocations']['edges'][0]['node']
