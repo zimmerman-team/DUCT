@@ -164,9 +164,7 @@ class FiltersCountriesTestCase(TestCase):
                          ['iso2'], country[0].iso2)
 
     def test_filter_iso2_icontains_countries(self):
-
         country = Country.objects.filter(iso2__contains='al')
-
         query = """
         {
             allCountries(iso2_Icontains:"al") {
@@ -186,9 +184,7 @@ class FiltersCountriesTestCase(TestCase):
                          ['iso2'], country[0].iso2)
 
     def test_filter_iso2_istartswith_countries(self):
-
         country = Country.objects.filter(iso2__istartswith='al')
-
         query = """
         {
             allCountries(iso2_Istartswith:"al") {
@@ -208,9 +204,7 @@ class FiltersCountriesTestCase(TestCase):
                          ['iso2'], country[0].iso2)
 
     def test_filter_iso2_In_countries(self):
-
         country = Country.objects.filter(iso2__in=['al', 'bs'])
-
         query = """
         {
             allCountries(iso2_In:"al,bs") {
@@ -228,14 +222,11 @@ class FiltersCountriesTestCase(TestCase):
         result = schema.execute(query)
         self.assertEqual(result.data['allCountries']['edges'][0]['node']
                          ['iso2'], country[0].iso2)
-
         self.assertEqual(result.data['allCountries']['edges'][1]['node']
                          ['iso2'], country[1].iso2)
 
     def test_filter_iso3_countries(self):
-
         country = Country.objects.filter(iso3='alb')
-
         query = """
         {
             allCountries(iso3:"alb") {
@@ -255,9 +246,7 @@ class FiltersCountriesTestCase(TestCase):
                          ['iso3'], country[0].iso3)
 
     def test_filter_iso3_icontains_countries(self):
-
         country = Country.objects.filter(iso3__contains='al')
-
         query = """
         {
             allCountries(iso3_Icontains:"al") {
@@ -277,9 +266,7 @@ class FiltersCountriesTestCase(TestCase):
                          ['iso3'], country[0].iso3)
 
     def test_filter_iso3_istartswith_countries(self):
-
         country = Country.objects.filter(iso2__istartswith='al')
-
         query = """
         {
             allCountries(iso3_Istartswith:"al") {
@@ -299,9 +286,7 @@ class FiltersCountriesTestCase(TestCase):
                          ['iso3'], country[0].iso3)
 
     def test_filter_iso3_In_countries(self):
-
         country = Country.objects.filter(iso3__in=['alb', 'aus'])
-
         query = """
         {
             allCountries(iso3_In:"alb,aus") {
@@ -324,10 +309,8 @@ class FiltersCountriesTestCase(TestCase):
                          ['iso3'], country[1].iso3)
 
     def test_filter_entryId_countries(self):
-
         country = Country.objects.first()
         country_id = country.id
-
         query = """
         {
             allCountries(entryId:%d) {
@@ -347,11 +330,9 @@ class FiltersCountriesTestCase(TestCase):
                          ['name'], country.name)
 
     def test_filter_entryId_In_countries(self):
-
         country = Country.objects.all()[:2]
         country_id_one = str(country[0].id)
         country_id_two = str(country[1].id)
-
         query = """
         {
             allCountries(entryId_In:"%s,%s") {

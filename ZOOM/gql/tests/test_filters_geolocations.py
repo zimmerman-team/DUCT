@@ -8,39 +8,34 @@ class FiltersGeolocationsTestCase(TestCase):
 
     def setUp(self):
         # Dummy geolocations
-        factory.GeolocationFactory(tag='Albania',
-                                   iso2='al',
-                                   iso3='alb',
-                                   object_id=4,
-                                   content_type_id=15,
-                                   type='country'
-                                   )
-
-        factory.GeolocationFactory(tag='Andora',
-                                   iso2='ad',
-                                   iso3='and',
-                                   object_id=7,
-                                   content_type_id=15,
-                                   type='country'
-                                   )
-
-        factory.GeolocationFactory(tag='Bahamas',
-                                   iso2='bs',
-                                   iso3='bhs',
-                                   object_id=18,
-                                   content_type_id=15,
-                                   type='country'
-                                   )
-
-        factory.GeolocationFactory(tag='london',
-                                   content_type_id=14,
-                                   type='city'
-                                   )
+        factory.GeolocationFactory(
+            tag='Albania',
+            iso2='al',
+            iso3='alb',
+            object_id=4,
+            content_type_id=15,
+            type='country')
+        factory.GeolocationFactory(
+            tag='Andora',
+            iso2='ad',
+            iso3='and',
+            object_id=7,
+            content_type_id=15,
+            type='country')
+        factory.GeolocationFactory(
+            tag='Bahamas',
+            iso2='bs',
+            iso3='bhs',
+            object_id=18,
+            content_type_id=15,
+            type='country')
+        factory.GeolocationFactory(
+            tag='london',
+            content_type_id=14,
+            type='city')
 
     def test_filter_first_geolocations(self):
-
         geolocation = Geolocation.objects.first()
-
         query = """
         {
             allGeolocations(first:1) {
@@ -60,9 +55,7 @@ class FiltersGeolocationsTestCase(TestCase):
                          ['tag'], geolocation.tag)
 
     def test_filter_last_geolocations(self):
-
         geolocation = Geolocation.objects.last()
-
         query = """
         {
             allGeolocations(last:1) {
@@ -82,9 +75,7 @@ class FiltersGeolocationsTestCase(TestCase):
                          ['tag'], geolocation.tag)
 
     def test_filter_tag_geolocations(self):
-
         geolocation = Geolocation.objects.filter(tag='Albania')
-
         query = """
         {
             allGeolocations(tag:"Albania") {
@@ -104,9 +95,7 @@ class FiltersGeolocationsTestCase(TestCase):
                          ['tag'], geolocation[0].tag)
 
     def test_filter_tag_icontains_geolocations(self):
-
         geolocation = Geolocation.objects.filter(tag__contains="lb")
-
         query = """
         {
             allGeolocations(tag_Icontains:"lb") {
@@ -126,9 +115,7 @@ class FiltersGeolocationsTestCase(TestCase):
                          ['tag'], geolocation[0].tag)
 
     def test_filter_tag_istartswith_geolocations(self):
-
         geolocation = Geolocation.objects.filter(tag__startswith="Al")
-
         query = """
         {
             allGeolocations(tag_Istartswith:"Al") {
@@ -148,9 +135,7 @@ class FiltersGeolocationsTestCase(TestCase):
                          ['tag'], geolocation[0].tag)
 
     def test_filter_tag_In_geolocations(self):
-
         geolocation = Geolocation.objects.filter(tag__in=["Albania", "Andora"])
-
         query = """
         {
             allGeolocations(tag_In:"Albania,Andora") {
@@ -172,9 +157,7 @@ class FiltersGeolocationsTestCase(TestCase):
                          ['tag'], geolocation[1].tag)
 
     def test_filter_objectId_geolocations(self):
-
         geolocation = Geolocation.objects.filter(object_id=4.0)
-
         query = """
         {
             allGeolocations(objectId:4.0) {
@@ -195,9 +178,7 @@ class FiltersGeolocationsTestCase(TestCase):
                          ['objectId'], geolocation[0].object_id)
 
     def test_filter_objectId_In_geolocations(self):
-
         geolocation = Geolocation.objects.filter(object_id__in=[4.0, 7.0])
-
         query = """
         {
             allGeolocations(objectId_In:"4,7") {
@@ -220,9 +201,7 @@ class FiltersGeolocationsTestCase(TestCase):
                          ['objectId'], geolocation[1].object_id)
 
     def test_filter_type_geolocations(self):
-
         geolocation = Geolocation.objects.filter(type="city")
-
         query = """
         {
             allGeolocations(type:"city") {
@@ -243,9 +222,7 @@ class FiltersGeolocationsTestCase(TestCase):
                          ['tag'], geolocation[0].tag)
 
     def test_filter_type_In_geolocations(self):
-
         geolocation = Geolocation.objects.filter(type__in=['country', 'city'])
-
         query = """
         {
             allGeolocations(type_In:"city,country") {
@@ -272,10 +249,8 @@ class FiltersGeolocationsTestCase(TestCase):
                          ['tag'], geolocation[3].tag)
 
     def test_filter_entryId_geolocations(self):
-
         geolocation = Geolocation.objects.first()
         geolocation_id = geolocation.id
-
         query = """
         {
             allGeolocations(entryId:%d) {
@@ -296,11 +271,9 @@ class FiltersGeolocationsTestCase(TestCase):
                          ['tag'], geolocation.tag)
 
     def test_filter_entryId_In_geolocations(self):
-
         geolocation = Geolocation.objects.all()[:2]
         id_one = str(geolocation[0].id)
         id_two = str(geolocation[1].id)
-
         query = """
         {
             allGeolocations(entryId_In:"%s,%s") {
