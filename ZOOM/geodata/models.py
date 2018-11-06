@@ -2,6 +2,7 @@ from django.contrib.gis.db import models as gis_models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.contrib.gis.geos import GEOSGeometry
 
 GEOTYPE_HEADINGS = {
     'country',
@@ -43,7 +44,7 @@ class Geolocation(models.Model):
 class Region(gis_models.Model):
     id = gis_models.AutoField(primary_key=True, editable=False)
     name = gis_models.CharField(unique=True, max_length=200)
-    code = gis_models.CharField(max_length=100)
+    code = gis_models.CharField(max_length=100, null=True)
 
     center_longlat = gis_models.PointField(null=True, blank=True)
     polygons = gis_models.MultiPolygonField(null=True, blank=True)
@@ -165,15 +166,10 @@ class SubNational(gis_models.Model):
 class PointBased(gis_models.Model):
     id = gis_models.AutoField(primary_key=True, editable=False)
     name = gis_models.CharField(max_length=200)
-    # choices=['hospital', 'encounter', 'general_marker'])
-    type = gis_models.CharField(max_length=200, null=True, blank=True)
+    type = gis_models.CharField(max_length=200, null=True, blank=True) #choices=['hospital', 'encounter', 'general_marker'])
 
-    country = gis_models.ForeignKey(
-        Country,
-        null=True,
-        blank=True,
-        on_delete=gis_models.SET_NULL)
-    center_longlat = gis_models.PointField(null=True, blank=True)
+    subnational = gis_models.ForeignKey(SubNational, null=True, blank=True, on_delete=gis_models.SET_NULL)
+    center_longlat = gis_models.PointField(null=True, blank=True)#Prime Meridian
 
     comment = gis_models.TextField()
     data_source = gis_models.CharField(max_length=100, null=True, blank=True)

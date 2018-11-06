@@ -4,7 +4,7 @@ from django.contrib.gis.geos import fromstr
 
 from geodata.models import Country, Geolocation
 from geodata.models import Region
-
+import json
 
 class CountryImport():
     """
@@ -30,12 +30,14 @@ class CountryImport():
             country_iso2 = k.get('alpha-2').lower()
             name = k.get('name').lower()
             country_iso3 = k.get('alpha-3').lower()
+            polygon = json.dumps(k.get('geometry'))
 
             if not country_iso2:
                 continue
 
             c, created = Country.objects.get_or_create(iso2=country_iso2, iso3=country_iso3, name=name, primary_name=True)
             if created:
+                c.polygons(polygon)
                 c.save()
                 Geolocation(content_object=c, tag=name, type='country', iso2=country_iso2, iso3=country_iso3).save()
 
