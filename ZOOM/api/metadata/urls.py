@@ -7,7 +7,7 @@ from api.metadata.views import (
 
 app_name = 'metadata'
 urlpatterns = [
-    url(r'^upload/(?P<filename>[^/]+)$', FileUploadView.as_view(),
+    url(r'^upload/$', FileUploadView.as_view(),
         name='file-upload'),
     url(r'^$', FileListView.as_view(), name='file-list'),
     url(r'^sources/$', FileSourceListView.as_view(), name='file-source-list'),
