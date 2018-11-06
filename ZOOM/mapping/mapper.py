@@ -185,15 +185,15 @@ def group_filters(df_data, dtypes_dict, multi_entry_dict, data_model_dict):
 
     # ignore relationship
 
-    df_data['filter'] = ''
-    df_data['heading_filter'] = ''
-    tmp_mappings = ['filter']
+    df_data['filters'] = ''
+    df_data['heading_filters'] = ''
+    tmp_mappings = ['filters']
     count = 0
 
-    for value in data_model_dict['filter']:
+    for value in data_model_dict['filters']:
         # loop through data combine with heading name and itself
         if not multi_entry_dict['relationship']:  # no relationshup defined
-            df_data['filter'] = df_data['filter'] + \
+            df_data['filters'] = df_data['filters'] + \
                 '|' + df_data[value].map(str)
             df_data['heading_filter'] = df_data['heading_filter'] + '|' + value
         else:
@@ -227,10 +227,14 @@ def apply_missing_values(df_data, mappings, dtypes_dict, empty_values_array):
     indicator_value, geolocation_value, geolocation_type_value, filter_value, \
         value_format_value, date_value = empty_values_array
 
+    print('d_dict')
+    print(dtypes_dict)
+    length = (len(df_data[df_data.columns[0]]) -1)
+
     if indicator_value:
         mappings['indicator'] = ['indicator']
         df_data['indicator'] = indicator_value
-        dtypes_dict[mappings['indicator'][0]] = [('text', 'text')]
+        dtypes_dict[mappings['indicator'][0]] = ['text'] * length
         # add indicator value as column
 
     if geolocation_value:
@@ -240,23 +244,21 @@ def apply_missing_values(df_data, mappings, dtypes_dict, empty_values_array):
             (geolocation_type_value, geolocation_type_value)]
 
     if filter_value:
-        mappings['filter'] = ['filter']
-        df_data['filter'] = filter_value
-        dtypes_dict[mappings['filter'][0]] = [('text', 'text')]
+        mappings['filters'] = ['filters']
+        df_data['filters'] = filter_value
+        dtypes_dict[mappings['filters'][0]] = ['text'] * length
 
     if date_value:
         mappings['date'] = ['date']
         df_data['date'] = date_value
-        dtypes_dict[mappings['date'][0]] = [('date', 'date')]
+        dtypes_dict[mappings['date'][0]] = ['date'] * length
 
     if value_format_value:
-        if len(value_format_value.keys()
-               ) < 2:  # chect each entry emoty unit_of measure a dict
+        if len(mappings['value']) == 1:
+            # check each entry empty value format dict
             mappings['value_format'] = ['value_format']
-            df_data['value_format'] = \
-                value_format_value[value_format_value.keys()[0]]
-
-            dtypes_dict[mappings['value_format'][0]] = [('text', 'text')]
+            df_data['value_format'] = value_format_value[list(value_format_value.keys())[0]]
+            dtypes_dict[mappings['value_format'][0]] = ['text'] * length
         else:
             mappings['value_format'] = ['value_format']
             dtypes_dict[mappings['value_format'][0]] = [('text', 'text')]
@@ -393,6 +395,8 @@ def get_save_unique_datapoints(
                                   'headings']][i]] = instance
 
             elif(count == 2):  # Location#
+                print(unique_list[i])
+                print(Geolocation.objects.all())
                 instance = Geolocation.objects.get(tag=unique_list[i])
                 geolocation_dict[unique_list[i]] = instance  # shold use get?
             elif(count == 3):

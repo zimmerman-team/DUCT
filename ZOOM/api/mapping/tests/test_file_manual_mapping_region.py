@@ -11,8 +11,7 @@ class FileManualMappingTestCase(TestCase):
     def test_file_manual_mapping(self):
         # Intialise countries
         ri = RegionImport()
-        ri.update_polygon()
-        ri.update_alt_name()
+        ri.update_region_center()
 
         '''
         Test 0: Upload file
@@ -78,58 +77,31 @@ class FileManualMappingTestCase(TestCase):
         '''
         Test 3: File Manual Mapping
         '''
-        manual_mapping_data = {
-            'id': res.json()['id'],
-            'dict': {
-                'indicator': [],
-                'value_format': [],
-                'geolocation': [
-                    'Region'
-                ],
-                'value': [
-                    'new infections'
-                ],
-                'date': [],
-                'comment': [],
-                'filter': [],
-                'filter_heading_name': {
-                    'default': 'default'
-                }
-            }
-        }
-        # print manual_mapping_data
-
         # **manual_mapping_data,
         res_file_manual_mapping = self.c.post(
             '/api/mapping/?format=json',
             {
                 'id': res.json()['id'],
                 'dict': {
-                    'indicator': [
-                        'Indicator'
-                    ],
-                    'value_format': [
-                        'Unit'
-                    ],
+                    'indicator': [],
+                    'value_format': [],
                     'geolocation': [
-                        'Area',  # 'Area ID'
+                        'Region'
                     ],
                     'value': [
-                        'Data Value'
+                        'new infections'
                     ],
-                    'date': [
-                        'Time Period'
-                    ],
-                    'comment': [
-                        'Source',  # 'Footnotes'
-                    ],
-
-                    'filters': [
-                        'Subgroup'
-                    ],
+                    'date': [],
+                    'comment': [],
+                    'filters': [],
                     'headings': {
-                        'Subgroup': 'Subgroup'
-                    }
+                        'filters': 'filters'
+                    },
+                    'empty_indicator': 'Test region',
+                    'empty_geolocation_type': '',
+                    'empty_filter': 'Default',
+                    'empty_value_format': {'value_format': 'Numeric'},
+                    'empty_date': '2016',
                 },
             },
             format='json'
