@@ -9,6 +9,5 @@ class MappingSerializer(serializers.ModelSerializer):
         model = Mapping
         fields = (
             'id',
-            'file',
             'data'
         )
