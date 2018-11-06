@@ -227,8 +227,6 @@ def apply_missing_values(df_data, mappings, dtypes_dict, empty_values_array):
     indicator_value, geolocation_value, geolocation_type_value, filter_value, \
         value_format_value, date_value = empty_values_array
 
-    print('d_dict')
-    print(dtypes_dict)
     length = (len(df_data[df_data.columns[0]]) -1)
 
     if indicator_value:
@@ -284,7 +282,6 @@ def check_mapping_dtypes(mappings, dtypes_dict):
 
     for key in mappings:
         if mappings[key]:  # this is included incase no mapping is given
-            print(mappings[key])
             correction_mappings[mappings[key][0]] = []
             temp_results_check_dtype, temp_found_dtype, \
                 temp_convert_dtype = check_column_data_type(
@@ -395,8 +392,6 @@ def get_save_unique_datapoints(
                                   'headings']][i]] = instance
 
             elif(count == 2):  # Location#
-                print(unique_list[i])
-                print(Geolocation.objects.all())
                 instance = Geolocation.objects.get(tag=unique_list[i])
                 geolocation_dict[unique_list[i]] = instance  # shold use get?
             elif(count == 3):
@@ -431,7 +426,6 @@ def get_save_unique_datapoints(
                 geo_filter = unique_filter_geolocation_formats[
                     final_file_headings['filters']
                 ] == unique_list[final_file_headings['filters']][i]
-                print(geo_filter)
                 for index, row in \
                         unique_filter_geolocation_formats[
                             geo_filter].iterrows():  # TODO Vectorise

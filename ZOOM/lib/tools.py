@@ -211,8 +211,6 @@ def check_column_data_type(field, dtypes):
     dtype_set = set()
     result = False
     if field == 'geolocation':
-        print('Geo types')
-        print(dtypes)
         geotype_list = GEOTYPE_HEADINGS
         dtype_set = set(dtypes) & set(geotype_list)
         result = bool(dtype_set)
@@ -240,14 +238,10 @@ def check_column_data_type(field, dtypes):
             return False, dtypes[0], 'numeric'
     
     elif field == 'date':
-        print('Date dtypes ', dtypes)
-        print('date' in dtypes)
         if 'date' in dtypes:
-            print('Date')
             ###Future: include format of date
             return True, 'date' , 'date'
         else:
-            print('No date')
             return False, dtypes[0] , 'date'
     else:
         return True,'text','text' 
