@@ -17,7 +17,7 @@ class CountryNode(DjangoObjectType):
         )
         interfaces = (relay.Node, )
 
-    def resolve_this_id(self, context, **kwargs):
+    def resolve_entry_id(self, context, **kwargs):
         return self.id
 
 

@@ -8,7 +8,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': (os.path.join(os.path.dirname(__file__), '..', 'templates').replace('\\','/'),),
+        'DIRS': (os.path.join(
+            os.path.dirname(__file__), '..', 'templates').replace('\\','/'),),
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
