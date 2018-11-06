@@ -7,134 +7,111 @@ from geodata.models import Country
 class FiltersCountriesTestCase(TestCase):
 
     def setUp(self):
-        dummy_country_one = factory.CountryFactory(name='Albania',
-                                                   iso2='al',
-                                                   iso3='alb',
-                                                   )
-
-        dummy_country_two = factory.CountryFactory(name='Andora',
-                                                   iso2='ad',
-                                                   iso3='and',
-                                                   )
-
-        dummy_country_three = factory.CountryFactory(name='Bahamas',
-                                                     iso2='bs',
-                                                     iso3='bhs',
-                                                     )
-
-        dummy_country_four = factory.CountryFactory(name='Australia',
-                                                    iso2='au',
-                                                    iso3='aus',
-                                                    )
+        # Dummy Country
+        factory.CountryFactory(name='Albania', iso2='al', iso3='alb')
+        factory.CountryFactory(name='Andora', iso2='ad', iso3='and')
+        factory.CountryFactory(name='Bahamas', iso2='bs', iso3='bhs')
+        factory.CountryFactory(name='Australia', iso2='au', iso3='aus')
 
     def test_filter_first_countries(self):
-
         country = Country.objects.first()
-
         query = """
-                {
-                      allCountries(first:1) {
-                         edges {
-                          cursor
-                          node {
-                              id
-                              name
-                            }
-                          }
-                      }
+        {
+            allCountries(first:1) {
+                edges {
+                    cursor
+                    node {
+                        id
+                        name
+                    }
                 }
-                """
+            }
+        }
+        """
 
         result = schema.execute(query)
-        self.assertEqual(result.data['allCountries']['edges'][0]['node']
-                         ['name'], country.name)
+        self.assertEqual(
+            result.data['allCountries']['edges'][0]['node']['name'],
+            country.name)
 
     def test_filter_last_countries(self):
-
         country = Country.objects.last()
-
         query = """
-                {
-                      allCountries(last:1) {
-                            edges {
-                                cursor
-                                node {
-                                    id
-                                    name
-                                }
-                            }
-                      }
+        {
+            allCountries(last:1) {
+                edges {
+                    cursor
+                    node {
+                        id
+                        name
+                    }
                 }
-                """
+            }
+        }
+        """
 
         result = schema.execute(query)
-        self.assertEqual(result.data['allCountries']['edges'][0]['node']
-                         ['name'], country.name)
+        self.assertEqual(
+            result.data['allCountries']['edges'][0]['node']['name'],
+            country.name)
 
     def test_filter_name_countries(self):
-
         country = Country.objects.filter(name='Albania')
-
         query = """
-                {
-                      allCountries(name:"Albania") {
-
-                        edges {
-                          cursor
-                          node {
-                                    id
-                                    name
-                                }
-                          }
-                      }
+        {
+            allCountries(name:"Albania") {
+                edges {
+                    cursor
+                    node {
+                        id
+                        name
+                    }
                 }
-                """
+            }
+        }
+        """
 
         result = schema.execute(query)
-        self.assertEqual(result.data['allCountries']['edges'][0]['node']
-                         ['name'], country[0].name)
+        self.assertEqual(
+            result.data['allCountries']['edges'][0]['node']['name'],
+            country[0].name)
 
     def test_filter_name_icontains_countries(self):
-
         country = Country.objects.filter(name__contains="lb")
-
         query = """
-                        {
-                              allCountries(name_Icontains:"lb") {
-
-                                edges {
-                                  cursor
-                                  node {
-                                            id
-                                            name
-                                        }
-                                  }
-                              }
-                        }
-                        """
+        {
+            allCountries(name_Icontains:"lb") {
+                edges {
+                    cursor
+                    node {
+                        id
+                         name
+                    }
+                }
+            }
+        }
+        """
 
         result = schema.execute(query)
-        self.assertEqual(result.data['allCountries']['edges'][0]['node']
-                         ['name'], country[0].name)
+        self.assertEqual(
+            result.data['allCountries']['edges'][0]['node']['name'],
+            country[0].name)
 
     def test_filter_tag_istartswith_countries(self):
-
         country = Country.objects.filter(name__startswith="Al")
-
         query = """
-                        {
-                              allCountries(name_Istartswith:"Al") {
-
-                                edges {
-                                  cursor
-                                  node {
-                                            id
-                                            name
-                                        }
-                                  }
-                              }
-                        }
-                        """
+        {
+            allCountries(name_Istartswith:"Al") {
+                edges {
+                    cursor
+                    node {
+                        id
+                        name
+                    }
+                }
+            }
+        }
+        """
 
         result = schema.execute(query)
         self.assertEqual(result.data['allCountries']['edges'][0]['node']
@@ -170,12 +147,11 @@ class FiltersCountriesTestCase(TestCase):
         country = Country.objects.filter(iso2='al')
 
         query = """
-                {
-                      allCountries(iso2:"al") {
-
-                        edges {
-                          cursor
-                          node {
+        {
+            allCountries(iso2:"al") {
+                edges {
+                    cursor
+                    node {
                                     id
                                     iso2
                                 }
