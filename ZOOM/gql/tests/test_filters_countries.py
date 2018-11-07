@@ -18,7 +18,7 @@ class FiltersCountriesTestCase(TestCase):
         query = """
         {
             allCountries(first:1) {
-                edges {
+                    edges {
                     cursor
                     node {
                         id
