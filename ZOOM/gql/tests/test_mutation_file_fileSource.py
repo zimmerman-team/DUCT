@@ -5,7 +5,7 @@ from gql.tests import factory
 import os
 
 
-class FileSourceMutationTestCase(TestCase):
+class MutationTestCase(TestCase):
     def setUp(self):
         # Dummy objects
         self.dummy_file_source = factory.FileSourceFactory(
