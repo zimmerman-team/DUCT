@@ -96,10 +96,10 @@ def get_file_data(id):
     return df_data
 
 
-def save_mapping(id, mapping):
+def save_mapping(id, instance):
     """Saves user mapping for file"""
     file = File.objects.get(id=id)
-    file.mapping_used = json.dumps(mapping)
+    file.mapping_used = instance
     file.save()
 
 

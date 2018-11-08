@@ -46,3 +46,8 @@ class FileSourceFactory(NoDatabaseFactory):
     name = 'dummy_file_source'
 
 
+class FileFactory(NoDatabaseFactory):
+    class Meta:
+        model = metadata_models.File
+
+
