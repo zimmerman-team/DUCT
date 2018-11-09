@@ -16,13 +16,18 @@ class FileSourceMutation(SerializerMutation):
 
     @classmethod
     def get_serializer_kwargs(cls, root, info, **input):
-        if 'id' in input:
+        if input.get('id', None):
             instance = FileSource.objects.filter(
                 id=input['id']).first()
             if instance:
                 return {'instance': instance, 'data': input, 'partial': True}
             else:
                 raise http.Http404
+
+        # A foreign key bugs on SerializerMutation
+        serializer = FileSourceSerializer(data=input)
+        if not serializer.is_valid():
+            raise Exception(serializer.errors)
 
         return {'data': input, 'partial': True}
 

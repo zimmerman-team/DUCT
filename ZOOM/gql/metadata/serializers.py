@@ -4,12 +4,14 @@ from metadata.models import File, FileSource
 
 
 class FileSourceSerializer(serializers.ModelSerializer):
+    entry_id = serializers.SerializerMethodField()
 
     class Meta:
         model = FileSource
         fields = (
             'id',
             'name',
+            'entry_id'
         )
 
 
