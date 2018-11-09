@@ -16,6 +16,7 @@ class FileSourceSerializer(serializers.ModelSerializer):
 
 
 class FileSerializer(serializers.ModelSerializer):
+    entry_id = serializers.SerializerMethodField()
 
     class Meta:
         model = File
@@ -41,4 +42,6 @@ class FileSerializer(serializers.ModelSerializer):
             'location',
             'source',
             'file',
+            'entry_id',
+            'file_heading_list'
         )
