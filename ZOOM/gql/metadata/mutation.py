@@ -6,9 +6,7 @@ import graphene
 from graphene_django.rest_framework.mutation import SerializerMutation
 from rest_framework import serializers
 
-
 from validate.validator import generate_error_data
-
 from metadata.models import FileSource, File
 from gql.metadata.serializers import FileSourceSerializer, FileSerializer
 
