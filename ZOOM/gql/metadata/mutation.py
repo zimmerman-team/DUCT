@@ -1,8 +1,13 @@
 from django import http
 from django.conf import settings
 
+import pandas as pd
 import graphene
 from graphene_django.rest_framework.mutation import SerializerMutation
+from rest_framework import serializers
+
+
+from validate.validator import generate_error_data
 
 from metadata.models import FileSource, File
 from gql.metadata.serializers import FileSourceSerializer, FileSerializer
@@ -31,12 +36,31 @@ class FileSourceMutation(SerializerMutation):
 
         return {'data': input, 'partial': True}
 
+    @classmethod
+    def perform_mutate(cls, serializer, info):
+        obj = serializer.save()
+
+        kwargs = {}
+        for f, field in serializer.fields.items():
+            if type(field) != serializers.SerializerMethodField:
+                kwargs[f] = field.get_attribute(obj)
+            else:
+                kwargs[f] = getattr(serializer, field.method_name)(obj)
+
+        return cls(errors=None, **kwargs)
+
 
 class FileMutation(SerializerMutation):
     class Meta:
         serializer_class = FileSerializer
         model_operations = ['create', 'update']
         lookup_field = 'id'
+
+    @classmethod
+    def get_file_heading_list(cls, file_name):
+        df_file = pd.read_csv(file_name)
+        _, dtypes_dict = generate_error_data(df_file)
+        return pd.Series(dtypes_dict).to_json()
 
     @classmethod
     def get_serializer_kwargs(cls, root, info, **input):
@@ -59,6 +83,10 @@ class FileMutation(SerializerMutation):
         )
         input['file'] = instance.file
 
+        # The frontend is needed file_heading_list
+        input['file_heading_list'] = \
+            cls.get_file_heading_list(instance.file.name)
+
         # Some bugs on SerializerMutation
         # We need to validate before continue to the next process
         serializer = FileSerializer(data=input)
@@ -66,6 +94,19 @@ class FileMutation(SerializerMutation):
             raise Exception(serializer.errors)
 
         return {'data': input, 'partial': True}
+
+    @classmethod
+    def perform_mutate(cls, serializer, info):
+        obj = serializer.save()
+
+        kwargs = {}
+        for f, field in serializer.fields.items():
+            if type(field) != serializers.SerializerMethodField:
+                kwargs[f] = field.get_attribute(obj)
+            else:
+                kwargs[f] = getattr(serializer, field.method_name)(obj)
+
+        return cls(errors=None, **kwargs)
 
 
 class Mutation(graphene.ObjectType):

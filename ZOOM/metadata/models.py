@@ -87,9 +87,6 @@ class File(models.Model):
             os.path.basename(
                 self.file.name))
 
-    def __str__(self):
-        return str(self.id)
-
 
 def check_files():
     print('TODO')

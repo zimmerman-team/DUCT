@@ -1,4 +1,6 @@
+import json
 from rest_framework import serializers
+
 
 from metadata.models import File, FileSource
 
@@ -14,9 +16,14 @@ class FileSourceSerializer(serializers.ModelSerializer):
             'entry_id'
         )
 
+    @classmethod
+    def get_entry_id(cls, obj):
+        return str(obj.id)
+
 
 class FileSerializer(serializers.ModelSerializer):
     entry_id = serializers.SerializerMethodField()
+    entry_file_heading_list = serializers.SerializerMethodField()
 
     class Meta:
         model = File
@@ -42,6 +49,15 @@ class FileSerializer(serializers.ModelSerializer):
             'location',
             'source',
             'file',
+            'file_heading_list',
             'entry_id',
-            'file_heading_list'
+            'entry_file_heading_list'
         )
+
+    @classmethod
+    def get_entry_id(cls, obj):
+        return str(obj.id)
+
+    @classmethod
+    def get_entry_file_heading_list(cls, obj):
+        return json.loads(obj.file_heading_list)
