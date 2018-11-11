@@ -66,7 +66,7 @@ class FileSerializer(serializers.ModelSerializer):
         return json.loads(obj.file_heading_list)
 
     @classmethod
-    def get_data_model_heading(cls, info):
+    def get_data_model_heading(cls, obj):
         data_model_heading = dict()
         for heading in DATAMODEL_HEADINGS.union(FILTER_HEADINGS):
             data_model_heading[heading] = []
