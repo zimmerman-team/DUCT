@@ -27,15 +27,16 @@ import pickle
 import time
 
 
-def begin_mapping(data):
+def begin_mapping(instance):
     '''Perfoms manual mapping process.'''
+    data = instance.data
     if 'dict' in data:
         final_file_headings = {}
         id = data['id']
         mappings = data['dict']
 
         # Get relevant data
-        save_mapping(id, mappings)
+        save_mapping(id, instance)
         empty_values_array, multi_entry_dict, data_model_dict, \
             filter_headings_dict = split_mapping_data(mappings)
         df_data = get_file_data(id)

@@ -24,9 +24,7 @@ class MappingFilter(FilterSet):
 
     class Meta:
         model = Mapping
-        fields = {
-            'file': ['exact', 'in'],
-        }
+        fields = {}
 
     def filter_entry_id(self, queryset, name, value):
         name = 'id'
