@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.test import RequestFactory, Client
 from rest_framework.test import APIClient
 from geodata.importer.region import RegionImport
-
+from indicator.models import MAPPING_DICT
 
 class FileManualMappingTestCase(TestCase):
     request_dummy = RequestFactory().get('/')
@@ -11,8 +11,7 @@ class FileManualMappingTestCase(TestCase):
     def test_file_manual_mapping(self):
         # Intialise countries
         ri = RegionImport()
-        ri.update_polygon()
-        ri.update_alt_name()
+        ri.update_region_center()
 
         '''
         Test 0: Upload file
@@ -78,60 +77,19 @@ class FileManualMappingTestCase(TestCase):
         '''
         Test 3: File Manual Mapping
         '''
-        manual_mapping_data = {
-            'id': res.json()['id'],
-            'dict': {
-                'indicator': [],
-                'value_format': [],
-                'geolocation': [
-                    'Region'
-                ],
-                'value': [
-                    'new infections'
-                ],
-                'date': [],
-                'comment': [],
-                'filter': [],
-                'filter_heading_name': {
-                    'default': 'default'
-                }
-            }
-        }
-        # print manual_mapping_data
-
         # **manual_mapping_data,
+        MAPPING_DICT['metadata_id'] = res.json()['id']
+        MAPPING_DICT['mapping_dict']['geolocation'] = ['Region']
+        MAPPING_DICT['mapping_dict']['value'] = ['new infections']
+        MAPPING_DICT['filter_headings'] = {'filters': 'filters'}
+        MAPPING_DICT['extra_information']['empty_entries']['empty_indicator'] = 'Test region'
+        MAPPING_DICT['extra_information']['empty_entries']['empty_filter'] = 'Default'
+        MAPPING_DICT['extra_information']['empty_entries']['empty_value_format'] = {'value_format': 'Numeric'}
+        MAPPING_DICT['extra_information']['empty_entries']['empty_date'] = '2016'
+
         res_file_manual_mapping = self.c.post(
             '/api/mapping/?format=json',
-            {
-                'id': res.json()['id'],
-                'dict': {
-                    'indicator': [
-                        'Indicator'
-                    ],
-                    'value_format': [
-                        'Unit'
-                    ],
-                    'geolocation': [
-                        'Area',  # 'Area ID'
-                    ],
-                    'value': [
-                        'Data Value'
-                    ],
-                    'date': [
-                        'Time Period'
-                    ],
-                    'comment': [
-                        'Source',  # 'Footnotes'
-                    ],
-
-                    'filters': [
-                        'Subgroup'
-                    ],
-                    'headings': {
-                        'Subgroup': 'Subgroup'
-                    }
-                },
-            },
+            MAPPING_DICT,
             format='json'
         )
 
