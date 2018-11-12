@@ -151,7 +151,7 @@ class FileSourceDetailView(RetrieveUpdateDestroyAPIView):
 class FileUploadView(APIView):
     parser_classes = (MultiPartParser, )
 
-    def put(self, request):
+    def post(self, request):
         file_obj = request.FILES['file']
         fs = FileSystemStorage(
             location=os.path.join(settings.MEDIA_ROOT, settings.DATASETS_URL)

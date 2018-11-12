@@ -6,7 +6,7 @@ from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from django_filters import FilterSet, NumberFilter, CharFilter
 
-from indicator.models import DATAMODEL_HEADINGS
+from indicator.models import DATAMODEL_HEADINGS, FILTER_HEADINGS
 from metadata.models import FileSource, File
 
 
@@ -56,8 +56,10 @@ class FileNode(DjangoObjectType):
         return json.loads(self.file_heading_list)
 
     def resolve_data_model_heading(self, info):
-        return json.loads(pd.Series(
-            [heading for heading in DATAMODEL_HEADINGS]).to_json())
+        data_model_heading = dict()
+        for heading in DATAMODEL_HEADINGS.union(FILTER_HEADINGS):
+            data_model_heading[heading] = []
+        return json.loads(pd.Series(data_model_heading).to_json())
 
 
 class FileFilter(FilterSet):

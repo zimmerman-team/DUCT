@@ -19,8 +19,10 @@ class FileSource(models.Model):
     name = models.CharField(
         unique=True,
         max_length=100,
-        null=False,
-        blank=True)
+        null=False)
+
+    def __str__(self):
+        return str(self.id)
 
 
 class File(models.Model):
@@ -64,7 +66,7 @@ class File(models.Model):
     datatypes_overview_file_location = models.CharField(
         max_length=500)  # location
     error_file_location = models.CharField(max_length=500)  # location
-    file = models.FileField(upload_to=upload_to)
+    file = models.FileField(upload_to=upload_to, max_length=500)
 
     # Do you think we need the file heading list for frontend side?
     # So user can map it manually.

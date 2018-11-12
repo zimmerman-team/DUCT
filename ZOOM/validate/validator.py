@@ -29,12 +29,6 @@ def validate(id):
     zip_list, summary_results, summary_indexes, remaining_mapping, \
         file_heading_list = get_column_information(df_file, dtypes_dict)
 
-    # The frontend is needed file heading to mapping it
-    # with the data model heading
-    instance = File.objects.get(id=id)
-    instance.file_heading_list = pd.Series(file_heading_list).to_json()
-    instance.save()
-
     print("Saving Error Information")
     save_validation_data(error_data, id, dtypes_dict)
     context = {
