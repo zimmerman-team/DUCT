@@ -6,7 +6,7 @@ from django.conf import settings
 
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.parsers import (
-    FormParser, MultiPartParser, FileUploadParser
+    FormParser, MultiPartParser, FileUploadParser, MultiPartParser
 )
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
@@ -149,10 +149,10 @@ class FileSourceDetailView(RetrieveUpdateDestroyAPIView):
 
 
 class FileUploadView(APIView):
-    parser_classes = (FileUploadParser,)
+    parser_classes = (MultiPartParser, )
 
-    def put(self, request, filename, format=None):
-        file_obj = request.data['file']
+    def put(self, request):
+        file_obj = request.FILES['file']
         fs = FileSystemStorage(
             location=os.path.join(settings.MEDIA_ROOT, settings.DATASETS_URL)
         )

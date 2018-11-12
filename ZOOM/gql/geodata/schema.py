@@ -17,7 +17,7 @@ class CountryNode(DjangoObjectType):
         )
         interfaces = (relay.Node, )
 
-    def resolve_this_id(self, context, **kwargs):
+    def resolve_entry_id(self, context, **kwargs):
         return self.id
 
 
@@ -61,12 +61,13 @@ class GeolocationNode(DjangoObjectType):
 class GeolocatioFilter(FilterSet):
     entry_id = NumberFilter(method='filter_entry_id')
     entry_id__in = CharFilter(method='filter_entry_id__in')
+    object_id__in = CharFilter(method='filter_object_id__in')
 
     class Meta:
         model = Geolocation
         fields = {
-            'tag': ['exact', 'icontains', 'istartswith', 'in'],
-            'object_id': ['exact', 'in'],
+            'tag': ['exact', 'icontains', 'istartswith','in'],
+            'object_id': ['exact'],
             'type': ['exact', 'in'],
         }
 
@@ -78,6 +79,10 @@ class GeolocatioFilter(FilterSet):
         name = 'id__in'
         return queryset.filter(**{name: eval(value)})
 
+    def filter_object_id__in(self,queryset,name,value):
+        name = 'object_id__in'
+        return queryset.filter(**{name:eval(value)})
+
 
 class Query(object):
     country = relay.Node.Field(CountryNode)
@@ -85,7 +90,7 @@ class Query(object):
         CountryNode, filterset_class=CountryFilter
     )
 
-    gelocation = relay.Node.Field(GeolocationNode)
-    all_gelocations = DjangoFilterConnectionField(
+    geolocation = relay.Node.Field(GeolocationNode)
+    all_geolocations = DjangoFilterConnectionField(
         GeolocationNode, filterset_class=GeolocatioFilter
     )

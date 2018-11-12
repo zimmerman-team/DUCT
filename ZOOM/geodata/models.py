@@ -2,9 +2,18 @@ from django.contrib.gis.db import models as gis_models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.contrib.gis.geos import GEOSGeometry
 
-GEOTYPE_HEADINGS = {'country', 'region', 'subnational', 'city', 'pointbased', 'iso3', 'iso2'}
+GEOTYPE_HEADINGS = {
+    'country',
+    'region',
+    'subnational',
+    'city',
+    'pointbased',
+    'iso3',
+    'iso2'}
 SAVED_TYPES = {'country', 'region', 'subnational', 'city'}
+
 
 class Geolocation(models.Model):
     id = gis_models.AutoField(primary_key=True, editable=False)
@@ -14,11 +23,19 @@ class Geolocation(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
-    type = models.CharField(max_length=100, choices = (('country','country'),
-                                                       ('region', 'region'),
-                                                       ('subnational', 'subnational'),
-                                                       ('city', 'city'),
-                                                       ('pointbased', 'pointbased')))
+    type = models.CharField(
+        max_length=100,
+        choices=(
+            ('country',
+             'country'),
+            ('region',
+             'region'),
+            ('subnational',
+             'subnational'),
+            ('city',
+             'city'),
+            ('pointbased',
+             'pointbased')))
 
     def __str__(self):
         return self.tag
@@ -27,7 +44,7 @@ class Geolocation(models.Model):
 class Region(gis_models.Model):
     id = gis_models.AutoField(primary_key=True, editable=False)
     name = gis_models.CharField(unique=True, max_length=200)
-    code = gis_models.CharField(max_length=100)
+    code = gis_models.CharField(max_length=100, null=True)
 
     center_longlat = gis_models.PointField(null=True, blank=True)
     polygons = gis_models.MultiPolygonField(null=True, blank=True)
@@ -44,16 +61,36 @@ class Region(gis_models.Model):
 class Country(gis_models.Model):
     id = gis_models.AutoField(primary_key=True, editable=False)
     name = gis_models.CharField(unique=True, max_length=100, db_index=True)
-    primary_name = gis_models.BooleanField(default=False)#Used as primary name for a country
-    iso2 = gis_models.CharField(max_length=2) #iso2
+    primary_name = gis_models.BooleanField(
+        default=False)  # Used as primary name for a country
+    iso2 = gis_models.CharField(max_length=2)  # iso2
     iso3 = gis_models.CharField(max_length=3, null=True, blank=True)
     numerical_code_un = gis_models.IntegerField(null=True, blank=True)
     dac_country_code = gis_models.IntegerField(null=True, blank=True)
 
-    capital_city = gis_models.OneToOneField("City", related_name='capital_of',  null=True, blank=True, on_delete=gis_models.SET_NULL)
-    region = gis_models.ForeignKey(Region, null=True, blank=True, on_delete=gis_models.SET_NULL)
-    un_region = gis_models.ForeignKey('Region', null=True, blank=True, related_name='un_countries', on_delete=gis_models.SET_NULL)
-    unesco_region = gis_models.ForeignKey('Region', null=True, blank=True, related_name='unesco_countries', on_delete=gis_models.SET_NULL)
+    capital_city = gis_models.OneToOneField(
+        "City",
+        related_name='capital_of',
+        null=True,
+        blank=True,
+        on_delete=gis_models.SET_NULL)
+    region = gis_models.ForeignKey(
+        Region,
+        null=True,
+        blank=True,
+        on_delete=gis_models.SET_NULL)
+    un_region = gis_models.ForeignKey(
+        'Region',
+        null=True,
+        blank=True,
+        related_name='un_countries',
+        on_delete=gis_models.SET_NULL)
+    unesco_region = gis_models.ForeignKey(
+        'Region',
+        null=True,
+        blank=True,
+        related_name='unesco_countries',
+        on_delete=gis_models.SET_NULL)
 
     center_longlat = gis_models.PointField(null=True, blank=True)
     polygons = gis_models.MultiPolygonField(null=True, blank=True)
@@ -72,9 +109,13 @@ class Country(gis_models.Model):
 
 class City(gis_models.Model):
     id = gis_models.AutoField(primary_key=True, editable=False)
-    name = gis_models.CharField(unique= True, max_length=200)
+    name = gis_models.CharField(unique=True, max_length=200)
     ascii_name = gis_models.CharField(max_length=200, null=True, blank=True)
-    country = gis_models.ForeignKey(Country, null=True, blank=True, on_delete=gis_models.SET_NULL)
+    country = gis_models.ForeignKey(
+        Country,
+        null=True,
+        blank=True,
+        on_delete=gis_models.SET_NULL)
 
     center_longlat = gis_models.PointField(null=True, blank=True)
 
@@ -100,7 +141,11 @@ class SubNational(gis_models.Model):
     iso_3166_2 = gis_models.CharField(null=True, blank=True, max_length=2)
     code_local = gis_models.CharField(null=True, blank=True, max_length=100)
     postcode = gis_models.CharField(null=True, blank=True, max_length=100)
-    country = gis_models.ForeignKey(Country, null=True, blank=True, on_delete=gis_models.SET_NULL)
+    country = gis_models.ForeignKey(
+        Country,
+        null=True,
+        blank=True,
+        on_delete=gis_models.SET_NULL)
 
     center_longlat = gis_models.PointField(null=True, blank=True)
     polygons = gis_models.MultiPolygonField(null=True, blank=True)
@@ -117,13 +162,14 @@ class SubNational(gis_models.Model):
     class Meta:
         verbose_name_plural = "admin1 regions"
 
+
 class PointBased(gis_models.Model):
     id = gis_models.AutoField(primary_key=True, editable=False)
     name = gis_models.CharField(max_length=200)
     type = gis_models.CharField(max_length=200, null=True, blank=True) #choices=['hospital', 'encounter', 'general_marker'])
 
-    country = gis_models.ForeignKey(Country, null=True, blank=True, on_delete=gis_models.SET_NULL)
-    center_longlat = gis_models.PointField(null=True, blank=True)
+    subnational = gis_models.ForeignKey(SubNational, null=True, blank=True, on_delete=gis_models.SET_NULL)
+    center_longlat = gis_models.PointField(null=True, blank=True)#Prime Meridian
 
     comment = gis_models.TextField()
     data_source = gis_models.CharField(max_length=100, null=True, blank=True)
@@ -138,5 +184,3 @@ class PointBased(gis_models.Model):
 
     class Meta:
         verbose_name_plural = "cities"
-
-
