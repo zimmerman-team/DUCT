@@ -1,5 +1,5 @@
 from django.conf import settings
-from indicator.models import Datapoints, DATAMODEL_HEADINGS
+from indicator.models import Datapoints, MAPPING_HEADINGS
 from metadata.models import File
 from geodata.models import Geolocation
 import pickle
@@ -99,7 +99,14 @@ def get_file_data(id):
 def save_mapping(id, instance):
     """Saves user mapping for file"""
     file = File.objects.get(id=id)
-    file.mapping_used = instance
+    ##Need to make mappings unique
+    '''c, created = Mapping.objects.get_or_create(data=json.dumps(mapping))
+    if created:
+        print('Created new mapping')
+        c.save()'''
+    c = Mapping(data=json.dumps(mapping))
+    c.save()
+    file.mapping_used = c
     file.save()
 
 
@@ -124,7 +131,6 @@ def get_headings_data_model(df_file):
         summary_indexes ([str]): summary headings for data.
     """
 
-    print((time.strftime("%H:%M:%S")))
     file_heading_list = df_file.columns
     dtypes_list = file_heading_list
     validation_results = file_heading_list
@@ -135,7 +141,6 @@ def get_headings_data_model(df_file):
         data_model_headings.append(field.name)  # .get_attname_column())
     # skip first four headings as irrelevant to user input, should use filter
     # for this
-    print((time.strftime("%H:%M:%S")))
 
     data_model_headings = data_model_headings[4:len(data_model_headings)]
     data_model_headings = filter(lambda x: "search_vector_text" != x and
@@ -147,7 +152,6 @@ def get_headings_data_model(df_file):
     # change this to add hover for file heading
     summary_results = file_heading_list
     summary_indexes = file_heading_list  # change this
-    print((time.strftime("%H:%M:%S")))
     return zip_list, summary_results, summary_indexes, remaining_mapping
 
 
@@ -192,7 +196,7 @@ def get_column_information(df_file, dtypes_dict):
     # skip first four headings as irrelevant to user input, should use filter
     # for this
 
-    data_model_headings = DATAMODEL_HEADINGS
+    data_model_headings = MAPPING_HEADINGS.keys()
     remaining_mapping = data_model_headings
 
     zip_list = zip(file_heading_list, dtypes_list, validation_results)
