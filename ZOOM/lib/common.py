@@ -2,7 +2,6 @@ from django.conf import settings
 from indicator.models import Datapoints, MAPPING_HEADINGS
 from metadata.models import File
 from geodata.models import Geolocation
-from mapping.models import Mapping
 import pickle
 import pandas as pd
 import numpy as np
@@ -97,7 +96,7 @@ def get_file_data(id):
     return df_data
 
 
-def save_mapping(id, mapping):
+def save_mapping(id, instance):
     """Saves user mapping for file"""
     file = File.objects.get(id=id)
     ##Need to make mappings unique

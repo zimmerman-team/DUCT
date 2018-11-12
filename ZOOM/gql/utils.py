@@ -56,8 +56,13 @@ class AggregationNode(graphene.ObjectType):
     def get_aggregations(self, context, **kwargs):
         start = '('
         end = ')'
-        return {field[field.find(start) + len(start):field.rfind(end)]: eval(field[:field.find(start) + 1] + '"' + self.FIELDS_MAPPING.get(  # NOQA: E501
-            field[field.find(start) + len(start):field.rfind(end)]) + '"' + field[-1:]) for field in kwargs['aggregation']}  # NOQA: E501
+        return {
+            field[field.find(start) + len(start):field.rfind(end)]:
+                eval(field[:field.find(start) + 1] + '"' +
+                     self.FIELDS_MAPPING.get(
+                         field[field.find(start) + len(start):field.rfind(end)]
+                ) + '"' + field[-1:]) for field in kwargs['aggregation']
+        }
 
     def get_results(self, context, **kwargs):
         filters = self.get_filters(context, **kwargs)

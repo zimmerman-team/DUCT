@@ -29,12 +29,18 @@ from django.contrib.gis.geos import Point
 import pickle
 import time
 
-def begin_mapping(data):
+def begin_mapping(instance):
     '''Perfoms manual mapping process.'''
-    if 'mapping_dict' in data:
-        id = int(data['metadata_id'])
-        #save_mapping(id, data)
+    data = instance.data
+    if 'dict' in data:
+        final_file_headings = {}
+        id = data['id']
+        mappings = data['dict']
 
+        # Get relevant data
+        #save_mapping(id, instance)
+        empty_values_array, multi_entry_dict, data_model_dict, \
+            filter_headings_dict = split_mapping_data(mappings)
         df_data = get_file_data(id)
 
         data_model_dict, filter_headings_dict, empty_entries_dict, multi_entry_dict, point_base_dict = split_mapping_data(data)
