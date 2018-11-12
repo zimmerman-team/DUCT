@@ -4,7 +4,7 @@ import json
 from django.test import RequestFactory, Client
 from rest_framework.test import APIClient
 from geodata.importer.country import CountryImport
-
+from indicator.models import MAPPING_DICT
 
 class FileManualMappingTestCase(TestCase):
     request_dummy = RequestFactory().get('/')
@@ -82,76 +82,22 @@ class FileManualMappingTestCase(TestCase):
         '''
         Test 3: File Manual Mapping
         '''
-        manual_mapping_data = {
-            'id': res.json()['id'],
-            'dict': {
-                'indicator': [
-                    'Indicator'
-                ],
-                'value_format': [
-                    'Unit'
-                ],
-                'geolocation': [
-                    'Area ID'
-                ],
-                'geolocation': [
-                    'Area'
-                ],
-                'value': [
-                    'Data Value'
-                ],
-                'date': [
-                    'Time Period'
-                ],
-                'comment': [
-                    'Source'
-                ],
-                'comment': [
-                    'Footnotes'
-                ],
-                'filter': [
-                    'Subgroup'
-                ],
-                'filter_heading_name': {
-                    'Subgroup':'Subgroup'
-                }
-            }
-        }
+        MAPPING_DICT['metadata_id'] = res.json()['id']
+        MAPPING_DICT['mapping_dict']['geolocation'] = ['Area']
+        MAPPING_DICT['mapping_dict']['value'] = ['Data Value']
+        MAPPING_DICT['mapping_dict']['value_format'] = ['Unit']
+        MAPPING_DICT['mapping_dict']['indicator'] = ['Indicator']
+        MAPPING_DICT['mapping_dict']['date'] = ['Time Period']
+        MAPPING_DICT['mapping_dict']['comment'] = ['Source']
+        MAPPING_DICT['mapping_dict']['filters'] = ['Subgroup']
+
+        MAPPING_DICT['filter_headings'] = {'Subgroup': 'Subgroup'}
         # print manual_mapping_data
 
         # **manual_mapping_data,
         res_file_manual_mapping = self.c.post(
             '/api/mapping/?format=json',
-            {
-                'id': res.json()['id'],
-                'dict': {
-                    'indicator': [
-                        'Indicator'
-                    ],
-                    'value_format': [
-                        'Unit'
-                    ],
-                    'geolocation': [
-                        'Area', #'Area ID'
-                    ],
-                    'value': [
-                        'Data Value'
-                    ],
-                    'date': [
-                        'Time Period'
-                    ],
-                    'comment': [
-                        'Source', #'Footnotes'
-                    ],
-
-                    'filters': [
-                        'Subgroup'
-                    ],
-                    'headings': {
-                        'Subgroup': 'Subgroup'
-                    }
-                },
-            },
+            MAPPING_DICT,
             format='json'
             )
         

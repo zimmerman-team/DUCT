@@ -4,7 +4,7 @@ from rest_framework.test import APIClient
 from geodata.importer.region import RegionImport
 from geodata.importer.country import CountryImport
 from geodata.importer.subnational import SubnationalImport
-
+from indicator.models import MAPPING_DICT
 
 class FileManualMappingTestCase(TestCase):
     request_dummy = RequestFactory().get('/')
@@ -85,33 +85,19 @@ class FileManualMappingTestCase(TestCase):
         '''
         Test 3: File Manual Mapping
         '''
+        MAPPING_DICT['metadata_id'] = res.json()['id']
+        MAPPING_DICT['mapping_dict']['geolocation'] = ['Subnational']
+        MAPPING_DICT['mapping_dict']['value'] = ['new infections']
+        MAPPING_DICT['filter_headings'] = {'filters': 'filters'}
+        MAPPING_DICT['extra_information']['empty_entries']['empty_indicator'] = 'Test subnational'
+        MAPPING_DICT['extra_information']['empty_entries']['empty_filter'] = 'Default'
+        MAPPING_DICT['extra_information']['empty_entries']['empty_value_format'] = {'value_format': 'Numeric'}
+        MAPPING_DICT['extra_information']['empty_entries']['empty_date'] = '2016'
+
         # **manual_mapping_data,
         res_file_manual_mapping = self.c.post(
             '/api/mapping/?format=json',
-            {
-                'id': res.json()['id'],
-                'dict': {
-                    'indicator': [],
-                    'value_format': [],
-                    'geolocation': [
-                        'Subnational'
-                    ],
-                    'value': [
-                        'new infections'
-                    ],
-                    'date': [],
-                    'comment': [],
-                    'filters': [],
-                    'headings': {
-                        'filters': 'filters'
-                    },
-                    'empty_indicator': 'Test subnational',
-                    'empty_geolocation_type': '',
-                    'empty_filter': 'Default',
-                    'empty_value_format': {'value_format': 'Numeric'},
-                    'empty_date': '2016',
-                },
-            },
+            MAPPING_DICT,
             format='json'
         )
 
