@@ -77,12 +77,6 @@ def begin_mapping(data):
             #    df_data, dtypes_dict, mappings = convert_df(df_data, multi_entry_dict, data_model_dict, filter_headings_dict, empty_values_array[4], dtypes_dict)
             print('TODO')
             #convert file into standard format
-
-        ###TODO Group categories here
-        if len(mappings['filters']) > 1:
-            # if len(mappings['filter']) > 1:
-            #   df_data, mappings, dtypes_dict, tmp_mapping = group_filters(df_data, dtypes_dict, multi_entry_dict, data_model_dict, filter_headings_dict)
-            print('TODO')
         else:###TODO normal situation
             filter_file_column = data_model_dict['filters'][0]
             df_data['headings'] = \
