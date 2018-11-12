@@ -4,8 +4,8 @@ import json
 import datetime
 import math
 from indicator.models import (
-    DATAMODEL_HEADINGS,
-    ADDITIONAL_HEADINGS,
+    MAPPING_HEADINGS,
+    EXTRA_INFORMATION,
     FILTER_HEADINGS,
     Indicator,
     Filters,
@@ -23,6 +23,8 @@ from lib.common import (
 from metadata.models import File
 from validate.validator import generate_error_data, save_validation_data
 from api.indicator.views import reset_mapping
+from django.contrib.gis.geos import Point
+
 import pickle
 import time
 
@@ -35,12 +37,28 @@ def begin_mapping(data):
         mappings = data['dict']
 
         # Get relevant data
+        df_data = get_file_data(id)
         save_mapping(id, mappings)
+
         empty_values_array, multi_entry_dict, data_model_dict, \
             filter_headings_dict = split_mapping_data(mappings)
-        df_data = get_file_data(id)
         error_data, dtypes_dict = get_dtype_data(id)
-        # Apply missing values
+        # Apply missing
+        #  values
+
+        if 'additional_geolocation_info' in mappings:
+            lat = mappings['additional_geolocation_info']['coord']['lat']
+            lon = mappings['additional_geolocation_info']['coord']['lon']
+            #df_data['geolocation'] = pd.Series(df_data[lon]).str.cat(df_data[lat], sep=',')
+            df_data['geolocation'] = df_data[lon].astype(str)+","+df_data[lat].astype('str')
+            mappings.pop('additional_geolocation_info', None)
+            data_model_dict['geolocation'] = ['geolocation']
+            df_data.drop([lat, lon], inplace=True, axis=1)
+            #drop the two columns
+            dtypes_dict.pop(lat, None)
+            dtypes_dict.pop(lon, None)
+            dtypes_dict['geolocation'] = ['pointbased'] * len(df_data[df_data.columns[0]])
+
         df_data, mappings, dtypes_dict = apply_missing_values(
             df_data, data_model_dict, dtypes_dict, empty_values_array)
 
@@ -392,6 +410,7 @@ def get_save_unique_datapoints(
                                   'headings']][i]] = instance
 
             elif(count == 2):  # Location#
+                print(unique_list[i])
                 instance = Geolocation.objects.get(tag=unique_list[i])
                 geolocation_dict[unique_list[i]] = instance  # shold use get?
             elif(count == 3):

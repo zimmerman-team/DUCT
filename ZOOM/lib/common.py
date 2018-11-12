@@ -1,8 +1,8 @@
 from django.conf import settings
-from indicator.models import Datapoints, DATAMODEL_HEADINGS
+from indicator.models import Datapoints, MAPPING_HEADINGS
 from metadata.models import File
 from geodata.models import Geolocation
-from mapping.models import Mapping
+#from mapping.models import MAPPING_HEADINGS
 import pickle
 import pandas as pd
 import numpy as np
@@ -196,7 +196,7 @@ def get_column_information(df_file, dtypes_dict):
     # skip first four headings as irrelevant to user input, should use filter
     # for this
 
-    data_model_headings = DATAMODEL_HEADINGS
+    data_model_headings = MAPPING_HEADINGS.keys()
     remaining_mapping = data_model_headings
 
     zip_list = zip(file_heading_list, dtypes_list, validation_results)
