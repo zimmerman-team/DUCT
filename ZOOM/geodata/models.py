@@ -166,17 +166,10 @@ class SubNational(gis_models.Model):
 class PointBased(gis_models.Model):
     id = gis_models.AutoField(primary_key=True, editable=False)
     name = gis_models.CharField(max_length=200)
-    # choices=['hospital', 'encounter', 'general_marker'])
-    type = gis_models.CharField(max_length=200, null=True, blank=True)
+    type = gis_models.CharField(max_length=200, null=True, blank=True) #choices=['hospital', 'encounter', 'general_marker'])
 
     subnational = gis_models.ForeignKey(SubNational, null=True, blank=True, on_delete=gis_models.SET_NULL)
     center_longlat = gis_models.PointField(null=True, blank=True)#Prime Meridian
-    country = gis_models.ForeignKey(
-        Country,
-        null=True,
-        blank=True,
-        on_delete=gis_models.SET_NULL)
-    center_longlat = gis_models.PointField(null=True, blank=True)
 
     comment = gis_models.TextField()
     data_source = gis_models.CharField(max_length=100, null=True, blank=True)

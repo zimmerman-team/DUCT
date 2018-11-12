@@ -3,6 +3,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField, ArrayField
 from geodata.models import Geolocation
+from mapping.models import Mapping
 
 
 def upload_to(instance, filename='test'):
@@ -58,7 +59,7 @@ class File(models.Model):
 
     ## Back-end operational fields ##
     original_file_location = models.CharField(max_length=300)
-    mapping_used = JSONField(null=True)  # the Mapping used for the file
+    mapping_used = models.ForeignKey(Mapping, null=True, on_delete=models.SET_NULL) # JSONField(null=True)  # the Mapping used for the file
     file_status = models.CharField(max_length=100, choices=(
         ('1', 'Uploaded'), ('2', 'Error Correction'), ('3', 'Mapping'),
         ('4', 'Saved')))
