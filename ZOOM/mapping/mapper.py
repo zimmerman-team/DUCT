@@ -3,6 +3,7 @@ import pandas as pd
 import json
 import datetime
 import math
+from django.contrib.gis.geos import Point
 from indicator.models import (
     MAPPING_HEADINGS,
     EXTRA_INFORMATION,
@@ -13,7 +14,7 @@ from indicator.models import (
     DateFormat,
     FilterHeadings,
     ValueFormat)
-from geodata.models import SAVED_TYPES, Geolocation
+from geodata.models import SAVED_TYPES, Geolocation, PointBased
 from lib.tools import check_column_data_type, correct_data, convert_df
 from lib.common import (
     get_file_data,
@@ -28,45 +29,43 @@ from django.contrib.gis.geos import Point
 import pickle
 import time
 
-
 def begin_mapping(data):
     '''Perfoms manual mapping process.'''
-    if 'dict' in data:
-        final_file_headings = {}
-        id = data['id']
-        mappings = data['dict']
+    if 'mapping_dict' in data:
+        id = int(data['metadata_id'])
+        #save_mapping(id, data)
 
-        # Get relevant data
         df_data = get_file_data(id)
-        save_mapping(id, mappings)
 
-        empty_values_array, multi_entry_dict, data_model_dict, \
-            filter_headings_dict = split_mapping_data(mappings)
+        data_model_dict, filter_headings_dict, empty_entries_dict, multi_entry_dict, point_base_dict = split_mapping_data(data)
         error_data, dtypes_dict = get_dtype_data(id)
-        # Apply missing
-        #  values
 
-        if 'additional_geolocation_info' in mappings:
-            lat = mappings['additional_geolocation_info']['coord']['lat']
-            lon = mappings['additional_geolocation_info']['coord']['lon']
-            #df_data['geolocation'] = pd.Series(df_data[lon]).str.cat(df_data[lat], sep=',')
+        ###Check if point based data exists, if it does create point based object, else get geolocation objects
+        if not point_base_dict['coord']['lat'] == '':
+            lat = point_base_dict['coord']['lat']
+            lon = point_base_dict['coord']['lon']
+            df_data['geolocation'] = 'pointbased'
+            dtypes_dict['geolocation'] = df_data['geolocation'].copy()
             df_data['geolocation'] = df_data[lon].astype(str)+","+df_data[lat].astype('str')
-            mappings.pop('additional_geolocation_info', None)
             data_model_dict['geolocation'] = ['geolocation']
-            df_data.drop([lat, lon], inplace=True, axis=1)
             #drop the two columns
             dtypes_dict.pop(lat, None)
             dtypes_dict.pop(lon, None)
-            dtypes_dict['geolocation'] = ['pointbased'] * len(df_data[df_data.columns[0]])
+            df_data.drop([lon, lat], inplace=True, axis=1)
 
-        df_data, mappings, dtypes_dict = apply_missing_values(
-            df_data, data_model_dict, dtypes_dict, empty_values_array)
+            #dtypes_dict['geolocation'] =
+            point_based = True
+        else:
+            point_based = False
+
+        df_data, data_model_dict, dtypes_dict = apply_missing_values(
+            df_data, data_model_dict, dtypes_dict, empty_entries_dict)
 
         result, correction_mappings, context = check_mapping_dtypes(
             data_model_dict, dtypes_dict)
         if not result:
-            print(context)
             return context  # Bad mapping
+
 
         # TODO multiple categories/date situation
         if len(
@@ -76,7 +75,7 @@ def begin_mapping(data):
         else:
             filter_file_column = data_model_dict['filters'][0]
             df_data['headings'] = \
-                filter_headings_dict['headings'][filter_file_column]
+                filter_headings_dict[filter_file_column]
             data_model_dict['headings'] = ['headings']
             print('Creating heading')
         # TODO normal situation
@@ -103,6 +102,7 @@ def begin_mapping(data):
             dtypes_dict[key] = new_dtypes_dict[key]
 
         reverse_mapping = {}
+        final_file_headings = {}
         for key in data_model_dict:
             if data_model_dict[key]:
                 final_file_headings[key] = data_model_dict[key][0]
@@ -113,7 +113,8 @@ def begin_mapping(data):
             df_data,
             correction_mappings,
             error_lines,
-            final_file_headings)
+            final_file_headings, point_based)
+
 
         # The sections of data model are not allowed to be empty
         filter_applied = (df_data[final_file_headings['indicator']].notnull()
@@ -144,7 +145,7 @@ def begin_mapping(data):
 
         ind_dict, headings_dict, geolocation_dict, value_format_dict, \
             filters_dict = get_save_unique_datapoints(
-                df_data, final_file_headings, metadata.source, instance)
+                df_data, final_file_headings, metadata.source, instance, point_based)
         dicts = [
             ind_dict,
             headings_dict,
@@ -163,23 +164,13 @@ def begin_mapping(data):
         return context
 
 
-def split_mapping_data(mappings):
-    empty_values_array = [mappings.pop('empty_indicator', None),
-                          mappings.pop('empty_geolocation', None),
-                          mappings.pop('empty_geolocation_type', None),
-                          mappings.pop('empty_filter', None),
-                          mappings.pop('empty_value_format', None),
-                          mappings.pop('empty_date', None)]
-    multi_entry_dict = {
-        'relationship': mappings.pop(
-            'relationship', None), 'left_over': mappings.pop(
-            'left_over', None)}
-    data_model_dict = {heading: mappings[heading]
-                       for heading in DATAMODEL_HEADINGS}
-    filter_headings_model_dict = {
-        heading: mappings[heading] for heading in FILTER_HEADINGS}
-    return empty_values_array, multi_entry_dict, data_model_dict, \
-        filter_headings_model_dict
+def split_mapping_data(data):
+    data_model_dict = data['mapping_dict']
+    filter_headings_dict = data[FILTER_HEADINGS]
+    empty_entries_dict = data['extra_information']['empty_entries']
+    multi_entry_dict = data['extra_information']['multi_mapped']
+    point_base_dict = data['extra_information']['point_based_info']
+    return data_model_dict, filter_headings_dict, empty_entries_dict, multi_entry_dict, point_base_dict
 
 
 def group_filters(df_data, dtypes_dict, multi_entry_dict, data_model_dict):
@@ -228,7 +219,7 @@ def group_filters(df_data, dtypes_dict, multi_entry_dict, data_model_dict):
     return df_data, mappings, dtypes_dict, tmp_mappings
 
 
-def apply_missing_values(df_data, mappings, dtypes_dict, empty_values_array):
+def apply_missing_values(df_data, mappings, dtypes_dict, empty_entries_dict):
     '''Appliess missing values to dataframe.
 
     Args:
@@ -242,38 +233,36 @@ def apply_missing_values(df_data, mappings, dtypes_dict, empty_values_array):
         mappings ({str:[str]}): the users chosen mappings for a file column.
         dtypes_dict ({str:str}): stores the data-types found for each heading.
     '''
-    indicator_value, geolocation_value, geolocation_type_value, filter_value, \
-        value_format_value, date_value = empty_values_array
 
     length = (len(df_data[df_data.columns[0]]) -1)
 
-    if indicator_value:
+    if empty_entries_dict['empty_indicator']:
         mappings['indicator'] = ['indicator']
-        df_data['indicator'] = indicator_value
+        df_data['indicator'] = empty_entries_dict['empty_indicator']
         dtypes_dict[mappings['indicator'][0]] = ['text'] * length
         # add indicator value as column
 
-    if geolocation_value:
+    if empty_entries_dict['empty_geolocation']:
         mappings['geolocation'] = ['geolocation']
-        df_data['geolocation'] = geolocation_value
+        df_data['geolocation'] = empty_entries_dict['empty_geolocation']
         dtypes_dict[mappings['geolocation'][0]] = [
-            (geolocation_type_value, geolocation_type_value)]
+            ('country', 'country')]#TODO change this, to be dynamic
 
-    if filter_value:
+    if empty_entries_dict['empty_filter']:
         mappings['filters'] = ['filters']
-        df_data['filters'] = filter_value
+        df_data['filters'] = empty_entries_dict['empty_filter']
         dtypes_dict[mappings['filters'][0]] = ['text'] * length
 
-    if date_value:
+    if empty_entries_dict['empty_date']:
         mappings['date'] = ['date']
-        df_data['date'] = date_value
+        df_data['date'] = empty_entries_dict['empty_date']
         dtypes_dict[mappings['date'][0]] = ['date'] * length
 
-    if value_format_value:
+    if empty_entries_dict['empty_value_format']:
         if len(mappings['value']) == 1:
             # check each entry empty value format dict
             mappings['value_format'] = ['value_format']
-            df_data['value_format'] = value_format_value[list(value_format_value.keys())[0]]
+            df_data['value_format'] = empty_entries_dict['empty_value_format'][list(empty_entries_dict['empty_value_format'].keys())[0]]
             dtypes_dict[mappings['value_format'][0]] = ['text'] * length
         else:
             mappings['value_format'] = ['value_format']
@@ -294,7 +283,6 @@ def check_mapping_dtypes(mappings, dtypes_dict):
         correction_mappings ({str:(str,str)}): the conversion needed for each file heading.
         context ({str:[data]}): the information displayed to the user if mapping is bad.
     '''
-    print('Checking data types')
     correction_mappings = {}
     error_message = []
 
@@ -324,7 +312,8 @@ def get_save_unique_datapoints(
         df_data,
         final_file_headings,
         file_source,
-        date_format):
+        date_format,
+        point_based = False):
     '''Gets foreign keys for IndicatorDatapoint and saves new entries if needed.
 
     Args:
@@ -410,8 +399,20 @@ def get_save_unique_datapoints(
                                   'headings']][i]] = instance
 
             elif(count == 2):  # Location#
-                print(unique_list[i])
-                instance = Geolocation.objects.get(tag=unique_list[i])
+                if point_based:
+                    lon = float(unique_list[i].split(',')[0])
+                    lat = float(unique_list[i].split(',')[1])
+                    point = Point(lon, lat)
+                    p, created = PointBased.objects.get_or_create(name = unique_list[i], center_longlat = point)
+                    if created:
+                        p.save()
+                        instance = Geolocation(content_object=p, tag=unique_list[i], type='pointbased')
+                        instance.save()
+                    else:
+                        instance = Geolocation.objects.get(tag = unique_list[i])
+                else:
+                    instance = Geolocation.objects.get(tag=unique_list[i])
+
                 geolocation_dict[unique_list[i]] = instance  # shold use get?
             elif(count == 3):
                 instance, created = ValueFormat.objects.get_or_create(

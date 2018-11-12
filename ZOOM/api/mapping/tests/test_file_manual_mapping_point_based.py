@@ -84,14 +84,14 @@ class FileManualMappingTestCase(TestCase):
         '''
         Test 3: File Manual Mapping
         '''
-        mapping_template = MAPPING_DICT
+
         MAPPING_DICT['metadata_id'] = res.json()['id']
         MAPPING_DICT['mapping_dict']['geolocation'] = ['Lat location 1', 'Long location 1']
         MAPPING_DICT['mapping_dict']['value'] = ['new infections']
         MAPPING_DICT['filter_headings'] = {'filters': 'filters'}
         MAPPING_DICT['extra_information']['empty_entries']['empty_indicator'] = 'Test pointbased'
-        MAPPING_DICT['extra_information']['empty_entries']['empty_filter'] = 'Default',
-        MAPPING_DICT['extra_information']['empty_entries']['empty_value_format'] = {'value_format': 'Numeric'},
+        MAPPING_DICT['extra_information']['empty_entries']['empty_filter'] = 'Default'
+        MAPPING_DICT['extra_information']['empty_entries']['empty_value_format'] = {'value_format': 'Numeric'}
         MAPPING_DICT['extra_information']['empty_entries']['empty_date'] = '2016'
         MAPPING_DICT['extra_information']['point_based_info']['coord']['lat'] = 'Lat location 1'
         MAPPING_DICT['extra_information']['point_based_info']['coord']['lon'] = 'Long location 1'
@@ -102,7 +102,7 @@ class FileManualMappingTestCase(TestCase):
             MAPPING_DICT,
             format='json'
         )
-
+        print('Here')
         '''
         {
                 'id': res.json()['id'],

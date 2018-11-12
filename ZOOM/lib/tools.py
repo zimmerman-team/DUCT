@@ -226,7 +226,6 @@ def check_column_data_type(field, dtypes):
             
             indexes.sort()
             dtype_set = dtypes[indexes[0]]#pointless??
-                
         return result, dtype_set, 'geotype'
     
     elif field == 'value':
@@ -248,7 +247,7 @@ def check_column_data_type(field, dtypes):
 
 
 #use validation error lines to get bad data, would optimise 
-def correct_data(df_data, correction_data, error_data, index_order):#correction_data ['country_name, iso2, iso3 etc']
+def correct_data(df_data, correction_data, error_data, index_order, point_based=False):#correction_data ['country_name, iso2, iso3 etc']
     '''Corrects data for each column according to correction_data.
     
     Args:
@@ -270,9 +269,10 @@ def correct_data(df_data, correction_data, error_data, index_order):#correction_
         
         ###Geolocation
         if correction_data[key][1] == 'geotype':
-            df_data[key] = df_data[key].str.lower()
-            filter_used = not_null_filter & (~numeric_filter) & (error_data[key][error_data[key] == correction_data[key][0]])
-            df_data[key] = df_data[key][filter_used]
+            if not point_based:
+                df_data[key] = df_data[key].str.lower()
+                filter_used = not_null_filter & (~numeric_filter) & (error_data[key][error_data[key] == correction_data[key][0]])
+                df_data[key] = df_data[key][filter_used]
         elif correction_data[key][1] == 'date':
             ####Numeric check
             filter_applied1 = ((not_null_filter) & (numeric_filter) & (error_data[key][error_data[key] == correction_data[key][0]]))
