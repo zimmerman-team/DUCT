@@ -212,11 +212,13 @@ def check_column_data_type(field, dtypes):
     result = False
     if field == 'geolocation':
         geotype_list = GEOTYPE_HEADINGS
+        print(dtypes)
+        print(geotype_list)
         dtype_set = set(dtypes) & set(geotype_list)
         result = bool(dtype_set)   
 
         if not result:
-            dtype_set = dtypes[0]
+            return False, dtypes[0], 'geotype'
         else:
             indexes = []
             dtype_set = list(dtype_set)
@@ -226,7 +228,7 @@ def check_column_data_type(field, dtypes):
             
             indexes.sort()
             dtype_set = dtypes[indexes[0]]#pointless??
-        return result, dtype_set, 'geotype'
+            return True, dtype_set, dtype_set
     
     elif field == 'value':
         if 'numeric' in dtypes:
@@ -268,7 +270,7 @@ def correct_data(df_data, correction_data, error_data, index_order, point_based=
         numeric_filter = pd.to_numeric(df_data[key][not_null_filter], errors='coerce').notnull()
         
         ###Geolocation
-        if correction_data[key][1] == 'geotype':
+        if correction_data[key][1] in GEOTYPE_HEADINGS:
             if not point_based:
                 df_data[key] = df_data[key].str.lower()
                 filter_used = not_null_filter & (~numeric_filter) & (error_data[key][error_data[key] == correction_data[key][0]])
@@ -289,7 +291,7 @@ def correct_data(df_data, correction_data, error_data, index_order, point_based=
             #df_data[key] = df_data[key].apply(f)
         else:#numeric
             if correction_data[key][0] =='text':
-                if index_order['value'] == key:
+                if key in index_order['value']:
                     print('TODO')
                     '''
                     #get inidicator category add and group accordingly

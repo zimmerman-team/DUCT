@@ -3,7 +3,7 @@ from unittest import skip
 from django.test import RequestFactory, Client
 from rest_framework.test import APIClient
 from geodata.importer.country import CountryImport
-import json
+from indicator.models import MAPPING_DICT
 
 
 class FileManualMappingTestCase(TestCase):
@@ -19,7 +19,7 @@ class FileManualMappingTestCase(TestCase):
         '''
         Test 0: Upload file
         '''
-        print('Upload source')
+
         res = self.c.post(
             '/api/metadata/sources/?format=json',
             {
@@ -33,8 +33,8 @@ class FileManualMappingTestCase(TestCase):
         '''
         Test 1: Upload file
         '''
-        print('Upload file')
-        with open('samples/AIDSinfotest.csv') as fp:
+
+        with open('samples/multiple_ind_cat.csv') as fp:
             res = self.c.post(
                 '/api/metadata/?format=json',
                 {
@@ -63,7 +63,6 @@ class FileManualMappingTestCase(TestCase):
         '''
         Test 2: Validate
         '''
-        print('Validate')
         res_file_validate = self.c.post(
             '/api/validate/?format=json',
             {
@@ -77,35 +76,29 @@ class FileManualMappingTestCase(TestCase):
         self.assertIsNotNone(res_file_validate.json()['found_list'])
         self.assertIsNotNone(res_file_validate.json()['missing_list'])
         self.assertIsNotNone(res_file_validate.json()['summary'])
+
         '''
         Test 3: File Manual Mapping
         '''
+        MAPPING_DICT['metadata_id'] = res.json()['id']
+        MAPPING_DICT['mapping_dict']['value'] = ['test']
+        MAPPING_DICT['mapping_dict']['date'] = ['Date']
+        MAPPING_DICT['mapping_dict']['filters'] = ['Sex', 'Seen Transformers?', 'Seen Bambi?']
+        MAPPING_DICT['filter_headings'] = {'Sex': 'Sex', 'Seen Transformers?': 'Liked Transformers?', 'Seen Bambi?': 'Liked Bambi?'}
+        MAPPING_DICT['extra_information']['empty_entries']['empty_indicator'] = 'Indicator value'
+        MAPPING_DICT['extra_information']['empty_entries']['empty_geolocation'] = {'value':'WW', 'type':'iso2' }
+        MAPPING_DICT['extra_information']['empty_entries']['empty_value_format'] = {'test': 'Numeric'}
 
-        print('Manual Mapping')
-
-
+        '''
+        Test 3: File Manual Mapping
+        '''
         res_file_manual_mapping = self.c.post(
             '/api/mapping/?format=json',
-            {
-                'id': res.json()['id'],
-                'dict': {
-                    'indicator': [],
-                    'value_format': [],
-                    'geolocation': ['Country'],
-                    'value': ['test'],
-                    'date': ['Date'],
-                    'comment': ['This is a test'],
-                    'filters': ['Sex', 'Seen Transformers?', 'Seen Bambi?'],
-                    'empty_indicator': 'Indicator value',
-                    'empty_value_format': {'test': 'Number'},
-                    'headings': {
-                        'Sex': 'Gender',
-                        'Seen Transformers?': 'Transformers fan',
-                        'Seen Bambi?': 'Bambi fan'
-                    }
-                 }
-            }, format ='json'
+            MAPPING_DICT,
+            format='json'
         )
+
+        # print res_file_manual_mapping
 
         self.assertEquals(res_file_manual_mapping.status_code, 200, res_file_manual_mapping.json())
         self.assertEquals(res_file_manual_mapping.json()['success'], 1)

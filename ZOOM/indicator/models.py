@@ -17,9 +17,9 @@ EXTRA_INFORMATION = {
     'empty_entries':                                #Values that are compulsory, if mapping is not provided then user must enter value for empty mapping
         {
             'empty_indicator': '',
-            'empty_geolocation': '',
+            'empty_geolocation': {'value':'', 'type':''}, #Value of chosen geolocation. Typpe of geolocation choosen Regional, Subnational or Country
             'empty_filter': '',
-            'empty_value_format': '',
+            'empty_value_format': {},                     #File column heading: associated data type (Numeric percentage etc)
             'empty_date': ''
         },
     'multi_mapped':
