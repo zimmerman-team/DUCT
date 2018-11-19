@@ -9,7 +9,7 @@ class FileManualMappingTestCase(TestCase):
     request_dummy = RequestFactory().get('/')
     c = APIClient()
 
-    def test_file_manual_mapping(self):
+    def test_file_manual_mapping_two_measure_value(self):
         # Intialise countries
         ci = CountryImport()
         ci.update_polygon()
@@ -33,7 +33,7 @@ class FileManualMappingTestCase(TestCase):
         Test 1: Upload file
         '''
 
-        with open('samples/AIDSinfotest.csv') as fp:
+        with open('samples/two_mesure_values_num_date.csv') as fp:
             res = self.c.post(
                 '/api/metadata/?format=json',
                 {
@@ -80,13 +80,15 @@ class FileManualMappingTestCase(TestCase):
         Test 3: File Manual Mapping
         '''
         MAPPING_DICT['metadata_id'] = res.json()['id']
-        MAPPING_DICT['mapping_dict']['value'] = ['Seen Bambi?']
-        MAPPING_DICT['mapping_dict']['date'] = ['Date']
-        MAPPING_DICT['mapping_dict']['filters'] = ['Sex', 'Seen Transformers?']
-        MAPPING_DICT['filter_headings'] = {'Sex': 'Sex', 'Seen Transformers?': 'Liked Transformers?'}
+        MAPPING_DICT['mapping_dict']['value'] = ['2018', '2017']
+        MAPPING_DICT['mapping_dict']['date'] = ['2018', '2017']
+        MAPPING_DICT['mapping_dict']['filters'] = ['Source Type', 'Source']
+        MAPPING_DICT['mapping_dict']['geolocation'] = ['Country or Area']
+        MAPPING_DICT['filter_headings'] = {'Source Type': 'Source', 'Source': 'Abbrv source'}
+        MAPPING_DICT['extra_information']['multi_mapped']['column_heading'] = {'2018': 'date', '2017': 'date'}
+        MAPPING_DICT['extra_information']['multi_mapped']['column_values'] =  {'2018': 'value', '2017': 'value'} # Columns headings that are associated with datamodel, dictionary format
         MAPPING_DICT['extra_information']['empty_entries']['empty_indicator'] = 'Indicator value'
-        MAPPING_DICT['extra_information']['empty_entries']['empty_geolocation'] = 'WW'
-        MAPPING_DICT['extra_information']['empty_entries']['empty_value_format'] = {'value_format': 'Numeric'}
+        MAPPING_DICT['extra_information']['empty_entries']['empty_value_format'] =  {"2018": "Number", "2017": "Number"}
 
         '''
         Test 3: File Manual Mapping
@@ -95,9 +97,9 @@ class FileManualMappingTestCase(TestCase):
             '/api/mapping/?format=json',
             MAPPING_DICT,
             format='json'
-            )
-        
+        )
+
         # print res_file_manual_mapping
-        
+
         self.assertEquals(res_file_manual_mapping.status_code, 200, res_file_manual_mapping.json())
         self.assertEquals(res_file_manual_mapping.json()['success'], 1)

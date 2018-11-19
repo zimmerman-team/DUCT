@@ -62,26 +62,15 @@ def begin_mapping(data):
         else:
             point_based = False
 
+        #### Reformat dataframe for dates or categories ####
+        if len(data_model_dict['value']) > 1:
+            df_data, dtypes_dict, data_model_dict = convert_df(df_data, multi_entry_dict, data_model_dict, empty_entries_dict.pop('empty_value_format'), dtypes_dict)
+
         #### Apply missing values ####
         df_data, data_model_dict, dtypes_dict = apply_missing_values(
             df_data, data_model_dict, dtypes_dict, empty_entries_dict)
 
-        #### Reformat dataframe for dates ####
-        if len(data_model_dict['date']) > 1:
-            ###Convert csv
-            # if multi_entry_dict['relationship']:#check if unit of measure exists
-            #    df_data, dtypes_dict, mappings = convert_df(df_data, multi_entry_dict, data_model_dict, filter_headings_dict, empty_values_array[4], dtypes_dict)
-            print('TODO')
-            # convert file into standard format
-        #else:  ###TODO normal situation
-        #    #filter_file_column = data_model_dict['filters'][0]
-        #    df_data['headings'] = \
-        #        filter_headings_dict[filter_file_column]
-        #    data_model_dict['headings'] = ['headings']
-        #    print('Creating heading')
-
         #### Check if datatypes of data is correct ####
-        print(dtypes_dict)
         result, correction_mappings, context = check_mapping_dtypes(
             data_model_dict, dtypes_dict)
 
@@ -89,9 +78,10 @@ def begin_mapping(data):
             print(context)
             return context  # Bad mapping
 
-        ### Save new error information ###
-        error_lines, new_dtypes_dict = generate_error_data(df_data) #Could be important if user wants to see which parts of data did not get mapped and why they did not
-        save_validation_data(error_lines, id, new_dtypes_dict)
+        ###Todo check is new_dtypes_dict nessecary
+        ###Todo why can't this be moved in front of check mappings?
+        error_lines, new_dtypes_dict = generate_error_data(df_data)  # Could be important if user wants to see which parts of data did not get mapped and why they did not
+        save_validation_data(error_lines, id, dtypes_dict)
 
         ### Todo check is this is needed ###
         for key in new_dtypes_dict:
@@ -113,8 +103,6 @@ def begin_mapping(data):
             error_lines,
             final_file_headings, point_based)
 
-        print('after Correct_data')
-        print(df_data)
         ### Filter out bad data from datafram ###
         filter_applied = (df_data[final_file_headings['indicator']].notnull() # The sections of data model are not allowed to be empty
                           & df_data[final_file_headings['date']].notnull(
@@ -138,8 +126,6 @@ def begin_mapping(data):
         metadata = File.objects.get(id=id)
         df_data['metadata'] = metadata
         df_data['date_format'] = instance
-        print('------------After------------------')
-        print(df_data)
 
         ### Save and get foreign key data for datapoints model ###
         ind_dict, headings_dict, geolocation_dict, value_format_dict, \
@@ -198,8 +184,6 @@ def apply_missing_values(df_data, mappings, dtypes_dict, empty_entries_dict):
         # add indicator value as column
 
     if not empty_entries_dict['empty_geolocation']['value'] == '':
-        print('Empty')
-        print(empty_entries_dict['empty_geolocation'])
         mappings['geolocation'] = ['geolocation']
         df_data['geolocation'] = empty_entries_dict['empty_geolocation']['value']
         dtypes_dict[mappings['geolocation'][0]] = [empty_entries_dict['empty_geolocation']['type']] * length
@@ -214,17 +198,18 @@ def apply_missing_values(df_data, mappings, dtypes_dict, empty_entries_dict):
         df_data['date'] = empty_entries_dict['empty_date']
         dtypes_dict[mappings['date'][0]] = ['date'] * length
 
-    if not empty_entries_dict['empty_value_format'] == '':
+    if 'empty_value_format' in empty_entries_dict and  len(empty_entries_dict['empty_value_format']) > 0:
         if len(mappings['value']) == 1:
             # check each entry empty value format dict
             mappings['value_format'] = ['value_format']
             df_data['value_format'] = empty_entries_dict['empty_value_format'][list(empty_entries_dict['empty_value_format'].keys())[0]]
             dtypes_dict[mappings['value_format'][0]] = ['text'] * length
         else:
+            print('Shouldn\' happen')
             ### Todo hande multiple value formats
             ### Todo reformat df data and apply multiple formats
-            mappings['value_format'] = ['value_format']
-            dtypes_dict[mappings['value_format'][0]] = [('text', 'text')]
+            #mappings['value_format'] = ['value_format']
+            #dtypes_dict[mappings['value_format'][0]] = [('text', 'text')]
 
 
     return df_data, mappings, dtypes_dict
@@ -248,9 +233,8 @@ def check_mapping_dtypes(mappings, dtypes_dict):
         if mappings[key]:  # this is included incase no mapping is given
             for heading in mappings[key]:
                 correction_mappings[heading] = []
-                temp_results_check_dtype, temp_found_dtype, \
-                temp_convert_dtype = check_column_data_type(
-                    key, dtypes_dict[heading])
+                temp_results_check_dtype, temp_found_dtype, temp_convert_dtype = \
+                    check_column_data_type(key, dtypes_dict[heading])
 
                 if temp_results_check_dtype:
                     correction_mappings[heading] = (
@@ -446,11 +430,8 @@ def save_datapoints(df_data, final_file_headings, filter_headings_dict,dicts):
         df_data[heading] = df_data[final_file_headings['indicator']] \
             + df_data['heading'] + df_data[heading]
         df_filters[heading] = df_data[heading].map(filters_dict)
-    print('Check')
-    print(final_file_headings['filters'])
     df_data.drop(final_file_headings['filters'], axis=1, inplace=True)
     filter_headings = final_file_headings.pop('filters',None)
-    print(filter_headings)
 
     df_data[final_file_headings['indicator']
             ] = df_data[final_file_headings['indicator']].map(ind_dict)
@@ -463,9 +444,7 @@ def save_datapoints(df_data, final_file_headings, filter_headings_dict,dicts):
     for heading in final_file_headings:
         reverse_mapping[final_file_headings[heading]] = heading
 
-    print(reverse_mapping)
     column_list = list(reverse_mapping.keys())
-    print(column_list)
     df_data = df_data[column_list]  # should do this earlier
     df_data = df_data.rename(index=str, columns=reverse_mapping)
 
@@ -492,9 +471,6 @@ def save_datapoints(df_data, final_file_headings, filter_headings_dict,dicts):
             for heading in filter_headings:
                 # vectorised operation to add many to many mapping between filters
                 # and datapoints
-                print('filter_data ', filter_data)
-                print('filter_headings ', filter_headings)
-                print(np.array(data))
                 vfunc2(np.array(filter_data[heading]), np.array(data))
                 # vectorised operation to save new addition methods, maybe best to
                 # do this last
