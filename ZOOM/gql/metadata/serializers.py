@@ -3,7 +3,7 @@ from rest_framework import serializers
 import pandas as pd
 
 from metadata.models import File, FileSource
-from indicator.models import DATAMODEL_HEADINGS, FILTER_HEADINGS
+from indicator.models import MAPPING_DICT
 
 
 class FileSourceSerializer(serializers.ModelSerializer):
@@ -67,7 +67,4 @@ class FileSerializer(serializers.ModelSerializer):
 
     @classmethod
     def get_data_model_heading(cls, obj):
-        data_model_heading = dict()
-        for heading in DATAMODEL_HEADINGS.union(FILTER_HEADINGS):
-            data_model_heading[heading] = []
-        return json.loads(pd.Series(data_model_heading).to_json())
+        return json.loads(pd.Series(MAPPING_DICT).to_json())

@@ -1,12 +1,12 @@
 import json
 import graphene
-import pandas as pd
 from graphene import relay
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from django_filters import FilterSet, NumberFilter, CharFilter
+import pandas as pd
 
-from indicator.models import DATAMODEL_HEADINGS, FILTER_HEADINGS
+from indicator.models import MAPPING_DICT
 from metadata.models import FileSource, File
 
 
@@ -56,10 +56,7 @@ class FileNode(DjangoObjectType):
         return json.loads(self.file_heading_list)
 
     def resolve_data_model_heading(self, info):
-        data_model_heading = dict()
-        for heading in DATAMODEL_HEADINGS.union(FILTER_HEADINGS):
-            data_model_heading[heading] = []
-        return json.loads(pd.Series(data_model_heading).to_json())
+        return pd.Series(MAPPING_DICT).to_json()
 
 
 class FileFilter(FilterSet):
