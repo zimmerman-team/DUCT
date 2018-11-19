@@ -46,6 +46,7 @@ class MappingJob(APIView):
         context = {}
         logger = logging.getLogger("django")
         logger.info("Entering Mapping Job")
+
         try:
             context = begin_mapping(request.data)
             logger.info("Successful mapping")

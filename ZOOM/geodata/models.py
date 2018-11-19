@@ -4,15 +4,15 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.contrib.gis.geos import GEOSGeometry
 
-GEOTYPE_HEADINGS = {
+GEOTYPE_HEADINGS = [
     'country',
     'region',
     'subnational',
     'city',
     'pointbased',
     'iso3',
-    'iso2'}
-SAVED_TYPES = {'country', 'region', 'subnational', 'city'}
+    'iso2']
+SAVED_TYPES = ['country', 'region', 'subnational', 'city']
 
 
 class Geolocation(models.Model):

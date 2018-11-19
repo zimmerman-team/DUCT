@@ -213,10 +213,10 @@ def check_column_data_type(field, dtypes):
     if field == 'geolocation':
         geotype_list = GEOTYPE_HEADINGS
         dtype_set = set(dtypes) & set(geotype_list)
-        result = bool(dtype_set)
+        result = bool(dtype_set)   
 
         if not result:
-            dtype_set = dtypes[0]
+            return False, dtypes[0], 'geotype'
         else:
             indexes = []
             dtype_set = list(dtype_set)
@@ -226,7 +226,7 @@ def check_column_data_type(field, dtypes):
             
             indexes.sort()
             dtype_set = dtypes[indexes[0]]#pointless??
-        return result, dtype_set, 'geotype'
+            return True, dtype_set, dtype_set
     
     elif field == 'value':
         if 'numeric' in dtypes:
@@ -268,7 +268,7 @@ def correct_data(df_data, correction_data, error_data, index_order, point_based=
         numeric_filter = pd.to_numeric(df_data[key][not_null_filter], errors='coerce').notnull()
         
         ###Geolocation
-        if correction_data[key][1] == 'geotype':
+        if correction_data[key][1] in GEOTYPE_HEADINGS:
             if not point_based:
                 df_data[key] = df_data[key].str.lower()
                 filter_used = not_null_filter & (~numeric_filter) & (error_data[key][error_data[key] == correction_data[key][0]])
@@ -289,7 +289,7 @@ def correct_data(df_data, correction_data, error_data, index_order, point_based=
             #df_data[key] = df_data[key].apply(f)
         else:#numeric
             if correction_data[key][0] =='text':
-                if index_order['value'] == key:
+                if key in index_order['value']:
                     print('TODO')
                     '''
                     #get inidicator category add and group accordingly
@@ -321,7 +321,7 @@ def lookForError(f, default, x):
         value = default
     return default
 
-def convert_df(df_data, multi_entry_dict, data_model_dict, filter_headings_dict, value_format_value, dtypes_dict):
+def convert_df(df_data, multi_entry_dict, data_model_dict, value_format_value, dtypes_dict):
     '''Remaps dataframe based on relationship between columns and data model.
     
     Args:
@@ -341,70 +341,37 @@ def convert_df(df_data, multi_entry_dict, data_model_dict, filter_headings_dict,
     if not value_format_value:
         value_format_value = {}
 
-    relationship_dict = multi_entry_dict['relationship']
-    left_over_dict = multi_entry_dict['left_over']
+    relationship_dict = multi_entry_dict['column_heading']
+    left_over_dict = multi_entry_dict['column_values']
     columns = []
-
-    ###Get columns not in relationship dict
-    for col in df_data.columns: 
-        temp = str(col)
-        col = str(col) 
-        if (temp in relationship_dict):
-            if not relationship_dict[temp] in columns or not left_over_dict[temp] in columns:
-                columns.append(str(relationship_dict[temp]))
-                columns.append(str(left_over_dict[temp]))
-        else: 
-            columns.append(col)
-
-    columns.append('value_format')
-    columns = list(set(columns))#filter duplicates
-    columns_set = list(set(list(columns)) & set(list(df_data.columns)))
-    
-    #for col in relationship_dict:
-    #    dtypes_dict[left_over_dict[col]] = []
-    #print('relationship_dict ', relationship_dict);
-
-    for col in relationship_dict:
-        if relationship_dict[col] == 'date_value':
-            dtypes_dict[relationship_dict[col]] = [('date', '100%')]
-        else:
-            dtypes_dict[relationship_dict[col]] = [('text', '100%')]
-
-        ###################Need to combine datatypes for each
-        dtypes_dict[left_over_dict[col]] = dtypes_dict[col]
 
     new_df = pd.DataFrame(columns=df_data.columns)
 
+    ###Todo vectorise
     for col in relationship_dict:
-        #print('#############################')
-        #print('mappings ', mappings['indicator_category'])
-        #print(col)
-    
-        tmp_df = df_data.copy(deep=True)    
+        tmp_df = df_data.copy(deep=True)
+        tmp_df[relationship_dict[col]] = col
+        tmp_df[left_over_dict[col]] = tmp_df[col]
         
-        #if more than one relationship is multiple subgroupd and relationships
-        if col in mappings['indicator_filter'] and len(mappings['indicator_=filter']) > 1:
-            '''print('Ind Cat ' + col);
-            print(tmp_df[relationship_dict[col]] + '|' + (col))
-            print(tmp_df[col])
-            print('------------------')'''
-            tmp_df[relationship_dict[col]] = tmp_df[relationship_dict[col]] + '|' + (col)
-            tmp_df[left_over_dict[col]] = tmp_df[col]
-
-        else:#normal case
-            tmp_df[relationship_dict[col]] = col
-            tmp_df[left_over_dict[col]] = tmp_df[col]
-        
-        if col in empty_unit_measure_value:
-            tmp_df['unit_of_measure'] = empty_unit_measure_value[col]
+        if col in value_format_value:
+            tmp_df['value_format'] = value_format_value[col]
+            data_model_dict['value_format'] = ['value_format']
+            dtypes_dict['value_format'] = ['text'] * len(tmp_df[tmp_df.columns[0]])
         new_df = new_df.append(tmp_df)
 
-    #reset mappings to indicator category and measure value ##check if this is needed.
-    mappings[relationship_dict[col]] = relationship_dict[col]
-    mappings[left_over_dict[col]] = left_over_dict[col] 
-    
-    #print(new_df.reset_index()['indicator_category']);
-    return new_df.reset_index(), dtypes_dict, mappings#filter by columns needed
+    for col in relationship_dict:
+        if relationship_dict[col] == 'date':
+            data_model_dict['date'] = ['date']
+            dtypes_dict[relationship_dict[col]] = ['date'] * len(tmp_df[tmp_df.columns[0]])
+        else:
+            if 'filters' not in data_model_dict['filters']:
+                data_model_dict['filters'].append('filters')
+            data_model_dict['filters'].remove(col)
+            dtypes_dict[relationship_dict[col]] = ['text'] * len(tmp_df[tmp_df.columns[0]])
+
+        dtypes_dict[left_over_dict[col]] = dtypes_dict[col]
+
+    return new_df.reset_index(), dtypes_dict, data_model_dict#filter by columns needed
 
 def check_file_type(file_name):
     name = file_name.lower()

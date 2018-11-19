@@ -138,9 +138,8 @@ def get_headings_data_model(df_file):
 
     # Get datapoint headings
     for field in Datapoints._meta.fields:
-        data_model_headings.append(field.name)  # .get_attname_column())
-    # skip first four headings as irrelevant to user input, should use filter
-    # for this
+        data_model_headings.append(field.name)#.get_attname_column())
+    #skip first four headings as irrelevant to user input, should use filter for this
 
     data_model_headings = data_model_headings[4:len(data_model_headings)]
     data_model_headings = filter(lambda x: "search_vector_text" != x and
