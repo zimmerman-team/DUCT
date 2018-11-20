@@ -87,7 +87,7 @@ class MappingTestCase(TestCase):
         }"""
 
         result = schema.execute(query)
-        result_mapping_object = Mapping.objects.get(file_id=result.data
+        result_mapping_object = Mapping.objects.get(id=result.data
                                                     ['allMappings']['edges'][0]
                                                     ['node']['entryId'])
         self.assertTrue(result_mapping_object)
