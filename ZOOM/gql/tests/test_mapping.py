@@ -37,24 +37,27 @@ class MappingTestCase(TestCase):
             file_types="csv",
             location=self.dummy_geolocation,
             source=self.dummy_file_source,
-            file=os.path.abspath("media/datasets/AIDSinfotest.csv")
+            file=os.path.abspath("samples/AIDSinfotest.csv")
         )
 
     def test_mapping_mutation(self):
 
         file_id = self.dummy_file.id
-        input_json = {"id": file_id, "dict": {"indicator": ["Indicator"],
-                                              "value_format": ["Unit"],
-                                              "geolocation": ["Area"],
-                                              "value": ["Data Value"],
-                                              "date": ["Time Period"],
-                                              "comment": ["Source"],
-                                              "filters": ["Subgroup"],
-                                              "headings": {"Subgroup":
-                                                           "Subgroup"
-                                                           }
-                                              }
-                      }
+
+        input_json = {
+            'metadata_id': file_id,
+            'mapping_dict': {
+                "indicator": ["Indicator"],
+                "value_format": ["Unit"],
+                "geolocation": ["Area"],
+                "value": ["Data Value"],
+                "date": ["Time Period"],
+                "comment": ["Source"],
+                "filters": ["Subgroup"]
+            },
+            'filter_headings': {"Subgroup": "Subgroup"},
+        }
+
         input_json_str = json.dumps(input_json)
         query_input = {"input": {"data": input_json_str}}
         query = """
