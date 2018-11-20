@@ -352,7 +352,7 @@ def convert_df(df_data, multi_entry_dict, data_model_dict, value_format_value, d
         tmp_df = df_data.copy(deep=True)
         tmp_df[relationship_dict[col]] = col
         tmp_df[left_over_dict[col]] = tmp_df[col]
-        
+
         if col in value_format_value:
             tmp_df['value_format'] = value_format_value[col]
             data_model_dict['value_format'] = ['value_format']
@@ -368,7 +368,7 @@ def convert_df(df_data, multi_entry_dict, data_model_dict, value_format_value, d
                 data_model_dict['filters'].append('filters')
             data_model_dict['filters'].remove(col)
             dtypes_dict[relationship_dict[col]] = ['text'] * len(tmp_df[tmp_df.columns[0]])
-
+        data_model_dict['value'] = ['value']
         dtypes_dict[left_over_dict[col]] = dtypes_dict[col]
 
     return new_df.reset_index(), dtypes_dict, data_model_dict#filter by columns needed

@@ -88,7 +88,7 @@ class FileManualMappingTestCase(TestCase):
         MAPPING_DICT['extra_information']['multi_mapped']['column_heading'] = {'2018': 'date', '2017': 'date'}
         MAPPING_DICT['extra_information']['multi_mapped']['column_values'] =  {'2018': 'value', '2017': 'value'} # Columns headings that are associated with datamodel, dictionary format
         MAPPING_DICT['extra_information']['empty_entries']['empty_indicator'] = 'Indicator value'
-        MAPPING_DICT['extra_information']['empty_entries']['empty_value_format'] =  {"2018": "Number", "2017": "Number"}
+        MAPPING_DICT['extra_information']['empty_entries']['empty_value_format'] =  {"2018": "Number", "2017": "Rate"}
 
         '''
         Test 3: File Manual Mapping
