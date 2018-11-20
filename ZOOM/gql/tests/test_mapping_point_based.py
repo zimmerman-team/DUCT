@@ -37,7 +37,7 @@ class MappingTestCase(TestCase):
             file_types="csv",
             location=self.dummy_geolocation,
             source=self.dummy_file_source,
-            file=os.path.abspath("samples/AIDSinfotest.csv")
+            file=os.path.abspath("samples/point_based.csv")
         )
 
     def test_mapping_mutation(self):
