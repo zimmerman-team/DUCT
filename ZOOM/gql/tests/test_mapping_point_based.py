@@ -43,8 +43,54 @@ class MappingTestCase(TestCase):
     def test_mapping_mutation(self):
 
         file_id = self.dummy_file.id
-        input_json = {"id": file_id,
-                      "dict": {
+
+        EXTRA_INFORMATION = {
+            'empty_entries':
+                {
+                    'empty_indicator': 'Test pointbased',
+                    'empty_geolocation': {'value': '', 'type': ''},
+
+                    'empty_filter': 'Default',
+                    'empty_value_format': {'value format': 'Numeric'},
+
+                    'empty_date': '2016'
+                },
+            'multi_mapped':
+                {
+                    'column_heading': {},
+
+                    'column_values': {},
+
+                },
+            'point_based_info':
+                {
+                    'coord': {'lat': 'Lat location 1', 'lon': 'Long location 1'},
+                    'subnational': '',
+                    'country': '',
+                    'type': '',
+
+                }
+        }
+
+        input_json = {
+            'metadata_id': file_id,
+            'mapping_dict': {
+                'indicator': [],
+                'filters': [],
+                'geolocation': ["Lat location 1", "Long location 1"],
+                'date': [],
+                'value_format': [],
+                'value': ["new infections"],
+                'comment': [],
+            },
+            "filter_headings": {"filters": "filters"},
+            'extra_information': EXTRA_INFORMATION
+        }
+
+
+
+        fucking_shit= {"metadata_id": file_id,
+                      "mapping_dict": {
                                  "geolocation": ["Lat location1","Long location1"],
                                  "value": ["new infections"],
                               },
@@ -54,9 +100,11 @@ class MappingTestCase(TestCase):
                                                 "empty_filter": "Default",
                                                 "empty_value_format": {"value_format": "Numeric"},
                                                 "empty_date": "2016", },
-                                            "point_based_info": {"coord": {
-                                                "lat": "Lat location1"},
-                                                "long": "Long location1", }
+                                            "multi_mapped": {"hello":
+                                                                 "darling"},
+                                            "point_based_info": {"coord":
+                                                {"lat": "Lat location 1",
+                                                "lon": "Long location 1",} }
                                             }
                       }
         input_json_str = json.dumps(input_json)
@@ -69,5 +117,6 @@ class MappingTestCase(TestCase):
                                 }
         }"""
 
-        schema.execute(query, variable_values=query_input)
-        self.assertTrue(Mapping.objects.filter(data=input_json).exists())
+        result = schema.execute(query, variable_values=query_input)
+        self.assertEqual(result.errors, None)
+
