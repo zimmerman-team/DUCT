@@ -148,7 +148,7 @@ def begin_mapping(data):
         context = {
             'error_messages': 'No data in dictionary sent',
             'success': 0}
-        return context
+        raise context
 
 
 def split_mapping_data(data):
