@@ -81,24 +81,6 @@ class MappingTestCase(TestCase):
             'extra_information': EXTRA_INFORMATION
         }
 
-        fucking_shit = {"metadata_id": file_id,
-                        "mapping_dict": {
-                            "geolocation": ["Lat location1", "Long location1"],
-                            "value": ["new infections"],
-                        },
-                        "filter_headings": {"filters": "filters"},
-                        "extra_information": {"empty_entries": {
-                            "empty_indicator": "Test pointbased",
-                            "empty_filter": "Default",
-                            "empty_value_format": {"value_format": "Numeric"},
-                            "empty_date": "2016", },
-                            "multi_mapped": {"hello":
-                                             "darling"},
-                            "point_based_info": {"coord":
-                                                 {"lat": "Lat location 1",
-                                                  "lon": "Long location 1", }}
-                        }
-                        }
         input_json_str = json.dumps(input_json)
         query_input = {"input": {"data": input_json_str}}
         query = """
