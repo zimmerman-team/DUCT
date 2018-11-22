@@ -1,7 +1,6 @@
 from gql.schema import schema
 from django.test import TestCase
 from gql.tests import factory
-from mapping.models import Mapping
 import os
 import json
 
@@ -45,32 +44,27 @@ class MappingTestCase(TestCase):
         file_id = self.dummy_file.id
 
         EXTRA_INFORMATION = {
-            'empty_entries':
-                {
-                    'empty_indicator': 'Test pointbased',
-                    'empty_geolocation': {'value': '', 'type': ''},
-
-                    'empty_filter': 'Default',
-                    'empty_value_format': {'value format': 'Numeric'},
-
-                    'empty_date': '2016'
-                },
-            'multi_mapped':
-                {
-                    'column_heading': {},
-
-                    'column_values': {},
-
-                },
-            'point_based_info':
-                {
-                    'coord': {'lat': 'Lat location 1', 'lon': 'Long location 1'},
-                    'subnational': '',
-                    'country': '',
-                    'type': '',
-
-                }
-        }
+            'empty_entries': {
+                'empty_indicator': 'Test pointbased',
+                'empty_geolocation': {
+                    'value': '',
+                    'type': ''},
+                'empty_filter': 'Default',
+                'empty_value_format': {
+                    'value format': 'Numeric'},
+                'empty_date': '2016'},
+            'multi_mapped': {
+                'column_heading': {},
+                'column_values': {},
+            },
+            'point_based_info': {
+                'coord': {
+                    'lat': 'Lat location 1',
+                    'lon': 'Long location 1'},
+                'subnational': '',
+                'country': '',
+                'type': '',
+            }}
 
         input_json = {
             'metadata_id': file_id,
@@ -87,26 +81,24 @@ class MappingTestCase(TestCase):
             'extra_information': EXTRA_INFORMATION
         }
 
-
-
-        fucking_shit= {"metadata_id": file_id,
-                      "mapping_dict": {
-                                 "geolocation": ["Lat location1","Long location1"],
-                                 "value": ["new infections"],
-                              },
-                      "filter_headings": {"filters": "filters"},
-                      "extra_information": {"empty_entries": {
-                                                "empty_indicator": "Test pointbased",
-                                                "empty_filter": "Default",
-                                                "empty_value_format": {"value_format": "Numeric"},
-                                                "empty_date": "2016", },
-                                            "multi_mapped": {"hello":
-                                                                 "darling"},
-                                            "point_based_info": {"coord":
-                                                {"lat": "Lat location 1",
-                                                "lon": "Long location 1",} }
-                                            }
-                      }
+        fucking_shit = {"metadata_id": file_id,
+                        "mapping_dict": {
+                            "geolocation": ["Lat location1", "Long location1"],
+                            "value": ["new infections"],
+                        },
+                        "filter_headings": {"filters": "filters"},
+                        "extra_information": {"empty_entries": {
+                            "empty_indicator": "Test pointbased",
+                            "empty_filter": "Default",
+                            "empty_value_format": {"value_format": "Numeric"},
+                            "empty_date": "2016", },
+                            "multi_mapped": {"hello":
+                                             "darling"},
+                            "point_based_info": {"coord":
+                                                 {"lat": "Lat location 1",
+                                                  "lon": "Long location 1", }}
+                        }
+                        }
         input_json_str = json.dumps(input_json)
         query_input = {"input": {"data": input_json_str}}
         query = """
@@ -119,4 +111,3 @@ class MappingTestCase(TestCase):
 
         result = schema.execute(query, variable_values=query_input)
         self.assertEqual(result.errors, None)
-
