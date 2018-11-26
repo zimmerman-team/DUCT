@@ -10,12 +10,13 @@ UPDATE_DICT = {
     'header_value':'',
     'header_tobe_changed':'',
     'column':'',
-    'row':''
+    'line_no':'',
+    'cell_value': '',
 }
 
 #For deleting all rows
 DELETE_DICT = {
-    'row_keys'
+    'row_keys':[]
 }
 
 #Main dictionaru sed for making call
@@ -95,9 +96,7 @@ def find_and_replace(df_data, data):
         temp = df_data[heading]
         temp = temp.astype('str').str.lower()  
         filter_applied = np.array(temp == str(data['find_value']).lower())
-        print('Filter_applied ')
-        print(np.array(filter_applied))
-        
+
     if data['replace_pressed']:
         df_data[heading][filter_applied] = data['replace_value']
         column_values = df_data[heading][filter_applied]
@@ -181,7 +180,7 @@ def update(id, data):
     df_data = get_file_data(id)
     error_data, dtypes_dict = get_dtype_data(id)
 
-    if 'changeHeader' in data:
+    if not data['changeHeader'] == '':
         count = 2
         tmp = data['header_value']
         while tmp in df_data.columns:
@@ -195,14 +194,12 @@ def update(id, data):
         error_data.pop(data['header_tobe_changed'], None)
     else:
         heading = data['column']
-        row_data = data['row']
-        row_data.pop('index', None)
-        line_no = row_data.pop('line no.')
-        df_data[heading][line_no] = row_data[heading]
+        line_no = data['line_no']
+        df_data[heading][line_no] = data['cell_value']
 
-        prob_list, error_count = update_cell_type(df_data[heading][line_no], error_data[heading], line_no, heading)
-        dtypes_dict[heading] = prob_list
-        error_data[heading] = error_count
+        prob_list, error_count = update_cell_type(df_data[heading][line_no], dtypes_dict[heading], line_no, heading)
+        dtypes_dict[heading] = error_count
+        error_data[heading] = prob_list
 
     save_validation_data(error_data, id, dtypes_dict)
     update_data(File.objects.get(id=id).file, df_data)

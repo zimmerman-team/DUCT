@@ -83,6 +83,7 @@ class FileErrorCorrectionTestCase(TestCase):
         self.assertIsNotNone(res_file_error_correction.json()['data_table'])
         self.assertIsNotNone(res_file_error_correction.json()['total_amount'])
 
+        #Find and replace
         ERROR_CORRECTION_DICT['filter_column_heading'] = 'Element Code' #Column to filter on
         ERROR_CORRECTION_DICT['find_value'] = '31'
         ERROR_CORRECTION_DICT['replace_value'] = '41'
@@ -99,4 +100,51 @@ class FileErrorCorrectionTestCase(TestCase):
         self.assertIsNotNone(res_file_error_correction.json()['total_amount'])
         self.assertEquals(json.loads(res_file_error_correction.json()['data_table'])[0]['Element Code'], '41')
 
-        delete
+        #Delete
+        ERROR_CORRECTION_DICT['delete'] = True  # Column to filter on
+        ERROR_CORRECTION_DICT['delete_data']['row_keys'] = [2]
+        ERROR_CORRECTION_DICT['filter_toggle'] = False
+        ERROR_CORRECTION_DICT['replace_pressed'] = False
+
+        res_file_error_correction = self.c.post('/api/error-correction/?format=json',
+                                                ERROR_CORRECTION_DICT,
+                                                format='json'
+                                                )
+
+        self.assertEquals(res_file_error_correction.status_code, 200, res_file_error_correction.json())
+        self.assertIsNotNone(res_file_error_correction.json()['data_table'])
+        self.assertIsNotNone(res_file_error_correction.json()['total_amount'])
+        self.assertEquals(len(json.loads(res_file_error_correction.json()['data_table'])), 3)
+
+        #Update
+        ERROR_CORRECTION_DICT['delete'] = False  # Column to filter on
+        ERROR_CORRECTION_DICT['update'] = True  # Column to filter o
+        ERROR_CORRECTION_DICT['update_data']['column'] = 'Country or Area'
+        ERROR_CORRECTION_DICT['update_data']['line_no'] = 2
+        ERROR_CORRECTION_DICT['update_data']['cell_value'] = 'Brazil'
+
+        res_file_error_correction = self.c.post('/api/error-correction/?format=json',
+                                                ERROR_CORRECTION_DICT,
+                                                format='json'
+                                                )
+
+        self.assertEquals(res_file_error_correction.status_code, 200, res_file_error_correction.json())
+        self.assertIsNotNone(res_file_error_correction.json()['data_table'])
+        self.assertIsNotNone(res_file_error_correction.json()['total_amount'])
+        self.assertEquals(json.loads(res_file_error_correction.json()['data_table'])[2]['Country or Area'], 'Brazil')
+
+        #Get Errors
+        #Todo add test
+
+        ERROR_CORRECTION_DICT['error_toggle'] = True  # Column to filter on
+        ERROR_CORRECTION_DICT['update'] = False  # Column to filter o
+
+        #res_file_error_correction = self.c.post('/api/error-correction/?format=json',
+        #                                        ERROR_CORRECTION_DICT,
+        #                                        format='json'
+        #                                        )
+
+        self.assertEquals(res_file_error_correction.status_code, 200, res_file_error_correction.json())
+        self.assertIsNotNone(res_file_error_correction.json()['data_table'])
+        self.assertIsNotNone(res_file_error_correction.json()['total_amount'])
+        self.assertEquals(json.loads(res_file_error_correction.json()['data_table'])[2]['Country or Area'], 'Brazil')

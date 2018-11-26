@@ -9,7 +9,7 @@ import datetime
 def ErrorCorrectionView(request):
     context = {}
     logger = logging.getLogger("django")
-    if request.data['save']:#split into views
+    if request.data['update']:#split into views
         try:#useful for individual error handling
             context = update(request.data['file_id'], request.data['update_data'])
         except Exception as e:
@@ -27,12 +27,11 @@ def ErrorCorrectionView(request):
             raise
     elif request.data['error_toggle']:
         try:
-            context = get_errors(request)
+            context = get_errors(request.data)
         except Exception as e:
             logger.exception("--Error when retrieving errors")
             context['error'] = "Error occured when retrieving errors"
             context['success'] = 0
-    else:	
-        context = error_correction(request)
+    context = error_correction(request.data)
     
     return Response(context)
