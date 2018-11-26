@@ -118,8 +118,7 @@ def get_prob_list(error_counter):
 
 def update_cell_type(value, error_counter, line_no, file_heading):
     '''Used when checking just one cell so no vectorisation'''
-    reload(sys)
-    sys.setdefaultencoding('utf-8')
+    #sys.setdefaultencoding('utf-8')
     date_check_f = (lambda x: 'time' in x.lower() or 'date' in x.lower() or 'year' in x.lower() or 'period' in x.lower())
     date_f = (lambda x: date_parser.parse(str(x)))
     
@@ -149,47 +148,41 @@ def update_cell_type(value, error_counter, line_no, file_heading):
                 dtype = 'numeric'
         ###String
         except Exception:
-            ###Checking Date###
-            f = (lambda x: str(unicodedata.normalize('NFKD', unicode(x)).lower().encode('ascii','ignore')).strip().replace('_', ' '))
-            value = f(value)
+            ####Checking Date###
+            f = (lambda x: str(x).lower().strip().replace('_', ' '))
+            #value = f(value)
             result = date_check_f(file_heading)
+
             if result:
                 try:
                     value = date_f(value)
                     dtype = 'date'
                 except Exception:
                     result = False
-            
+
             ###Country Check###
             if(not result):
                 value = f(value)
-                result, dtype = check_if_cell_country(value) 
-
+                result, dtype = check_if_cell_country(value)
             if(not result):
                 dtype ='text'
-    
-    error_counter[line_no] = dtype   
+
+    error_counter[line_no] = dtype
     prob_list = get_prob_list(error_counter)
     return prob_list, error_counter
 
 
 def check_if_cell_country(value):
     '''Checks if value is a country'''
-    result = Country.objects.filter(code__iexact=value).exists()
-    if result:
-        return result,'country(iso2)'
-
-    result = Country.objects.filter(iso3__iexact=value).exists()
-    if result:
-        return result, 'country(iso3)'
-
-    result = Country.objects.filter(name__iexact=value).exists()
-    if result:
-        return result, 'country(name)'
-
-    result = CountryAltName.objects.filter(name__iexact=value).exists()
-    if result:
-        return result, 'country(name)'
+    if len(str(value)) == 2:
+        result = Geolocation.objects.filter(iso2=value).exists()
+        return result, 'geotype'
+    elif len(str(value)) == 3:
+        result = Geolocation.objects.filter(iso3=value).exists()
+        return result, 'geotype'
+    else:
+        result = Geolocation.objects.filter(tag=value).exists()
+        return result, 'geotype'
 
     return False, ''
 
