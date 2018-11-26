@@ -5,7 +5,7 @@ import os
 import json
 
 
-class MappingTestCase(TestCase):
+class MappingPointBasedTestCase(TestCase):
 
     def setUp(self):
         self.dummy_file_source = factory.FileSourceFactory(
@@ -39,7 +39,7 @@ class MappingTestCase(TestCase):
             file=os.path.abspath("samples/point_based.csv")
         )
 
-    def test_mapping_mutation(self):
+    def test_mapping_point_based_mutation(self):
 
         file_id = self.dummy_file.id
 
