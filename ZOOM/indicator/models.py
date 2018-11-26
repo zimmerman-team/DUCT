@@ -67,8 +67,7 @@ class FilterHeadings(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
     # Allow aggrgeation on a column within ZOOM
-    aggregation_allowed = models.BooleanField(
-        default=False, null=True, blank=True)
+    aggregation_allowed = models.BooleanField(default=False)
     indicator = models.ForeignKey(Indicator, on_delete=models.CASCADE)
 
 
