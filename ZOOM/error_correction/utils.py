@@ -1,68 +1,83 @@
-from lib.common import get_file_data, get_dtype_data, save_validation_data, get_dictionaries
+from lib.common import get_file_data, get_dtype_data, save_validation_data, get_geolocation_dictionary
 from lib.tools import update_cell_type, identify_col_dtype, get_prob_list
 from metadata.models import File
 import json
 import numpy as np
 
-def error_correction(request):
-    """Gets data needed for error correction."""
 
-    id = request.data["id"]
-    start_pos = request.data["start_pos"]
-    end_pos = request.data["end_pos"]
+ERROR_CORRECTION_DICT = {
+    'file_id': '',
+    'start_pos': 0, #pagination
+    'end_pos': 10,
+    'type': 'csv',
+    'find_value': '',
+    'filter_column_heading': '',
+    'filter_toggle': False,
+    'replace_value': '',
+    'replace_pressed': False,
+    'error_toggle': False
+}
+
+def error_correction(request):
+    '''Gets data needed for error correction.'''
+
+    id = request.data['file_id']
+    start_pos = request.data['start_pos'] # For pagination
+    end_pos = request.data['end_pos'] # For pagination
     
     ###Future: if type is not csv then error correction being performed on data in data base
-    if request.data["type"] == "csv":
+    if request.data['type'] == 'csv':
         df_data = get_file_data(id)
         df_columns = df_data.columns
         
-        if request.data["filter_toggle"]:      
+        if request.data['filter_toggle']:      
             df_data = find_and_replace(df_data, request)
-        if request.data["error_toggle"]:
+        if request.data['error_toggle']:
             df_data = filter_for_errors(df_data, request)
             
         output_list  = []
         org_data = df_data.copy(deep=True)
-        org_data['line_no'] = org_data.index.values
+        org_data['line_no'] = org_data.index.values #For displaying line numbers
         org_data = org_data.reset_index()
         df_data = df_data.reset_index()
         counter = 0
         total_amount = 0
         start = start_pos
         
-        if len(df_data.columns) > 1:#more columns than just index
+        if len(df_data.columns) > 1: # more columns than just index
             total_amount = len(df_data[df_data.columns[0]])
             for start_pos in range(start, end_pos):
                 if start_pos > len(df_data[df_data.columns[0]]) - 1:
                     break
-                
-                temp_dict={}
-                temp_dict = {"line no.": org_data['line_no'][start_pos]}
+                temp_dict = {'line no.': int(org_data['line_no'][start_pos])}
 
                 for column in df_data.columns:
                     temp_dict[column] = str(df_data[column][start_pos])
-                
+
                 output_list.append(temp_dict)
                 counter = counter + 1
-         
-        context = {"data_table": json.dumps(output_list), "total_amount": total_amount, "columns": df_columns}#added json dumps, front end couldn't read original format
+
+        context = {'data_table': json.dumps(output_list), 'total_amount': total_amount, 'columns': df_columns}#added json dumps, front end couldn't read original format
     else:
-        print("not csv")
+        print('not csv')
     
     return context
 
 
 def find_and_replace(df_data, request):
-    """Searches for a value and replaces if indicated"""
-    id = request.data['id']
-    heading = request.data["filter_value"]
+    '''Searches for a value and replaces if indicated'''
+    id = request.data['file_id']
+    heading = request.data['filter_column_heading'] # Heading of column being where find and replace is being carried out
+    #Might be better to just find it throughout df_data
     
-    if request.data["find_value"] == "nan":
+    if request.data['find_value'] == 'nan':
         filter_applied = df_data[heading].isnull()
     else: 
         temp = df_data[heading]
-        temp = temp.astype("str").str.lower()  
-        filter_applied = (temp == str(request.data['find_value']).lower()) 
+        temp = temp.astype('str').str.lower()  
+        filter_applied = np.array(temp == str(request.data['find_value']).lower())
+        print('Filter_applied ')
+        print(np.array(filter_applied))
         
     if request.data['replace_pressed']:
         df_data[heading][filter_applied] = request.data['replace_value']
@@ -70,10 +85,17 @@ def find_and_replace(df_data, request):
         
         if len(column_values) > 0:
             error_data, dtypes_dict = get_dtype_data(id)
-            dicts, _ = get_dictionaries()
+            dicts = get_geolocation_dictionary()
             temp_prob_list, temp_error_counter = identify_col_dtype(column_values, heading, dicts)
-            error_data[heading][filter_applied] = temp_error_counter
-            dtypes_dict[heading] = get_prob_list(error_data[heading])
+            print('--------')
+            print(heading)
+            print('filter applied')
+            print(filter_applied)
+            print('error_data')
+            print(error_data)
+            print('Error_data[heading] ', dtypes_dict[heading])
+            dtypes_dict[heading][filter_applied] = temp_error_counter
+            error_data[heading] = get_prob_list(dtypes_dict[heading])
             save_validation_data(error_data, id, dtypes_dict)
             update_data(File.objects.get(id=id).file, df_data)
         df_data = df_data[df_data[heading] == request.data['replace_value']]
@@ -85,13 +107,13 @@ def find_and_replace(df_data, request):
 def filter_for_errors(df_data, request):
     filter_column = request.data['error_filter_value']
     error_data, dtypes_dict = get_dtype_data(request.data['id'])
-    errors, line_nos = check_dtypes(error_data, dtypes_dict, [filter_column], request.data["start_pos"], request.data["end_pos"])
+    errors, line_nos = check_dtypes(error_data, dtypes_dict, [filter_column], request.data['start_pos'], request.data['end_pos'])
     return df_data[line_nos[filter_column]]
     
 
 #Need to apply optimisation here, put filter here
 def check_dtypes(error_data, dtypes_dict, column_headings, start_pos=0, end_pos=0):
-    """Check cells against the most popular choice"""
+    '''Check cells against the most popular choice'''
     errors = {}
     line_nos = {}
 
@@ -100,9 +122,9 @@ def check_dtypes(error_data, dtypes_dict, column_headings, start_pos=0, end_pos=
         end_pos = len(error_data[column_headings[0]])
     
     for i in column_headings:#minus one for line no
-        if (not dtypes_dict[i][0][0] == "blank"):
+        if (not dtypes_dict[i][0][0] == 'blank'):
             filter_applied = (error_data[i] != dtypes_dict[i][0][0])
-            indexes = error_data[i][filter_applied]#[x for x in error_data[i] if (x != dtypes_dict[i][0][0] and (not dtypes_dict[i][0][0] == "blank"))]#use map
+            indexes = error_data[i][filter_applied]#[x for x in error_data[i] if (x != dtypes_dict[i][0][0] and (not dtypes_dict[i][0][0] == 'blank'))]#use map
             errors[i] =  indexes
             line_nos[i] = filter_applied
         else:
@@ -112,10 +134,10 @@ def check_dtypes(error_data, dtypes_dict, column_headings, start_pos=0, end_pos=
 
 #should combine with error_correction to optimise?
 def get_errors(request):
-    """Gets data that does not match the most probable data type found for each column."""
+    '''Gets data that does not match the most probable data type found for each column.'''
     
     temp_error_message = {}
-    id = request.data['id']
+    id = request.data['file_id']
     start_pos = request.data['start_pos']
     end_pos = request.data['end_pos']
     df_data = get_file_data(id)
@@ -133,19 +155,19 @@ def get_errors(request):
             errors_selection = errors[i]#[start_pos:end_pos]
 
             for j in errors_selection:#minus one for line no
-                message = ("Found a " + j + " value instead of the most populous value " + dtypes_dict[i][0][0] + ".")
+                message = ('Found a ' + j + ' value instead of the most populous value ' + dtypes_dict[i][0][0] + '.')
                 line_no = str(line_no_selection[counter])
-                temp_error_message[''.join([line_no,"|",i])] = (message)
+                temp_error_message[''.join([line_no,'|',i])] = (message)
                 counter += 1
 
-    context = {"error_messages": temp_error_message}
+    context = {'error_messages': temp_error_message}
     return context
 
 
 def update(request):
-    """Updates cell that user edits."""
-    if request.data['type'] == "csv":
-        id = request.data['id']
+    '''Updates cell that user edits.'''
+    if request.data['type'] == 'csv':
+        id = request.data['file_id']
         df_data = get_file_data(id)
         error_data, dtypes_dict = get_dtype_data(id)
         
@@ -175,10 +197,10 @@ def update(request):
         save_validation_data(error_data, id, dtypes_dict)
         update_data(File.objects.get(id=id).file, df_data)
 
-    return {"success" : 1}
+    return {'success' : 1}
 
 def delete_data(request):
-    """Deletes data based on request"""
+    '''Deletes data based on request'''
     id = request.data['id']
     df_data = get_file_data(id)
     row_keys = list(map(int, request.data['row_keys']))
@@ -188,17 +210,17 @@ def delete_data(request):
     error_data, dtypes_dict = remove_entries(error_data, dtypes_dict, row_keys)
     save_validation_data(error_data, id, dtypes_dict)
     update_data(File.objects.get(id=id).file, df_data)
-    return {"success" : 1}
+    return {'success' : 1}
 
 def remove_entries(error_data, dtypes_dict, row_keys):
-    """Remove rows from error_data and dtypes_dict"""
+    '''Remove rows from error_data and dtypes_dict'''
     for i in error_data:
         error_data[i] = error_data[i].drop(error_data[i].index[row_keys]).reset_index(drop=True)#np.delete(np.array(error_data[i]), row_keys).reset_index()
         dtypes_dict[i] = get_prob_list(error_data[i])
     return error_data, dtypes_dict
 
 def update_data(file_loc, df_data):
-    """Updates data at location file_loc"""
+    '''Updates data at location file_loc'''
     with open(str(file_loc), 'w') as f:
         df_data.to_csv(f, index=False)
       
