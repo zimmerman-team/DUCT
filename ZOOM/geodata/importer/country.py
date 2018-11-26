@@ -2,9 +2,9 @@ import ujson
 from geodata.importer.common import get_json_data
 from django.contrib.gis.geos import fromstr
 
-from geodata.models import Country, CountryAltName
+from geodata.models import Country, Geolocation
 from geodata.models import Region
-
+import json
 
 class CountryImport():
     """
@@ -13,31 +13,46 @@ class CountryImport():
     def __init__(self):
         self.get_json_data = get_json_data
 
-    #make sure update_polygon done first
     def update_alt_name(self):
         admin_countries = self.get_json_data("/../data_backup/alternative_names.json")
-        for k in admin_countries:#.get('features'):
-            country_iso2 = k.get('iso2')#k.get('properties').get('alpha-2')
-            name = k.get('name')#k.get('properties').get('name')
-            c = Country(code=country_iso2)
-            CountryAltName(name=name, country=c).save()
+        for k in admin_countries:
+            country_iso2 = k.get('iso2').lower()
+            name = k.get('name').lower()
+            c, created = Country.objects.get_or_create(name=name, iso2=country_iso2)
+            if created:
+                c.save()
+                Geolocation(content_object=c, tag=name, type='country').save()
 
     def update_polygon(self):
         admin_countries = self.get_json_data("/../data_backup/allcountrycodes.json")
-        #admin_countries = self.get_json_data("/../data_backup/country_data.json")
 
         for k in admin_countries:#.get('features'):
-            country_iso2 = k.get('alpha-2')#k.get('properties').get('alpha-2')
-            name = k.get('name')#k.get('properties').get('name')
-            country_iso3 = k.get('alpha-3')#k.get('alpha-3')
-            #country_iso2 = k.get('properties').get('iso2')
-            #name = k.get('properties').get('name')
-            #country_iso3 = k.get('id')
+            country_iso2 = k.get('alpha-2').lower()
+            name = k.get('name').lower()
+            country_iso3 = k.get('alpha-3').lower()
+
             if not country_iso2:
                 continue
-            Country(code=country_iso2, iso3=country_iso3, name=name).save()
-            #the_country = Country.objects.get(code=country_iso2)
-            #the_country.polygon = ujson.dumps(k.get('geometry'))
+
+            c, created = Country.objects.get_or_create(iso2=country_iso2, iso3=country_iso3, name=name, primary_name=True)
+            if created:
+                c.save()
+                Geolocation(content_object=c, tag=name, type='country', iso2=country_iso2, iso3=country_iso3).save()
+
+        poly_countries = self.get_json_data("/../data_backup/country_data.json").get('features')
+        for k in poly_countries:  # .get('features'):
+            if 'iso2' in k.get('properties'):
+                iso2 = k.get('properties').get('iso2').lower()
+                filtered_set = Country.objects.filter(iso2=iso2, primary_name=True)
+                if len(filtered_set) > 0:
+                    c = filtered_set[0]
+                else:
+                    name = k.get('properties').get('name').lower()
+                    c = Country(name=name, iso2=iso2, primary_name=True)
+                    c.save()
+                    Geolocation(content_object=c, tag=name, type='country', iso2=iso2).save()
+                c.polygons = json.dumps(k.get('geometry'))
+                c.save()
 
     def update_country_center(self):
         country_centers = self.get_json_data("/../data_backup/country_center.json")

@@ -19,9 +19,8 @@ class FileValidTestCase(TestCase):
                         '/api/file/?format=json', 
                         {
                         'file': fp,
-                        'title': 'temp title', 
-                        'description': 'temp description', 
-                        'file_name': 'check_file_valid_test_success.csv',
+                        'description': 'temp description',
+                        'title': 'check_file_valid_test_success.csv',
                         })
 
         self.assertEquals(res_file_upload.status_code, 201, res_file_upload.json())
@@ -34,7 +33,7 @@ class FileValidTestCase(TestCase):
         res_check_file_valid = self.c.post(
             '/api/validate/check_file_valid/?format=json', 
             {
-            'file_id': res_file_upload.json()['id'],
+            'id': res_file_upload.json()['id'],
             },
             format='json'
             )
@@ -49,7 +48,7 @@ class FileValidTestCase(TestCase):
         res_file_validate = self.c.post(
             '/api/validate/?format=json',
             {
-            'file_id': res_file_upload.json()['id'],
+            'id': res_file_upload.json()['id'],
             },
             format='json'
             )

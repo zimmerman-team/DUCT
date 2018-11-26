@@ -8,7 +8,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': (os.path.join(os.path.dirname(__file__), '..', 'templates').replace('\\','/'),),
+        'DIRS': (os.path.join(
+            os.path.dirname(__file__), '..', 'templates').replace('\\','/'),),
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -71,6 +72,7 @@ USE_TZ = False
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
 MEDIA_URL = '/media/'
+DATASETS_URL = 'datasets/'
 
 # Additional locations of static files
 # STATICFILES_DIRS = (
@@ -93,13 +95,25 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     # 'django_otp.middleware.OTPMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'admin_reorder.middleware.ModelAdminReorder',
+]
+
+MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 ROOT_URLCONF = 'ZOOM.urls'
@@ -123,15 +137,17 @@ INSTALLED_APPS = [
     'validate',
     'lib',
     'error_correction',
-    'manual_mapping',
+    'mapping',
     'indicator',
-    'geodata.apps.GeodataConfig',
+    'geodata',
     'task_queue',
-    'djsupervisor',
+    #'djsupervisor',
     'django_extensions',
     'test_without_migrations',
     'admin_reorder',
-    'file_upload',
+    'metadata',
+    'graphene_django',
+    'gql',
 ]
 
 ADMIN_REORDER = (
@@ -147,7 +163,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'api.pagination.CustomPagination',
     'PAGE_SIZE': 10,
     'DEFAULT_FILTER_BACKENDS': (
-        'rest_framework.filters.DjangoFilterBackend',
+        'django_filters.rest_framework.DjangoFilterBackend',
     ),
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',
@@ -183,12 +199,26 @@ GRAPPELLI_ADMIN_TITLE = 'ZOOM admin'
 LOGIN_REDIRECT_URL = '/admin/'
 
 CORS_ORIGIN_ALLOW_ALL = True
-CORS_URLS_REGEX = r'^/api/.*$'
-CORS_ALLOW_METHODS = ('GET','PUT', 'PATCH', 'DELETE')
+# CORS_URLS_REGEX = r'^/graphql/.*$'
+CORS_ALLOW_METHODS = (
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+)
 
 ERROR_LOGS_ENABLED = True
 DEFAULT_LANG = None
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240
+
+# GraphQL setting
+
+GRAPHENE = {
+    'SCHEMA': 'gql.schema.schema',
+    'SCHEMA_OUTPUT': 'data/schema.json'
+}
 
 LOGGING = {
     'version': 1,

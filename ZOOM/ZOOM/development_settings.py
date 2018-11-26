@@ -34,7 +34,7 @@ DATABASES = {
     },
 }
 
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_ROOT = os.path.join(BASE_DIR, "samples")
 STATIC_ROOT = os.path.join(BASE_DIR, 'static_served/')
 
 # Additional locations of static files
@@ -49,6 +49,7 @@ FIXTURE_DIRS = (
 API_CACHE_SECONDS = 0
 
 try:
-    from local_settings import *
-except ImportError:
+    from .local_settings import *
+except ImportError as e:
+    print(e)
     pass

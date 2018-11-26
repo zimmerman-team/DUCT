@@ -2,17 +2,23 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
+from api.views import overview
 import debug_toolbar
 
+from graphene_django.views import GraphQLView
 
 admin.autodiscover()
 
+app_name='main'
+
 urlpatterns = [
-    url(r'^grappelli/', include('grappelli.urls')),
-    url(r'^admin/queue/', include('django_rq.urls')),
-    url(r'^admin/task_queue/', include('task_queue.urls')),
-    url(r'^admin/', include(admin.site.urls)),
-    url(r'^api/', include('api.urls')),
+    url(r'^$', overview, name='api-root'),
+    #url(r'^grappelli/', include('grappelli.urls', namespace='grappelli')),
+    #url(r'^admin/queue/', include('django_rq.urls', namespace='django_rq')),
+    #url(r'^admin/task_queue/', include('task_queue.urls', namespace='task_queue')),
+    #url(r'^admin/', include(admin.site.urls, namespace='admin')),
+    url(r'^api/', include('api.urls', namespace='api')),
+    url(r'^graphql', GraphQLView.as_view(graphiql=True)),
 ]
 
 if settings.DEBUG:
