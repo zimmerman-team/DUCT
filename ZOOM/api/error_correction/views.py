@@ -28,6 +28,7 @@ def ErrorCorrectionView(request):
     elif request.data['error_toggle']:
         try:
             context = get_errors(request.data)
+            request.data['error_data'] = context
         except Exception as e:
             logger.exception("--Error when retrieving errors")
             context['error'] = "Error occured when retrieving errors"

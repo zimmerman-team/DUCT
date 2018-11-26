@@ -52,8 +52,8 @@ def error_correction(data):
         
         if data['filter_toggle']:      
             df_data = find_and_replace(df_data, data)
-        if data['error_toggle']:
-            df_data = filter_for_errors(df_data, data)
+        #if data['error_toggle']:#Filter for errors#
+        #    df_data = filter_for_errors(df_data, data)
             
         output_list  = []
         org_data = df_data.copy(deep=True)
@@ -77,7 +77,7 @@ def error_correction(data):
                 output_list.append(temp_dict)
                 counter = counter + 1
 
-        context = {'data_table': json.dumps(output_list), 'total_amount': total_amount, 'columns': df_columns}#added json dumps, front end couldn't read original format
+        context = {'data_table': json.dumps(output_list), 'total_amount': total_amount, 'columns': df_columns, 'error_data': data['error_data']}#added json dumps, front end couldn't read original format
     else:
         print('not csv')
     
