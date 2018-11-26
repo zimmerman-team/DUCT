@@ -99,3 +99,4 @@ class FileErrorCorrectionTestCase(TestCase):
         self.assertIsNotNone(res_file_error_correction.json()['total_amount'])
         self.assertEquals(json.loads(res_file_error_correction.json()['data_table'])[0]['Element Code'], '41')
 
+        delete
