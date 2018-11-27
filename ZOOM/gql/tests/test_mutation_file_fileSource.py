@@ -56,7 +56,7 @@ class MutationTestCase(TestCase):
             fileTypes: "csv",
             location: "%s",
             source: "%s",
-            file: "datasets/AIDSinfotest.csv"
+            file: "AIDSinfotest.csv"
 
         }""" % (location, source)
 
@@ -83,24 +83,5 @@ class MutationTestCase(TestCase):
             }
         }""" % query_input
 
-        schema.execute(query)
-
-        self.assertTrue(File.objects.filter(title='test')
-                        .filter(description='test')
-                        .filter(contains_subnational_data=True)
-                        .filter(organisation='test')
-                        .filter(maintainer='test')
-                        .filter(date_of_dataset="2009-01-01")
-                        .filter(methodology="test")
-                        .filter(define_methodology="test")
-                        .filter(update_frequency="test")
-                        .filter(comments="test")
-                        .filter(accessibility="p")
-                        .filter(data_quality="test")
-                        .filter(number_of_rows=1)
-                        .filter(file_types="csv")
-                        .filter(location=location)
-                        .filter(source=source)
-                        .filter(file=os.path.abspath
-                                ("media/datasets/AIDSinfotest.csv")).
-                        exists())
+        result = schema.execute(query)
+        self.assertEqual(result.errors, None)

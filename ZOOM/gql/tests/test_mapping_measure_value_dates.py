@@ -1,24 +1,29 @@
 from gql.schema import schema
 from django.test import TestCase
 from gql.tests import factory
+from geodata.importer.country import CountryImport
 import os
 import json
 
 
-class MappingPointBasedTestCase(TestCase):
+class MappingTestCase(TestCase):
 
     def setUp(self):
+        ci = CountryImport()
+        ci.update_polygon()
+        ci.update_alt_name()
         self.dummy_file_source = factory.FileSourceFactory(
-            name='dummy_file_source'
+            name='hello'
         )
         self.dummy_geolocation = factory.GeolocationFactory(
-            tag='Albania',
-            iso2='al',
-            iso3='alb',
+            tag='Austrlia',
+            iso2='au',
+            iso3='aus',
             object_id=4,
             content_type_id=15,
             type='country'
         )
+
         self.dummy_file = factory.FileFactory(
             title="test",
             description="test",
@@ -36,31 +41,31 @@ class MappingPointBasedTestCase(TestCase):
             file_types="csv",
             location=self.dummy_geolocation,
             source=self.dummy_file_source,
-            file=os.path.abspath("samples/point_based.csv")
+            file=os.path.abspath(
+                'samples/two_mesure_values_num_date.csv')
         )
 
-    def test_mapping_point_based_mutation(self):
+    def test_mapping_mutation(self):
 
         file_id = self.dummy_file.id
 
         EXTRA_INFORMATION = {
             'empty_entries': {
-                'empty_indicator': 'Test pointbased',
+                'empty_indicator': 'Indicator value',
                 'empty_geolocation': {
                     'value': '',
                     'type': ''},
-                'empty_filter': 'Default',
-                'empty_value_format': {
-                    'value format': 'Numeric'},
+                'empty_filter': '',
+                'empty_value_format': {"2018": "Number", "2017": "Rate"},
                 'empty_date': '2016'},
             'multi_mapped': {
-                'column_heading': {},
-                'column_values': {},
+                'column_heading': {'2018': 'date', '2017': 'date'},
+                'column_values': {'2018': 'value', '2017': 'value'},
             },
             'point_based_info': {
                 'coord': {
-                    'lat': 'Lat location 1',
-                    'lon': 'Long location 1'},
+                    'lat': '',
+                    'lon': ''},
                 'subnational': '',
                 'country': '',
                 'type': '',
@@ -70,16 +75,23 @@ class MappingPointBasedTestCase(TestCase):
             'metadata_id': file_id,
             'mapping_dict': {
                 'indicator': [],
-                'filters': [],
-                'geolocation': ["Lat location 1", "Long location 1"],
-                'date': [],
+                'filters': [
+                    'Source Type',
+                    'Source'],
+                'geolocation': ["Country or Area"],
+                'date': [
+                    "2018",
+                    "2017"],
                 'value_format': [],
-                'value': ["new infections"],
+                'value': [
+                    "2018",
+                    "2017"],
                 'comment': [],
             },
-            "filter_headings": {"filters": "filters"},
-            'extra_information': EXTRA_INFORMATION
-        }
+            "filter_headings": {
+                "Source Type": "Source",
+                "Source": "Abbrv source"},
+            'extra_information': EXTRA_INFORMATION}
 
         input_json_str = json.dumps(input_json)
         query_input = {"input": {"data": input_json_str}}

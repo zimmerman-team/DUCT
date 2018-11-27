@@ -1,7 +1,6 @@
 from django.test import TestCase
 from django.test import RequestFactory, Client
 from rest_framework.test import APIClient
-from geodata.importer.region import RegionImport
 from geodata.importer.country import CountryImport
 from geodata.importer.subnational import SubnationalImport
 from indicator.models import MAPPING_DICT

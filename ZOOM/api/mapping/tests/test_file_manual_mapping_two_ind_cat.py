@@ -86,7 +86,7 @@ class FileManualMappingTestCase(TestCase):
         MAPPING_DICT['mapping_dict']['filters'] = ['Sex', 'Seen Transformers?', 'Seen Bambi?']
         MAPPING_DICT['filter_headings'] = {'Sex': 'Sex', 'Seen Transformers?': 'Liked Transformers?', 'Seen Bambi?': 'Liked Bambi?'}
         MAPPING_DICT['extra_information']['empty_entries']['empty_indicator'] = 'Indicator value'
-        MAPPING_DICT['extra_information']['empty_entries']['empty_geolocation'] = {'value':'WW', 'type':'iso2' }
+        MAPPING_DICT['extra_information']['empty_entries']['empty_geolocation'] = {'value':'WW', 'type':'iso2'}
         MAPPING_DICT['extra_information']['empty_entries']['empty_value_format'] = {'test': 'Numeric'}
 
         '''

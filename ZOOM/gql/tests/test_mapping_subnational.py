@@ -1,13 +1,24 @@
 from gql.schema import schema
 from django.test import TestCase
 from gql.tests import factory
+from geodata.importer.subnational import SubnationalImport
+from geodata.importer.country import CountryImport
 import os
 import json
 
 
-class MappingPointBasedTestCase(TestCase):
+class MappingTestCase(TestCase):
 
     def setUp(self):
+        # initialize  subnational/Country
+        ci = CountryImport()
+        ci.update_polygon()
+        ci.update_alt_name()
+
+        si = SubnationalImport()
+        si.update_polygon()
+
+        # creating dummy objects for testing
         self.dummy_file_source = factory.FileSourceFactory(
             name='dummy_file_source'
         )
@@ -20,7 +31,7 @@ class MappingPointBasedTestCase(TestCase):
             type='country'
         )
         self.dummy_file = factory.FileFactory(
-            title="test",
+            title="Region",
             description="test",
             contains_subnational_data=True,
             organisation="test",
@@ -36,16 +47,16 @@ class MappingPointBasedTestCase(TestCase):
             file_types="csv",
             location=self.dummy_geolocation,
             source=self.dummy_file_source,
-            file=os.path.abspath("samples/point_based.csv")
+            file=os.path.abspath("samples/subnational.csv")
         )
 
-    def test_mapping_point_based_mutation(self):
+    def test_mapping_mutation(self):
 
         file_id = self.dummy_file.id
 
         EXTRA_INFORMATION = {
             'empty_entries': {
-                'empty_indicator': 'Test pointbased',
+                'empty_indicator': 'Test Region',
                 'empty_geolocation': {
                     'value': '',
                     'type': ''},
@@ -59,8 +70,8 @@ class MappingPointBasedTestCase(TestCase):
             },
             'point_based_info': {
                 'coord': {
-                    'lat': 'Lat location 1',
-                    'lon': 'Long location 1'},
+                    'lat': '',
+                    'lon': ''},
                 'subnational': '',
                 'country': '',
                 'type': '',
@@ -70,8 +81,7 @@ class MappingPointBasedTestCase(TestCase):
             'metadata_id': file_id,
             'mapping_dict': {
                 'indicator': [],
-                'filters': [],
-                'geolocation': ["Lat location 1", "Long location 1"],
+                'geolocation': ["Subnational"],
                 'date': [],
                 'value_format': [],
                 'value': ["new infections"],
