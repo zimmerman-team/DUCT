@@ -2,7 +2,7 @@ from gql.schema import schema
 from metadata.models import FileSource, File
 import json
 import os
-import pdb
+
 
 class Parsing():
 
