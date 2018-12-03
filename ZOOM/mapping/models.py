@@ -3,4 +3,4 @@ from django.contrib.postgres.fields import JSONField
 
 
 class Mapping(models.Model):
-    data = JSONField(unique=True)
+    data = JSONField()
