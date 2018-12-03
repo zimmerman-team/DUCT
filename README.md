@@ -28,8 +28,7 @@ To-do
 * Authors:          <a href="https://www.zimmermanzimmerman.nl/" target="_blank">Zimmerman & Zimmerman</a>
 * License:          <a href="https://github.com/zimmerman-zimmerman/DUCT/blob/master/LICENSE.MD" target="_blank">github.com/zimmerman-zimmerman/DUCT/</a>
 * Github Repo:      <a href="https://github.com/zimmerman-zimmerman/OIPA/" target="_blank">github.com/zimmerman-zimmerman/DUCT/</a>
-* Bug Tracker:     
-https://github.com/zimmerman-zimmerman/DUCT/blob/master/LICENSE.MD<a href="https://github.com/zimmerman-zimmerman/OIPA/issues" target="_blank">github.com/zimmerman-zimmerman/DUCT/issues</a>
+* Bug Tracker:     <a href="https://github.com/zimmerman-zimmerman/OIPA/issues" target="_blank">github.com/zimmerman-zimmerman/DUCT/issues</a>
 
 
 ## Can I contribute?
@@ -41,8 +40,6 @@ Yes please! We are mainly looking for coders to help on the project. If you are 
 -------
 
 To-do
-
-
 
 
 
