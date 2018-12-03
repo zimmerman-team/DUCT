@@ -3,12 +3,14 @@ from graphene import relay
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from django_filters import FilterSet, NumberFilter, CharFilter
+from django.core.serializers import serialize
 
 from geodata.models import Geolocation, Country
 
 
 class CountryNode(DjangoObjectType):
     entry_id = graphene.String()
+    polygons = graphene.String()
 
     class Meta:
         model = Country
@@ -19,6 +21,9 @@ class CountryNode(DjangoObjectType):
 
     def resolve_entry_id(self, context, **kwargs):
         return self.id
+
+    def resolve_polygons(self, context, **kwargs):
+        return self.polygons
 
 
 class CountryFilter(FilterSet):
