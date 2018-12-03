@@ -17,7 +17,7 @@ croniter==0.3.25
 dealer==2.0.5
 -e git+https://github.com/OpenDataServices/defusedexpat@362a55a5f41ec2044e90ac54dc2fc52d5f979da3#egg=defusedexpat
 defusedxml==0.5.0
-Django==1.11.15
+Django==2.1.3
 django-bootstrap3==9.1.0
 django-cors-headers==2.4.0
 django-debug-toolbar==1.9.1
@@ -43,6 +43,7 @@ flake8==3.5.0
 future==0.16.0
 graphene==2.1.3
 graphene-django==2.2.0
+graphene-file-upload==1.2.2
 graphql-core==2.1
 graphql-relay==0.4.5
 html5lib==1.0.1
@@ -90,7 +91,7 @@ pytz==2018.3
 raven==6.6.0
 -e git+https://github.com/rtfd/recommonmark.git@3238b029b6e19b9cbceb9b85d81304f86b12c012#egg=recommonmark
 redis==2.10.6
-requests==2.18.4
+requests==2.20.1
 rfc3987==1.3.7
 rfc6266==0.0.4
 rq==0.12.0
