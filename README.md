@@ -1,8 +1,6 @@
 ## DUCT: Data Universal Conversion Tool 
 
 [![License: AGPLv3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://github.com/zimmerman-zimmerman/DUCT/blob/master/LICENSE.MD)
-[![GitHub issues](https://img.shields.io/bitbucket/issues-raw/atlassian/python-bitbucket.svg)](https://github.com/zimmerman-zimmerman/DUCT/issue)
-
 
 
 DUCT is Django application which allows user to convert CSV files to a harmonised datastore modelled on the SDMX standard with a standardised output. It provides two different API' to interface the data either to convert (PUT) and extract data in your bespoke IU (GET). DUCT makes use of The Django REST API as a base API and on top of this, it provides GraphQL to connect to your datastore for data modelling, data conversion, data integration and data interfacing.
