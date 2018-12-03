@@ -45,7 +45,7 @@ To-do
 
 * Authors:          <a href="https://www.zimmermanzimmerman.nl/" target="_blank">Zimmerman & Zimmerman</a>
 * License:          AGPLv3
-* Github Repo:      <a href="https://github.com/zimmerman-zimmerman/OIPA/" target="_blank">github.com/zimmerman-zimmerman/OIDUCTPA/</a>
+* Github Repo:      <a href="https://github.com/zimmerman-zimmerman/OIPA/" target="_blank">github.com/zimmerman-zimmerman/DUCT/</a>
 * Bug Tracker:      <a href="https://github.com/zimmerman-zimmerman/OIPA/issues" target="_blank">github.com/zimmerman-zimmerman/DUCT/issues</a>
 
 
