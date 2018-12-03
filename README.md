@@ -178,3 +178,12 @@ python manage.py test api.mapping.tests.test_file_manual_mapping
 ```
 
 ### GraphQL
+
+The GraphQL enpoints can also be tested by:
+```
+python manage.py test gql.<Test Choice>
+```
+Below is an example of a test that can be run
+```
+python manage.py test gql.test.test_mapping
+```
