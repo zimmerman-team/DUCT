@@ -38,8 +38,8 @@ EXTRA_INFORMATION = {
 
 MAPPING_DICT = {
     'metadata_id': '',
-    'mapping_dict': MAPPING_HEADINGS,
-    FILTER_HEADINGS: {},
+    'mapping_dict': MAPPING_HEADINGS, #Must always have
+    FILTER_HEADINGS: {},              #Must always have
     'extra_information': EXTRA_INFORMATION
 }
 #ADDITIONAL_HEADINGS = {'metadata'}
@@ -67,8 +67,7 @@ class FilterHeadings(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
     # Allow aggrgeation on a column within ZOOM
-    aggregation_allowed = models.BooleanField(
-        default=False, null=True, blank=True)
+    aggregation_allowed = models.BooleanField(default=False)
     indicator = models.ForeignKey(Indicator, on_delete=models.CASCADE)
 
 

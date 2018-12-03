@@ -34,7 +34,7 @@ DATABASES = {
     },
 }
 
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_ROOT = os.path.join(BASE_DIR, "samples")
 STATIC_ROOT = os.path.join(BASE_DIR, 'static_served/')
 
 # Additional locations of static files

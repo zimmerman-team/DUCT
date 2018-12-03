@@ -10,5 +10,5 @@ urlpatterns = [
     url(r'^indicators/', include('api.indicator.urls', namespace='indicators')),
     url(r'^validate/', include('api.validate.urls', namespace='validate')),
     url(r'^mapping/', include('api.mapping.urls', namespace='=mapping')),
-    #url(r'^error-correction/', include('api.error_correction.urls', namespace='error-correction'))
+    url(r'^error-correction/', include('api.error_correction.urls', namespace='error-correction'))
 ]

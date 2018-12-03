@@ -5,6 +5,7 @@ from rest_framework.test import APIClient
 from geodata.importer.country import CountryImport
 from indicator.models import MAPPING_DICT
 
+
 class FileManualMappingTestCase(TestCase):
     request_dummy = RequestFactory().get('/')
     c = APIClient()
@@ -71,7 +72,8 @@ class FileManualMappingTestCase(TestCase):
 
         # print res_file_validate.json()['found_list']
 
-        self.assertEquals(res_file_validate.status_code, 200, res_file_validate.json())
+        self.assertEquals(res_file_validate.status_code,
+                          200, res_file_validate.json())
         self.assertIsNotNone(res_file_validate.json()['found_list'])
         self.assertIsNotNone(res_file_validate.json()['missing_list'])
         self.assertIsNotNone(res_file_validate.json()['summary'])
@@ -82,14 +84,23 @@ class FileManualMappingTestCase(TestCase):
         MAPPING_DICT['metadata_id'] = res.json()['id']
         MAPPING_DICT['mapping_dict']['value'] = ['Count', 'Rate']
         MAPPING_DICT['mapping_dict']['date'] = ['Year']
-        MAPPING_DICT['mapping_dict']['filters'] = ['Count', 'Rate', 'Source Type']
+        MAPPING_DICT['mapping_dict']['filters'] = [
+            'Count', 'Rate', 'Source Type']
         MAPPING_DICT['mapping_dict']['geolocation'] = ['Country or Area']
-        MAPPING_DICT['filter_headings'] = {'Count': 'Count', 'Rate?': 'Rate', 'Source Type': 'Owner', 'filters':'Type'}
-        MAPPING_DICT['extra_information']['multi_mapped']['column_heading'] = {'Count': 'filters', 'Rate': 'filters'}
-        MAPPING_DICT['extra_information']['multi_mapped']['column_values'] =  {'Count': 'value', 'Rate': 'value'} # Columns headings that are associated with datamodel, dictionary forma
+        MAPPING_DICT['filter_headings'] = {
+            'Count': 'Count',
+            'Rate?': 'Rate',
+            'Source Type': 'Owner',
+            'filters': 'Type'}
+        MAPPING_DICT['extra_information']['multi_mapped']['column_heading'] = {
+            'Count': 'filters', 'Rate': 'filters'}
+        MAPPING_DICT['extra_information']['multi_mapped']['column_values'] = {
+            'Count': 'value',
+            'Rate': 'value'}  # Columns headings that are associated with datamodel, dictionary forma
         # t
         MAPPING_DICT['extra_information']['empty_entries']['empty_indicator'] = 'Indicator value'
-        MAPPING_DICT['extra_information']['empty_entries']['empty_value_format'] =  {"Count": "Number", "Rate": "Percentage"}
+        MAPPING_DICT['extra_information']['empty_entries']['empty_value_format'] = {
+            "Count": "Number", "Rate": "Percentage"}
 
         '''
         Test 3: File Manual Mapping
@@ -102,5 +113,6 @@ class FileManualMappingTestCase(TestCase):
 
         # print res_file_manual_mapping
 
-        self.assertEquals(res_file_manual_mapping.status_code, 200, res_file_manual_mapping.json())
+        self.assertEquals(res_file_manual_mapping.status_code,
+                          200, res_file_manual_mapping.json())
         self.assertEquals(res_file_manual_mapping.json()['success'], 1)

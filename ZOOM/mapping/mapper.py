@@ -44,7 +44,7 @@ def begin_mapping(data):
         error_data, dtypes_dict = get_dtype_data(id)
 
         #### Check if any new Geolocation information to save ####
-        if not point_base_dict['coord']['lat'] == '':
+        if 'coord' in point_base_dict and not point_base_dict['coord']['lat'] == '':
             ##shoud save here and get later
             lat = point_base_dict['coord']['lat']
             lon = point_base_dict['coord']['lon']
@@ -110,7 +110,6 @@ def begin_mapping(data):
             notnull() & df_data[final_file_headings['geolocation']].notnull())
 
         df_data = df_data[filter_applied].reset_index()# Remove empty values
-
         df_data[final_file_headings['date']] = pd.to_numeric(# Convert all dates to numbers
             df_data[final_file_headings['date']]).astype(int)### Todo check is this needed, normalise should do this
 
@@ -132,7 +131,6 @@ def begin_mapping(data):
             filters_dict = get_save_unique_datapoints(
                 df_data, final_file_headings, metadata.source, instance, filter_headings_dict, point_based)
 
-        print('Save unique data points')
         ### Save Datapoints ###
         dicts = [
             ind_dict,
@@ -140,6 +138,7 @@ def begin_mapping(data):
             geolocation_dict,
             value_format_dict,
             filters_dict]
+
         save_datapoints(df_data, final_file_headings, filter_headings_dict, dicts)
 
         context = {'success': 1}
@@ -148,15 +147,20 @@ def begin_mapping(data):
         context = {
             'error_messages': 'No data in dictionary sent',
             'success': 0}
-        return context
+        raise context
 
 
 def split_mapping_data(data):
     data_model_dict = data['mapping_dict']
     filter_headings_dict = data[FILTER_HEADINGS]
-    empty_entries_dict = data['extra_information']['empty_entries']
-    multi_entry_dict = data['extra_information']['multi_mapped']
-    point_base_dict = data['extra_information']['point_based_info']
+    if 'extra_information' in data:
+        empty_entries_dict = data['extra_information']['empty_entries'] if 'empty_entries' in data['extra_information'] else {}
+        multi_entry_dict = data['extra_information']['multi_mapped'] if 'multi_mapped' in data['extra_information'] else {}
+        point_base_dict = data['extra_information']['point_based_info'] if 'point_based_info' in data['extra_information'] else {}
+    else:
+        empty_entries_dict = {}
+        multi_entry_dict = {}
+        point_base_dict = {}
     return data_model_dict, filter_headings_dict, empty_entries_dict, multi_entry_dict, point_base_dict
 
 
@@ -177,23 +181,23 @@ def apply_missing_values(df_data, mappings, dtypes_dict, empty_entries_dict):
 
     length = (len(df_data[df_data.columns[0]]) -1)
 
-    if not empty_entries_dict['empty_indicator'] == '':
+    if 'empty_indicator' in empty_entries_dict and not empty_entries_dict['empty_indicator'] == '':
         mappings['indicator'] = ['indicator']
         df_data['indicator'] = empty_entries_dict['empty_indicator']
         dtypes_dict[mappings['indicator'][0]] = ['text'] * length
         # add indicator value as column
 
-    if not empty_entries_dict['empty_geolocation']['value'] == '':
+    if 'empty_geolocation' in empty_entries_dict and not empty_entries_dict['empty_geolocation']['value'] == '':
         mappings['geolocation'] = ['geolocation']
         df_data['geolocation'] = empty_entries_dict['empty_geolocation']['value']
         dtypes_dict[mappings['geolocation'][0]] = [empty_entries_dict['empty_geolocation']['type']] * length
 
-    if not empty_entries_dict['empty_filter'] == '':
+    if 'empty_filter' in empty_entries_dict and not empty_entries_dict['empty_filter'] == '':
         mappings['filters'] = ['filters']
         df_data['filters'] = empty_entries_dict['empty_filter']
         dtypes_dict[mappings['filters'][0]] = ['text'] * length
 
-    if not empty_entries_dict['empty_date'] == '':
+    if 'empty_date' in empty_entries_dict and not empty_entries_dict['empty_date'] == '':
         mappings['date'] = ['date']
         df_data['date'] = empty_entries_dict['empty_date']
         dtypes_dict[mappings['date'][0]] = ['date'] * length
@@ -481,20 +485,12 @@ def save_datapoints(df_data, final_file_headings, filter_headings_dict,dicts):
             print('Previous batch ', previous_batch)
             print('Next batch ', next_batch)
             previous_batch = next_batch
-        else:
-            print('Nothing to save, error is occuring!!')  # shouldn't happen
-            print('I ', i)
-            print('Previous batch ', previous_batch)
-            print('Next batch ', next_batch)
-            i = df_data['indicator'].size + 1
 
     metadata.file_status = 4
     metadata.save()
 
 
 '''Saves a dataframe temporarily'''
-
-
 def temp_save_file(df_data):
     path = os.path.join(
         os.path.dirname(
@@ -507,8 +503,6 @@ def temp_save_file(df_data):
 
 
 '''Remaps all files that have been mapped'''
-
-
 def remap_all_files():
     #from django.http import QueryDict
     #dict = {'a': 'one', 'b': 'two', }
