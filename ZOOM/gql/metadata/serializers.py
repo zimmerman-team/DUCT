@@ -4,7 +4,7 @@ import pandas as pd
 
 from metadata.models import File, FileSource
 from indicator.models import MAPPING_DICT
-
+from graphene_file_upload.scalars import Upload
 
 class FileSourceSerializer(serializers.ModelSerializer):
     entry_id = serializers.SerializerMethodField()
