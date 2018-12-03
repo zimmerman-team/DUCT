@@ -38,8 +38,8 @@ EXTRA_INFORMATION = {
 
 MAPPING_DICT = {
     'metadata_id': '',
-    'mapping_dict': MAPPING_HEADINGS,
-    FILTER_HEADINGS: {},
+    'mapping_dict': MAPPING_HEADINGS, #Must always have
+    FILTER_HEADINGS: {},              #Must always have
     'extra_information': EXTRA_INFORMATION
 }
 #ADDITIONAL_HEADINGS = {'metadata'}

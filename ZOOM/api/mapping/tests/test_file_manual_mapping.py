@@ -90,9 +90,10 @@ class FileManualMappingTestCase(TestCase):
         MAPPING_DICT['mapping_dict']['date'] = ['Time Period']
         MAPPING_DICT['mapping_dict']['comment'] = ['Source']
         MAPPING_DICT['mapping_dict']['filters'] = ['Subgroup']
+        MAPPING_DICT.pop('extra_information', None)
 
         MAPPING_DICT['filter_headings'] = {'Subgroup': 'Subgroup'}
-        # print manual_mapping_data
+        print(MAPPING_DICT)
 
         # **manual_mapping_data,
         res_file_manual_mapping = self.c.post(
