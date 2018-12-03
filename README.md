@@ -20,7 +20,7 @@ DUCT has been build as part of Zoom, a Data platform for data informed strategy 
 
 ## Quick start
 -------
-
+```
 git clone https://github.com/zimmerman-zimmerman/DUCT.git;  
 cd DUCT
 sudo sh bin/setup/install_dependencies.sh
@@ -31,15 +31,15 @@ cd ZOOM/scripts
 ./setup_project.sh
 cd ..
 python manage.py runserver
-
+```
 or
 
 COMING SOON: If you have docker installed:
-
+```
 cd DUCT
 make
 docker-compose up
-
+```
 ## Documentation
 --------
 
@@ -113,10 +113,10 @@ Eventually, you could add your modifications to the Django configuration in a ne
 |/api/mapping/get_data|api.mapping.views.get_data|
 |/api/mapping/status|api.mapping.views.MappingJobResult|
 |/api/metadata/|api.metadata.views.FileListView|
-|/api/metadata/<pk>/|api.metadata.views.FileDetailView|
+|/api/metadata/pk/|api.metadata.views.FileDetailView|
 |/api/metadata/sources/|api.metadata.views.FileSourceListView|
+|/api/metadata/sources/pk/|api.metadata.views.FileSourceDetailView|
 |/api/metadata/upload/|api.metadata.views.FileUploadView|
-|/api/metadata/sources/<pk>/|api.metadata.views.FileSourceDetailView|
 |/api/validate/|api.validate.views.Validate|
 |/api/validate/check_file_valid/|api.validate.views.check_file_valid|
 |/api/error-correction/|api.error_correction.views.ErrorCorrectionView|
@@ -166,7 +166,7 @@ Yes please! We are mainly looking for coders to help on the project. If you are 
 ## Running the tests
 -------
 
-###Django Rest API
+### Django Rest API
 
 The rest API endpoints can be tested by:
 ```
@@ -177,4 +177,4 @@ Below is an example of a test that can be run
 python manage.py test api.mapping.tests.test_file_manual_mapping
 ```
 
-###GraphQL
+### GraphQL
