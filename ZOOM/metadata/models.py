@@ -141,14 +141,10 @@ class File(models.Model):
     datatypes_overview_file_location = models.CharField(
         max_length=500)  # location
     error_file_location = models.CharField(max_length=500)  # location
-    file = models.FileField(upload_to=upload_to, max_length=500)
-
-    # Do you think we need the file heading list for frontend side?
-    # So user can map it manually.
+    file = models.FileField(upload_to=upload_to, max_length=500, null=True)
     file_heading_list = JSONField(null=True)
 
     def filename(self):
-        print('check')
         return os.path.basename(self.file.name)
 
     def update_filename(self, updated_name):
@@ -156,7 +152,6 @@ class File(models.Model):
         self.save()
 
     def get_file_path(self):
-        print('check56')
         return os.path.join(
             settings.MEDIA_ROOT,
             settings.DATASETS_URL,
