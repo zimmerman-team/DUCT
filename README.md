@@ -1,8 +1,5 @@
 ## DUCT: Data Universal Conversion Tool 
 
---------Badges:
-
-
 [![License: AGPLv3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://github.com/zimmerman-zimmerman/DUCT/blob/master/LICENSE.MD)
 [![GitHub issues](https://img.shields.io/github/issues-raw/badges/shields.svg)](https://github.com/zimmerman-zimmerman/DUCT/issue)
 
