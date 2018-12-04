@@ -1,4 +1,4 @@
-FROM python:2.7
+FROM python:3.5
 LABEL type = zoom-csv(dev)
 WORKDIR /src
 
@@ -19,9 +19,9 @@ RUN apt-get install -y libxml2-dev libxslt1-dev zlib1g-dev
 #Need to check if all these are nessecary
 RUN apt-get install -y sqlite3 # for tests
 RUN apt-get install -y libsqlite3-dev # for tests
-#RUN apt-get install postgres-10
+RUN apt-get install -y postgresql
 RUN apt-get install -y postgresql-client
-RUN apt-get update
+#RUN apt-get update
 RUN apt-get install -y postgis
 
 RUN apt-get install libpq-dev
@@ -40,6 +40,6 @@ ADD . /src/
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-RUN chmod 777 /src/ZOOM/logs/*.log*
+#RUN chmod 777 /src/ZOOM/logs/*.log*
 
 CMD /src/bin/docker-cmd.sh

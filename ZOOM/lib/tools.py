@@ -255,6 +255,7 @@ def correct_data(df_data, correction_data, error_data, index_order, point_based=
     
     value = {}
     dicts = get_geolocation_dictionary()
+    clean_lambda = lambda x: x.strip().lower()
 
     for key in correction_data:
         not_null_filter = df_data[key].notnull()
@@ -279,7 +280,7 @@ def correct_data(df_data, correction_data, error_data, index_order, point_based=
         #Applying filter to entire column, example indicator category might be  have numbers 
         elif correction_data[key][1] =='text':
             filter_applied = not_null_filter & (~numeric_filter)
-            #df_data[key] = df_data[key].apply(f)
+            df_data[key] = df_data[key].apply(clean_lambda)
         else:#numeric
             if correction_data[key][0] =='text':
                 if key in index_order['value']:
