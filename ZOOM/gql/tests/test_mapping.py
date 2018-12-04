@@ -2,6 +2,7 @@ from gql.schema import schema
 from django.test import TestCase
 from gql.tests import factory
 from mapping.models import Mapping
+from geodata.importer.country import CountryImport
 import os
 import json
 
@@ -9,6 +10,10 @@ import json
 class MappingTestCase(TestCase):
 
     def setUp(self):
+        ci = CountryImport()
+        ci.update_polygon()
+        ci.update_alt_name()
+
         self.dummy_file_source = factory.FileSourceFactory(
             name='dummy_file_source'
         )
