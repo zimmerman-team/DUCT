@@ -2,7 +2,6 @@ from django.contrib.gis.db import models as gis_models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.contrib.gis.geos import GEOSGeometry
 
 GEOTYPE_HEADINGS = [
     'country',
