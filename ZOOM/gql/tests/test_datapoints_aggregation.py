@@ -113,6 +113,20 @@ class MappingTestCase(TestCase):
         result = schema.execute(query)
         self.assertEqual(result.errors[0].message, "'aggregation'")
 
+    def test_datapoints_aggregation_parm_pass(self):
+
+        query = """{
+                datapointsAggregation(groupBy: ["indicatorName"],orderBy:[
+                "indicatorName"], aggregation:["Sum(value)"]) {
+                    indicatorName
+                    value
+                    }
+                }
+                """
+
+        result = schema.execute(query)
+        self.assertEqual(result.errors, None)
+
     def test_datapoints_aggregation_Avg_Sum_Min_Max_Count(self):
 
         query = """{
