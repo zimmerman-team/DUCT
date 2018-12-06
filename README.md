@@ -5,7 +5,9 @@
 
 DUCT is Django application which allows user to convert CSV files to a harmonised datastore modelled on the SDMX standard with a standardised output. It provides two different API' to interface the data either to convert (PUT) and extract data in your bespoke IU (GET). DUCT makes use of The Django REST API as a base API and on top of this, it provides GraphQL to connect to your datastore for data modelling, data conversion, data integration and data interfacing.
 
-DUCT has been build as part of Zoom, a Data platform for data informed strategy in combating the aids epidemic in cooperation with Aidsfonds that works towards ending AIDS in a world where all people affected by HIV/AIDS have access to prevention, treatment, care and support and HumanityX who are supporting organisations in the peace, justice and humanitarian sectors to adopt digital innovations in order to increase their impact on society.
+DUCT has been build as part of Zoom, a Data platform for data informed 
+strategy in combating the AIDS epidemic in cooperation with Aidsfonds that 
+works towards ending AIDS in a world where all people affected by HIV/AIDS have access to prevention, treatment, care and support and HumanityX who are supporting organisations in the peace, justice and humanitarian sectors to adopt digital innovations in order to increase their impact on society.
 
 
 ## Requirements
@@ -185,5 +187,5 @@ python manage.py test gql.<Test Choice>
 ```
 Below is an example of a test that can be run
 ```
-python manage.py test gql.test.test_mapping
+python manage.py test gql.tests.test_mapping
 ```
