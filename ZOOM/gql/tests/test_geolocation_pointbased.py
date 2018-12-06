@@ -2,8 +2,6 @@ from gql.schema import schema
 from django.test import TestCase
 from gql.tests import factory
 from geodata.models import Geolocation, PointBased
-from geodata.importer.country import CountryImport
-from geodata.importer.subnational import SubnationalImport
 import os
 import json
 
