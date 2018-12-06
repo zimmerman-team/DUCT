@@ -11,13 +11,6 @@ import json
 class GeolocationPointBasedTestCase(TestCase):
 
     def setUp(self):
-        ci = CountryImport()
-        ci.update_polygon()
-        ci.update_alt_name()
-
-        si = SubnationalImport()
-        si.update_polygon()
-
         self.dummy_file_source = factory.FileSourceFactory(
             name='dummy_file_source'
         )
