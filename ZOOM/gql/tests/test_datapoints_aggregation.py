@@ -8,7 +8,7 @@ import os
 import json
 
 
-class MappingTestCase(TestCase):
+class DatapointsAggregationTestCase(TestCase):
 
     def setUp(self):
         ci = CountryImport()
