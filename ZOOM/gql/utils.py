@@ -46,7 +46,7 @@ class AggregationNode(graphene.ObjectType):
 
     def get_filters(self, context, **kwargs):
         filters = {}
-        for field, filter_field in self.FIELDS_FILTER_MAPPING.items():
+        for field,filter_field in self.FIELDS_FILTER_MAPPING.items():
             value = kwargs.get(field)
             if value:
                 filters[filter_field] = value
