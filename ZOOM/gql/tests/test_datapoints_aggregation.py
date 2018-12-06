@@ -125,7 +125,7 @@ class MappingTestCase(TestCase):
                 """
 
         result = schema.execute(query)
-        self.assertEqual(result.errors, None)
+        self.assertIsNone(result.errors)
 
     def test_datapoints_aggregation_Avg_Sum_Min_Max_Count(self):
 
@@ -139,6 +139,7 @@ class MappingTestCase(TestCase):
         }"""
 
         result = schema.execute(query)
+        self.assertIsNone(result.errors)
         val = Datapoints.objects.filter(indicator__name='People living with '
                                         'HIV').aggregate(Avg('value'))
         self.assertEqual(result.data['datapointsAggregation'][0]['value'],
@@ -156,6 +157,7 @@ class MappingTestCase(TestCase):
                 }"""
 
         result = schema.execute(query)
+        self.assertIsNone(result.errors)
         val = Datapoints.objects.filter(indicator__name='People living with '
                                                         'HIV').aggregate(
             Sum('value'))
@@ -174,6 +176,7 @@ class MappingTestCase(TestCase):
                 }"""
 
         result = schema.execute(query)
+        self.assertIsNone(result.errors)
         val = Datapoints.objects.filter(indicator__name='People living with '
                                                         'HIV').aggregate(
             Min('value'))
@@ -192,6 +195,7 @@ class MappingTestCase(TestCase):
                 }"""
 
         result = schema.execute(query)
+        self.assertIsNone(result.errors)
         val = Datapoints.objects.filter(indicator__name='People living with '
                                                         'HIV').aggregate(
             Max('value'))
@@ -210,8 +214,152 @@ class MappingTestCase(TestCase):
                 }"""
 
         result = schema.execute(query)
+        self.assertIsNone(result.errors)
         val = Datapoints.objects.filter(indicator__name='People living with '
                                                         'HIV').aggregate(
             Count('value'))
         self.assertEqual(result.data['datapointsAggregation'][0]['value'],
                          val['value__count'])
+
+    def test_datapoints_aggregation_geolocationTag_In(self):
+
+        query = """{
+                datapointsAggregation(groupBy:["indicatorName","geolocationTag"],orderBy:["indicatorName"],aggregation:["Sum(value)"],
+                geolocationTag_In: ["mongolia","lesotho"] ) {
+                    indicatorName
+                    value
+                    geolocationTag
+                    }
+                }"""
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        countries = Datapoints.objects.values('indicator__name',
+        'geolocation__tag').annotate(Sum('value')).filter(
+            geolocation__tag__in=['lesotho','mongolia'])
+
+
+        self.assertEqual(len(countries), len(result.data['datapointsAggregation']))
+        i = 0
+        while i < len(countries):
+            self.assertEqual(result.data['datapointsAggregation'][i][
+                             'geolocationTag'], countries[i]['geolocation__tag'])
+            i += 1
+
+    def test_datapoints_aggregation_geolocationIso2_In(self):
+        query = """{
+                datapointsAggregation(groupBy:["indicatorName",
+                "geolocationIso2"],orderBy:["indicatorName"],aggregation:["Sum(value)"],
+                geolocationIso2_In: ["mn","ls"] ) {
+                    indicatorName
+                    value
+                    geolocationIso2
+                    }
+                }"""
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        countries = Datapoints.objects.values('indicator__name',
+                                              'geolocation__iso2').annotate(
+            Sum('value')).filter(
+            geolocation__iso2__in=['mn', 'ls'])
+
+        self.assertEqual(len(countries),
+                         len(result.data['datapointsAggregation']))
+        i = 0
+        while i < len(countries):
+            self.assertEqual(result.data['datapointsAggregation'][i][
+                                 'geolocationIso2'],
+                             countries[i]['geolocation__iso2'])
+            i += 1
+
+    def test_datapoints_aggregation_geolocationIso3_In(self):
+
+        query = """{
+                datapointsAggregation(groupBy:["indicatorName",
+                "geolocationIso3"],orderBy:["indicatorName"],aggregation:[
+                "Sum(value)"],
+                geolocationIso3_In: ["mng","lso"] ) {
+                    indicatorName
+                    value
+                    geolocationIso3
+                    }
+                }"""
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        countries = Datapoints.objects.values('indicator__name',
+                                              'geolocation__iso3').annotate(
+            Sum('value')).filter(
+            geolocation__iso3__in=['mng', 'lso'])
+
+        self.assertEqual(len(countries),
+                         len(result.data['datapointsAggregation']))
+        i = 0
+        while i < len(countries):
+            self.assertEqual(result.data['datapointsAggregation'][i][
+                                 'geolocationIso3'],
+                             countries[i]['geolocation__iso3'])
+            i += 1
+
+    def test_datapoints_aggregation_geolocationObjectId_In(self):
+
+        query = """{
+                datapointsAggregation(groupBy:["indicatorName",
+                "geolocationObjectId"],orderBy:["indicatorName"],aggregation:[
+                "Sum(value)"],geolocationObjectId_In: ["126","149"] ) {
+                    indicatorName
+                    value
+                    geolocationObjectId
+                    }
+                }"""
+        result = schema.execute(query)
+        self.assertIsNone(result.errors)
+        countries = Datapoints.objects.values('indicator__name',
+                                              'geolocation__object_id').annotate(
+            Sum('value')).filter(
+            geolocation__object_id__in=['126', '149'])
+
+        self.assertEqual(len(countries),
+                         len(result.data['datapointsAggregation']))
+        i = 0
+        while i < len(countries):
+            self.assertEqual(result.data['datapointsAggregation'][i][
+                                 'geolocationObjectId'],
+                             countries[i]['geolocation__object_id'])
+            i += 1
+
+    def test_datapoints_aggregation_geolocationType_In(self):
+
+            query = """{
+                    datapointsAggregation(groupBy:["indicatorName",
+                    "geolocationType"],orderBy:["indicatorName"],aggregation:[
+                    "Sum(value)"],geolocationType_In: ["subnational",
+                    "country"] ) {
+                        indicatorName
+                        value
+                        geolocationType
+                        }
+                    }"""
+            result = schema.execute(query)
+            self.assertIsNone(result.errors)
+            countries = Datapoints.objects.values('indicator__name',
+                                                  'geolocation__type').annotate(
+                Sum('value')).filter(
+                geolocation__type__in=['subnational', 'country'])
+
+            self.assertEqual(len(countries),
+                             len(result.data['datapointsAggregation']))
+            i = 0
+            while i < len(countries):
+                self.assertEqual(result.data['datapointsAggregation'][i][
+                                     'geolocationType'],
+                                 countries[i]['geolocation__type'])
+                i += 1
+
+
+
+
+
+
+
+
+
+
