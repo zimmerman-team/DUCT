@@ -26,6 +26,8 @@ from validate.validator import generate_error_data, save_validation_data
 from api.indicator.views import reset_mapping
 from django.contrib.gis.geos import Point
 
+import datetime
+
 import pickle
 import time
 
@@ -165,7 +167,7 @@ def split_mapping_data(data):
 
 
 def apply_missing_values(df_data, mappings, dtypes_dict, empty_entries_dict):
-    '''Appliess missing values to dataframe.
+    '''Applies missing values to dataframe.
 
     Args:
         df_data (Dataframe): dataframe of CSV file.
@@ -291,7 +293,7 @@ def get_save_unique_datapoints(
         unique_value_format,
     ]
 
-    print('Saving unique datapoints')
+    print('Saving unique datapoints %s' % datetime.datetime.now())
 
     for unique_list in unique_lists:
         for i in range(len(unique_list)):
@@ -342,6 +344,7 @@ def get_save_unique_datapoints(
         count += 1
 
     ### Save filters ###
+    print('Saving filters')
     for j in range(len(final_file_headings['filters'])):
         unique_filters = df_data.groupby(
             [
@@ -373,7 +376,8 @@ def get_save_unique_datapoints(
             instance, created = Filters.objects.get_or_create(
                 name=filter_name,
                 heading=headings_dict[
-                    indicator + filter_heading_name])
+                    indicator + filter_heading_name],
+                indicator=ind_dict[indicator])
             if created:
                 instance.save()
 
@@ -390,16 +394,13 @@ def get_save_unique_datapoints(
             geo_filter = unique_filter_geolocation_formats[
                              final_file_headings['filters'][j]
                          ] == unique_filters[final_file_headings['filters'][j]][i]
-            for index, row in \
-                    unique_filter_geolocation_formats[
-                        geo_filter].iterrows():  # TODO Vectorise
-                instance.geolocations.add(
-                    geolocation_dict[row[
-                        final_file_headings['geolocation']]])
+            geolocation_list = list(unique_filter_geolocation_formats[geo_filter][final_file_headings['geolocation']].map(geolocation_dict)) # TODO Vectorise
+            instance.geolocations.add(*geolocation_list)
             instance.save()
 
     # unique list is not always the same datatype, consists of lists and
     # dataframes
+    print('Finsihed with unique datapoints %s' % datetime.datetime.now())
 
     return ind_dict, headings_dict, geolocation_dict, value_format_dict, \
         filters_dict
@@ -420,20 +421,25 @@ def save_datapoints(df_data, final_file_headings, filter_headings_dict,dicts):
     ind_dict, headings_dict, geolocation_dict, \
         value_format_dict, filters_dict = dicts
     f1 = (lambda x: Datapoints(**x))
-    f2 = (lambda x, y: x.datapoints.add(y))  # remove save()will be slow
+    f2 = (lambda x, y: x.datapoints.add(*y))  # Really really slow
     f3 = (lambda x: x.save())  # remove save()will be slow
 
     vfunc = np.vectorize(f1)
     vfunc2 = np.vectorize(f2)
     vfunc3 = np.vectorize(f3)
 
-    ###########TODO LOOP here for filters###################
     df_filters = pd.DataFrame(columns=final_file_headings['filters'])
+    unique_df_filters = pd.DataFrame(columns=final_file_headings['filters'])
+
     for heading in final_file_headings['filters']:
         df_data['heading'] = filter_headings_dict[heading]
         df_data[heading] = df_data[final_file_headings['indicator']] \
             + df_data['heading'] + df_data[heading]
+        df_filters[heading] = df_data[heading]
+        unique_df_filters[heading] = np.unique(df_data[heading])
         df_filters[heading] = df_data[heading].map(filters_dict)
+        unique_df_filters[heading] = unique_df_filters[heading].map(filters_dict)
+
     df_data.drop(final_file_headings['filters'], axis=1, inplace=True)
     filter_headings = final_file_headings.pop('filters',None)
 
@@ -456,7 +462,9 @@ def save_datapoints(df_data, final_file_headings, filter_headings_dict,dicts):
     previous_batch = 0
     next_batch = 0
 
+    count = 1
     for i in range(batch_size):
+        print('Saving datapoints for batch %d %s' % (count, datetime.datetime.now()))
         next_batch += 100000
         if next_batch > df_data['indicator'].size:  # shouldn't be needed
             next_batch = df_data['indicator'].size
@@ -464,28 +472,41 @@ def save_datapoints(df_data, final_file_headings, filter_headings_dict,dicts):
 
         data_to_save = df_data[previous_batch:next_batch].to_dict(orient='records')
 
-        if(len(data_to_save) > 0):
-            # Vectorised operation, convert batch into datapoint objects
-            bulk_list = vfunc(np.array(data_to_save))
-            data = Datapoints.objects.bulk_create(
-                list(bulk_list))  # Bulk create datapoints
-            bulk_list = []  # Bulk list emptied to free space
+        # if(len(data_to_save) > 0):
+        # Vectorised operation, convert batch into datapoint objects
+        bulk_list = vfunc(np.array(data_to_save))
+        data = Datapoints.objects.bulk_create(
+            list(bulk_list))  # Bulk create datapoints
+        bulk_list = []  # Bulk list emptied to free space
 
-            filter_data = df_filters[previous_batch:next_batch]  # Get filter batch
-            for heading in filter_headings:
-                # vectorised operation to add many to many mapping between filters
-                # and datapoints
-                vfunc2(np.array(filter_data[heading]), np.array(data))
-                # vectorised operation to save new addition methods, maybe best to
-                # do this last
-                vfunc3(np.array(filter_data[heading]))
-                #########################################
-            df_data[previous_batch:next_batch] = np.nan  # Done to free space
+        data = np.array(data)
+        filter_data = df_filters[previous_batch:next_batch]  # Get filter batch
+        print('Saving filters for batch %d %s' % (count, datetime.datetime.now()))
+        for heading in filter_headings:
+            print('Saving heading %s for batch %d %s' % (heading, count, datetime.datetime.now()))
+            # vectorised operation to add many to many mapping between filters
+            # and datapoints
+            for f in unique_df_filters[heading]:
+                # print('f ', f)
+                # print('Unique filters ', unique_filters[f])
+                f.datapoints.add(*list(data[filter_data[heading] == f]))
+                f.save()
+            #vfunc2(np.array(filter_data[heading]), data)
+            print('Added datapoints to filter %s' % (datetime.datetime.now()))
+            # vectorised operation to save new addition methods, maybe best to
+            # do this last
+            #########################################
+        #vfunc3(np.array(filter_data[heading]))
+        print('Saved filters %s' % (datetime.datetime.now()))
 
-            print('Previous batch ', previous_batch)
-            print('Next batch ', next_batch)
-            previous_batch = next_batch
+        df_data[previous_batch:next_batch] = np.nan  # Done to free space
 
+        print('Previous batch ', previous_batch)
+        print('Next batch ', next_batch)
+        previous_batch = next_batch
+        print('Finished saving batch %d hurray! %s' % (count, datetime.datetime.now()))
+        count += 1
+    print('Finished')
     metadata.file_status = 4
     metadata.save()
 
