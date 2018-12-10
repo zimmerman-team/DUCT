@@ -104,7 +104,7 @@ SQLAlchemy==1.2.12
 sqlparse==0.2.4
 strict-rfc3339==0.7
 text-unidecode==1.2
-transifex-client==0.13.1
+# transifex-client==0.13.1
 ujson==1.35
 unicodecsv==0.14.1
 Unidecode==1.0.22
