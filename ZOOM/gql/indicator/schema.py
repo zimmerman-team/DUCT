@@ -185,6 +185,10 @@ class FiltersFilter(FilterSet):
             'name': ['exact', 'icontains', 'istartswith'],
             'description': ['exact', 'icontains', 'istartswith'],
             'metadata': ['exact', 'in'],
+            'indicator__name' :['exact', 'in'],
+            'indicator__id': ['exact', 'in'],
+            'heading__id': ['exact', 'in'],
+            'heading__name': ['exact', 'in']
         }
 
     def filter_entry_id(self, queryset, name, value):

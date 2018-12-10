@@ -106,6 +106,8 @@ class Filters(models.Model):
     date_format = models.ForeignKey(
         DateFormat, on_delete=models.SET_NULL, null=True)
 
+    indicator = models.ForeignKey(Indicator, on_delete=models.CASCADE)#For filtering, makes it quicker#
+
 
 def clean_up_indicators():
     indicators = Indicator.objects.all()
