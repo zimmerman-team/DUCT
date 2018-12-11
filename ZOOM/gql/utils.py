@@ -67,11 +67,33 @@ class AggregationNode(graphene.ObjectType):
     def get_results(self, context, **kwargs):
         filters = self.get_filters(context, **kwargs)
         groups = self.get_group_by(context, **kwargs)
+        groups.append('id')
         orders = self.get_order_by(context, **kwargs)
         aggregations = self.get_aggregations(context, **kwargs)
+        queryset_og = self.Model.objects.values(*groups).filter(**filters)
+        print(len(queryset_og))
+        index_dict={}
 
-        return self.Model.objects.values(*groups).annotate(
-            **aggregations).order_by(*orders).filter(**filters)
+        count = 0
+        for instance in queryset_og:
+            if instance['id'] not in index_dict:
+                index_dict[instance['id']] = count
+            else:
+                if 'filters__name' in queryset_og[index_dict[instance['id']]]:
+                    queryset_og[index_dict[instance['id']]]['filters__name'] = [queryset_og[index_dict[instance['id']]]['filters__name'], instance['filters__name']]
+                if 'headers__name' in queryset_og[index_dict[instance['id']]]:
+                    queryset_og[index_dict[instance['id']]]['filters__name'] = [queryset_og[index_dict[instance['id']]]['headers_name'], instance['headers_name']]
+                print(queryset_og.__class__.__name__)
+                queryset_og.exclude(count) #@Taufik, don't know how to remove entry from the query set?
+                count -= 1
+            count += 1
+        print(len(queryset_og))
+
+        count=0
+        queryset = queryset_og
+
+        return queryset_og.annotate(
+            **aggregations).order_by(*orders)
 
     def get_nodes(self, context, **kwargs):
         results = self.get_results(context, **kwargs)

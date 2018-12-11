@@ -60,6 +60,8 @@ class DatapointsAggregationNode(AggregationNode):
     geolocationType = graphene.String()
     filterName = graphene.String()
     filterId = graphene.Int()
+    headingName = graphene.String()
+    headingId = graphene.Int()
     indicatorFilterHeadingName = graphene.String()
     indicatorFilterHeadingId = graphene.Int()
 
@@ -80,8 +82,8 @@ class DatapointsAggregationNode(AggregationNode):
         'geolocationType': 'geolocation__type',
         'filterName': 'filters__name',
         'filterId': 'filters__id',
-        'indicatorFilterHeadingName': 'indicator__filterheadings__name',
-        'indicatorFilterHeadingId': 'indicator__filterheadings__id'
+        'headingName': 'filters__heading__name',
+        'headingId': 'filters__header__id'
     }
 
     FIELDS_FILTER_MAPPING = {
@@ -98,7 +100,9 @@ class DatapointsAggregationNode(AggregationNode):
         'geolocationContentObject__In': 'geolocation__content_object__in',
         'geolocationType__In': 'geolocation__type__in',
         'filterId__In': 'filters__id__in',
-        'indicatorFilterHeadingId__In': 'indicator__filterheading__id__in'
+        'filterName__In': 'filters__name__in',
+        'headingId__In': 'filters__heading__Id__in',
+        'headingName__In': 'filters__heading__name__in'
     }
 
 
@@ -218,6 +222,9 @@ class Query(object):
         geolocationContentObject__In=List(of_type=String),
         geolocationType__In=List(of_type=String),
         filterId__In=List(of_type=Int),
+        filterName__In=List(of_type=String),
+        headingId__In=List(of_type=Int),
+        headingName__In=List(of_type=String),
         indicatorFilterHeadingId__In=List(of_type=Int)
     )
 

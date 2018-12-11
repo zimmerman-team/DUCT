@@ -64,6 +64,9 @@ def begin_mapping(data):
         else:
             point_based = False
 
+        for key in filter_headings_dict.keys():
+            filter_headings_dict[key] = filter_headings_dict[key].strip().lower()
+
         #### Reformat dataframe for dates or categories ####
         if len(data_model_dict['value']) > 1:
             df_data, dtypes_dict, data_model_dict = convert_df(df_data, multi_entry_dict, data_model_dict, empty_entries_dict.pop('empty_value_format'), dtypes_dict)
@@ -429,16 +432,17 @@ def save_datapoints(df_data, final_file_headings, filter_headings_dict,dicts):
     vfunc3 = np.vectorize(f3)
 
     df_filters = pd.DataFrame(columns=final_file_headings['filters'])
-    unique_df_filters = pd.DataFrame(columns=final_file_headings['filters'])
+    unique_df_filters = {}
 
     for heading in final_file_headings['filters']:
+        unique_df = pd.DataFrame(columns=[heading])
         df_data['heading'] = filter_headings_dict[heading]
         df_data[heading] = df_data[final_file_headings['indicator']] \
-            + df_data['heading'] + df_data[heading]
+                           + df_data['heading'] + df_data[heading]
         df_filters[heading] = df_data[heading]
-        unique_df_filters[heading] = np.unique(df_data[heading])
+        unique_df[heading] = np.unique(df_data[heading])
         df_filters[heading] = df_data[heading].map(filters_dict)
-        unique_df_filters[heading] = unique_df_filters[heading].map(filters_dict)
+        unique_df_filters[heading] = np.array(unique_df[heading].map(filters_dict))
 
     df_data.drop(final_file_headings['filters'], axis=1, inplace=True)
     filter_headings = final_file_headings.pop('filters',None)
