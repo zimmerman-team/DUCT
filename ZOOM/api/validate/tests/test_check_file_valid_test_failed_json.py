@@ -26,7 +26,7 @@ class FileValidTestCase(TestCase):
         res_check_file_valid = self.c.post(
             '/api/validate/check_file_valid/?format=json', 
             {
-            'file_id': res_file_upload.json()['id'],
+            'id': res_file_upload.json()['id'],
             },
             format='json'
             )
