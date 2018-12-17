@@ -1,0 +1,334 @@
+{
+	"info": {
+		"_postman_id": "0c6579d7-95dc-4927-926b-0f582e1e15db",
+		"name": "API Sample",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "http://127.0.0.1:8000/api/metadata/sources/?format=json",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "9c18e952-89a9-484d-b801-03cfa3e57642",
+						"exec": [
+							"        "
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "name",
+							"value": "UNAIDS",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/metadata/sources/?format=json",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"metadata",
+						"sources",
+						""
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "json"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:8000/api/metadata/?format=json",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "9c18e952-89a9-484d-b801-03cfa3e57642",
+						"exec": [
+							"        "
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "source",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "title",
+							"value": "UNAIDS Actual test file",
+							"type": "text"
+						},
+						{
+							"key": "description",
+							"value": "Test data",
+							"type": "text"
+						},
+						{
+							"key": "contains_subnational_data",
+							"value": "False",
+							"type": "text"
+						},
+						{
+							"key": "organisation",
+							"value": "ZZ",
+							"type": "text"
+						},
+						{
+							"key": "maintainer",
+							"value": "Kieran",
+							"type": "text"
+						},
+						{
+							"key": "date_of_dataset",
+							"value": "2018-10-10",
+							"type": "text"
+						},
+						{
+							"key": "methodology",
+							"value": "Manually entry",
+							"type": "text"
+						},
+						{
+							"key": "define_methodology",
+							"value": "Collected samples manually",
+							"type": "text"
+						},
+						{
+							"key": "update_frequency",
+							"value": "Yearly",
+							"type": "text"
+						},
+						{
+							"key": "comments",
+							"value": "Nope",
+							"type": "text"
+						},
+						{
+							"key": "accessibility",
+							"value": "o",
+							"type": "text"
+						},
+						{
+							"key": "data_quality",
+							"value": " Good",
+							"type": "text"
+						},
+						{
+							"key": "number_of_rows",
+							"value": "200",
+							"type": "text"
+						},
+						{
+							"key": "location",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "file_types",
+							"value": "csv",
+							"type": "text"
+						},
+						{
+							"key": "file",
+							"type": "file",
+							"src": ""
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/metadata/?format=json",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"metadata",
+						""
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "json"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:8000/api/validate/?format=json",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "9c18e952-89a9-484d-b801-03cfa3e57642",
+						"exec": [
+							"        "
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"id\":\"1\"}"
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/validate/?format=json",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"validate",
+						""
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "json"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": " http://127.0.0.1:8000/api/mapping/?format=json",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "9c18e952-89a9-484d-b801-03cfa3e57642",
+						"exec": [
+							"        "
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"metadata_id\": \"1\",\n    \"mapping_dict\": {                      \n          \"indicator\": [\"Indicator\"],\n          \"filters\": [\"Sex\", \"Age\"],\n          \"geolocation\": [\"Area\"],\n          \"date\": [\"Time Period\"],\n          \"value_format\": [],\n          \"value\": [\"Value\"],\n          \"comment\": []\n      },\n    \"filter_headings\": {\"Sex\":\"Sex\", \"Age\":\"Age\"},\n    \"extra_information\": {\n        \"empty_entries\":                                \n            {\n                \"empty_indicator\": \"\",\n                \"empty_geolocation\": {\"value\":\"\", \"type\":\"\"}, \n                \"empty_filter\": \"\",\n                \"empty_value_format\": {\"Value\": \"Percent\"},                    \n                \"empty_date\": \"\"\n            },\n        \"multi_mapped\":\n            {\n                \"column_heading\": {},                \n                \"column_values\": {}                 \n            },\n        \"point_based_info\":\n            {\n                \"coord\": {\"lat\": \"\", \"lon\": \"\"},    \n                \"subnational\": \"\",                    \n                \"country\": \"\",                       \n                \"type\": \"\"                          \n            }\n    }\n}"
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/mapping/?format=json",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"mapping",
+						""
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "json"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
