@@ -151,6 +151,9 @@ Eventually, you could add your modifications to the Django configuration in a ne
 |fileSource|gql.metadata.mutation.Mutation|
 |file|gql.metadata.mutation.Mutation|
 
+#### Postman sample
+To quickly add data, you can use Postman and import the file bin/API Sample.postman_collection.json to add data to your server. https://www.getpostman.com/
+
 ## About the project
 --------
 
@@ -158,7 +161,6 @@ Eventually, you could add your modifications to the Django configuration in a ne
 * License:          <a href="https://github.com/zimmerman-zimmerman/DUCT/blob/master/LICENSE.MD" target="_blank">github.com/zimmerman-zimmerman/DUCT/</a>
 * Github Repo:      <a href="https://github.com/zimmerman-zimmerman/DUCT/" target="_blank">github.com/zimmerman-zimmerman/DUCT/</a>
 * Bug Tracker:     <a href="https://github.com/zimmerman-zimmerman/DUCT/issues" target="_blank">github.com/zimmerman-zimmerman/DUCT/issues</a>
-
 
 ## Can I contribute?
 --------
