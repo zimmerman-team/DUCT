@@ -101,6 +101,7 @@ class DatapointsAggregationNode(AggregationNode):
         'geolocationType__In': 'geolocation__type__in',
         'filterId__In': 'filters__id__in',
         'filterName__In': 'filters__name__in',
+        'filterName__And': 'filters__name',
         'headingId__In': 'filters__heading__Id__in',
         'headingName__In': 'filters__heading__name__in'
     }
@@ -223,6 +224,7 @@ class Query(object):
         geolocationType__In=List(of_type=String),
         filterId__In=List(of_type=Int),
         filterName__In=List(of_type=String),
+        filterName__And=List(of_type=String),
         headingId__In=List(of_type=Int),
         headingName__In=List(of_type=String),
         indicatorFilterHeadingId__In=List(of_type=Int)

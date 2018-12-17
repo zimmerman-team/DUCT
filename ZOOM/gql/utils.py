@@ -3,7 +3,8 @@ from graphene import relay
 from graphene_django.filter import DjangoFilterConnectionField
 from django.db import models
 from django.db.models import Count, Sum, Min, Max, Avg
-
+import pandas as pd
+import datetime
 
 class OrderedDjangoFilterConnectionField(DjangoFilterConnectionField):
 
@@ -66,34 +67,35 @@ class AggregationNode(graphene.ObjectType):
 
     def get_results(self, context, **kwargs):
         filters = self.get_filters(context, **kwargs)
+
         groups = self.get_group_by(context, **kwargs)
-        groups.append('id')
+        show = groups.copy()
+        show.append('id')
+        show.append('value')
+
         orders = self.get_order_by(context, **kwargs)
+
         aggregations = self.get_aggregations(context, **kwargs)
-        queryset_og = self.Model.objects.values(*groups).filter(**filters)
-        print(len(queryset_og))
-        index_dict={}
 
-        count = 0
-        for instance in queryset_og:
-            if instance['id'] not in index_dict:
-                index_dict[instance['id']] = count
-            else:
-                if 'filters__name' in queryset_og[index_dict[instance['id']]]:
-                    queryset_og[index_dict[instance['id']]]['filters__name'] = [queryset_og[index_dict[instance['id']]]['filters__name'], instance['filters__name']]
-                if 'headers__name' in queryset_og[index_dict[instance['id']]]:
-                    queryset_og[index_dict[instance['id']]]['filters__name'] = [queryset_og[index_dict[instance['id']]]['headers_name'], instance['headers_name']]
-                print(queryset_og.__class__.__name__)
-                queryset_og.exclude(count) #@Taufik, don't know how to remove entry from the query set?
-                count -= 1
-            count += 1
-        print(len(queryset_og))
+        if 'filters__name' in filters:
+            filter_list = filters.pop('filters__name', None)
+            queryset = self.Model.objects.filter(**filters).prefetch_related('filters')
+            for filter in filter_list:
+                queryset = queryset.filter(filters__name=filter)
+            df = pd.DataFrame(list(queryset.values(*show)))
+        else:
+            df = pd.DataFrame(list(self.Model.objects.filter(**filters).prefetch_related('filters').values(*show)))
 
-        count=0
-        queryset = queryset_og
+        if 'filters__name' in groups:
+            f1 = lambda x: ', '.join(list(x.filters.all().values_list('name', flat=True)))
+            df['filters__name'] = list(map(f1,  queryset))
 
-        return queryset_og.annotate(
-            **aggregations).order_by(*orders)
+        df = df.sort_values(orders)
+
+        #Here check aggrgeation
+        df = pd.DataFrame({'value': df.groupby(groups)['value'].sum()}).reset_index()
+
+        return df.to_dict(orient='records')#queryset_og.annotate(**aggregations).order_by(*orders)
 
     def get_nodes(self, context, **kwargs):
         results = self.get_results(context, **kwargs)
