@@ -1,0 +1,6 @@
+site_name: Zoom
+nav:
+    - Home: index.md
+    - GraphQL : graphQL.md
+
+theme: readthedocs
