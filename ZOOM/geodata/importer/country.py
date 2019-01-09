@@ -59,7 +59,9 @@ class CountryImport():
 
         for c in country_centers:
             if Country.objects.filter(iso2=c.lower()).exists():
-                current_country = Country.objects.get(iso2=c.lower())
+
+                current_country = Country.objects.get(iso2=c.lower(),
+                                                      primary_name=True)
 
                 point_loc_str = ''.join([
                     'POINT(',
@@ -78,8 +80,8 @@ class CountryImport():
             country_iso2 = cr['iso2']
             region_dac_code = cr['dac_region_code']
 
-            if Country.objects.filter(code=country_iso2).exists():
-                the_country = Country.objects.get(code=country_iso2)
+            if Country.objects.filter(iso2=country_iso2).exists():
+                the_country = Country.objects.get(iso2=country_iso2)
 
             if Region.objects.filter(code=region_dac_code).exists():
                 the_region = Region.objects.get(code=region_dac_code)
