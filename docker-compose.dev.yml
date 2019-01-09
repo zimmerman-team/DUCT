@@ -1,28 +1,5 @@
 version: "3"
 services:
-    migration:
-      image: zoomcsvmapper_app
-      command: ["python", "ZOOM/manage.py", "migrate"]
-      environment:
-        - ZOOM_DB=postgres
-      depends_on:
-        - postgres
-    server:
-      image: zoomcsvmapper_app
-      command: ["python", "ZOOM/manage.py", "runserver", "0.0.0.0:8000"]
-      environment:
-        - ZOOM_DB=postgres
-      depends_on:
-        - postgres
-      ports:
-        - "8000:8000"  # Server port
-      #    load_countries:
-      #      image: zoomcsvmapper_app
-      #      #command: ["cd", "ZOOM/scripts", "--", "sh", "ZOOM/scripts/run_script.sh", "country_load.py"]
-      #      command: ["bash -c","'cd ZOOM/scripts && sh run_script.sh country_load.py'"]
-      #      depends_on:
-      #        - migration
-      #        - server
     postgres:
       image: mdillon/postgis:9.6
       ports:
@@ -31,9 +8,15 @@ services:
         - POSTGRES_USER=zoom
         - POSTGRES_PASSWORD=zoom
         - POSTGRES_DB=zoom
-    #redis:
-    #  image: redis:3.2.11
-    #  ports:
-    #    - "6379:6379"
-    #  volumes:
-    #    - ./.data/redis:/data
+    server:
+      image: zoom-csv-mapper_app
+      command: bash -c "sh ZOOM/scripts setup_project.sh &&
+        python ZOOM/manage.py runserver 127.0.0.1:8000"
+      #command: ["python", "ZOOM/manage.py", "runserver", "0.0.0.0:8000"]
+      environment:
+      - ZOOM_DB=postgres
+      depends_on:
+      - postgres
+      ports:
+      - "8000:8000"
+      tty: true

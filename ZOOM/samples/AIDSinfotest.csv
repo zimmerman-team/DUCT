@@ -1,5 +1,5 @@
 Indicator,Unit,Subgroup,Area,Area ID,Time Period,Source,Data Value,Footnotes
- People living with HIV,Number,All sexes Young people (15-24) lower estimate,Lesotho,LSO,2015,UNAIDS_Spectrum Estimates_,29104,
+People living with HIV,Number,All sexes Young people (15-24) lower estimate,Lesotho,LSO,2015,UNAIDS_Spectrum Estimates_,29104,
 People living with HIV,Number,All sexes Young people (15-24) lower estimate,Lesotho,LSO,1992,UNAIDS_Spectrum Estimates_,8633,
 People living with HIV,Number,All sexes Young people (15-24) lower estimate,Lesotho,LSO,1993,UNAIDS_Spectrum Estimates_,12261,
 People living with HIV,Number,All sexes Young people (15-24) lower estimate,Lesotho,LSO,1994,UNAIDS_Spectrum Estimates_,16954,
@@ -11,3 +11,5 @@ People living with HIV,Number,All sexes Young people (15-24) lower estimate,Mong
 People living with HIV,Number,All sexes Young people (15-24) lower estimate,Mongolia,MNG,1999,UNAIDS_Spectrum Estimates_,1,
 People living with HIV,Number,All sexes Young people (15-24) lower estimate,Mongolia,MNG,2000,UNAIDS_Spectrum Estimates_,2,
 People living with HIV,Number,All sexes Young people (15-24) lower estimate,Mongolia,MNG,2001,UNAIDS_Spectrum Estimates_,2,
+People living with HIV,Number,All sexes Young people (15-24) higher estimate,Mongolia,MNG,2001,UNAIDS_Spectrum Estimates_,2,
+People living with HIV,Number,All sexes Young people (15-24) imaginary estimate,Mongolia,MNG,2001,UNAIDS_Spectrum Estimates_,2,
