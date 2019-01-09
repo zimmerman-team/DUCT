@@ -58,8 +58,8 @@ class CountryImport():
         country_centers = self.get_json_data("/../data_backup/country_center.json")
 
         for c in country_centers:
-            if Country.objects.filter(code=c).exists():
-                current_country = Country.objects.get(code=c)
+            if Country.objects.filter(iso2=c.lower()).exists():
+                current_country = Country.objects.get(iso2=c.lower())
 
                 point_loc_str = ''.join([
                     'POINT(',
