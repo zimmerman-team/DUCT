@@ -2,12 +2,24 @@ from gql.schema import schema
 from metadata.models import FileSource, File
 import json
 import os
+import glob
 
 
 class Parsing():
 
+    def file_parsing(self):
+        path = os.path.abspath('samples/parsing_files/*.csv')
+        files = glob.glob(path)
+        count = 0
+        for full_path_file_name in files:
+            file_name = 'parsing_files/' + str(full_path_file_name).split('/')[
+                                     -1:][0]
+            count += 1
+            file_source_name = "sample" + str(count)
+            Parsing.__file_parsing(self,file_source_name=file_source_name,
+                                   file_name=file_name)
 
-    def file_parsing(self,file_source_name,file_name):
+    def __file_parsing(self,file_source_name,file_name):
 
         file_source_query_input= {"input":{"name": file_source_name}}
         file_source_query = """
