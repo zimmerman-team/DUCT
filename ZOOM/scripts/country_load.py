@@ -6,6 +6,7 @@ print('Country data')
 ci = CountryImport()
 ci.update_polygon()
 ci.update_alt_name()
+ci.update_country_center()
 
 print('Region data')
 ri = RegionImport()
