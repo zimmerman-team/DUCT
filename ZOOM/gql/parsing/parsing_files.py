@@ -6,20 +6,22 @@ import glob
 
 
 class Parsing():
+    #please check path name, file_name, file source name
+    # Adjust input_json_mapping
 
-    def file_parsing(self):
-        path = os.path.abspath('samples/parsing_files/*.csv')
+    def file_parsing(self):  # to be use this method to batch file processing
+        path = os.path.abspath('samples/parsing_files/2019/*.csv')
         files = glob.glob(path)
         count = 0
         for full_path_file_name in files:
-            file_name = 'parsing_files/' + str(full_path_file_name).split('/')[
-                                     -1:][0]
+            file_name = 'parsing_files/2019/' + str(full_path_file_name).split(
+                '/')[-1:][0]
             count += 1
-            file_source_name = "sample" + str(count)
-            Parsing.__file_parsing(self,file_source_name=file_source_name,
+            file_source_name = "2019samples" + str(count)
+            Parsing.data_file_parsing(self,file_source_name=file_source_name,
                                    file_name=file_name)
 
-    def __file_parsing(self,file_source_name,file_name):
+    def data_file_parsing(self,file_source_name,file_name):
 
         file_source_query_input= {"input":{"name": file_source_name}}
         file_source_query = """
@@ -114,15 +116,15 @@ class Parsing():
         input_json_mapping = {
             'metadata_id': file_id,
             'mapping_dict': {
-                'indicator': ["Indicator"],
-                'geolocation': ["Area"],
-                'date': ["Time Period"],
-                'value_format': ["Unit"],
-                'value': ["Data Value"],
-                'filters':["Subgroup"],
-                'comment': ["Source"],
+                'indicator': ["indicator"],
+                'geolocation': ["Country"],
+                'date': ["date_value"],
+                'value_format': ["unit_of_measure"],
+                'value': ["measure_value"],
+                'filters':["indicator_category"],
+                'comment': [],
             },
-            "filter_headings": {"Subgroup": "Subgroup"},
+            "filter_headings": {"indicator_category": "indicator_category"},
             "extra_information":EXTRA_INFORMATION
         }
 
