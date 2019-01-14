@@ -46,7 +46,7 @@ class Region(gis_models.Model):
     code = gis_models.CharField(max_length=100, null=True)
 
     center_longlat = gis_models.PointField(null=True, blank=True)
-    polygons = gis_models.MultiPolygonField(null=True, blank=True)
+    polygons = gis_models.GeometryField(null=True, blank=True)
 
     wikipedia = gis_models.CharField(null=True, blank=True, max_length=150)
     language = gis_models.CharField(max_length=2, null=True)
@@ -147,7 +147,7 @@ class SubNational(gis_models.Model):
         on_delete=gis_models.SET_NULL)
 
     center_longlat = gis_models.PointField(null=True, blank=True)
-    polygons = gis_models.MultiPolygonField(null=True, blank=True)
+    polygons = gis_models.GeometryField(null=True, blank=True)
 
     #area_sqkm = gis_models.CharField(null=True, blank=True, max_length=100)
     wikipedia = gis_models.CharField(null=True, blank=True, max_length=150)
