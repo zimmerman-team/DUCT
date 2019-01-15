@@ -42,7 +42,7 @@ class Geolocation(models.Model):
 
 class Region(gis_models.Model):
     id = gis_models.AutoField(primary_key=True, editable=False)
-    name = gis_models.CharField(unique=True, max_length=200)
+    name = gis_models.CharField(max_length=200)
     code = gis_models.CharField(max_length=100, null=True)
 
     center_longlat = gis_models.PointField(null=True, blank=True)
