@@ -51,6 +51,7 @@ class RegionFactory(NoDatabaseFactory):
 
     id = 4
     name = 'asia'
+    center_longlat = Point(1, 5)
     polygons = GEOSGeometry('{ "type": "MultiPolygon","coordinates": '
                             '[[[[102.0, 2.0], [103.0, 2.0], [103.0, 3.0], '
                             '[102.0, 3.0], [102.0, 2.0]]],'

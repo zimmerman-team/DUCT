@@ -70,4 +70,40 @@ class GeolocationsTestCase(TestCase):
                          result_polygons_in_dict[
                              'coordinates'])
 
+    def test_region_centerlonglat(self):
+
+        # Get country record
+        region = Region.objects.first()
+        center_longlat = region.center_longlat
+        center_longlat_in_json = center_longlat.geojson
+        # GraphQL Query
+        query = """
+                    {allGeolocations(tag:"asia")
+                        {edges
+                            {node 
+                                {
+                                    
+                                    entryId
+                                    tag
+                                    region{
+                                        centerLonglat}
+                                }
+                            } 
+                        }
+                    }    
+                """
+        result = schema.execute(query)
+        # Check if center_longlat at the current record has
+        # the same coordinates with the GraphQL query
+        result_center_longlat = json.loads(
+            result.data['allGeolocations']['edges'][0]['node']['region'][
+                'centerLonglat']
+        )
+        # The centerLonglat is JSONString, so it is needed to convert again
+        # to the Python dictionary
+        result_center_longlat_in_dict = json.loads(result_center_longlat)
+        center_longlat_in_dict = json.loads(center_longlat_in_json)
+        self.assertEqual(center_longlat_in_dict['coordinates'],
+                         result_center_longlat_in_dict['coordinates'])
+
 
