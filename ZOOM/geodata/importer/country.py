@@ -39,7 +39,9 @@ class CountryImport():
                 c.save()
                 Geolocation(content_object=c, tag=name, type='country', iso2=country_iso2, iso3=country_iso3).save()
 
-        poly_countries = self.get_json_data("/../data_backup/country_data.json").get('features')
+        poly_countries = self.get_json_data(
+            "/../data_backup/country_data.json").get(
+            'features')
         for k in poly_countries:  # .get('features'):
             if 'iso2' in k.get('properties'):
                 iso2 = k.get('properties').get('iso2').lower()
