@@ -101,7 +101,8 @@ class DatapointsAggregationNode(AggregationNode):
         'indicatorFilterHeadingId__In': 'indicator__filterheading__id__in',
         # TODO: create test for below filed filter
         'date__In': 'date__in',
-        'filterName__In': 'filters__name__in'
+        'filterName__In': 'filters__name__in',
+        'indicatorName__In': 'indicator__name__in',
     }
 
 
@@ -224,6 +225,7 @@ class Query(object):
         indicatorFilterHeadingId__In=List(of_type=Int),
         date__In=List(of_type=String),
         filterName__In=List(of_type=String),
+        indicatorName__In=List(of_type=String),
     )
 
     all_filter_headings = DjangoFilterConnectionField(
