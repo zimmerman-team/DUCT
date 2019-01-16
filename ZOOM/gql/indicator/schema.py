@@ -99,8 +99,10 @@ class DatapointsAggregationNode(AggregationNode):
         'geolocationType__In': 'geolocation__type__in',
         'filterId__In': 'filters__id__in',
         'indicatorFilterHeadingId__In': 'indicator__filterheading__id__in',
-        # TODO: Make a unit test to filter by date
+        # TODO: create test for below filed filter
         'date__In': 'date__in',
+        'filterName__In': 'filters__name__in',
+        'indicatorName__In': 'indicator__name__in',
     }
 
 
@@ -222,6 +224,8 @@ class Query(object):
         filterId__In=List(of_type=Int),
         indicatorFilterHeadingId__In=List(of_type=Int),
         date__In=List(of_type=String),
+        filterName__In=List(of_type=String),
+        indicatorName__In=List(of_type=String),
     )
 
     all_filter_headings = DjangoFilterConnectionField(
