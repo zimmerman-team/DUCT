@@ -56,6 +56,7 @@ class RegionNode(DjangoObjectType):
     entry_id = graphene.String()
     polygons = graphene.JSONString()
     center_longlat = graphene.JSONString()
+    country = graphene.List(CountryNode)
 
     class Meta:
         model = Region
@@ -72,6 +73,9 @@ class RegionNode(DjangoObjectType):
 
     def resolve_center_longlat(self, context, **kwargs):
         return self.center_longlat.json if self.center_longlat else None
+
+    def resolve_country(self, context, **kwargs):
+        return Country.objects.filter(region__pk=self.id)
 
 
 class RegionFilter(FilterSet):
@@ -284,3 +288,6 @@ class Query(object):
     all_point_based = DjangoFilterConnectionField(
         PointBasedNode, filterset_class=PointBasedFilter
     )
+    region = relay.Node.Field(RegionNode)
+    all_regions = DjangoFilterConnectionField(
+         RegionNode, filterset_class=RegionFilter)

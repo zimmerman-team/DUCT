@@ -77,18 +77,24 @@ class CountryImport():
 
     def update_regions(self):
         country_regions = self.get_json_data("/../data_backup/country_regions.json")
-
+        the_country = None
+        the_region = None
         for cr in country_regions:
-            country_iso2 = cr['iso2']
-            region_dac_code = cr['dac_region_code']
+            country_iso2 = cr['iso2'].lower()
+            region_dac_code = cr['dac_region_code'].lower()
+            region_dac_name = cr['dac_region_name'].lower()
 
             if Country.objects.filter(iso2=country_iso2).exists():
-                the_country = Country.objects.get(iso2=country_iso2)
+                the_country = Country.objects.get(iso2=country_iso2,
+                                                  primary_name=True)
 
             if Region.objects.filter(code=region_dac_code).exists():
                 the_region = Region.objects.get(code=region_dac_code)
+                the_region.name = region_dac_name
+                the_region.save()
 
             if the_country.region is None and the_country is not None and the_region is not None:
                 the_country.region = the_region
                 the_country.save()
+
 
