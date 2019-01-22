@@ -35,6 +35,8 @@ class Geolocation(models.Model):
              'city'),
             ('pointbased',
              'pointbased')))
+    center_longlat = gis_models.PointField(null=True, blank=True)
+    polygons = gis_models.GeometryField(null=True, blank=True)
 
     def __str__(self):
         return self.tag

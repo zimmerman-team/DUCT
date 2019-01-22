@@ -218,9 +218,14 @@ class GeolocationNode(DjangoObjectType):
     sub_national = graphene.Field(SubNationalNode)
     city = graphene.Field(CityNode)
     point_based = graphene.Field(PointBasedNode)
+    center_longlat = graphene.JSONString()
+    polygons = graphene.JSONString()
 
     class Meta:
         model = Geolocation
+        exclude_fields = (
+            'center_longlat', 'polygons'
+        )
         interfaces = (relay.Node,)
 
     def resolve_entry_id(self, context, **kwargs):
@@ -245,6 +250,14 @@ class GeolocationNode(DjangoObjectType):
     def resolve_point_based(self, context, **kwargs):
         return PointBased.objects.get(id=self.object_id) \
             if self.type == 'pointbased' else None
+
+    def resolve_center_longlat(self, context, **kwargs):
+        return self.center_longlat.json \
+            if self.center_longlat == 'pointbased' else None
+
+    def resolve_polygons(self, context, **kwargs):
+        return self.polygons.json \
+            if self.polygons == 'pointbased' else None
 
 
 class GeolocatioFilter(FilterSet):
