@@ -37,7 +37,6 @@ class CountryImport():
             c, created = Country.objects.get_or_create(iso2=country_iso2, iso3=country_iso3, name=name, primary_name=True)
             if created:
                 c.save()
-                Geolocation(content_object=c, tag=name, type='country', iso2=country_iso2, iso3=country_iso3).save()
 
         poly_countries = self.get_json_data(
             "/../data_backup/country_data.json").get(
@@ -52,7 +51,7 @@ class CountryImport():
                     name = k.get('properties').get('name').lower()
                     c = Country(name=name, iso2=iso2, primary_name=True)
                     c.save()
-                    Geolocation(content_object=c, tag=name, type='country', iso2=iso2).save()
+
                 c.polygons = json.dumps(k.get('geometry'))
                 c.save()
 
@@ -74,6 +73,10 @@ class CountryImport():
                 longlat = fromstr(point_loc_str, srid=4326)
                 current_country.center_longlat = longlat
                 current_country.save()
+                Geolocation(tag=current_country.name,
+                            content_object=current_country,type='country').save()
+
+
 
     def update_regions(self):
         country_regions = self.get_json_data("/../data_backup/country_regions.json")
@@ -92,6 +95,11 @@ class CountryImport():
                 the_region = Region.objects.get(code=region_dac_code)
                 the_region.name = region_dac_name
                 the_region.save()
+                if not Geolocation.objects.filter(
+                        tag=region_dac_name).exists():
+                    Geolocation(tag=region_dac_name,
+                                content_object=the_region, type='region')\
+                        .save()
 
             if the_country.region is None and the_country is not None and the_region is not None:
                 the_country.region = the_region
