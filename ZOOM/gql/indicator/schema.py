@@ -62,6 +62,8 @@ class DatapointsAggregationNode(AggregationNode):
     filterId = graphene.Int()
     indicatorFilterHeadingName = graphene.String()
     indicatorFilterHeadingId = graphene.Int()
+    geolocationCenterLongLat = graphene.JSONString()
+    geolocationPolygons = graphene.JSONString()
 
     Model = Datapoints
 
@@ -81,7 +83,9 @@ class DatapointsAggregationNode(AggregationNode):
         'filterName': 'filters__name',
         'filterId': 'filters__id',
         'indicatorFilterHeadingName': 'indicator__filterheadings__name',
-        'indicatorFilterHeadingId': 'indicator__filterheadings__id'
+        'indicatorFilterHeadingId': 'indicator__filterheadings__id',
+        'geolocationCenterLongLat': 'geolocation__center_longlat',
+        'geolocationPolygons': 'geolocation__polygons',
     }
 
     FIELDS_FILTER_MAPPING = {

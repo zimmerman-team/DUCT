@@ -3,6 +3,7 @@ from graphene import relay
 from graphene_django.filter import DjangoFilterConnectionField
 from django.db import models
 from django.db.models import Count, Sum, Min, Max, Avg
+from django.contrib.gis.geos import MultiPolygon, Point, Polygon
 
 
 class OrderedDjangoFilterConnectionField(DjangoFilterConnectionField):
@@ -81,6 +82,10 @@ class AggregationNode(graphene.ObjectType):
             node = self.__class__(**{field: result[
                 self.FIELDS_MAPPING.get(
                     field)] for field in kwargs['groupBy']})
+
+            for field, value in node.__dict__.items():
+                if type(value) in [MultiPolygon, Polygon, Point]:
+                    setattr(node, field, value.json)
 
             for field in aggregation:
                 f = field[field.find('(') + 1:field.rfind(')')]
