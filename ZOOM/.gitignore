@@ -109,3 +109,4 @@ local_settings.py
 *.sqlite3
 media/
 .DS_Store
+samples/datasets
