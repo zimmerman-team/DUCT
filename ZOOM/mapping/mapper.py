@@ -22,7 +22,7 @@ from validate.validator import generate_error_data, save_validation_data
 
 
 def begin_mapping(data):
-    '''Perfoms manual mapping process.'''
+    # Performs manual mapping process
     if 'mapping_dict' in data:
         final_file_headings = {}
         id = data['metadata_id']
