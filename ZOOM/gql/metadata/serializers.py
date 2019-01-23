@@ -4,7 +4,7 @@ import pandas as pd
 from rest_framework import serializers
 
 from indicator.models import MAPPING_DICT
-from metadata.models import File, FileSource
+from metadata.models import File, FileSource, FileTags
 
 
 class FileSourceSerializer(serializers.ModelSerializer):
@@ -69,3 +69,20 @@ class FileSerializer(serializers.ModelSerializer):
     @classmethod
     def get_data_model_heading(cls, obj):
         return json.loads(pd.Series(MAPPING_DICT).to_json())
+
+
+class FileTagsSerializer(serializers.ModelSerializer):
+    entry_id = serializers.SerializerMethodField()
+
+    class Meta:
+        model = FileTags
+        fields = (
+            'id',
+            'name',
+            'entry_id'
+        )
+
+    @classmethod
+    def get_entry_id(cls, obj):
+        return str(obj.id)
+

@@ -1,35 +1,25 @@
+import datetime
+import json
+import math
+import pickle
+import os
+import uuid
+
 import numpy as np
 import pandas as pd
-import json
-import datetime
-import math
 from django.contrib.gis.geos import Point
-from indicator.models import (
-    MAPPING_HEADINGS,
-    EXTRA_INFORMATION,
-    FILTER_HEADINGS,
-    Indicator,
-    Filters,
-    Datapoints,
-    DateFormat,
-    FilterHeadings,
-    ValueFormat)
-from geodata.models import SAVED_TYPES, Geolocation, PointBased
-from lib.tools import check_column_data_type, correct_data, convert_df
-from lib.common import (
-    get_file_data,
-    get_dtype_data,
-    save_mapping,
-    get_geolocation_dictionary)
+from django.conf import settings
+
+from api.indicator.views import reset_mapping
+from geodata.models import Geolocation, PointBased
+from indicator.models import (FILTER_HEADINGS,
+                              Datapoints, DateFormat,
+                              FilterHeadings, Filters, Indicator, ValueFormat)
+from lib.common import (get_dtype_data, get_file_data)
+from lib.tools import check_column_data_type, convert_df, correct_data
 from metadata.models import File
 from validate.validator import generate_error_data, save_validation_data
-from api.indicator.views import reset_mapping
-from django.contrib.gis.geos import Point
 
-import datetime
-
-import pickle
-import time
 
 def begin_mapping(data):
     '''Perfoms manual mapping process.'''
@@ -38,41 +28,45 @@ def begin_mapping(data):
         id = data['metadata_id']
 
         # Get relevant data
-        #save_mapping(id, instance)
+        # save_mapping(id, instance)
 
         df_data = get_file_data(id)
 
-        data_model_dict, filter_headings_dict, empty_entries_dict, multi_entry_dict, point_base_dict = split_mapping_data(data)
+        data_model_dict, filter_headings_dict, empty_entries_dict, \
+            multi_entry_dict, point_base_dict = split_mapping_data(data)
         error_data, dtypes_dict = get_dtype_data(id)
 
-        #### Check if any new Geolocation information to save ####
+        # Check if any new Geolocation information to save
         if 'coord' in point_base_dict and not point_base_dict['coord']['lat'] == '':
-            ##shoud save here and get later
+            # shoud save here and get later
             lat = point_base_dict['coord']['lat']
             lon = point_base_dict['coord']['lon']
             df_data['geolocation'] = 'pointbased'
             dtypes_dict['geolocation'] = df_data['geolocation'].copy()
-            df_data['geolocation'] = df_data[lon].astype(str)+","+df_data[lat].astype('str')
+            df_data['geolocation'] = df_data[lon].astype(
+                str) + "," + df_data[lat].astype('str')
             data_model_dict['geolocation'] = ['geolocation']
-            #drop the two columns
+            # drop the two columns
             dtypes_dict.pop(lat, None)
             dtypes_dict.pop(lon, None)
             df_data.drop([lon, lat], inplace=True, axis=1)
 
-            #dtypes_dict['geolocation'] =
+            # dtypes_dict['geolocation'] =
             point_based = True
         else:
             point_based = False
 
-        #### Reformat dataframe for dates or categories ####
+        # Reformat dataframe for dates or categories
         if len(data_model_dict['value']) > 1:
-            df_data, dtypes_dict, data_model_dict = convert_df(df_data, multi_entry_dict, data_model_dict, empty_entries_dict.pop('empty_value_format'), dtypes_dict)
+            df_data, dtypes_dict, data_model_dict = convert_df(
+                df_data, multi_entry_dict, data_model_dict,
+                empty_entries_dict.pop('empty_value_format'), dtypes_dict)
 
-        #### Apply missing values ####
+        # Apply missing values
         df_data, data_model_dict, dtypes_dict = apply_missing_values(
             df_data, data_model_dict, dtypes_dict, empty_entries_dict)
 
-        #### Check if datatypes of data is correct ####
+        # Check if datatypes of data is correct
         result, correction_mappings, context = check_mapping_dtypes(
             data_model_dict, dtypes_dict)
 
@@ -80,16 +74,19 @@ def begin_mapping(data):
             print(context)
             return context  # Bad mapping
 
-        ###Todo check is new_dtypes_dict nessecary
-        ###Todo why can't this be moved in front of check mappings?
-        error_lines, new_dtypes_dict = generate_error_data(df_data)  # Could be important if user wants to see which parts of data did not get mapped and why they did not
+        # TODO: check is new_dtypes_dict necessary
+        # why can't this be moved in front of check mappings?
+        # Could be important if user wants to see which parts of data did not
+        # get mapped and why they did not
+        error_lines, new_dtypes_dict = generate_error_data(df_data)
         save_validation_data(error_lines, id, dtypes_dict)
 
-        ### Todo check is this is needed ###
+        # TODO: check is this is needed
         for key in new_dtypes_dict:
             dtypes_dict[key] = new_dtypes_dict[key]
 
-        ### Get the reverse mapping of data_model_dict ### ###Todo check if this is needed
+        # Get the reverse mapping of data_model_dict
+        # TODO: check if this is needed
         final_file_headings = {}
         for key in data_model_dict:
             if data_model_dict[key]:
@@ -98,26 +95,30 @@ def begin_mapping(data):
                 else:
                     final_file_headings[key] = data_model_dict[key][0]
 
-        ### Normalise data ###
+        # Normalise data
         df_data = correct_data(
             df_data,
             correction_mappings,
             error_lines,
             final_file_headings, point_based)
 
-        ### Filter out bad data from datafram ###
-        filter_applied = (df_data[final_file_headings['indicator']].notnull() # The sections of data model are not allowed to be empty
+        # Filter out bad data from datafram
+        filter_applied = (df_data[final_file_headings['indicator']].notnull()
+                          # The sections of data model
+                          # are not allowed to be empty
                           & df_data[final_file_headings['date']].notnull(
         ) & df_data[final_file_headings['value']].
             notnull() & df_data[final_file_headings['geolocation']].notnull())
 
-        df_data = df_data[filter_applied].reset_index()# Remove empty values
-        df_data[final_file_headings['date']] = pd.to_numeric(# Convert all dates to numbers
-            df_data[final_file_headings['date']]).astype(int)### Todo check is this needed, normalise should do this
+        df_data = df_data[filter_applied].reset_index()  # Remove empty values
+        df_data[final_file_headings['date']] = pd.to_numeric(
+            # Convert all dates to numbers
+            # TODO: check is this needed, normalise should do this
+            df_data[final_file_headings['date']]).astype(int)
 
-        ### Create missing entries that are used in Datapoints datamodel ####
+        # Create missing entries that are used in Datapoints datamodel
         instance, created = DateFormat.objects.get_or_create(
-            type='YYYY')  ### Todo make dynamic
+            type='YYYY')  # Todo make dynamic
         if created:
             instance.save()
 
@@ -128,12 +129,13 @@ def begin_mapping(data):
         df_data['metadata'] = metadata
         df_data['date_format'] = instance
 
-        ### Save and get foreign key data for datapoints model ###
+        # Save and get foreign key data for datapoints model
         ind_dict, headings_dict, geolocation_dict, value_format_dict, \
             filters_dict = get_save_unique_datapoints(
-                df_data, final_file_headings, metadata.source, instance, filter_headings_dict, point_based)
+                df_data, final_file_headings, metadata.source, instance,
+                filter_headings_dict, point_based)
 
-        ### Save Datapoints ###
+        # Save Datapoints
         dicts = [
             ind_dict,
             headings_dict,
@@ -141,7 +143,11 @@ def begin_mapping(data):
             value_format_dict,
             filters_dict]
 
-        save_datapoints(df_data, final_file_headings, filter_headings_dict, dicts)
+        save_datapoints(
+            df_data,
+            final_file_headings,
+            filter_headings_dict,
+            dicts)
 
         context = {'success': 1}
         return context
@@ -156,14 +162,20 @@ def split_mapping_data(data):
     data_model_dict = data['mapping_dict']
     filter_headings_dict = data[FILTER_HEADINGS]
     if 'extra_information' in data:
-        empty_entries_dict = data['extra_information']['empty_entries'] if 'empty_entries' in data['extra_information'] else {}
-        multi_entry_dict = data['extra_information']['multi_mapped'] if 'multi_mapped' in data['extra_information'] else {}
-        point_base_dict = data['extra_information']['point_based_info'] if 'point_based_info' in data['extra_information'] else {}
+        empty_entries_dict = data['extra_information']['empty_entries'] \
+            if 'empty_entries' in data['extra_information'] else {
+        }
+        multi_entry_dict = data['extra_information']['multi_mapped'] \
+            if 'multi_mapped' in data['extra_information'] else {
+        }
+        point_base_dict = data['extra_information']['point_based_info'] \
+            if 'point_based_info' in data['extra_information'] else {}
     else:
         empty_entries_dict = {}
         multi_entry_dict = {}
         point_base_dict = {}
-    return data_model_dict, filter_headings_dict, empty_entries_dict, multi_entry_dict, point_base_dict
+    return data_model_dict, filter_headings_dict, empty_entries_dict, \
+        multi_entry_dict, point_base_dict
 
 
 def apply_missing_values(df_data, mappings, dtypes_dict, empty_entries_dict):
@@ -173,7 +185,8 @@ def apply_missing_values(df_data, mappings, dtypes_dict, empty_entries_dict):
         df_data (Dataframe): dataframe of CSV file.
         mappings ({str:[str]}): the users chosen mappings for a file column.
         dtypes_dict ({str:str}): stores the data-types found for each heading.
-        empty_values_array ([str]): values related to missing values in manual mapping process
+        empty_values_array ([str]): values related to missing values in manual
+        mapping process
 
     Returns:
         df_data (Dataframe): dataframe of CSV file.
@@ -181,42 +194,50 @@ def apply_missing_values(df_data, mappings, dtypes_dict, empty_entries_dict):
         dtypes_dict ({str:str}): stores the data-types found for each heading.
     '''
 
-    length = (len(df_data[df_data.columns[0]]) -1)
+    length = (len(df_data[df_data.columns[0]]) - 1)
 
-    if 'empty_indicator' in empty_entries_dict and not empty_entries_dict['empty_indicator'] == '':
+    if 'empty_indicator' in empty_entries_dict and not empty_entries_dict[
+            'empty_indicator'] == '':
         mappings['indicator'] = ['indicator']
         df_data['indicator'] = empty_entries_dict['empty_indicator']
         dtypes_dict[mappings['indicator'][0]] = ['text'] * length
         # add indicator value as column
 
-    if 'empty_geolocation' in empty_entries_dict and not empty_entries_dict['empty_geolocation']['value'] == '':
+    if 'empty_geolocation' in empty_entries_dict and not empty_entries_dict[
+            'empty_geolocation']['value'] == '':
         mappings['geolocation'] = ['geolocation']
-        df_data['geolocation'] = empty_entries_dict['empty_geolocation']['value']
-        dtypes_dict[mappings['geolocation'][0]] = [empty_entries_dict['empty_geolocation']['type']] * length
+        df_data['geolocation'] = \
+            empty_entries_dict['empty_geolocation']['value']
+        dtypes_dict[mappings['geolocation'][0]] = [
+            empty_entries_dict['empty_geolocation']['type']] * length
 
-    if 'empty_filter' in empty_entries_dict and not empty_entries_dict['empty_filter'] == '':
+    if 'empty_filter' in empty_entries_dict and \
+            not empty_entries_dict['empty_filter'] == '':
         mappings['filters'] = ['filters']
         df_data['filters'] = empty_entries_dict['empty_filter']
         dtypes_dict[mappings['filters'][0]] = ['text'] * length
 
-    if 'empty_date' in empty_entries_dict and not empty_entries_dict['empty_date'] == '':
+    if 'empty_date' in empty_entries_dict and\
+            not empty_entries_dict['empty_date'] == '':
         mappings['date'] = ['date']
         df_data['date'] = empty_entries_dict['empty_date']
         dtypes_dict[mappings['date'][0]] = ['date'] * length
 
-    if 'empty_value_format' in empty_entries_dict and  len(empty_entries_dict['empty_value_format']) > 0:
+    if 'empty_value_format' in empty_entries_dict and len(
+            empty_entries_dict['empty_value_format']) > 0:
         if len(mappings['value']) == 1:
             # check each entry empty value format dict
             mappings['value_format'] = ['value_format']
-            df_data['value_format'] = empty_entries_dict['empty_value_format'][list(empty_entries_dict['empty_value_format'].keys())[0]]
+            df_data['value_format'] = \
+                empty_entries_dict['empty_value_format'][list(
+                    empty_entries_dict['empty_value_format'].keys())[0]]
             dtypes_dict[mappings['value_format'][0]] = ['text'] * length
         else:
             print('Shouldn\' happen')
-            ### Todo hande multiple value formats
-            ### Todo reformat df data and apply multiple formats
-            #mappings['value_format'] = ['value_format']
-            #dtypes_dict[mappings['value_format'][0]] = [('text', 'text')]
-
+            # TODO: hande multiple value formats
+            # TODO: reformat df data and apply multiple formats
+            # mappings['value_format'] = ['value_format']
+            # dtypes_dict[mappings['value_format'][0]] = [('text', 'text')]
 
     return df_data, mappings, dtypes_dict
 
@@ -230,8 +251,10 @@ def check_mapping_dtypes(mappings, dtypes_dict):
 
     Returns:
         result: indicates whether there is a bad mapping or not.
-        correction_mappings ({str:(str,str)}): the conversion needed for each file heading.
-        context ({str:[data]}): the information displayed to the user if mapping is bad.
+        correction_mappings ({str:(str,str)}): the conversion needed
+        for each file heading.
+        context ({str:[data]}): the information displayed to the user
+        if mapping is bad.
     '''
     correction_mappings = {}
     error_message = []
@@ -239,7 +262,8 @@ def check_mapping_dtypes(mappings, dtypes_dict):
         if mappings[key]:  # this is included incase no mapping is given
             for heading in mappings[key]:
                 correction_mappings[heading] = []
-                temp_results_check_dtype, temp_found_dtype, temp_convert_dtype = \
+                temp_results_check_dtype, temp_found_dtype, \
+                    temp_convert_dtype = \
                     check_column_data_type(key, dtypes_dict[heading])
 
                 if temp_results_check_dtype:
@@ -263,15 +287,17 @@ def get_save_unique_datapoints(
         file_source,
         date_format,
         filter_headings_dict,
-        point_based = False):
+        point_based=False):
     '''Gets foreign keys for IndicatorDatapoint and saves new entries if needed.
     Args:
         df_data (Dataframe): dataframe of CSV file.
-        final_file_headings ({str:[str]}): data model section and associated column heading.
+        final_file_headings ({str:[str]}): data model section and associated
+        column heading.
 
     Returns:
         ind_dict ({str:Indicator}): dictionary of Indicator objects.
-        ind_source_dict ({str:IndicatorSource}): dictionary of IndicatorSource objects.
+        ind_source_dict ({str:IndicatorSource}): dictionary of IndicatorSource
+        objects.
         ind_country_dict ({str:Country}): dictionary of Country objects.
     '''
 
@@ -304,14 +330,16 @@ def get_save_unique_datapoints(
                     instance.save()
                 ind_dict[unique_list[i]] = instance
                 for file_heading in filter_headings_dict:
-                    heading_instance, created = FilterHeadings.objects.get_or_create(
-                        # df_groupby[heading used in file][row of entry] #Quite
-                        # confusing!!
-                        name=filter_headings_dict[file_heading],
-                        indicator=instance)
+                    heading_instance, created = \
+                        FilterHeadings.objects.get_or_create(
+                            # df_groupby[heading used in file][row of entry]
+                            # Quite confusing!!
+                            name=filter_headings_dict[file_heading],
+                            indicator=instance)
                     if created:
                         heading_instance.save()
-                    heading_index = unique_list[i] + filter_headings_dict[file_heading]
+                    heading_index = unique_list[i] + \
+                        filter_headings_dict[file_heading]
                     headings_dict[heading_index] = heading_instance
 
             elif(count == 1):  # Location#
@@ -319,13 +347,16 @@ def get_save_unique_datapoints(
                     lon = float(unique_list[i].split(',')[0])
                     lat = float(unique_list[i].split(',')[1])
                     point = Point(lon, lat)
-                    p, created = PointBased.objects.get_or_create(name = unique_list[i], center_longlat = point)
+                    p, created = PointBased.objects.get_or_create(
+                        name=unique_list[i], center_longlat=point)
                     if created:
                         p.save()
-                        instance = Geolocation(content_object=p, tag=unique_list[i], type='pointbased')
+                        instance = Geolocation(
+                            content_object=p, tag=unique_list[i],
+                            type='pointbased')
                         instance.save()
                     else:
-                        instance = Geolocation.objects.get(tag = unique_list[i])
+                        instance = Geolocation.objects.get(tag=unique_list[i])
                 else:
                     if(len(unique_list[i]) == 2):
                         instance = Geolocation.objects.get(iso2=unique_list[i])
@@ -349,7 +380,8 @@ def get_save_unique_datapoints(
         unique_filters = df_data.groupby(
             [
                 final_file_headings['indicator'],
-                final_file_headings['filters'][j]]).size().reset_index()  # Important returns a dataframe
+                # Important returns a dataframe
+                final_file_headings['filters'][j]]).size().reset_index()
         unique_filter_value_formats = df_data.groupby(
             [
                 final_file_headings['indicator'],
@@ -372,7 +404,8 @@ def get_save_unique_datapoints(
         for i in range(len(unique_filters)):
             filter_name = unique_filters[final_file_headings['filters'][j]][i]
             indicator = unique_filters[final_file_headings['indicator']][i]
-            filter_heading_name = filter_headings_dict[final_file_headings['filters'][j]]
+            filter_heading_name = \
+                filter_headings_dict[final_file_headings['filters'][j]]
             instance, created = Filters.objects.get_or_create(
                 name=filter_name,
                 heading=headings_dict[
@@ -388,13 +421,16 @@ def get_save_unique_datapoints(
                 unique_filter_value_formats[final_file_headings[
                     'value_format']][i]]
 
-            # [df_data[final_file_headings['date_format']][i]] + instance.date_formats
+            # [df_data[final_file_headings['date_format']][i]] +
+            # instance.date_formats
             instance.date_format = date_format
             instance.metadata = df_data['metadata'][0]
             geo_filter = unique_filter_geolocation_formats[
-                             final_file_headings['filters'][j]
-                         ] == unique_filters[final_file_headings['filters'][j]][i]
-            geolocation_list = list(unique_filter_geolocation_formats[geo_filter][final_file_headings['geolocation']].map(geolocation_dict)) # TODO Vectorise
+                final_file_headings['filters'][j]
+            ] == unique_filters[final_file_headings['filters'][j]][i]
+            geolocation_list = list(unique_filter_geolocation_formats[
+                geo_filter][final_file_headings['geolocation']].map(
+                geolocation_dict))  # TODO Vectorise
             instance.geolocations.add(*geolocation_list)
             instance.save()
 
@@ -406,14 +442,16 @@ def get_save_unique_datapoints(
         filters_dict
 
 
-def save_datapoints(df_data, final_file_headings, filter_headings_dict,dicts):
+def save_datapoints(df_data, final_file_headings, filter_headings_dict, dicts):
     '''Saves each line that is valid of csv file to data model.
 
     Args:
         df_data (Dataframe): data of csv file in a dataframe.
-        final_file_headings ({str: str}): contains data points as headings and columns as values.
+        final_file_headings ({str: str}): contains data points as headings
+        and columns as values.
         reverse_mapping ({str: str}): inverse of final_file_headings.
-        dicts ([str:{str:Model}]): list of dictionaries containing foreign keys.
+        dicts ([str:{str:Model}]): list of dictionaries
+        containing foreign keys.
     '''
 
     metadata = df_data['metadata'][0]
@@ -438,10 +476,11 @@ def save_datapoints(df_data, final_file_headings, filter_headings_dict,dicts):
         df_filters[heading] = df_data[heading]
         unique_df_filters[heading] = np.unique(df_data[heading])
         df_filters[heading] = df_data[heading].map(filters_dict)
-        unique_df_filters[heading] = unique_df_filters[heading].map(filters_dict)
+        unique_df_filters[heading] = unique_df_filters[heading].map(
+            filters_dict)
 
     df_data.drop(final_file_headings['filters'], axis=1, inplace=True)
-    filter_headings = final_file_headings.pop('filters',None)
+    filter_headings = final_file_headings.pop('filters', None)
 
     df_data[final_file_headings['indicator']
             ] = df_data[final_file_headings['indicator']].map(ind_dict)
@@ -464,13 +503,15 @@ def save_datapoints(df_data, final_file_headings, filter_headings_dict,dicts):
 
     count = 1
     for i in range(batch_size):
-        print('Saving datapoints for batch %d %s' % (count, datetime.datetime.now()))
+        print('Saving datapoints for batch %d %s' %
+              (count, datetime.datetime.now()))
         next_batch += 100000
         if next_batch > df_data['indicator'].size:  # shouldn't be needed
             next_batch = df_data['indicator'].size
             i = batch_size + 1  # shouldn't happen
 
-        data_to_save = df_data[previous_batch:next_batch].to_dict(orient='records')
+        data_to_save = df_data[previous_batch:next_batch].to_dict(
+            orient='records')
 
         # if(len(data_to_save) > 0):
         # Vectorised operation, convert batch into datapoint objects
@@ -481,9 +522,11 @@ def save_datapoints(df_data, final_file_headings, filter_headings_dict,dicts):
 
         data = np.array(data)
         filter_data = df_filters[previous_batch:next_batch]  # Get filter batch
-        print('Saving filters for batch %d %s' % (count, datetime.datetime.now()))
+        print('Saving filters for batch %d %s' %
+              (count, datetime.datetime.now()))
         for heading in filter_headings:
-            print('Saving heading %s for batch %d %s' % (heading, count, datetime.datetime.now()))
+            print('Saving heading %s for batch %d %s' %
+                  (heading, count, datetime.datetime.now()))
             # vectorised operation to add many to many mapping between filters
             # and datapoints
             for f in unique_df_filters[heading]:
@@ -491,12 +534,11 @@ def save_datapoints(df_data, final_file_headings, filter_headings_dict,dicts):
                 # print('Unique filters ', unique_filters[f])
                 f.datapoints.add(*list(data[filter_data[heading] == f]))
                 f.save()
-            #vfunc2(np.array(filter_data[heading]), data)
+            # vfunc2(np.array(filter_data[heading]), data)
             print('Added datapoints to filter %s' % (datetime.datetime.now()))
             # vectorised operation to save new addition methods, maybe best to
             # do this last
-            #########################################
-        #vfunc3(np.array(filter_data[heading]))
+        # vfunc3(np.array(filter_data[heading]))
         print('Saved filters %s' % (datetime.datetime.now()))
 
         df_data[previous_batch:next_batch] = np.nan  # Done to free space
@@ -504,14 +546,14 @@ def save_datapoints(df_data, final_file_headings, filter_headings_dict,dicts):
         print('Previous batch ', previous_batch)
         print('Next batch ', next_batch)
         previous_batch = next_batch
-        print('Finished saving batch %d hurray! %s' % (count, datetime.datetime.now()))
+        print('Finished saving batch %d hurray! %s' %
+              (count, datetime.datetime.now()))
         count += 1
     print('Finished')
     metadata.file_status = 4
     metadata.save()
 
 
-'''Saves a dataframe temporarily'''
 def temp_save_file(df_data):
     path = os.path.join(
         os.path.dirname(
@@ -523,13 +565,7 @@ def temp_save_file(df_data):
     return dtype_name
 
 
-'''Remaps all files that have been mapped'''
 def remap_all_files():
-    #from django.http import QueryDict
-    #dict = {'a': 'one', 'b': 'two', }
-    #qdict = QueryDict('', mutable=True)
-    # qdict.update(dict)
-
     files = File.objects.all()
     for file in files:
         if file.status == 5:
