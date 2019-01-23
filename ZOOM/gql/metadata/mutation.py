@@ -6,12 +6,13 @@ from graphene_django.rest_framework.mutation import SerializerMutation
 from rest_framework import serializers
 
 from gql.metadata.serializers import (FileSerializer, FileSourceSerializer,
-                                      FileTagsSerializer)
+                                      FileTagsSerializer, SurveyDataSerializer)
 from metadata.models import File, FileSource, FileTags
 from validate.validator import generate_error_data
 
 
 class FileSourceMutation(SerializerMutation):
+
     class Meta:
         serializer_class = FileSourceSerializer
         model_operations = ['create', 'update']
@@ -49,6 +50,7 @@ class FileSourceMutation(SerializerMutation):
 
 
 class FileMutation(SerializerMutation):
+
     class Meta:
         serializer_class = FileSerializer
         model_operations = ['create', 'update']
@@ -124,6 +126,7 @@ class FileMutation(SerializerMutation):
 
 
 class FileTagsMutation(SerializerMutation):
+
     class Meta:
         serializer_class = FileTagsSerializer
         model_operations = ['create', 'update']
@@ -147,7 +150,33 @@ class FileTagsMutation(SerializerMutation):
         return {'data': input, 'partial': True}
 
 
+class SurveyDataMutation(SerializerMutation):
+
+    class Meta:
+        serializer_class = SurveyDataSerializer
+        model_operations = ['create', 'update']
+        lookup_field = 'id'
+
+    @classmethod
+    def get_serializer_kwargs(cls, root, info, **input):
+        if input.get('id', None):
+            instance = FileTags.objects.filter(
+                id=input['id']).first()
+            if instance:
+                return {'instance': instance, 'data': input, 'partial': True}
+            else:
+                raise http.Http404
+
+        # A foreign key bugs on SerializerMutation
+        serializer = SurveyDataSerializer(data=input)
+        if not serializer.is_valid():
+            raise Exception(serializer.errors)
+
+        return {'data': input, 'partial': True}
+
+
 class Mutation(graphene.ObjectType):
     file_source = FileSourceMutation.Field()
     file = FileMutation.Field()
     file_tags = FileTagsMutation.Field()
+    survey_data = SurveyDataMutation.Field()
