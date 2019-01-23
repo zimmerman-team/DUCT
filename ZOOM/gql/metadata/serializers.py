@@ -1,10 +1,11 @@
 import json
-from rest_framework import serializers
-import pandas as pd
 
-from metadata.models import File, FileSource
+import pandas as pd
+from rest_framework import serializers
+
 from indicator.models import MAPPING_DICT
-from graphene_file_upload.scalars import Upload
+from metadata.models import File, FileSource
+
 
 class FileSourceSerializer(serializers.ModelSerializer):
     entry_id = serializers.SerializerMethodField()

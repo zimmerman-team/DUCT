@@ -1,14 +1,13 @@
+import graphene
+import pandas as pd
 from django import http
 from django.conf import settings
-
-import pandas as pd
-import graphene
 from graphene_django.rest_framework.mutation import SerializerMutation
 from rest_framework import serializers
 
+from gql.metadata.serializers import FileSerializer, FileSourceSerializer
+from metadata.models import File, FileSource
 from validate.validator import generate_error_data
-from metadata.models import FileSource, File
-from gql.metadata.serializers import FileSourceSerializer, FileSerializer
 
 
 class FileSourceMutation(SerializerMutation):
