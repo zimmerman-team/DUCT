@@ -102,13 +102,13 @@ class SurveyData(models.Model):
         choices=CONSINDERED_SENSITIVE_CHOICES)
     staff_trained = models.CharField(
         max_length=100,
-        help_text='Staff was trained on how to ask the senstive '
-                  'information to avoid influencing the respondent’s anwers?',
+        help_text='Staff was trained on how to ask the sensitive '
+                  'information to avoid influencing the respondent’s answer?',
         choices=CONSINDERED_SENSITIVE_CHOICES)
     ask_sensitive = models.CharField(
         max_length=100,
         help_text='It was possible for respondents to not answer certain '
-                  'questions if they found them to personal/senstive?',
+                  'questions if they found them to personal/sensitive?',
         choices=CONSINDERED_SENSITIVE_CHOICES)
     select_respondents = MultiSelectField(
         choices=HOW_SELECT_RESPONDENTS_CHOICES,

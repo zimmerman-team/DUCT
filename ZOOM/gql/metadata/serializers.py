@@ -4,7 +4,7 @@ import pandas as pd
 from rest_framework import serializers
 
 from indicator.models import MAPPING_DICT
-from metadata.models import File, FileSource, FileTags
+from metadata.models import File, FileSource, FileTags, SurveyData
 
 
 class FileSourceSerializer(serializers.ModelSerializer):
@@ -89,5 +89,20 @@ class FileSerializer(serializers.ModelSerializer):
         return json.loads(pd.Series(MAPPING_DICT).to_json())
 
 
+class SurveyDataSerializer(serializers.ModelSerializer):
 
-
+    class Meta:
+        model = SurveyData
+        fields = (
+            'id',
+            'have_you_tested_tool',
+            'who_did_you_test_with',
+            'considered_senstive',
+            'staff_trained',
+            'ask_sensitive',
+            'select_respondents',
+            'other',
+            'how_many_respondents',
+            'edit_sheet',
+            'data_cleaning_techniques',
+        )
