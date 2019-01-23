@@ -37,7 +37,8 @@ def begin_mapping(data):
         error_data, dtypes_dict = get_dtype_data(id)
 
         # Check if any new Geolocation information to save
-        if 'coord' in point_base_dict and not point_base_dict['coord']['lat'] == '':
+        if 'coord' in point_base_dict and \
+                not point_base_dict['coord']['lat'] == '':
             # shoud save here and get later
             lat = point_base_dict['coord']['lat']
             lon = point_base_dict['coord']['lon']
