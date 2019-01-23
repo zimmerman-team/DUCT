@@ -324,7 +324,7 @@ def get_save_unique_datapoints(
 
     for unique_list in unique_lists:
         for i in range(len(unique_list)):
-            if(count == 0):  # indicator
+            if count == 0:  # indicator
                 instance, created = Indicator.objects.get_or_create(
                     name=unique_list[i], file_source=file_source)
                 if created:
@@ -343,7 +343,7 @@ def get_save_unique_datapoints(
                         filter_headings_dict[file_heading]
                     headings_dict[heading_index] = heading_instance
 
-            elif(count == 1):  # Location#
+            elif count == 1:  # Location#
                 if point_based:
                     lon = float(unique_list[i].split(',')[0])
                     lat = float(unique_list[i].split(',')[1])
@@ -375,7 +375,7 @@ def get_save_unique_datapoints(
                 value_format_dict[unique_list[i]] = instance
         count += 1
 
-    ### Save filters ###
+    # Save filters
     print('Saving filters')
     for j in range(len(final_file_headings['filters'])):
         unique_filters = df_data.groupby(
