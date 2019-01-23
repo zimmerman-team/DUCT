@@ -23,10 +23,27 @@ class FileSourceSerializer(serializers.ModelSerializer):
         return str(obj.id)
 
 
+class FileTagsSerializer(serializers.ModelSerializer):
+    entry_id = serializers.SerializerMethodField()
+
+    class Meta:
+        model = FileTags
+        fields = (
+            'id',
+            'name',
+            'entry_id'
+        )
+
+    @classmethod
+    def get_entry_id(cls, obj):
+        return str(obj.id)
+
+
 class FileSerializer(serializers.ModelSerializer):
     entry_id = serializers.SerializerMethodField()
     entry_file_heading_list = serializers.SerializerMethodField()
     data_model_heading = serializers.SerializerMethodField()
+    tags = FileTagsSerializer(many=True, read_only=True, required=False)
 
     class Meta:
         model = File
@@ -55,7 +72,8 @@ class FileSerializer(serializers.ModelSerializer):
             'file_heading_list',
             'entry_id',
             'entry_file_heading_list',
-            'data_model_heading'
+            'data_model_heading',
+            'tags'
         )
 
     @classmethod
@@ -71,18 +89,5 @@ class FileSerializer(serializers.ModelSerializer):
         return json.loads(pd.Series(MAPPING_DICT).to_json())
 
 
-class FileTagsSerializer(serializers.ModelSerializer):
-    entry_id = serializers.SerializerMethodField()
 
-    class Meta:
-        model = FileTags
-        fields = (
-            'id',
-            'name',
-            'entry_id'
-        )
-
-    @classmethod
-    def get_entry_id(cls, obj):
-        return str(obj.id)
 

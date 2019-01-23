@@ -70,6 +70,22 @@ class FileMutation(SerializerMutation):
                     instance.file.name = '{media_root}/{filename}'.format(
                         media_root=settings.MEDIA_ROOT, filename=input['file']
                     )
+                    # file input should be file type
+                    input['file'] = instance.file
+
+                # Update tags
+                if 'tags' in input:
+                    # delete all existing tags before update it
+                    for tag in instance.tags.all():
+                        instance.tags.remove(tag)
+
+                    for item in input['tags']:
+                        try:
+                            tag = FileTags.objects.get(name=item['name'])
+                            instance.tags.add(tag)
+                        except FileTags.DoesNotExist:
+                            pass
+
                 return {'instance': instance, 'data': input, 'partial': True}
             else:
                 raise http.Http404
