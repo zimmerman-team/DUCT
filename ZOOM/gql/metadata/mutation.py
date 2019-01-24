@@ -3,7 +3,6 @@ import pandas as pd
 from django import http
 from django.conf import settings
 from graphene_django.rest_framework.mutation import SerializerMutation
-from graphene_django.rest_framework.types import ErrorType
 from rest_framework import serializers
 
 from gql.metadata.serializers import (FileSerializer, FileSourceSerializer,
