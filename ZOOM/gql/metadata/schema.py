@@ -127,6 +127,14 @@ class FileTagsFilter(FilterSet):
 
 class SurveyDataNode(DjangoObjectType):
     entry_id = graphene.String()
+    have_you_tested_tool = graphene.String()
+    who_did_you_test_with = graphene.String()
+    considered_senstive = graphene.String()
+    staff_trained = graphene.String()
+    ask_sensitive = graphene.String()
+    select_respondents = graphene.String()
+    edit_sheet = graphene.String()
+    data_cleaning_techniques = graphene.String()
 
     class Meta:
         model = SurveyData
@@ -135,13 +143,66 @@ class SurveyDataNode(DjangoObjectType):
     def resolve_entry_id(self, context, **kwargs):
         return self.id
 
+    def resolve_have_you_tested_tool(self, context, **kwargs):
+        return str(self.have_you_tested_tool)
+
+    def resolve_who_did_you_test_with(self, context, **kwargs):
+        return str(self.who_did_you_test_with)
+
+    def resolve_considered_senstive(self, context, **kwargs):
+        return str(self.considered_senstive)
+
+    def resolve_staff_trained(self, context, **kwargs):
+        return str(self.staff_trained)
+
+    def resolve_ask_sensitive(self, context, **kwargs):
+        return str(self.ask_sensitive)
+
+    def resolve_select_respondents(self, context, **kwargs):
+        return str(self.select_respondents)
+
+    def resolve_edit_sheet(self, context, **kwargs):
+        return str(self.edit_sheet)
+
+    def resolve_data_cleaning_techniques(self, context, **kwargs):
+        return str(self.data_cleaning_techniques)
+
 
 class SurveyDataFilter(FilterSet):
     entry_id = NumberFilter(method='filter_entry_id')
     entry_id__in = CharFilter(method='filter_entry_id__in')
 
     class Meta:
-        model = FileTags
+        model = SurveyData
+        fields = {
+            'have_you_tested_tool': [
+                'exact', 'in'
+            ],
+            'who_did_you_test_with': [
+                'exact', 'in'
+            ],
+            'staff_trained': [
+                'exact', 'in'
+            ],
+            'ask_sensitive': [
+                'exact', 'in'
+            ],
+            'select_respondents': [
+                'exact', 'in'
+            ],
+            'other': [
+                'exact', 'in'
+            ],
+            'how_many_respondents': [
+                'exact', 'in'
+            ],
+            'edit_sheet': [
+                'exact', 'in'
+            ],
+            'data_cleaning_techniques': [
+                'exact', 'in'
+            ]
+        }
 
     def filter_entry_id(self, queryset, name, value):
         name = 'id'
