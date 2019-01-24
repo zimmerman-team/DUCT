@@ -22,7 +22,7 @@ DELETE_DICT = {
     'row_keys': []
 }
 
-# Main dictionaru sed for making call
+# Main dictionary sed for making call
 ERROR_CORRECTION_DICT = {
     'file_id': '',
     'start_pos': 0,  # pagination
@@ -57,7 +57,7 @@ def error_correction(data):
 
         if data['filter_toggle']:
             df_data = find_and_replace(df_data, data)
-        #if data['error_toggle']:#Filter for errors#
+        # if data['error_toggle']:#Filter for errors#
         #    df_data = filter_for_errors(df_data, data)
 
         output_list = []
