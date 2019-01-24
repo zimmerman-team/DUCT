@@ -431,12 +431,18 @@ def check_file_formatting(file_loc):
         df_data = pd.read_csv(file_loc)
     except Exception as e:
         return False, {
-            'success': 0, 'error': 'Couldn\'t read file, check start of file for text, for malformed columns and  for gaps in data.'}
+            'success': 0,
+            'error': 'Couldn\'t read file, check start of file for text, '
+                     'for malformed columns and  for gaps in data.'
+        }
     # check column names if unammed give back false
     for key in df_data.columns:
         if 'Unnamed' in key:
             return False, {
-                'success': 0, 'error': 'Cannot validate, unnamed columns in data set or unessecary text at start of file.'}
+                'success': 0,
+                'error': 'Cannot validate, unnamed columns in data set or '
+                         'unessecary text at start of file.'
+            }
         else:
             nan_indexes = pd.isnull(df_data)
             # for col in df_data.ix[:,0]:
@@ -447,9 +453,12 @@ def check_file_formatting(file_loc):
     if result:
         # return line number of blank lines?
         return False, {
-            'success': 0, 'error': 'Files has blank lines or text at end of the file.'}
+            'success': 0,
+            'error': 'Files has blank lines or text at end of the file.'
+        }
     return True, {'success': 1}
-    #check end of file if there is empty line and the df_data lenght is longer than this line then error#
+    # check end of file if there is empty line and the df_
+    # data lenght is longer than this line then error
     # get columns with the least amount of empty values
     # check which has the least amount
 
