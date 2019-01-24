@@ -120,3 +120,16 @@ class SurveyDataSerializer(serializers.ModelSerializer):
             'edit_sheet',
             'data_cleaning_techniques',
         )
+
+
+class FileValidateSerializer(serializers.ModelSerializer):
+    success = serializers.BooleanField(read_only=True)
+    error = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = File
+        fields = (
+            'id',
+            'success',
+            'error'
+        )
