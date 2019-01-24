@@ -1,17 +1,18 @@
+import graphene
+import pandas as pd
 from django import http
 from django.conf import settings
-
-import pandas as pd
-import graphene
 from graphene_django.rest_framework.mutation import SerializerMutation
 from rest_framework import serializers
 
+from gql.metadata.serializers import (FileSerializer, FileSourceSerializer,
+                                      FileTagsSerializer, SurveyDataSerializer)
+from metadata.models import File, FileSource, FileTags
 from validate.validator import generate_error_data
-from metadata.models import FileSource, File
-from gql.metadata.serializers import FileSourceSerializer, FileSerializer
 
 
 class FileSourceMutation(SerializerMutation):
+
     class Meta:
         serializer_class = FileSourceSerializer
         model_operations = ['create', 'update']
@@ -49,6 +50,7 @@ class FileSourceMutation(SerializerMutation):
 
 
 class FileMutation(SerializerMutation):
+
     class Meta:
         serializer_class = FileSerializer
         model_operations = ['create', 'update']
@@ -70,6 +72,22 @@ class FileMutation(SerializerMutation):
                     instance.file.name = '{media_root}/{filename}'.format(
                         media_root=settings.MEDIA_ROOT, filename=input['file']
                     )
+                    # file input should be file type
+                    input['file'] = instance.file
+
+                # Update tags
+                if 'tags' in input:
+                    # delete all existing tags before update it
+                    for tag in instance.tags.all():
+                        instance.tags.remove(tag)
+
+                    for item in input['tags']:
+                        try:
+                            tag = FileTags.objects.get(name=item['name'])
+                            instance.tags.add(tag)
+                        except FileTags.DoesNotExist:
+                            pass
+
                 return {'instance': instance, 'data': input, 'partial': True}
             else:
                 raise http.Http404
@@ -107,6 +125,58 @@ class FileMutation(SerializerMutation):
         return cls(errors=None, **kwargs)
 
 
+class FileTagsMutation(SerializerMutation):
+
+    class Meta:
+        serializer_class = FileTagsSerializer
+        model_operations = ['create', 'update']
+        lookup_field = 'id'
+
+    @classmethod
+    def get_serializer_kwargs(cls, root, info, **input):
+        if input.get('id', None):
+            instance = FileTags.objects.filter(
+                id=input['id']).first()
+            if instance:
+                return {'instance': instance, 'data': input, 'partial': True}
+            else:
+                raise http.Http404
+
+        # A foreign key bugs on SerializerMutation
+        serializer = FileTagsSerializer(data=input)
+        if not serializer.is_valid():
+            raise Exception(serializer.errors)
+
+        return {'data': input, 'partial': True}
+
+
+class SurveyDataMutation(SerializerMutation):
+
+    class Meta:
+        serializer_class = SurveyDataSerializer
+        model_operations = ['create', 'update']
+        lookup_field = 'id'
+
+    @classmethod
+    def get_serializer_kwargs(cls, root, info, **input):
+        if input.get('id', None):
+            instance = FileTags.objects.filter(
+                id=input['id']).first()
+            if instance:
+                return {'instance': instance, 'data': input, 'partial': True}
+            else:
+                raise http.Http404
+
+        # A foreign key bugs on SerializerMutation
+        serializer = SurveyDataSerializer(data=input)
+        if not serializer.is_valid():
+            raise Exception(serializer.errors)
+
+        return {'data': input, 'partial': True}
+
+
 class Mutation(graphene.ObjectType):
     file_source = FileSourceMutation.Field()
     file = FileMutation.Field()
+    file_tags = FileTagsMutation.Field()
+    survey_data = SurveyDataMutation.Field()
