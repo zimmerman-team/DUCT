@@ -1,8 +1,7 @@
-from django.conf.urls import url
+from __future__ import unicode_literals
 
-from . import views
+from django.apps import AppConfig
 
 
-urlpatterns = [
-    url(r'^$', views.index, name='index'),
-]
+class ErrorCorrectionConfig(AppConfig):
+    name = 'error_correction'
