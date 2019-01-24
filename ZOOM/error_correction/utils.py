@@ -149,7 +149,7 @@ def check_dtypes(error_data, dtypes_dict,
         end_pos = len(error_data[column_headings[0]])
 
     for i in column_headings:  # minus one for line no
-        if (not dtypes_dict[i][0][0] == 'blank'):
+        if not dtypes_dict[i][0][0] == 'blank':
             filter_applied = (error_data[i] != dtypes_dict[i][0][0])
             # [x for x in error_data[i] if (x != dtypes_dict[i][0][0]
             # and (not dtypes_dict[i][0][0] == 'blank'))]#use map
