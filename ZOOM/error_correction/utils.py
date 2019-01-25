@@ -13,7 +13,7 @@ UPDATE_DICT = {
     'header_value': '',
     'header_tobe_changed': '',
     'column': '',
-    'line_no': '',
+    'line_no': 0,
     'cell_value': '',
 }
 
@@ -229,8 +229,18 @@ def update(id, data):
         line_no = data['line_no']
         df_data[heading][line_no] = data['cell_value']
 
-        prob_list, error_count = update_cell_type(
-            df_data[heading][line_no], dtypes_dict[heading], line_no, heading)
+        # TODO: Logic BUGS check everything why using if like below
+        if type(error_data[next(iter(error_data))]) == list:
+            prob_list, error_count = update_cell_type(
+                df_data[heading][line_no],
+                dtypes_dict[heading], line_no, heading
+            )
+        else:
+            prob_list, error_count = update_cell_type(
+                df_data[heading][line_no],
+                error_data[heading], line_no, heading
+            )
+
         dtypes_dict[heading] = error_count
         error_data[heading] = prob_list
 

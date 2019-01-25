@@ -216,7 +216,7 @@ class SurveyDataFilter(FilterSet):
 
 class FileErrorCorrectionNode(DjangoObjectType):
     entry_id = graphene.String()
-    data = graphene.JSONString()
+    command = graphene.JSONString()
 
     class Meta:
         model = File
@@ -226,7 +226,7 @@ class FileErrorCorrectionNode(DjangoObjectType):
     def resolve_entry_id(self, context, **kwargs):
         return self.id
 
-    def resolve_data(self, info):
+    def resolve_command(self, info):
         ERROR_CORRECTION_DICT['file_id'] = self.id
         return pd.Series(ERROR_CORRECTION_DICT).to_json()
 

@@ -137,13 +137,13 @@ class FileValidateSerializer(serializers.ModelSerializer):
 
 
 class FileErrorCorrectionSerializer(serializers.ModelSerializer):
-    data = serializers.JSONField()
+    command = serializers.JSONField()
     result = serializers.JSONField(read_only=True)
 
     class Meta:
         model = File
         fields = (
             'id',
-            'data',
+            'command',
             'result'
         )

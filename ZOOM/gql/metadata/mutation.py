@@ -7,7 +7,8 @@ from django.conf import settings
 from graphene_django.rest_framework.mutation import SerializerMutation
 from rest_framework import serializers
 
-from error_correction.utils import error_correction
+from error_correction.utils import (delete_data, error_correction, get_errors,
+                                    update)
 from gql.metadata.serializers import (FileErrorCorrectionSerializer,
                                       FileSerializer, FileSourceSerializer,
                                       FileTagsSerializer,
@@ -238,16 +239,44 @@ class FileErrorCorrectionMutation(SerializerMutation):
     @classmethod
     def perform_mutate(cls, serializer, info):
         file = serializer.instance
-        result = error_correction(json.loads(
-            serializer.validated_data['data']))
+        data = json.loads(serializer.validated_data['command'])
+        context = None
+
+        if data['update']:
+            try:
+                context = update(data['file_id'], data['update_data'])
+            except Exception as e:
+                context['error'] = "Error occurred when updating file"
+                context['success'] = 0
+                raise Exception(context)
+        elif data['delete']:
+            try:
+                context = delete_data(
+                    data['file_id'],
+                    data['delete_data'])
+            except Exception as e:
+                context[
+                    'error'] = "Error occurred when deleting data from file"
+                context['success'] = 0
+                raise Exception(context)
+        elif data['error_toggle']:
+            try:
+                context = get_errors(data)
+                data['error_data'] = context
+            except Exception as e:
+                context['error'] = "Error occurred when retrieving errors"
+                context['success'] = 0
+                raise Exception(context)
+
+        context = error_correction(data)
 
         kwargs = {}
         for f, field in serializer.fields.items():
-            if f not in ['data', 'result']:
+            if f not in ['command', 'result']:
                 kwargs[f] = field.get_attribute(file)
 
-        kwargs['data'] = serializer.validated_data['data']
-        kwargs['result'] = pd.Series(result).to_json()
+        kwargs['command'] = serializer.validated_data['command']
+        kwargs['result'] = pd.Series(context).to_json()
 
         return cls(errors=None, **kwargs)
 
