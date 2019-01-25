@@ -1,4 +1,7 @@
 version: "3"
 services:
   app:
+    command: /usr/bin/python3.6 /src/ZOOM/manage.py runserver 0.0.0.0:8000
     build: .
+    ports:
+      - "8000:8000"
