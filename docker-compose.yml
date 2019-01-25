@@ -1,5 +1,13 @@
 version: "3"
 services:
+
+  db:
+    image: postgres
+    environment:
+      POSTGRES_DB: zoom
+      POSTGRES_USER: zoom
+      POSTGRES_PASSWORD: zoom
+
   app:
     command: /usr/bin/python3.6 /src/ZOOM/manage.py runserver 0.0.0.0:8000
     build: .
