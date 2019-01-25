@@ -9,6 +9,7 @@ from graphene_django.filter import DjangoFilterConnectionField
 
 from indicator.models import MAPPING_DICT
 from metadata.models import File, FileSource, FileTags, SurveyData
+from error_correction.utils import ERROR_CORRECTION_DICT
 
 
 class FileSourceNode(DjangoObjectType):
@@ -213,6 +214,40 @@ class SurveyDataFilter(FilterSet):
         return queryset.filter(**{name: eval(value)})
 
 
+class FileErrorCorrectionNode(DjangoObjectType):
+    entry_id = graphene.String()
+    data = graphene.JSONString()
+
+    class Meta:
+        model = File
+        interfaces = (relay.Node, )
+        only_fields = ('id', )
+
+    def resolve_entry_id(self, context, **kwargs):
+        return self.id
+
+    def resolve_data(self, info):
+        ERROR_CORRECTION_DICT['file_id'] = self.id
+        return pd.Series(ERROR_CORRECTION_DICT).to_json()
+
+
+class FileErrorCorrectionFilter(FilterSet):
+    entry_id = NumberFilter(method='filter_entry_id')
+    entry_id__in = CharFilter(method='filter_entry_id__in')
+
+    class Meta:
+        model = File
+        fields = {}
+
+    def filter_entry_id(self, queryset, name, value):
+        name = 'id'
+        return queryset.filter(**{name: value})
+
+    def filter_entry_id__in(self, queryset, name, value):
+        name = 'id__in'
+        return queryset.filter(**{name: eval(value)})
+
+
 class Query(object):
     file_source = relay.Node.Field(FileSourceNode)
     all_file_sources = DjangoFilterConnectionField(
@@ -232,4 +267,9 @@ class Query(object):
     survey_data = relay.Node.Field(SurveyDataNode)
     all_survey_datas = DjangoFilterConnectionField(
         SurveyDataNode, filterset_class=SurveyDataFilter
+    )
+
+    file_error_correction = relay.Node.Field(FileErrorCorrectionNode)
+    all_file_error_correction = DjangoFilterConnectionField(
+        FileErrorCorrectionNode, filterset_class=FileErrorCorrectionFilter
     )

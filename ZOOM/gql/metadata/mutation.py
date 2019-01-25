@@ -1,3 +1,5 @@
+import json
+
 import graphene
 import pandas as pd
 from django import http
@@ -5,7 +7,10 @@ from django.conf import settings
 from graphene_django.rest_framework.mutation import SerializerMutation
 from rest_framework import serializers
 
-from gql.metadata.serializers import (FileSerializer, FileSourceSerializer,
+from error_correction.utils import (delete_data, error_correction, update,
+                                    update_data)
+from gql.metadata.serializers import (FileErrorCorrectionSerializer,
+                                      FileSerializer, FileSourceSerializer,
                                       FileTagsSerializer,
                                       FileValidateSerializer,
                                       SurveyDataSerializer)
@@ -44,7 +49,7 @@ class FileSourceMutation(SerializerMutation):
 
         kwargs = {}
         for f, field in serializer.fields.items():
-            if type(field) != serializers.SerializerMethodField:
+            if not isinstance(field, serializers.SerializerMethodField):
                 kwargs[f] = field.get_attribute(obj)
             else:
                 kwargs[f] = getattr(serializer, field.method_name)(obj)
@@ -120,7 +125,7 @@ class FileMutation(SerializerMutation):
 
         kwargs = {}
         for f, field in serializer.fields.items():
-            if type(field) != serializers.SerializerMethodField:
+            if not isinstance(field, serializers.SerializerMethodField):
                 kwargs[f] = field.get_attribute(obj)
             else:
                 kwargs[f] = getattr(serializer, field.method_name)(obj)
@@ -214,9 +219,44 @@ class FileValidateMutation(SerializerMutation):
         return cls(errors=None, **kwargs)
 
 
+class FileErrorCorrectionMutation(SerializerMutation):
+
+    class Meta:
+        serializer_class = FileErrorCorrectionSerializer
+
+    @classmethod
+    def get_serializer_kwargs(cls, root, info, **input):
+        if input.get('id', None):
+            instance = File.objects.filter(
+                id=input['id']).first()
+            if instance:
+                return {'instance': instance, 'data': input, 'partial': True}
+            else:
+                raise http.Http404
+
+        raise Exception(({'id': "required"}))
+
+    @classmethod
+    def perform_mutate(cls, serializer, info):
+        file = serializer.instance
+        result = error_correction(json.loads(
+            serializer.validated_data['data']))
+
+        kwargs = {}
+        for f, field in serializer.fields.items():
+            if f not in ['data', 'result']:
+                kwargs[f] = field.get_attribute(file)
+
+        kwargs['data'] = serializer.validated_data['data']
+        kwargs['result'] = pd.Series(result).to_json()
+
+        return cls(errors=None, **kwargs)
+
+
 class Mutation(graphene.ObjectType):
     file_source = FileSourceMutation.Field()
     file = FileMutation.Field()
     file_tags = FileTagsMutation.Field()
     survey_data = SurveyDataMutation.Field()
     file_validate = FileValidateMutation.Field()
+    file_error_correction = FileErrorCorrectionMutation.Field()

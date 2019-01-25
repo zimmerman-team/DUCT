@@ -9,6 +9,7 @@ from metadata.models import (
     WHO_TESTED_CHOICES, HOW_SELECT_RESPONDENTS_CHOICES,
     CLEANING_TECHNIQUES_CHOICES
 )
+from error_correction.utils import DELETE_DICT, UPDATE_DICT
 
 
 class FileSourceSerializer(serializers.ModelSerializer):
@@ -132,4 +133,17 @@ class FileValidateSerializer(serializers.ModelSerializer):
             'id',
             'success',
             'error'
+        )
+
+
+class FileErrorCorrectionSerializer(serializers.ModelSerializer):
+    data = serializers.JSONField()
+    result = serializers.JSONField(read_only=True)
+
+    class Meta:
+        model = File
+        fields = (
+            'id',
+            'data',
+            'result'
         )
