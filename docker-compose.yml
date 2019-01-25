@@ -2,7 +2,7 @@ version: "3"
 services:
 
   db:
-    image: postgres
+    image: kartoza/postgis
     environment:
       POSTGRES_DB: zoom
       POSTGRES_USER: zoom
