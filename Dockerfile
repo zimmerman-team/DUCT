@@ -35,11 +35,10 @@ RUN apt-get -y install \
 
 RUN python3.6 -m pip install pip --upgrade
 
-ADD ZOOM/requirements.txt requirements.txt
+ENV PYTHONPATH="$PYTHONPATH:/usr/local/lib/python3.6/dist-packages"
+
 ADD . /src/
-EXPOSE 8000
 
-RUN pip install -r requirements.txt
+RUN pip install -r /src/ZOOM/requirements.txt
+
 RUN chmod 777 /src/ZOOM/logs/*.log*
-
-#CMD /src/bin/docker-cmd.sh
