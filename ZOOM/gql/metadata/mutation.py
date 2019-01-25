@@ -7,8 +7,7 @@ from django.conf import settings
 from graphene_django.rest_framework.mutation import SerializerMutation
 from rest_framework import serializers
 
-from error_correction.utils import (delete_data, error_correction, update,
-                                    update_data)
+from error_correction.utils import error_correction
 from gql.metadata.serializers import (FileErrorCorrectionSerializer,
                                       FileSerializer, FileSourceSerializer,
                                       FileTagsSerializer,
