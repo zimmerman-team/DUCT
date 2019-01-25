@@ -38,8 +38,8 @@ EXTRA_INFORMATION = {
 
 MAPPING_DICT = {
     'metadata_id': '',
-    'mapping_dict': MAPPING_HEADINGS,
-    FILTER_HEADINGS: {},
+    'mapping_dict': MAPPING_HEADINGS, #Must always have
+    FILTER_HEADINGS: {},              #Must always have
     'extra_information': EXTRA_INFORMATION
 }
 #ADDITIONAL_HEADINGS = {'metadata'}
@@ -105,6 +105,8 @@ class Filters(models.Model):
         ValueFormat, on_delete=models.SET_NULL, null=True)
     date_format = models.ForeignKey(
         DateFormat, on_delete=models.SET_NULL, null=True)
+
+    indicator = models.ForeignKey(Indicator, on_delete=models.CASCADE)#For filtering, makes it quicker#
 
 
 def clean_up_indicators():

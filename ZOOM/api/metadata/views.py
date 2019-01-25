@@ -153,12 +153,17 @@ class FileUploadView(APIView):
 
     def post(self, request):
         file_obj = request.FILES['file']
-        fs = FileSystemStorage(
-            location=os.path.join(settings.MEDIA_ROOT, settings.DATASETS_URL)
-        )
-        filename = fs.save(file_obj.name, file_obj)
-        file_url = '{datasets_url}{filename}'.format(
-            datasets_url=settings.DATASETS_URL,
-            filename=filename
-        )
-        return Response(data={"url": file_url}, status=202)
+        if 'id' in request.data:
+            file = File.objects.get(request.data['id'])
+            file.file = file_obj
+            file.save()
+        else:
+            fs = FileSystemStorage(
+                location=os.path.join(settings.MEDIA_ROOT, settings.DATASETS_URL)
+            )
+            filename = fs.save(file_obj.name, file_obj)
+            file_url = '{datasets_url}{filename}'.format(
+                datasets_url=settings.DATASETS_URL,
+                filename=filename
+            )
+            return Response(data={"url": file_url}, status=202)
