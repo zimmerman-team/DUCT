@@ -230,6 +230,9 @@ def update(id, data):
         df_data[heading][line_no] = data['cell_value']
 
         # TODO: Logic BUGS check everything why using if like below
+        # First logic error on then save_validation_data.
+        # When used test code will be to if
+        # When used GraphQL will be to else
         if type(error_data[next(iter(error_data))]) == list:
             prob_list, error_count = update_cell_type(
                 df_data[heading][line_no],
