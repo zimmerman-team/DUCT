@@ -9,6 +9,7 @@ from metadata.models import (
     WHO_TESTED_CHOICES, HOW_SELECT_RESPONDENTS_CHOICES,
     CLEANING_TECHNIQUES_CHOICES
 )
+from error_correction.utils import DELETE_DICT, UPDATE_DICT
 
 
 class FileSourceSerializer(serializers.ModelSerializer):
@@ -119,4 +120,30 @@ class SurveyDataSerializer(serializers.ModelSerializer):
             'how_many_respondents',
             'edit_sheet',
             'data_cleaning_techniques',
+        )
+
+
+class FileValidateSerializer(serializers.ModelSerializer):
+    success = serializers.BooleanField(read_only=True)
+    error = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = File
+        fields = (
+            'id',
+            'success',
+            'error'
+        )
+
+
+class FileErrorCorrectionSerializer(serializers.ModelSerializer):
+    command = serializers.JSONField()
+    result = serializers.JSONField(read_only=True)
+
+    class Meta:
+        model = File
+        fields = (
+            'id',
+            'command',
+            'result'
         )
