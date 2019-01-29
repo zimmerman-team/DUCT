@@ -11,7 +11,8 @@ from geodata.models import (
 
 class CountryNode(DjangoObjectType):
     entry_id = graphene.String()
-    polygons = graphene.String()
+    polygons = graphene.JSONString()
+    center_longlat = graphene.JSONString()
 
     class Meta:
         model = Country
@@ -24,7 +25,10 @@ class CountryNode(DjangoObjectType):
         return self.id
 
     def resolve_polygons(self, context, **kwargs):
-        return self.polygons
+        return self.polygons.json if self.polygons else None
+
+    def resolve_center_longlat(self, context, **kwargs):
+        return self.center_longlat.json if self.center_longlat else None
 
 
 class CountryFilter(FilterSet):
@@ -50,8 +54,9 @@ class CountryFilter(FilterSet):
 
 class RegionNode(DjangoObjectType):
     entry_id = graphene.String()
-    polygons = graphene.String()
-    center_longlat = graphene.String()
+    polygons = graphene.JSONString()
+    center_longlat = graphene.JSONString()
+    country = graphene.List(CountryNode)
 
     class Meta:
         model = Region
@@ -64,10 +69,13 @@ class RegionNode(DjangoObjectType):
         return self.id
 
     def resolve_polygons(self, context, **kwargs):
-        return self.polygons
+        return self.polygons.json if self.polygons else None
 
     def resolve_center_longlat(self, context, **kwargs):
-        return str(self.center_longlat)
+        return self.center_longlat.json if self.center_longlat else None
+
+    def resolve_country(self, context, **kwargs):
+        return Country.objects.filter(region__pk=self.id)
 
 
 class RegionFilter(FilterSet):
@@ -92,8 +100,8 @@ class RegionFilter(FilterSet):
 
 class SubNationalNode(DjangoObjectType):
     entry_id = graphene.String()
-    polygons = graphene.String()
-    center_longlat = graphene.String()
+    polygons = graphene.JSONString()
+    center_longlat = graphene.JSONString()
 
     class Meta:
         model = SubNational
@@ -104,10 +112,10 @@ class SubNationalNode(DjangoObjectType):
         return self.id
 
     def resolve_polygons(self, context, **kwargs):
-        return self.polygons
+        return self.polygons.json if self.polygons else None
 
     def resolve_center_longlat(self, context, **kwargs):
-        return str(self.center_longlat)
+        return self.center_longlat.json if self.center_longlat else None
 
 
 class SubNationalFilter(FilterSet):
@@ -133,7 +141,7 @@ class SubNationalFilter(FilterSet):
 
 class CityNode(DjangoObjectType):
     entry_id = graphene.String()
-    center_longlat = graphene.String()
+    center_longlat = graphene.JSONString()
 
     class Meta:
         model = City
@@ -144,7 +152,7 @@ class CityNode(DjangoObjectType):
         return self.id
 
     def resolve_center_longlat(self, context, **kwargs):
-        return str(self.center_longlat)
+        return self.center_longlat.json if self.center_longlat else None
 
 
 class CityFilter(FilterSet):
@@ -168,7 +176,7 @@ class CityFilter(FilterSet):
 
 
 class PointBasedNode(DjangoObjectType):
-    center_longlat = graphene.String()
+    center_longlat = graphene.JSONString()
 
     class Meta:
         model = PointBased
@@ -181,7 +189,7 @@ class PointBasedNode(DjangoObjectType):
         return self.geolocation.all()
 
     def resolve_center_longlat(self, context, **kwargs):
-        return str(self.center_longlat)
+        return self.center_longlat.json if self.center_longlat else None
 
 
 class PointBasedFilter(FilterSet):
@@ -210,9 +218,14 @@ class GeolocationNode(DjangoObjectType):
     sub_national = graphene.Field(SubNationalNode)
     city = graphene.Field(CityNode)
     point_based = graphene.Field(PointBasedNode)
+    center_longlat = graphene.JSONString()
+    polygons = graphene.JSONString()
 
     class Meta:
         model = Geolocation
+        exclude_fields = (
+            'center_longlat', 'polygons'
+        )
         interfaces = (relay.Node,)
 
     def resolve_entry_id(self, context, **kwargs):
@@ -237,6 +250,14 @@ class GeolocationNode(DjangoObjectType):
     def resolve_point_based(self, context, **kwargs):
         return PointBased.objects.get(id=self.object_id) \
             if self.type == 'pointbased' else None
+
+    def resolve_center_longlat(self, context, **kwargs):
+        return self.center_longlat.json \
+            if self.center_longlat == 'pointbased' else None
+
+    def resolve_polygons(self, context, **kwargs):
+        return self.polygons.json \
+            if self.polygons == 'pointbased' else None
 
 
 class GeolocatioFilter(FilterSet):
@@ -280,3 +301,6 @@ class Query(object):
     all_point_based = DjangoFilterConnectionField(
         PointBasedNode, filterset_class=PointBasedFilter
     )
+    region = relay.Node.Field(RegionNode)
+    all_regions = DjangoFilterConnectionField(
+         RegionNode, filterset_class=RegionFilter)

@@ -14,7 +14,7 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+# lib/
 lib64/
 parts/
 sdist/
@@ -109,3 +109,4 @@ local_settings.py
 *.sqlite3
 media/
 .DS_Store
+samples/datasets

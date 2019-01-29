@@ -37,9 +37,10 @@ class CountryImport():
             c, created = Country.objects.get_or_create(iso2=country_iso2, iso3=country_iso3, name=name, primary_name=True)
             if created:
                 c.save()
-                Geolocation(content_object=c, tag=name, type='country', iso2=country_iso2, iso3=country_iso3).save()
 
-        poly_countries = self.get_json_data("/../data_backup/country_data.json").get('features')
+        poly_countries = self.get_json_data(
+            "/../data_backup/country_data.json").get(
+            'features')
         for k in poly_countries:  # .get('features'):
             if 'iso2' in k.get('properties'):
                 iso2 = k.get('properties').get('iso2').lower()
@@ -50,7 +51,7 @@ class CountryImport():
                     name = k.get('properties').get('name').lower()
                     c = Country(name=name, iso2=iso2, primary_name=True)
                     c.save()
-                    Geolocation(content_object=c, tag=name, type='country', iso2=iso2).save()
+
                 c.polygons = json.dumps(k.get('geometry'))
                 c.save()
 
@@ -58,8 +59,10 @@ class CountryImport():
         country_centers = self.get_json_data("/../data_backup/country_center.json")
 
         for c in country_centers:
-            if Country.objects.filter(code=c).exists():
-                current_country = Country.objects.get(code=c)
+            if Country.objects.filter(iso2=c.lower()).exists():
+
+                current_country = Country.objects.get(iso2=c.lower(),
+                                                      primary_name=True)
 
                 point_loc_str = ''.join([
                     'POINT(',
@@ -70,21 +73,36 @@ class CountryImport():
                 longlat = fromstr(point_loc_str, srid=4326)
                 current_country.center_longlat = longlat
                 current_country.save()
+                Geolocation(tag=current_country.name,
+                            content_object=current_country,type='country').save()
+
+
 
     def update_regions(self):
         country_regions = self.get_json_data("/../data_backup/country_regions.json")
-
+        the_country = None
+        the_region = None
         for cr in country_regions:
-            country_iso2 = cr['iso2']
-            region_dac_code = cr['dac_region_code']
+            country_iso2 = cr['iso2'].lower()
+            region_dac_code = cr['dac_region_code'].lower()
+            region_dac_name = cr['dac_region_name'].lower()
 
-            if Country.objects.filter(code=country_iso2).exists():
-                the_country = Country.objects.get(code=country_iso2)
+            if Country.objects.filter(iso2=country_iso2).exists():
+                the_country = Country.objects.get(iso2=country_iso2,
+                                                  primary_name=True)
 
             if Region.objects.filter(code=region_dac_code).exists():
                 the_region = Region.objects.get(code=region_dac_code)
+                the_region.name = region_dac_name
+                the_region.save()
+                if not Geolocation.objects.filter(
+                        tag=region_dac_name).exists():
+                    Geolocation(tag=region_dac_name,
+                                content_object=the_region, type='region')\
+                        .save()
 
             if the_country.region is None and the_country is not None and the_region is not None:
                 the_country.region = the_region
                 the_country.save()
+
 

@@ -35,6 +35,8 @@ class Geolocation(models.Model):
              'city'),
             ('pointbased',
              'pointbased')))
+    center_longlat = gis_models.PointField(null=True, blank=True)
+    polygons = gis_models.GeometryField(null=True, blank=True)
 
     def __str__(self):
         return self.tag
@@ -42,11 +44,11 @@ class Geolocation(models.Model):
 
 class Region(gis_models.Model):
     id = gis_models.AutoField(primary_key=True, editable=False)
-    name = gis_models.CharField(unique=True, max_length=200)
+    name = gis_models.CharField(max_length=200)
     code = gis_models.CharField(max_length=100, null=True)
 
     center_longlat = gis_models.PointField(null=True, blank=True)
-    polygons = gis_models.MultiPolygonField(null=True, blank=True)
+    polygons = gis_models.GeometryField(null=True, blank=True)
 
     wikipedia = gis_models.CharField(null=True, blank=True, max_length=150)
     language = gis_models.CharField(max_length=2, null=True)
@@ -92,7 +94,7 @@ class Country(gis_models.Model):
         on_delete=gis_models.SET_NULL)
 
     center_longlat = gis_models.PointField(null=True, blank=True)
-    polygons = gis_models.MultiPolygonField(null=True, blank=True)
+    polygons = gis_models.GeometryField(null=True, blank=True)
 
     wikipedia = gis_models.CharField(null=True, blank=True, max_length=150)
     language = gis_models.CharField(max_length=2, null=True)
@@ -147,7 +149,7 @@ class SubNational(gis_models.Model):
         on_delete=gis_models.SET_NULL)
 
     center_longlat = gis_models.PointField(null=True, blank=True)
-    polygons = gis_models.MultiPolygonField(null=True, blank=True)
+    polygons = gis_models.GeometryField(null=True, blank=True)
 
     #area_sqkm = gis_models.CharField(null=True, blank=True, max_length=100)
     wikipedia = gis_models.CharField(null=True, blank=True, max_length=150)

@@ -1,8 +1,9 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
-import os
 import logging
+import os
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from lib.tools import check_file_formatting, check_file_type
 from metadata.models import File
@@ -23,8 +24,9 @@ class Validate(APIView):
             context = {}
             context['error'] = "Error when validating file"
             context['success'] = 0
-            raise #temp 
+            raise  # temp
         return Response(context)
+
 
 @api_view(['POST'])
 def check_file_valid(request):
@@ -32,10 +34,10 @@ def check_file_valid(request):
     try:
         file_loc = str(File.objects.get(id=request.data['id']).file)
 
-        #Not needed#
-        #result = check_file_type(file_name)
+        # Not needed#
+        # result = check_file_type(file_name)
 
-        #if not result[0]:
+        # if not result[0]:
         #    os.remove(file_loc)
         #    File.objects.get(id=request.data['id']).delete()
         #    return Response(result[1])
@@ -43,7 +45,7 @@ def check_file_valid(request):
         result = check_file_formatting(file_loc)
 
         if not result[0]:
-            os.remove(file_loc) 
+            os.remove(file_loc)
             File.objects.get(id=request.data['id']).delete()
             return Response(result[1])
     except Exception as e:
@@ -51,7 +53,7 @@ def check_file_valid(request):
         logger.exception("--Error when checking if file valid")
         context['error'] = "Error when checking if file is valid"
         context['success'] = 0
-        raise #temp 
+        raise  # temp
 
-    #lazy, fix this to include all errors at once
+    # lazy, fix this to include all errors at once
     return Response({"success": 1})
