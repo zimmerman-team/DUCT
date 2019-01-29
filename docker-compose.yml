@@ -1,4 +1,28 @@
 version: "3"
 services:
+
+  db:
+    #FIXME: this is using latest (not particular) Postgres version:
+    image: kartoza/postgis
+    environment:
+      POSTGRES_DB: zoom
+      POSTGRES_USER: zoom
+      POSTGRES_PASSWORD: zoom
+
   app:
-    build: .
+    #build: .
+    # Pull thic image from Docker hub:
+    image: zimmermanzimmerman/duct
+    depends_on:
+      - db
+    #see: https://docs.docker.com/compose/startup-order/
+    command: ["./src/docker-entrypoint.sh", "/usr/bin/python3.6", "/src/ZOOM/manage.py", "runserver", "0.0.0.0:8000"]
+    ports:
+      - "8000:8000"
+    environment:
+      DJANGO_SETTINGS_MODULE: ZOOM.docker_settings
+      POSTGRES_DB: zoom
+      #XXX: this has to match database service name:
+      POSTGRES_HOST: db
+      POSTGRES_USER: zoom
+      POSTGRES_PASSWORD: zoom

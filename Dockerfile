@@ -1,45 +1,47 @@
-FROM python:3.5
-LABEL type = zoom-csv(dev)
-WORKDIR /src
+FROM ubuntu:16.04
 
-#Check this
-RUN apt-get install -y wget \
-  && rm -rf /var/lib/apt/lists
+RUN apt-get -y update
 
-#Check this
-RUN apt-get update && apt-get install -y --no-install-recommends apt-utils
+RUN apt-get install -y software-properties-common
+RUN add-apt-repository ppa:jonathonf/python-3.6
 
+RUN apt-get update --fix-missing
 
-RUN apt-get update
-RUN apt-get install -y git
-RUN apt-get install -y python-dev python-pip
-RUN apt-get install -y libxml2-dev libxslt1-dev zlib1g-dev
+RUN apt-get -y install \
+    #Python installs:
+    build-essential \
+    python3.6 \
+    python3.6-dev \
+    python3-pip \
+    python3.6-venv \
+    #Libraries:
+    libxml2-dev \
+    libxslt1-dev \
+    zlib1g-dev \
+    #For tests:
+    sqlite3 \
+    libsqlite3-dev \
+    #PostgreSQL:
+    postgresql-client \
+    postgis \
+    libpq-dev \
+    #GEOS:
+    binutils \
+    libproj-dev \
+    gdal-bin \
+    libgeos-dev \
+    #Spatialite:
+    libsqlite3-mod-spatialite \
+    vim
 
-# postgresql
-#Need to check if all these are nessecary
-RUN apt-get install -y sqlite3 # for tests
-RUN apt-get install -y libsqlite3-dev # for tests
-RUN apt-get install -y postgresql
-RUN apt-get install -y postgresql-client
-#RUN apt-get update
-RUN apt-get install -y postgis
+RUN python3.6 -m pip install pip --upgrade
 
-RUN apt-get install libpq-dev
-
-# GEOS
-RUN apt-get install -y binutils libproj-dev gdal-bin libgeos-dev
-
-RUN apt-get install libsqlite3-mod-spatialite
-
-ADD ZOOM/requirements.txt requirements.txt
+ENV PYTHONPATH="$PYTHONPATH:/usr/local/lib/python3.6/dist-packages"
 
 ADD . /src/
 
-#CMD
+RUN ["chmod", "+x", "/src/docker-entrypoint.sh"]
 
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+RUN pip install -r /src/ZOOM/requirements.txt
 
-#RUN chmod 777 /src/ZOOM/logs/*.log*
-
-CMD /src/bin/docker-cmd.sh
+RUN chmod 777 /src/ZOOM/logs/*.log*
