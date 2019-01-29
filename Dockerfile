@@ -31,7 +31,8 @@ RUN apt-get -y install \
     gdal-bin \
     libgeos-dev \
     #Spatialite:
-    libsqlite3-mod-spatialite
+    libsqlite3-mod-spatialite \
+    vim
 
 RUN python3.6 -m pip install pip --upgrade
 
