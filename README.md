@@ -47,6 +47,8 @@ docker-compose up
 
 This will start a **development** environment (using Django's development server) for DUCT.
 
+Note, that DUCT Docker image will be pulled from Docker HUB and not built locally.
+
 
 ## Documentation
 --------
