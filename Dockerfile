@@ -40,6 +40,8 @@ ENV PYTHONPATH="$PYTHONPATH:/usr/local/lib/python3.6/dist-packages"
 
 ADD . /src/
 
+RUN ["chmod", "+x", "/src/docker-entrypoint.sh"]
+
 RUN pip install -r /src/ZOOM/requirements.txt
 
 RUN chmod 777 /src/ZOOM/logs/*.log*

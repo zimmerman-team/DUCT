@@ -5,8 +5,8 @@
 
 DUCT is Django application which allows user to convert CSV files to a harmonised datastore modelled on the SDMX standard with a standardised output. It provides two different API' to interface the data either to convert (PUT) and extract data in your bespoke IU (GET). DUCT makes use of The Django REST API as a base API and on top of this, it provides GraphQL to connect to your datastore for data modelling, data conversion, data integration and data interfacing.
 
-DUCT has been build as part of Zoom, a Data platform for data informed 
-strategy in combating the AIDS epidemic in cooperation with Aidsfonds that 
+DUCT has been build as part of Zoom, a Data platform for data informed
+strategy in combating the AIDS epidemic in cooperation with Aidsfonds that
 works towards ending AIDS in a world where all people affected by HIV/AIDS have access to prevention, treatment, care and support and HumanityX who are supporting organisations in the peace, justice and humanitarian sectors to adopt digital innovations in order to increase their impact on society.
 
 
@@ -23,7 +23,7 @@ works towards ending AIDS in a world where all people affected by HIV/AIDS have 
 ## Quick start
 -------
 ```
-git clone https://github.com/zimmerman-zimmerman/DUCT.git;  
+git clone https://github.com/zimmerman-zimmerman/DUCT.git;
 cd DUCT
 sudo sh bin/setup/install_dependencies.sh
 pip install -r ZOOM/requirements.txt;
@@ -36,12 +36,16 @@ python manage.py runserver
 ```
 or
 
-COMING SOON: If you have docker installed:
+If you have docker installed:
 ```
 cd DUCT
 make
+docker-compose build
 docker-compose up
 ```
+This will start a **development** environment (using Django's development server) for DUCT
+
+
 ## Documentation
 --------
 
@@ -49,8 +53,8 @@ docker-compose up
 
 ```
 sudo apt-get install git
-git clone https://github.com/zimmerman-zimmerman/DUCT.git;  
-cd DUCT;  
+git clone https://github.com/zimmerman-zimmerman/DUCT.git;
+cd DUCT;
 ```
 
 ### Install dependencies
@@ -64,10 +68,10 @@ sudo sh bin/setup/install_dependencies.sh
 Install a python virtual environment
 ```
 sudo apt-get install python-pip;
-sudo pip install virtualenvwrapper;  
+sudo pip install virtualenvwrapper;
 export WORKON_HOME=~/envs;
-/usr/local/bin/virtualenvwrapper.sh;  
-source /usr/local/bin/virtualenvwrapper.sh;  
+/usr/local/bin/virtualenvwrapper.sh;
+source /usr/local/bin/virtualenvwrapper.sh;
 mkvirtualenv zoom;
 workon zoom;
 ```
@@ -76,8 +80,8 @@ Install pip packages
 
 ```
 cd ZOOM
-pip install --upgrade pip;  
-pip install -r ZOOM/requirements.txt;  
+pip install --upgrade pip;
+pip install -r ZOOM/requirements.txt;
 ```
 
 
