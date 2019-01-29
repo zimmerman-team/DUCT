@@ -39,7 +39,6 @@ or
 If you have Docker installed, run:
 ```
 cd DUCT
-make
 docker-compose build
 docker-compose up
 ```
