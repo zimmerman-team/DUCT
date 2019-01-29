@@ -10,7 +10,9 @@ services:
       POSTGRES_PASSWORD: zoom
 
   app:
-    build: .
+    #build: .
+    # Pull thic image from Docker hub:
+    image: zimmermanzimmerman/duct
     depends_on:
       - db
     #see: https://docs.docker.com/compose/startup-order/
