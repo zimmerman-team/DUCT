@@ -36,14 +36,17 @@ python manage.py runserver
 ```
 or
 
-If you have docker installed:
+If you have Docker installed, run:
 ```
 cd DUCT
 make
 docker-compose build
 docker-compose up
 ```
-This will start a **development** environment (using Django's development server) for DUCT
+
+...and visit `0.0.0.0:8000`.
+
+This will start a **development** environment (using Django's development server) for DUCT.
 
 
 ## Documentation
