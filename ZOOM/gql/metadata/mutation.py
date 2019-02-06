@@ -13,14 +13,14 @@ from gql.metadata.serializers import (FileErrorCorrectionSerializer,
                                       FileSerializer, FileSourceSerializer,
                                       FileTagsSerializer,
                                       FileValidateSerializer,
-                                      SurveyDataSerializer)
+                                      SurveyDataSerializer,
+                                      FileValidationResultsSerializer)
 from lib.tools import check_file_formatting
 from metadata.models import File, FileSource, FileTags
-from validate.validator import generate_error_data
+from validate.validator import generate_error_data, validate
 
 
 class FileSourceMutation(SerializerMutation):
-
     class Meta:
         serializer_class = FileSourceSerializer
         model_operations = ['create', 'update']
@@ -58,7 +58,6 @@ class FileSourceMutation(SerializerMutation):
 
 
 class FileMutation(SerializerMutation):
-
     class Meta:
         serializer_class = FileSerializer
         model_operations = ['create', 'update']
@@ -134,7 +133,6 @@ class FileMutation(SerializerMutation):
 
 
 class FileTagsMutation(SerializerMutation):
-
     class Meta:
         serializer_class = FileTagsSerializer
         model_operations = ['create', 'update']
@@ -159,7 +157,6 @@ class FileTagsMutation(SerializerMutation):
 
 
 class SurveyDataMutation(SerializerMutation):
-
     class Meta:
         serializer_class = SurveyDataSerializer
         model_operations = ['create', 'update']
@@ -184,7 +181,6 @@ class SurveyDataMutation(SerializerMutation):
 
 
 class FileValidateMutation(SerializerMutation):
-
     class Meta:
         serializer_class = FileValidateSerializer
 
@@ -220,7 +216,6 @@ class FileValidateMutation(SerializerMutation):
 
 
 class FileErrorCorrectionMutation(SerializerMutation):
-
     class Meta:
         serializer_class = FileErrorCorrectionSerializer
 
@@ -281,6 +276,43 @@ class FileErrorCorrectionMutation(SerializerMutation):
         return cls(errors=None, **kwargs)
 
 
+class FileValidationResultsMutation(SerializerMutation):
+    class Meta:
+        serializer_class = FileValidationResultsSerializer
+
+    @classmethod
+    def get_serializer_kwargs(cls, root, info, **input):
+        if input.get('id', None):
+            instance = File.objects.filter(
+                id=input['id']).first()
+            if instance:
+                return {'instance': instance, 'data': input, 'partial': True}
+            else:
+                raise http.Http404
+
+        raise Exception(({'id': "required"}))
+
+    @classmethod
+    def perform_mutate(cls, serializer, info):
+        file = serializer.instance
+        results = validate(file.id)
+
+        kwargs = {}
+        for f, field in serializer.fields.items():
+            if f not in ['found_list', 'missing_list', 'summary']:
+                kwargs[f] = field.get_attribute(file)
+
+        if results:
+            kwargs['found_list'] = pd.Series(
+                [a for a in results['found_list']]).to_json()
+            kwargs['missing_list'] = pd.Series(
+                [a for a in results['missing_list']]).to_json()
+            kwargs['summary'] = pd.Series(
+                [a for a in results['summary']]).to_json()
+
+        return cls(errors=None, **kwargs)
+
+
 class Mutation(graphene.ObjectType):
     file_source = FileSourceMutation.Field()
     file = FileMutation.Field()
@@ -288,3 +320,4 @@ class Mutation(graphene.ObjectType):
     survey_data = SurveyDataMutation.Field()
     file_validate = FileValidateMutation.Field()
     file_error_correction = FileErrorCorrectionMutation.Field()
+    file_validation_results = FileValidationResultsMutation.Field()

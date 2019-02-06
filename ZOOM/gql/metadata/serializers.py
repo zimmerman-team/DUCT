@@ -147,3 +147,18 @@ class FileErrorCorrectionSerializer(serializers.ModelSerializer):
             'command',
             'result'
         )
+
+
+class FileValidationResultsSerializer(serializers.ModelSerializer):
+    found_list = serializers.JSONField(read_only=True)
+    missing_list = serializers.JSONField(read_only=True)
+    summary = serializers.JSONField(read_only=True)
+
+    class Meta:
+        model = File
+        fields = (
+            'id',
+            'found_list',
+            'missing_list',
+            'summary'
+        )
