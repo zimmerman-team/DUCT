@@ -6,6 +6,7 @@ from lib.common import (get_dtype_data, get_file_data,
                         get_geolocation_dictionary, save_validation_data)
 from lib.tools import get_prob_list, identify_col_dtype, update_cell_type
 from metadata.models import File
+from validate.validator import validate
 
 # Updating a cell or file column heading
 UPDATE_DICT = {
@@ -177,27 +178,50 @@ def get_errors(data):
     df_data = get_file_data(id)
     column_headings = df_data.columns
     error_data, dtypes_dict = get_dtype_data(id)
-    errors, line_nos = check_dtypes(error_data, dtypes_dict, column_headings)
-    selection = np.array(range(0, len(error_data[column_headings[0]])))
+    # TODO: Logic BUGS check everything why using if like below
+    # First logic error on then save_validation_data.
+    # When used test code will be to if
+    # When used GraphQL will be to else
+    two_index = False
+    try:
+        errors, line_nos = check_dtypes(error_data, dtypes_dict,
+                                        column_headings)
+        selection = np.array(range(0, len(error_data[column_headings[0]])))
+    except Exception as e:
+        errors, line_nos = check_dtypes(dtypes_dict, error_data,
+                                        column_headings)
+        selection = np.array(range(0, len(dtypes_dict[column_headings[0]])))
+        two_index = False
+
     amount = end_pos - start_pos
 
     for i in errors:
 
         if len(errors[i]) > 0:
             counter = 0
-            line_no_selection = selection[line_nos[i]]  # [start_pos:end_pos]
+            try:
+                line_no_selection = selection[line_nos[i]]
+                # [start_pos:end_pos]
+            except Exception as e:
+                pass
             errors_selection = errors[i]  # [start_pos:end_pos]
 
+            # TODO: related above bug related the below
             for j in errors_selection:  # minus one for line no
-                message = (
-                    'Found a ' +
-                    j +
-                    ' value instead of the most populous value ' +
-                    dtypes_dict[i][0][0] +
-                    '.')
-                line_no = str(line_no_selection[counter])
-                temp_error_message[''.join([line_no, '|', i])] = (message)
-                counter += 1
+                try:
+                    dtype = dtypes_dict[i][0][0] if two_index \
+                        else dtypes_dict[i][0]
+
+                    message = (
+                        'Found a ' +
+                        j +
+                        ' value instead of the most populous value ' + dtype +
+                        '.')
+                    line_no = str(line_no_selection[counter])
+                    temp_error_message[''.join([line_no, '|', i])] = (message)
+                    counter += 1
+                except Exception as e:
+                    pass
 
     context = {'error_messages': temp_error_message}
     return context
@@ -268,12 +292,20 @@ def delete_data(id, data):
 
 def remove_entries(error_data, dtypes_dict, row_keys):
     """Remove rows from error_data and dtypes_dict"""
-    for i in error_data:
-        error_data[i] = \
-            error_data[i].drop(error_data[i].index[row_keys]).reset_index(
+    # TODO: really very bad logic
+    # How to in old data using the error data to manipulation data
+    # for i in error_data:
+    #    error_data[i] = \
+    #        error_data[i].drop(error_data[i].index[row_keys]).reset_index(
+    #            drop=True)
+    #    # np.delete(np.array(error_data[i]), row_keys).reset_index()
+    #    dtypes_dict[i] = get_prob_list(error_data[i])
+    for i in dtypes_dict:
+        dtypes_dict[i] = \
+            dtypes_dict[i].drop(dtypes_dict[i].index[row_keys]).reset_index(
                 drop=True)
         # np.delete(np.array(error_data[i]), row_keys).reset_index()
-        dtypes_dict[i] = get_prob_list(error_data[i])
+        dtypes_dict[i] = get_prob_list(dtypes_dict[i])
     return error_data, dtypes_dict
 
 

@@ -86,7 +86,10 @@ def get_dtype_data(id):
     with open(str(file.datatypes_overview_file_location), 'rb') as f:
         error_data = pickle.load(f)
 
-    return error_data, dtypes_dict
+    # TODO: messy code
+    # dtypes_dict = error file
+    # error_data = data type file
+    return dtypes_dict, error_data
 
 
 def get_file_data(id):
