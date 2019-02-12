@@ -31,7 +31,13 @@ def validate(id):
         file_heading_list = get_column_information(df_file, dtypes_dict)
 
     print("Saving Error Information")
-    save_validation_data(error_data, id, dtypes_dict)
+    # TODO: Please check the messy logic code related save_validation_data
+    # we can not errors corection to get some data error
+    # if using the old code
+    # OLL One:
+    # save_validation_data(error_data, id, dtypes_dict)
+    # New one:
+    save_validation_data(dtypes_dict, id, error_data)
     context = {
         'success': 1,
         "found_list": zip_list,
