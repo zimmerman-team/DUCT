@@ -125,6 +125,9 @@ class SurveyData(models.Model):
         choices=CLEANING_TECHNIQUES_CHOICES,
         help_text='Which data cleaning techniques did you use?')
 
+    def __str__(self):
+        return str(self.id)
+
 
 class File(models.Model):
     # Metadata related fields

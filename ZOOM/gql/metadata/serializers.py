@@ -96,6 +96,8 @@ class FileSerializer(serializers.ModelSerializer):
 
 
 class SurveyDataSerializer(serializers.ModelSerializer):
+    id = serializers.SerializerMethodField()
+    entry_id = serializers.SerializerMethodField()
     who_did_you_test_with = fields.MultipleChoiceField(
         choices=WHO_TESTED_CHOICES
     )
@@ -110,6 +112,7 @@ class SurveyDataSerializer(serializers.ModelSerializer):
         model = SurveyData
         fields = (
             'id',
+            'entry_id',
             'have_you_tested_tool',
             'who_did_you_test_with',
             'considered_senstive',
@@ -121,6 +124,14 @@ class SurveyDataSerializer(serializers.ModelSerializer):
             'edit_sheet',
             'data_cleaning_techniques',
         )
+
+    @classmethod
+    def get_id(cls, obj):
+        return str(obj.id)
+
+    @classmethod
+    def get_entry_id(cls, obj):
+        return str(obj.id)
 
 
 class FileValidateSerializer(serializers.ModelSerializer):
