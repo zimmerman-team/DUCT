@@ -16,7 +16,7 @@ from gql.metadata.serializers import (FileErrorCorrectionSerializer,
                                       SurveyDataSerializer,
                                       FileValidationResultsSerializer)
 from lib.tools import check_file_formatting
-from metadata.models import File, FileSource, FileTags
+from metadata.models import File, FileSource, FileTags, SurveyData
 from validate.validator import generate_error_data, validate
 
 
@@ -165,7 +165,7 @@ class SurveyDataMutation(SerializerMutation):
     @classmethod
     def get_serializer_kwargs(cls, root, info, **input):
         if input.get('id', None):
-            instance = FileTags.objects.filter(
+            instance = SurveyData.objects.filter(
                 id=input['id']).first()
             if instance:
                 return {'instance': instance, 'data': input, 'partial': True}
