@@ -6,7 +6,7 @@ from geodata.importer.common import get_json_data
 from geodata.models import Country, Geolocation, Region
 
 
-class CountryImport():
+class CountryImport:
     """
     Wrapper class for all import methods used on the Country model
     """
