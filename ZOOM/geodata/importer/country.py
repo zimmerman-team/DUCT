@@ -1,32 +1,36 @@
-import ujson
-from geodata.importer.common import get_json_data
+import json
+
 from django.contrib.gis.geos import fromstr
 
-from geodata.models import Country, Geolocation
-from geodata.models import Region
-import json
+from geodata.importer.common import get_json_data
+from geodata.models import Country, Geolocation, Region
+
 
 class CountryImport():
     """
     Wrapper class for all import methods used on the Country model
     """
+
     def __init__(self):
         self.get_json_data = get_json_data
 
     def update_alt_name(self):
-        admin_countries = self.get_json_data("/../data_backup/alternative_names.json")
+        admin_countries = self.get_json_data(
+            "/../data_backup/alternative_names.json")
         for k in admin_countries:
             country_iso2 = k.get('iso2').lower()
             name = k.get('name').lower()
-            c, created = Country.objects.get_or_create(name=name, iso2=country_iso2)
+            c, created = Country.objects.get_or_create(
+                name=name, iso2=country_iso2)
             if created:
                 c.save()
                 Geolocation(content_object=c, tag=name, type='country').save()
 
     def update_polygon(self):
-        admin_countries = self.get_json_data("/../data_backup/allcountrycodes.json")
+        admin_countries = self.get_json_data(
+            "/../data_backup/allcountrycodes.json")
 
-        for k in admin_countries:#.get('features'):
+        for k in admin_countries:  # .get('features'):
             country_iso2 = k.get('alpha-2').lower()
             name = k.get('name').lower()
             country_iso3 = k.get('alpha-3').lower()
@@ -34,7 +38,9 @@ class CountryImport():
             if not country_iso2:
                 continue
 
-            c, created = Country.objects.get_or_create(iso2=country_iso2, iso3=country_iso3, name=name, primary_name=True)
+            c, created = Country.objects.get_or_create(
+                iso2=country_iso2, iso3=country_iso3, name=name,
+                primary_name=True)
             if created:
                 c.save()
 
@@ -44,7 +50,8 @@ class CountryImport():
         for k in poly_countries:  # .get('features'):
             if 'iso2' in k.get('properties'):
                 iso2 = k.get('properties').get('iso2').lower()
-                filtered_set = Country.objects.filter(iso2=iso2, primary_name=True)
+                filtered_set = Country.objects.filter(
+                    iso2=iso2, primary_name=True)
                 if len(filtered_set) > 0:
                     c = filtered_set[0]
                 else:
@@ -56,7 +63,8 @@ class CountryImport():
                 c.save()
 
     def update_country_center(self):
-        country_centers = self.get_json_data("/../data_backup/country_center.json")
+        country_centers = self.get_json_data(
+            "/../data_backup/country_center.json")
 
         for c in country_centers:
             if Country.objects.filter(iso2=c.lower()).exists():
@@ -74,12 +82,12 @@ class CountryImport():
                 current_country.center_longlat = longlat
                 current_country.save()
                 Geolocation(tag=current_country.name,
-                            content_object=current_country,type='country').save()
-
-
+                            content_object=current_country,
+                            type='country').save()
 
     def update_regions(self):
-        country_regions = self.get_json_data("/../data_backup/country_regions.json")
+        country_regions = self.get_json_data(
+            "/../data_backup/country_regions.json")
         the_country = None
         the_region = None
         for cr in country_regions:
@@ -101,8 +109,7 @@ class CountryImport():
                                 content_object=the_region, type='region')\
                         .save()
 
-            if the_country.region is None and the_country is not None and the_region is not None:
+            if the_country.region is None and the_country is not None \
+                    and the_region is not None:
                 the_country.region = the_region
                 the_country.save()
-
-
