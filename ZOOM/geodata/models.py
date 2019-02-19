@@ -190,7 +190,7 @@ class PointBased(gis_models.Model):
 
 class Province(gis_models.Model):
     id = gis_models.AutoField(primary_key=True, editable=False)
-    name = gis_models.CharField(unique=True, max_length=200)
+    name = gis_models.CharField(max_length=200)
     ascii_name = gis_models.CharField(max_length=200, null=True, blank=True)
     country = gis_models.ForeignKey(
         Country,
@@ -203,6 +203,9 @@ class Province(gis_models.Model):
     language = gis_models.CharField(max_length=2, null=True)
     data_source = gis_models.CharField(max_length=100, null=True, blank=True)
     objects = gis_models.Manager()
+
+    class Meta:
+        unique_together = ("country", "name")
 
     def __unicode__(self):
         return self.name
