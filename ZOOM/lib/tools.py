@@ -21,8 +21,10 @@ def identify_col_dtype(column_values, file_heading, dicts):
         dicts ([{str:str}]): dictionaries for identifing geolocation data type.
 
     Returns:
-        prob_list ([(str,str)]): a list of tuples containing the data type found and the percentage of data found of that type.
-        error_counter ([str]): list of data types found for each cell in the column.
+        prob_list ([(str,str)]): a list of tuples containing the data type
+        found and the percentage of data found of that type.
+        error_counter ([str]): list of data types found
+        for each cell in the column.
     '''
 
     # reload(sys)
@@ -36,7 +38,7 @@ def identify_col_dtype(column_values, file_heading, dicts):
         column_values[not_null_filter],
         errors='coerce').notnull()
 
-    ###Checking Date###
+    # Checking Date###
     error_counter = check_if_date(
         file_heading,
         column_values,
@@ -44,13 +46,15 @@ def identify_col_dtype(column_values, file_heading, dicts):
         numeric_filter,
         error_counter)
 
-    ###Country Check###
+    # Country Check###
     if(np.sum(error_counter.notnull()) < len(error_counter)):
 
         # Remove special characters
         # try:
-        # unicode changed in python 3, below solution doesn't work when comparing against strings anymore
-        #f = (lambda x: str(unicodedata.normalize('NFKD', x).lower().encode('ascii','ignore')).strip().replace('_', ' '))
+        # unicode changed in python 3, below solution doesn't
+        # work when comparing against strings anymore
+        # f = (lambda x: str(unicodedata.normalize('NFKD', x).lower().
+        # encode('ascii','ignore')).strip().replace('_', ' '))
         f = (lambda x: str(x.lower().replace('_', ' ')))
         filter_used = not_null_filter & (~numeric_filter)
         tmp_country_values = column_values[filter_used].apply(f)
@@ -92,11 +96,13 @@ def check_if_date(file_heading, column_values,
         column_values (Series): values related to a column.
         not_null_filter (np[boolean]): filters for non-null values.
         numeric_filter (np[boolean]): filters for numeric values.
-        error_counter ([int]): error data, a list that will contain all data types for column_values.
+        error_counter ([int]): error data, a list that will
+        contain all data types for column_values.
 
     Returns:
         result (boolean): result of check.
-        error_counter ([int]): error data, a list that will contain all data types for column_values.
+        error_counter ([int]): error data, a list that will
+        contain all data types for column_values.
 
     '''
 
@@ -214,7 +220,8 @@ def check_if_cell_country(value):
 
 
 def check_column_data_type(field, dtypes):
-    '''Check that the data types found in a column is appropiate for the heading that it was matched to.
+    """Check that the data types found in a column is appropiate
+    for the heading that it was matched to.
 
     Args:
         field (str): column heading.
@@ -223,8 +230,9 @@ def check_column_data_type(field, dtypes):
     Returns:
         result (boolean), true or false if appropiate dtype found.
         dtype_set ([str]), matching data types found for mapping.
-        conversion_dtype (str): the data type the column needs to be converted to.
-    '''
+        conversion_dtype (str): the data type the column needs to
+        be converted to.
+    """
 
     dtypes = [i for i in dtypes]
     dtype_set = set()
@@ -240,8 +248,10 @@ def check_column_data_type(field, dtypes):
             indexes = []
             dtype_set = list(dtype_set)
 
-            for i in range(len(
-                    dtype_set)):  # looking for furthest forward data type found that is compatiable
+            for i in range(
+                    len(dtype_set)):
+                    # looking for furthest forward data
+                    #  type found that is compatiable
                 indexes.append(int(dtypes.index(dtype_set[i])))
 
             indexes.sort()
@@ -274,9 +284,11 @@ def correct_data(df_data, correction_data, error_data,
 
     Args:
         df_data (Dataframe): dataframe of CSV file.
-        correction_mappings ({str:(str,str)}): the conversion needed for each file heading.
+        correction_mappings ({str:(str,str)}): the conversion
+        needed for each file heading.
         error_data ({str:[str]}): error data for each column.
-        index_order ({str: str}): contains data points as headings and columns as values.
+        index_order ({str: str}): contains data points as headings
+         and columns as values.
 
     Returns:
         new_df (Dataframe): the converted dataframe.
@@ -298,14 +310,16 @@ def correct_data(df_data, correction_data, error_data,
             if not point_based:
                 df_data[key] = df_data[key].str.lower()
                 filter_used = not_null_filter & (~numeric_filter) & (
-                    error_data[key][error_data[key] == correction_data[key][0]])
+                    error_data[key][error_data[key] ==
+                                    correction_data[key][0]])
                 df_data[key] = df_data[key][filter_used]
         elif correction_data[key][1] == 'date':
             # Numeric check
             filter_applied1 = ((not_null_filter) & (numeric_filter) & (
                 error_data[key][error_data[key] == correction_data[key][0]]))
             df_data[key][filter_applied1] = pd.to_datetime(
-                df_data[key][filter_applied1].astype('int').astype('str')).dt.year
+                df_data[key][filter_applied1].astype(
+                    'int').astype('str')).dt.year
 
             # String check
             filter_applied2 = ((not_null_filter) & (~numeric_filter)) & (
@@ -323,22 +337,6 @@ def correct_data(df_data, correction_data, error_data,
             if correction_data[key][0] == 'text':
                 if key in index_order['value']:
                     print('TODO')
-                    '''
-                    #get inidicator category add and group accordingly
-                    df_data[index_order['indicator_category']] = (df_data[index_order['indicator_category']] + '|' + index_order['measure_value'] + ': '
-                                                                + df_data[index_order['measure_value']])
-                    str_data = pd.DataFrame({index_order['measure_value'] + 'temp' : df_data.groupby([index_order['indicator'], index_order['indicator_category'],
-                                                                            index_order['country'], index_order['date_value'], index_order['unit_of_measure'],
-                                                                            index_order['measure_value']])[index_order['measure_value']
-                                                                            ].count()}).reset_index()
-                    #Cause we are grouping by sources and other don't make sense
-                    if 'source' in index_order:
-                        str_data[index_order['source']] = ''
-                    if 'other' in index_order:
-                        str_data[index_order['other']] = ''
-                    str_data[index_order['measure_value']] = str_data[index_order['measure_value'] + 'temp']
-                    df_data = str_data.drop(index_order['measure_value'] + 'temp', 1)
-                    '''
             else:
                 filter_applied = not_null_filter & (~numeric_filter)
                 df_data[key][filter_applied] = np.NaN
@@ -360,11 +358,14 @@ def convert_df(df_data, multi_entry_dict, data_model_dict,
 
     Args:
         mappings ({str:[str]}): the users chosen mappings for a file column.
-        relationship_dict ({str: [str]}): section of the data model mapped to a file column heading.
-        left_over_dict ({str: [str]}): section of the data model mapped to the file column values.
+        relationship_dict ({str: [str]}): section of the data model mapped
+        to a file column heading.
+        left_over_dict ({str: [str]}): section of the data model mapped to
+        the file column values.
         df_data (Dataframe): dataframe of CSV file.
         dtypes_dict ({str:str}): stores the data-types found for each heading.
-        empty_unit_measure_value (str): value to use if unit of measure has not be mapped.
+        empty_unit_measure_value (str): value to use if unit
+        of measure has not be mapped.
 
     Returns:
         new_df (Dataframe): newly formatted dataframe.
@@ -408,7 +409,8 @@ def convert_df(df_data, multi_entry_dict, data_model_dict,
         data_model_dict['value'] = ['value']
         dtypes_dict[left_over_dict[col]] = dtypes_dict[col]
 
-    return new_df.reset_index(), dtypes_dict, data_model_dict  # filter by columns needed
+    return new_df.reset_index(), dtypes_dict, data_model_dict
+    # filter by columns needed
 
 
 def check_file_type(file_name):
@@ -448,8 +450,8 @@ def check_file_formatting(file_loc):
             # for col in df_data.ix[:,0]:
 
     resulting_indexes = nan_indexes.apply(
-        lambda x: min(x) == max(x) and min(x) == True, 1)
-    result = len(resulting_indexes[resulting_indexes == True]) > 0
+        lambda x: min(x) == max(x) and min(x), 1)
+    result = len(resulting_indexes[resulting_indexes]) > 0
     if result:
         # return line number of blank lines?
         return False, {
@@ -472,7 +474,7 @@ def get_line_index(line_records, line_no):
             i += 1
     return -1
 
-#from file_upload.models import File
+# from file_upload.models import File
 
 
 if __name__ == '__main__':
