@@ -1,7 +1,7 @@
 import json
 
 from geodata.importer.common import get_json_data
-from geodata.models import Province, Country
+from geodata.models import Province, Country, Geolocation
 
 
 class ProvinceNL(object):
@@ -16,10 +16,18 @@ class ProvinceNL(object):
             '/../data_backup/province_nl.json').get('features')
         for item in items:
             properties = item.get('properties')
-            province, _ = Province.objects.get_or_create(
-                name=properties.get('name').lower(),
+            name = properties.get('name').lower()
+            province, created = Province.objects.get_or_create(
+                name=name,
                 country=country,
                 polygons=json.dumps(item.get('geometry')),
                 language=self.language
             )
+            if created:
+                Geolocation(
+                    content_object=province,
+                    tag=name,
+                    type='province'
+                ).save()
+
             print(item.get('properties').get('name').lower())

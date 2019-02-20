@@ -2,7 +2,7 @@ from django.db.models import signals
 from django.dispatch import receiver
 
 from geodata.models import Geolocation, Country, City, Region, \
-    SubNational, PointBased
+    SubNational, PointBased, Province
 
 
 @receiver(signals.post_save, sender=Geolocation)
@@ -55,6 +55,17 @@ def geolocation_post_save(sender, instance, **kwargs):
             is_diff = True
             instance.center_longlat = point_based.center_longlat
             instance.polygons = None
+    elif instance.type == 'province':
+        province = Province.objects.get(id=instance.object_id)
+        if instance.center_longlat != province.center_longlat or \
+                kwargs.get('created'):
+            is_diff = True
+            instance.center_longlat = province.center_longlat
+
+        if instance.polygons != province.polygons or \
+                kwargs.get('created'):
+            is_diff = True
+            instance.polygons = province.polygons
 
     if is_diff:
         instance.save()

@@ -10,7 +10,9 @@ GEOTYPE_HEADINGS = [
     'city',
     'pointbased',
     'iso3',
-    'iso2']
+    'iso2',
+    'province'
+]
 SAVED_TYPES = ['country', 'region', 'subnational', 'city', 'province']
 
 
