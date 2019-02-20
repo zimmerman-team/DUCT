@@ -11,7 +11,7 @@ GEOTYPE_HEADINGS = [
     'pointbased',
     'iso3',
     'iso2']
-SAVED_TYPES = ['country', 'region', 'subnational', 'city']
+SAVED_TYPES = ['country', 'region', 'subnational', 'city', 'province']
 
 
 class Geolocation(models.Model):
@@ -25,16 +25,14 @@ class Geolocation(models.Model):
     type = models.CharField(
         max_length=100,
         choices=(
-            ('country',
-             'country'),
-            ('region',
-             'region'),
-            ('subnational',
-             'subnational'),
-            ('city',
-             'city'),
-            ('pointbased',
-             'pointbased')))
+            ('country', 'country'),
+            ('region', 'region'),
+            ('subnational', 'subnational'),
+            ('city', 'city'),
+            ('pointbased', 'pointbased'),
+            ('province', 'province'),
+        )
+    )
     center_longlat = gis_models.PointField(null=True, blank=True)
     polygons = gis_models.GeometryField(null=True, blank=True)
 
