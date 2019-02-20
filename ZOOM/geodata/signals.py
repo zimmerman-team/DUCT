@@ -14,7 +14,6 @@ def geolocation_post_save(sender, instance, **kwargs):
                 kwargs.get('created'):
             is_diff = True
             instance.center_longlat = country.center_longlat
-
         if instance.polygons != country.polygons or \
                 kwargs.get('created'):
             is_diff = True
@@ -25,7 +24,6 @@ def geolocation_post_save(sender, instance, **kwargs):
                 kwargs.get('created'):
             is_diff = True
             instance.center_longlat = region.center_longlat
-
         if instance.polygons != region.polygons or \
                 kwargs.get('created'):
             is_diff = True
@@ -36,7 +34,6 @@ def geolocation_post_save(sender, instance, **kwargs):
                 kwargs.get('created'):
             is_diff = True
             instance.center_longlat = sub_national.center_longlat
-
         if instance.polygons != sub_national.polygons or \
                 kwargs.get('created'):
             is_diff = True
@@ -47,7 +44,10 @@ def geolocation_post_save(sender, instance, **kwargs):
                 kwargs.get('created'):
             is_diff = True
             instance.center_longlat = city.center_longlat
-            instance.polygons = None
+        if instance.polygons != city.polygons or \
+                kwargs.get('created'):
+            is_diff = True
+            instance.polygons = city.polygons
     elif instance.type == 'pointbased':
         point_based = PointBased.objects.get(id=instance.object_id)
         if instance.center_longlat != point_based.center_longlat or \
@@ -61,7 +61,6 @@ def geolocation_post_save(sender, instance, **kwargs):
                 kwargs.get('created'):
             is_diff = True
             instance.center_longlat = province.center_longlat
-
         if instance.polygons != province.polygons or \
                 kwargs.get('created'):
             is_diff = True
