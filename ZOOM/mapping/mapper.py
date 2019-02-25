@@ -72,7 +72,7 @@ def begin_mapping(data):
             data_model_dict, dtypes_dict)
 
         if not result:
-            # print(context)
+            print(context)
             # return context  # Bad mapping
             raise Exception(context)
 
