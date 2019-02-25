@@ -72,8 +72,9 @@ def begin_mapping(data):
             data_model_dict, dtypes_dict)
 
         if not result:
-            print(context)
-            return context  # Bad mapping
+            # print(context)
+            # return context  # Bad mapping
+            raise Exception(context)
 
         # TODO: check is new_dtypes_dict necessary
         # why can't this be moved in front of check mappings?
