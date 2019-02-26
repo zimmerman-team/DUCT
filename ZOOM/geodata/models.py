@@ -46,10 +46,8 @@ class Region(gis_models.Model):
     id = gis_models.AutoField(primary_key=True, editable=False)
     name = gis_models.CharField(max_length=200)
     code = gis_models.CharField(max_length=100, null=True)
-
     center_longlat = gis_models.PointField(null=True, blank=True)
     polygons = gis_models.GeometryField(null=True, blank=True)
-
     wikipedia = gis_models.CharField(null=True, blank=True, max_length=150)
     language = gis_models.CharField(max_length=2, null=True)
     data_source = gis_models.CharField(max_length=100, null=True, blank=True)
@@ -68,7 +66,6 @@ class Country(gis_models.Model):
     iso3 = gis_models.CharField(max_length=3, null=True, blank=True)
     numerical_code_un = gis_models.IntegerField(null=True, blank=True)
     dac_country_code = gis_models.IntegerField(null=True, blank=True)
-
     capital_city = gis_models.OneToOneField(
         "City",
         related_name='capital_of',
@@ -92,10 +89,8 @@ class Country(gis_models.Model):
         blank=True,
         related_name='unesco_countries',
         on_delete=gis_models.SET_NULL)
-
     center_longlat = gis_models.PointField(null=True, blank=True)
     polygons = gis_models.GeometryField(null=True, blank=True)
-
     wikipedia = gis_models.CharField(null=True, blank=True, max_length=150)
     language = gis_models.CharField(max_length=2, null=True)
     data_source = gis_models.CharField(max_length=100, null=True, blank=True)
@@ -117,10 +112,8 @@ class City(gis_models.Model):
         null=True,
         blank=True,
         on_delete=gis_models.SET_NULL)
-
     center_longlat = gis_models.PointField(null=True, blank=True)
     polygons = gis_models.GeometryField(null=True, blank=True)
-
     wikipedia = gis_models.CharField(null=True, blank=True, max_length=150)
     language = gis_models.CharField(max_length=2, null=True)
     data_source = gis_models.CharField(max_length=100, null=True, blank=True)
@@ -148,10 +141,8 @@ class SubNational(gis_models.Model):
         null=True,
         blank=True,
         on_delete=gis_models.SET_NULL)
-
     center_longlat = gis_models.PointField(null=True, blank=True)
     polygons = gis_models.GeometryField(null=True, blank=True)
-
     wikipedia = gis_models.CharField(null=True, blank=True, max_length=150)
     language = gis_models.CharField(max_length=2, null=True)
     data_source = gis_models.CharField(max_length=100, null=True, blank=True)
@@ -168,11 +159,9 @@ class PointBased(gis_models.Model):
     id = gis_models.AutoField(primary_key=True, editable=False)
     name = gis_models.CharField(max_length=200)
     type = gis_models.CharField(max_length=200, null=True, blank=True)
-
     subnational = gis_models.ForeignKey(
         SubNational, null=True, blank=True, on_delete=gis_models.SET_NULL)
     center_longlat = gis_models.PointField(null=True, blank=True)
-
     comment = gis_models.TextField()
     data_source = gis_models.CharField(max_length=100, null=True, blank=True)
     objects = gis_models.Manager()
