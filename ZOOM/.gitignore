@@ -110,3 +110,6 @@ local_settings.py
 media/
 .DS_Store
 samples/datasets
+
+# Ignore bid file
+geodata/data_backup/NL_PC6.json
