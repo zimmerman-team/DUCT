@@ -111,5 +111,6 @@ media/
 .DS_Store
 samples/datasets
 
-# Ignore bid file
+
+# Big data
 geodata/data_backup/NL_PC6.json
