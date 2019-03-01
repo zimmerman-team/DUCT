@@ -253,11 +253,11 @@ class GeolocationNode(DjangoObjectType):
 
     def resolve_center_longlat(self, context, **kwargs):
         return self.center_longlat.json \
-            if self.center_longlat == 'pointbased' else None
+            if self.center_longlat else None
 
     def resolve_polygons(self, context, **kwargs):
         return self.polygons.json \
-            if self.polygons == 'pointbased' else None
+            if self.polygons else None
 
 
 class GeolocatioFilter(FilterSet):
