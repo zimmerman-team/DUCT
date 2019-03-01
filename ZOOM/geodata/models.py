@@ -11,9 +11,12 @@ GEOTYPE_HEADINGS = [
     'pointbased',
     'iso3',
     'iso2',
-    'province'
+    'province',
+    'postcode'
 ]
-SAVED_TYPES = ['country', 'region', 'subnational', 'city', 'province']
+SAVED_TYPES = [
+    'country', 'region', 'subnational', 'city', 'province', 'postcode'
+]
 
 
 class Geolocation(models.Model):
@@ -33,6 +36,7 @@ class Geolocation(models.Model):
             ('city', 'city'),
             ('pointbased', 'pointbased'),
             ('province', 'province'),
+            ('postcode', 'postcode'),
         )
     )
     center_longlat = gis_models.PointField(null=True, blank=True)
@@ -198,3 +202,25 @@ class Province(gis_models.Model):
 
     def __unicode__(self):
         return self.name
+
+
+class PostCode(gis_models.Model):
+    id = gis_models.AutoField(primary_key=True, editable=False)
+    code = gis_models.CharField(max_length=200)
+    country = gis_models.ForeignKey(
+        Country,
+        null=True,
+        blank=True,
+        on_delete=gis_models.SET_NULL)
+    center_longlat = gis_models.PointField(null=True, blank=True)
+    polygons = gis_models.GeometryField(null=True, blank=True)
+    wikipedia = gis_models.CharField(null=True, blank=True, max_length=150)
+    language = gis_models.CharField(max_length=2, null=True)
+    data_source = gis_models.CharField(max_length=100, null=True, blank=True)
+    objects = gis_models.Manager()
+
+    class Meta:
+        unique_together = ("country", "code")
+
+    def __unicode__(self):
+        return self.code

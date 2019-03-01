@@ -1,10 +1,10 @@
 from geodata.importer.country import CountryImport
-from geodata.importer.region import RegionImport
+# from geodata.importer.region import RegionImport
 from geodata.importer.subnational import SubnationalImport
 
-print('Region data')
-ri = RegionImport()
-ri.update_region_center()
+# print('Region data')
+# ri = RegionImport()
+# ri.update_region_center()
 
 print('Country data')
 ci = CountryImport()

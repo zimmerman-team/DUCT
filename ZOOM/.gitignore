@@ -110,3 +110,7 @@ local_settings.py
 media/
 .DS_Store
 samples/datasets
+
+
+# Big data
+geodata/data_backup/NL_PC6.json
