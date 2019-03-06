@@ -51,10 +51,8 @@ def geolocation_post_save(sender, instance, **kwargs):
     elif instance.type == 'pointbased':
         point_based = PointBased.objects.get(id=instance.object_id)
         if kwargs.get('created') or\
-                instance.center_longlat != point_based.center_longlat or\
-                instance.polygons != point_based.polygons:
+                instance.center_longlat != point_based.center_longlat:
             instance.center_longlat = point_based.center_longlat
-            instance.polygons = point_based.polygons
             is_diff = True
     elif instance.type == 'province':
         province = Province.objects.get(id=instance.object_id)
