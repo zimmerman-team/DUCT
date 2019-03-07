@@ -62,6 +62,14 @@ def geolocation_post_save(sender, instance, **kwargs):
             instance.center_longlat = province.center_longlat
             instance.polygons = province.polygons
             is_diff = True
+    elif instance.type == 'postcode':
+        postcode = PostCode.objects.get(id=instance.object_id)
+        if kwargs.get('created') or\
+                instance.center_longlat != postcode.center_longlat or\
+                instance.polygons != postcode.polygons:
+            instance.center_longlat = postcode.center_longlat
+            instance.polygons = postcode.polygons
+            is_diff = True
 
     if is_diff:
         instance.save()
