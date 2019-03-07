@@ -360,12 +360,19 @@ def get_save_unique_datapoints(
                     else:
                         instance = Geolocation.objects.get(tag=unique_list[i])
                 else:
-                    if(len(unique_list[i]) == 2):
-                        instance = Geolocation.objects.get(iso2=unique_list[i])
-                    elif(len(unique_list[i]) == 3):
-                        instance = Geolocation.objects.get(iso3=unique_list[i])
+                    if isinstance(unique_list[i], str):
+                        if len(unique_list[i]) == 2:
+                            instance = Geolocation.objects.get(
+                                iso2=unique_list[i])
+                        elif len(unique_list[i]) == 3 :
+                            instance = Geolocation.objects.get(
+                                iso3=unique_list[i])
+                        else:
+                            instance = Geolocation.objects.get(
+                                tag=unique_list[i])
                     else:
-                        instance = Geolocation.objects.get(tag=unique_list[i])
+                        instance = Geolocation.objects.get(
+                            tag=unique_list[i])
 
                 geolocation_dict[unique_list[i]] = instance  # shold use get?
             else:

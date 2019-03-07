@@ -55,8 +55,10 @@ def identify_col_dtype(column_values, file_heading, dicts):
         # work when comparing against strings anymore
         # f = (lambda x: str(unicodedata.normalize('NFKD', x).lower().
         # encode('ascii','ignore')).strip().replace('_', ' '))
-        f = (lambda x: str(x.lower().replace('_', ' ')))
-        filter_used = not_null_filter & (~numeric_filter)
+        f = (lambda x: str(x.lower().replace('_', ' ')
+                           if isinstance(x, str) else x))
+        # filter_used = not_null_filter & (~numeric_filter)
+        filter_used = not_null_filter
         tmp_country_values = column_values[filter_used].apply(f)
         tmp_country_values = tmp_country_values.map(dicts)
         # get values that are not null => country
@@ -308,10 +310,16 @@ def correct_data(df_data, correction_data, error_data,
         # Geolocation
         if correction_data[key][1] in GEOTYPE_HEADINGS:
             if not point_based:
-                df_data[key] = df_data[key].str.lower()
-                filter_used = not_null_filter & (~numeric_filter) & (
-                    error_data[key][error_data[key] ==
-                                    correction_data[key][0]])
+                if df_data[key].dtype == object:
+                    df_data[key] = df_data[key].str.lower()
+                    filter_used = not_null_filter & (~numeric_filter) & (
+                        error_data[key][error_data[key] ==
+                                        correction_data[key][0]])
+                else:
+                    filter_used = not_null_filter & (
+                        error_data[key][error_data[key] ==
+                                        correction_data[key][0]])
+
                 df_data[key] = df_data[key][filter_used]
         elif correction_data[key][1] == 'date':
             # Numeric check
