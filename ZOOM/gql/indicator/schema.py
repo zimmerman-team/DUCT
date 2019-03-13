@@ -33,7 +33,7 @@ class IndicatorFilter(FilterSet):
         fields = {
             'name': ['exact', 'icontains', 'istartswith'],
             'description': ['exact', 'icontains', 'istartswith'],
-            'file_source': ['exact', 'in'],
+            'file_source__name': ['exact', 'in'],
         }
 
     def filter_entry_id(self, queryset, name, value):
