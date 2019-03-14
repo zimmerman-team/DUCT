@@ -43,7 +43,7 @@ ERROR_CORRECTION_DICT = {
 }
 
 
-def error_correction(data):
+def error_correction(data, error_toggle, error_rows):
     """Gets data needed for error correction."""
 
     id = data['file_id']
@@ -74,14 +74,29 @@ def error_correction(data):
         if len(df_data.columns) > 1:  # more columns than just index
             total_amount = len(df_data[df_data.columns[0]])
             for start_pos in range(start, end_pos):
-                if start_pos > len(df_data[df_data.columns[0]]) - 1:
-                    break
-                temp_dict = {'line no.': int(org_data['line_no'][start_pos])}
+                # TODO: make this is DRY, after clean up this module
+                if error_toggle:
+                    if start_pos in error_rows:
+                        if start_pos > len(df_data[df_data.columns[0]]) - 1:
+                            break
+                        temp_dict = {'line no.': int(org_data['line_no'][
+                                                         start_pos])}
 
-                for column in df_data.columns:
-                    temp_dict[column] = str(df_data[column][start_pos])
+                        for column in df_data.columns:
+                            temp_dict[column] = str(df_data[column][start_pos])
 
-                output_list.append(temp_dict)
+                        output_list.append(temp_dict)
+                else:
+                    if start_pos > len(df_data[df_data.columns[0]]) - 1:
+                        break
+                    temp_dict = {
+                        'line no.': int(org_data['line_no'][start_pos])}
+
+                    for column in df_data.columns:
+                        temp_dict[column] = str(df_data[column][start_pos])
+
+                    output_list.append(temp_dict)
+
                 counter = counter + 1
 
         context = {
@@ -194,6 +209,7 @@ def get_errors(data):
         two_index = False
 
     amount = end_pos - start_pos
+    error_rows = []
 
     for i in errors:
 
@@ -203,7 +219,9 @@ def get_errors(data):
                 line_no_selection = selection[line_nos[i]]
                 # [start_pos:end_pos]
             except Exception as e:
+                line_no_selection = None
                 pass
+
             errors_selection = errors[i]  # [start_pos:end_pos]
 
             # TODO: related above bug related the below
@@ -212,19 +230,27 @@ def get_errors(data):
                     dtype = dtypes_dict[i][0][0] if two_index \
                         else dtypes_dict[i][0]
 
-                    message = (
-                        'Found a ' +
-                        j +
-                        ' value instead of the most populous value ' + dtype +
-                        '.')
-                    line_no = str(line_no_selection[counter])
-                    temp_error_message[''.join([line_no, '|', i])] = (message)
+                    row = line_no_selection[counter]
+                    if start_pos <= row <= end_pos:
+                        if row not in error_rows:
+                            error_rows.append(row)
+
+                        message = (
+                            'Found a ' +
+                            j +
+                            ' value instead of the most populous value ' +
+                            dtype + '.'
+                        )
+                        line_no = str(row)
+                        temp_error_message[''.join([line_no, '|', i])] = (
+                            message
+                        )
                     counter += 1
                 except Exception as e:
                     pass
 
     context = {'error_messages': temp_error_message}
-    return context
+    return context, error_rows
 
 
 def update(id, data):
