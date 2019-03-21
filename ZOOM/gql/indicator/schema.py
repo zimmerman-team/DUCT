@@ -27,6 +27,8 @@ class IndicatorNode(DjangoObjectType):
 class IndicatorFilter(FilterSet):
     entry_id = NumberFilter(method='filter_entry_id')
     entry_id__in = CharFilter(method='filter_entry_id__in')
+    year__gte = CharFilter(method='filter_year__gte')
+    year__lte = CharFilter(method='filter_year__lte')
 
     class Meta:
         model = Indicator
@@ -43,6 +45,12 @@ class IndicatorFilter(FilterSet):
     def filter_entry_id__in(self, queryset, name, value):
         name = 'id__in'
         return queryset.filter(**{name: eval(value)})
+
+    def filter_year__gte(self, queryset, name, value):
+        return queryset.filter(datapoints__date__gte=value).distinct()
+
+    def filter_year__lte(self, queryset, name, value):
+        return queryset.filter(datapoints__date__lte=value).distinct()
 
 
 class DatapointsAggregationNode(AggregationNode):
