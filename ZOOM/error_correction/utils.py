@@ -71,33 +71,40 @@ def error_correction(data, error_toggle, error_rows):
         total_amount = 0
         start = start_pos
 
-        if len(df_data.columns) > 1:  # more columns than just index
+        if len(df_data.columns) > 1 and not error_toggle:
+            # more columns than just index
             total_amount = len(df_data[df_data.columns[0]])
+
             for start_pos in range(start, end_pos):
-                # TODO: make this is DRY, after clean up this module
-                if error_toggle:
-                    if start_pos in error_rows:
-                        if start_pos > len(df_data[df_data.columns[0]]) - 1:
-                            break
-                        temp_dict = {'line no.': int(org_data['line_no'][
-                                                         start_pos])}
+                if start_pos > len(df_data[df_data.columns[0]]) - 1:
+                    break
 
-                        for column in df_data.columns:
-                            temp_dict[column] = str(df_data[column][start_pos])
+                temp_dict = {'line no.': int(org_data['line_no'][start_pos])}
+                for column in df_data.columns:
+                    temp_dict[column] = str(df_data[column][start_pos])
 
-                        output_list.append(temp_dict)
-                else:
-                    if start_pos > len(df_data[df_data.columns[0]]) - 1:
-                        break
-                    temp_dict = {
-                        'line no.': int(org_data['line_no'][start_pos])}
-
-                    for column in df_data.columns:
-                        temp_dict[column] = str(df_data[column][start_pos])
-
-                    output_list.append(temp_dict)
-
+                output_list.append(temp_dict)
                 counter = counter + 1
+        elif len(df_data.columns) > 1 and error_toggle:
+            # more columns than just index
+            total_amount = len(df_data[df_data.columns[0]])
+
+            for row in error_rows[start_pos:end_pos]:
+                if row > len(df_data[df_data.columns[0]]) - 1:
+                    break
+
+                temp_dict = {'line no.': int(org_data['line_no'][
+                                                 row])}
+
+                for column in df_data.columns:
+                    temp_dict[column] = str(df_data[column][row])
+
+                output_list.append(temp_dict)
+
+            if output_list:
+                error_messages = data['error_data'][
+                                     'error_messages'][start_pos:end_pos]
+                data['error_data']['error_messages'] = error_messages
 
         context = {
             'data_table': json.dumps(output_list),
@@ -186,7 +193,7 @@ def get_errors(data):
     the most probable data type found for each column
     """
 
-    temp_error_message = {}
+    error_messages = []
     id = data['file_id']
     start_pos = data['start_pos']
     end_pos = data['end_pos']
@@ -231,25 +238,26 @@ def get_errors(data):
                         else dtypes_dict[i][0]
 
                     row = line_no_selection[counter]
-                    if start_pos <= row <= end_pos:
-                        if row not in error_rows:
-                            error_rows.append(row)
+                    if row not in error_rows:
+                        error_rows.append(row)
 
-                        message = (
-                            'Found a ' +
-                            j +
-                            ' value instead of the most populous value ' +
-                            dtype + '.'
-                        )
-                        line_no = str(row)
-                        temp_error_message[''.join([line_no, '|', i])] = (
-                            message
-                        )
+                    message = (
+                        'Found a ' +
+                        j +
+                        ' value instead of the most populous value ' +
+                        dtype + '.'
+                    )
+                    line_no = str(row)
+                    error_message_row = dict()
+                    error_message_row[''.join([line_no, '|', i])] = (
+                        message
+                    )
+                    error_messages.append(error_message_row)
                     counter += 1
                 except Exception as e:
                     pass
 
-    context = {'error_messages': temp_error_message}
+    context = {'error_messages': error_messages}
     return context, error_rows
 
 
