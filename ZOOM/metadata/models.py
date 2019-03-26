@@ -180,6 +180,9 @@ class File(models.Model):
     file = models.FileField(upload_to=upload_to, max_length=500, null=True)
     file_heading_list = JSONField(null=True)
 
+    def __str__(self):
+        return str(self.id)
+
     def filename(self):
         return os.path.basename(self.file.name)
 

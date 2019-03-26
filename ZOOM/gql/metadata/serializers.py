@@ -161,6 +161,8 @@ class FileErrorCorrectionSerializer(serializers.ModelSerializer):
 
 
 class FileValidationResultsSerializer(serializers.ModelSerializer):
+    id = serializers.SerializerMethodField()
+    entry_id = serializers.SerializerMethodField()
     found_list = serializers.JSONField(read_only=True)
     missing_list = serializers.JSONField(read_only=True)
     summary = serializers.JSONField(read_only=True)
@@ -169,6 +171,7 @@ class FileValidationResultsSerializer(serializers.ModelSerializer):
         model = File
         fields = (
             'id',
+            'entry_id',
             'found_list',
             'missing_list',
             'summary'
