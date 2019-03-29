@@ -284,7 +284,7 @@ class FileValidationResultsMutation(SerializerMutation):
     def get_serializer_kwargs(cls, root, info, **input):
         if input.get('id', None):
             instance = File.objects.filter(
-                id=input['id']).first()
+                id=int(input['id'])).first()
             if instance:
                 return {'instance': instance, 'data': input, 'partial': True}
             else:
