@@ -105,7 +105,7 @@ def error_correction(data, error_toggle, error_rows):
                 error_messages = data['error_data'][
                                      'error_messages'][start_pos:end_pos]
                 data['error_data']['error_messages'] = error_messages
-                total_amount = len(output_list)
+                total_amount = len(error_rows)
 
         context = {
             'data_table': json.dumps(output_list),
