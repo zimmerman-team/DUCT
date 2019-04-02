@@ -237,6 +237,8 @@ class FileErrorCorrectionMutation(SerializerMutation):
         data = json.loads(serializer.validated_data['command'])
         context = None
 
+        error_toggle = False
+        error_rows = []
         if data['update']:
             try:
                 context = update(data['file_id'], data['update_data'])
@@ -256,14 +258,15 @@ class FileErrorCorrectionMutation(SerializerMutation):
                 raise Exception(context)
         elif data['error_toggle']:
             try:
-                context = get_errors(data)
+                error_toggle = True
+                context, error_rows = get_errors(data)
                 data['error_data'] = context
             except Exception as e:
                 context['error'] = "Error occurred when retrieving errors"
                 context['success'] = 0
                 raise Exception(context)
 
-        context = error_correction(data)
+        context = error_correction(data, error_toggle, error_rows)
 
         kwargs = {}
         for f, field in serializer.fields.items():
