@@ -113,7 +113,9 @@ class SurveyData(models.Model):
     select_respondents = MultiSelectField(
         choices=HOW_SELECT_RESPONDENTS_CHOICES,
         help_text='How did you select respondents?')
-    other = models.CharField(max_length=200, help_text='If other, explain')
+    other_respondent = models.CharField(
+        max_length=200, help_text='If other respondent, explain',
+        null=True, blank=True, default='')
     how_many_respondents = models.CharField(
         max_length=100,
         help_text='How many respondents were interviewed/participated?')
@@ -124,6 +126,9 @@ class SurveyData(models.Model):
     data_cleaning_techniques = MultiSelectField(
         choices=CLEANING_TECHNIQUES_CHOICES,
         help_text='Which data cleaning techniques did you use?')
+    other_cleaning_technique = models.CharField(
+        max_length=200, help_text='If other respondent, explain',
+        null=True, blank=True, default='')
 
     def __str__(self):
         return str(self.id)
