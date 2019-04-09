@@ -36,52 +36,40 @@ class FileSource(models.Model):
 
 
 HAVE_TESTED_CHOICES = (
-    ('Yes', 'Yes'),
-    ('No', 'No'),
-    ('Don\'t know', 'Don\'t know'),
+    ('0', 'No'),
+    ('1', 'Yes'),
+    ('2', 'Don\'t know')
 )
 
 WHO_TESTED_CHOICES = (
-    ('Enumerators', 'Enumerators'),
-    ('Colleagues', 'Colleagues'),
-    ('Respondents', 'Respondents'),
-    (
-        'Representative group of respondents',
-        'Representative group of respondents'
-    ),
+    ('1', 'Enumerators'),
+    ('2', 'Colleagues'),
+    ('3', 'Respondents'),
+    ('4', 'Representative group of respondents')
 )
 
 CONSINDERED_SENSITIVE_CHOICES = (
-    ('Yes', 'Yes'),
-    ('No', 'No'),
-    ('Don\'t know', 'Don\'t know'),
+    ('0', 'No'),
+    ('1', 'Yes'),
+    ('2', 'Don\'t know')
 )
 
 HOW_SELECT_RESPONDENTS_CHOICES = (
-    ('Simple random sampling', 'Simple random samplimng'),
-    ('Stratified sampling', 'Stratified sampling'),
-    ('Cluster sampling', 'Cluster sampling'),
-    ('Systematic sampling', 'Systematic sampling'),
-    ('Multistage sampling', 'Multistage sampling'),
-    ('Other', 'Other'),
+    ('0', 'Other'),
+    ('1', 'Simple random samplimng'),
+    ('2', 'Stratified sampling'),
+    ('3', 'Cluster sampling'),
+    ('4', 'Systematic sampling'),
+    ('5', 'Multistage sampling')
 )
 
 CLEANING_TECHNIQUES_CHOICES = (
-    ('Check for outliers', 'Check for outliers'),
-    (
-        'Delete rows/columns with missing data',
-        'Delete rows/columns with missing data'
-    ),
-    ('Check of geodata', 'Check of geodata'),
-    (
-        'Check consistency datatype per column',
-        'Check consistency datatype per column'
-    ),
-    (
-        'Join, delimite or concatenate data',
-        'Join, delimite or concatenate data'
-    ),
-    ('Other', 'Other'),
+    ('0', 'Other'),
+    ('1', 'Check for outliers'),
+    ('2', 'Delete rows/columns with missing data'),
+    ('3', 'Check of geodata'),
+    ('4', 'Check consistency datatype per column'),
+    ('5', 'Join, delimite or concatenate data')
 )
 
 
