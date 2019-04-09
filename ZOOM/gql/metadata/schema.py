@@ -191,7 +191,7 @@ class SurveyDataFilter(FilterSet):
             'select_respondents': [
                 'exact', 'in'
             ],
-            'other': [
+            'other_respondent': [
                 'exact', 'in'
             ],
             'how_many_respondents': [
@@ -202,7 +202,10 @@ class SurveyDataFilter(FilterSet):
             ],
             'data_cleaning_techniques': [
                 'exact', 'in'
-            ]
+            ],
+            'other_cleaning_technique': [
+                'exact', 'in'
+            ],
         }
 
     def filter_entry_id(self, queryset, name, value):

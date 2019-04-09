@@ -119,10 +119,11 @@ class SurveyDataSerializer(serializers.ModelSerializer):
             'staff_trained',
             'ask_sensitive',
             'select_respondents',
-            'other',
+            'other_respondent',
             'how_many_respondents',
             'edit_sheet',
             'data_cleaning_techniques',
+            'other_cleaning_technique'
         )
 
     @classmethod
