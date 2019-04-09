@@ -159,13 +159,21 @@ class FileUploadView(APIView):
             file.file = file_obj
             file.save()
         else:
-            fs = FileSystemStorage(
-                location=os.path.join(
-                    settings.MEDIA_ROOT, settings.DATASETS_URL)
-            )
+            location = os.path.join(settings.MEDIA_ROOT, settings.DATASETS_URL)
+
+            fs = FileSystemStorage(location=location)
             filename = fs.save(file_obj.name, file_obj)
-            file_url = '{datasets_url}{filename}'.format(
-                datasets_url=settings.DATASETS_URL,
-                filename=filename
+
+            old_name = location + filename
+            new_name = location + filename + '.new.csv'
+
+            old_file = open(old_name, encoding="ascii", errors="ignore")
+            new_file = open(new_name, "w")
+            new_file.write(old_file.read())
+
+            file_url = '{dataset_url}{filename}'.format(
+                dataset_url=settings.DATASETS_URL,
+                filename=filename + '.new.csv'
             )
+
             return Response(data={"url": file_url}, status=202)
