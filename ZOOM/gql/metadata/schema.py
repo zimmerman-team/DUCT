@@ -145,28 +145,28 @@ class SurveyDataNode(DjangoObjectType):
         return self.id
 
     def resolve_have_you_tested_tool(self, context, **kwargs):
-        return str(self.have_you_tested_tool)
+        return ','.join(self.have_you_tested_tool)
 
     def resolve_who_did_you_test_with(self, context, **kwargs):
-        return str(self.who_did_you_test_with)
+        return ','.join(self.who_did_you_test_with)
 
     def resolve_considered_senstive(self, context, **kwargs):
-        return str(self.considered_senstive)
+        return ','.join(self.considered_senstive)
 
     def resolve_staff_trained(self, context, **kwargs):
-        return str(self.staff_trained)
+        return ','.join(self.staff_trained)
 
     def resolve_ask_sensitive(self, context, **kwargs):
-        return str(self.ask_sensitive)
+        return ','.join(self.ask_sensitive)
 
     def resolve_select_respondents(self, context, **kwargs):
-        return str(self.select_respondents)
+        return ','.join(self.select_respondents)
 
     def resolve_edit_sheet(self, context, **kwargs):
-        return str(self.edit_sheet)
+        return ','.join(self.edit_sheet)
 
     def resolve_data_cleaning_techniques(self, context, **kwargs):
-        return str(self.data_cleaning_techniques)
+        return ','.join(self.data_cleaning_techniques)
 
 
 class SurveyDataFilter(FilterSet):
