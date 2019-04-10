@@ -73,6 +73,7 @@ class Indicator(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
     file_source = models.ForeignKey(FileSource, on_delete=models.CASCADE)
+    file = models.OneToOneField(File, on_delete=models.CASCADE)
     country = models.ForeignKey(
         Country, on_delete=models.CASCADE, blank=True, null=True
     )

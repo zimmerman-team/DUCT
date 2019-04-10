@@ -1,11 +1,10 @@
-from metadata.models import FileSource
 from indicator.models import Indicator
 from geodata.models import COUNTRY_RELATION_TYPES
 
 
-def update_country_on_indicator(file_source=FileSource):
+def update_country_on_indicator(file):
     # Get indicator from file source
-    indicator = Indicator.objects.get(file_source=file_source)
+    indicator = Indicator.objects.get(file=file)
 
     # Get first data pint to check an geelocation on it
     data_point = indicator.datapoints_set.first()

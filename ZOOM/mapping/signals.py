@@ -20,7 +20,7 @@ def mapping_post_save(sender, instance, **kwargs):
             try:
                 # Updated the country on indicator
                 file = File.objects.get(id=file_id)
-                update_country_on_indicator(file_source=file.source)
+                update_country_on_indicator(file=file)
 
             except File.DoesNotExist:
                 raise Exception("File does not exists!")
