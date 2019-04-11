@@ -28,7 +28,8 @@ EXTRA_INFORMATION = {
         # File column heading: associated data type (Numeric percentage
         # etc)
         'empty_value_format': {},
-        'empty_date': ''
+        'empty_date': '',
+        'empty_value': '',
     },
     'multi_mapped':
         {
