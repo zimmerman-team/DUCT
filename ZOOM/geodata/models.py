@@ -17,6 +17,9 @@ GEOTYPE_HEADINGS = [
 SAVED_TYPES = [
     'country', 'region', 'subnational', 'city', 'province', 'postcode'
 ]
+COUNTRY_RELATION_TYPES = [
+    'subnational', 'city', 'province', 'postcode'
+]
 
 
 class Geolocation(models.Model):
