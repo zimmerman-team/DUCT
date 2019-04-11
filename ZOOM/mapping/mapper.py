@@ -134,7 +134,7 @@ def begin_mapping(data):
         # Save and get foreign key data for datapoints model
         ind_dict, headings_dict, geolocation_dict, value_format_dict, \
             filters_dict = get_save_unique_datapoints(
-                df_data, final_file_headings, metadata.source, instance,
+                df_data, final_file_headings, metadata, instance,
                 filter_headings_dict, point_based)
 
         # Save Datapoints
@@ -284,24 +284,11 @@ def check_mapping_dtypes(mappings, dtypes_dict):
 
 
 def get_save_unique_datapoints(
-        df_data,
-        final_file_headings,
-        file_source,
-        date_format,
-        filter_headings_dict,
-        point_based=False):
-    '''Gets foreign keys for IndicatorDatapoint and saves new entries if needed.
-    Args:
-        df_data (Dataframe): dataframe of CSV file.
-        final_file_headings ({str:[str]}): data model section and associated
-        column heading.
-
-    Returns:
-        ind_dict ({str:Indicator}): dictionary of Indicator objects.
-        ind_source_dict ({str:IndicatorSource}): dictionary of IndicatorSource
-        objects.
-        ind_country_dict ({str:Country}): dictionary of Country objects.
-    '''
+        df_data, final_file_headings, file,
+        date_format, filter_headings_dict, point_based=False):
+    """
+    Gets foreign keys for IndicatorDatapoint and saves new entries if needed.
+    """
 
     count = 0
     ind_dict = {}
@@ -327,7 +314,7 @@ def get_save_unique_datapoints(
         for i in range(len(unique_list)):
             if count == 0:  # indicator
                 instance, created = Indicator.objects.get_or_create(
-                    name=unique_list[i], file_source=file_source)
+                    name=unique_list[i], file_source=file.source, file=file)
                 if created:
                     instance.save()
                 ind_dict[unique_list[i]] = instance

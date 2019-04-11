@@ -1,6 +1,6 @@
 from django.db import models
 
-from geodata.models import Geolocation
+from geodata.models import Geolocation, Country
 from metadata.models import File, FileSource
 
 MAPPING_HEADINGS = {  # Main mapping information
@@ -56,7 +56,6 @@ MAPPING_DICT = {
     FILTER_HEADINGS: {},  # Must always have
     'extra_information': EXTRA_INFORMATION
 }
-#ADDITIONAL_HEADINGS = {'metadata'}
 
 
 class DateFormat(models.Model):
@@ -74,13 +73,17 @@ class Indicator(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
     file_source = models.ForeignKey(FileSource, on_delete=models.CASCADE)
+    file = models.OneToOneField(File, on_delete=models.CASCADE)
+    country = models.ForeignKey(
+        Country, on_delete=models.CASCADE, blank=True, null=True
+    )
 
 
 class FilterHeadings(models.Model):
     id = models.AutoField(primary_key=True, editable=False)
     name = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
-    # Allow aggrgeation on a column within ZOOM
+    # Allow aggregation on a column within ZOOM
     aggregation_allowed = models.BooleanField(default=False)
     indicator = models.ForeignKey(Indicator, on_delete=models.CASCADE)
 

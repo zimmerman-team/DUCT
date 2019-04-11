@@ -35,6 +35,7 @@ class IndicatorFilter(FilterSet):
             'name': ['exact', 'icontains', 'istartswith'],
             'description': ['exact', 'icontains', 'istartswith'],
             'file_source__name': ['exact', 'in'],
+            'country__iso2':  ['exact', 'in'],
         }
 
     def filter_entry_id(self, queryset, name, value):
