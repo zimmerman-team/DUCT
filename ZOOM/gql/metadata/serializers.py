@@ -177,3 +177,15 @@ class FileValidationResultsSerializer(serializers.ModelSerializer):
             'missing_list',
             'summary'
         )
+
+
+class FileDeleteSerializer(serializers.ModelSerializer):
+    id = serializers.SerializerMethodField()
+    message = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = File
+        fields = (
+            'id',
+            'message'
+        )
