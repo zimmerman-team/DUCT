@@ -234,7 +234,7 @@ def apply_missing_values(df_data, mappings, dtypes_dict, empty_entries_dict):
             not empty_entries_dict['empty_value'] == '':
         mappings['value'] = ['value']
         df_data['value'] = empty_entries_dict['empty_value']
-        dtypes_dict[mappings['value'][0]] = ['text'] * length
+        dtypes_dict[mappings['value'][0]] = ['numeric'] * length
 
     return df_data, mappings, dtypes_dict
 
