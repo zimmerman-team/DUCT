@@ -181,20 +181,9 @@ def split_mapping_data(data):
 
 
 def apply_missing_values(df_data, mappings, dtypes_dict, empty_entries_dict):
-    '''Applies missing values to dataframe.
-
-    Args:
-        df_data (Dataframe): dataframe of CSV file.
-        mappings ({str:[str]}): the users chosen mappings for a file column.
-        dtypes_dict ({str:str}): stores the data-types found for each heading.
-        empty_values_array ([str]): values related to missing values in manual
-        mapping process
-
-    Returns:
-        df_data (Dataframe): dataframe of CSV file.
-        mappings ({str:[str]}): the users chosen mappings for a file column.
-        dtypes_dict ({str:str}): stores the data-types found for each heading.
-    '''
+    """
+    Applies missing values to dataframe.
+    """
 
     length = (len(df_data[df_data.columns[0]]) - 1)
 
@@ -227,7 +216,7 @@ def apply_missing_values(df_data, mappings, dtypes_dict, empty_entries_dict):
 
     if 'empty_value_format' in empty_entries_dict and len(
             empty_entries_dict['empty_value_format']) > 0:
-        if len(mappings['value']) == 1:
+        if len(mappings['value']) <= 1:
             # check each entry empty value format dict
             mappings['value_format'] = ['value_format']
             df_data['value_format'] = \
@@ -240,6 +229,12 @@ def apply_missing_values(df_data, mappings, dtypes_dict, empty_entries_dict):
             # TODO: reformat df data and apply multiple formats
             # mappings['value_format'] = ['value_format']
             # dtypes_dict[mappings['value_format'][0]] = [('text', 'text')]
+
+    if 'empty_value' in empty_entries_dict and \
+            not empty_entries_dict['empty_value'] == '':
+        mappings['value'] = ['value']
+        df_data['value'] = empty_entries_dict['empty_value']
+        dtypes_dict[mappings['value'][0]] = ['numeric'] * length
 
     return df_data, mappings, dtypes_dict
 
