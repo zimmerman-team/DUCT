@@ -28,7 +28,8 @@ EXTRA_INFORMATION = {
         # File column heading: associated data type (Numeric percentage
         # etc)
         'empty_value_format': {},
-        'empty_date': ''
+        'empty_date': '',
+        'empty_value': '',
     },
     'multi_mapped':
         {
@@ -73,7 +74,7 @@ class Indicator(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
     file_source = models.ForeignKey(FileSource, on_delete=models.CASCADE)
-    file = models.OneToOneField(File, on_delete=models.CASCADE)
+    file = models.ForeignKey(File, on_delete=models.CASCADE)
     country = models.ForeignKey(
         Country, on_delete=models.CASCADE, blank=True, null=True
     )
