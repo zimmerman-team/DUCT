@@ -52,4 +52,12 @@ class SubnationalImport(object):
                     sn.polygons = polygons
                     sn.save()
 
-                    print('Updated: {name}'.format(name=name))
+                    print('Updated Sub national : {name}'.format(name=name))
+
+                    try:
+                        geolocation = Geolocation.objects.get(tag=name)
+                        geolocation.save()
+
+                        print('Updated geolocation: {name}'.format(name=name))
+                    except Geolocation.DoesNotExist:
+                        pass
