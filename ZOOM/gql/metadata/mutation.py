@@ -4,17 +4,23 @@ import graphene
 import pandas as pd
 from django import http
 from django.conf import settings
+from django.db import IntegrityError
+
 from graphene_django.rest_framework.mutation import SerializerMutation
 from rest_framework import serializers
 
 from error_correction.utils import (delete_data, error_correction, get_errors,
                                     update)
-from gql.metadata.serializers import (FileErrorCorrectionSerializer,
-                                      FileSerializer, FileSourceSerializer,
-                                      FileTagsSerializer,
-                                      FileValidateSerializer,
-                                      SurveyDataSerializer,
-                                      FileValidationResultsSerializer)
+from gql.metadata.serializers import (
+    FileErrorCorrectionSerializer,
+    FileSerializer,
+    FileSourceSerializer,
+    FileTagsSerializer,
+    FileValidateSerializer,
+    SurveyDataSerializer,
+    FileValidationResultsSerializer,
+    FileDeleteSerializer
+)
 from lib.tools import check_file_formatting
 from metadata.models import File, FileSource, FileTags, SurveyData
 from validate.validator import generate_error_data, validate
@@ -316,6 +322,41 @@ class FileValidationResultsMutation(SerializerMutation):
         return cls(errors=None, **kwargs)
 
 
+class FileDeleteMutation(SerializerMutation):
+
+    class Meta:
+        serializer_class = FileDeleteSerializer
+
+    @classmethod
+    def get_serializer_kwargs(cls, root, info, **input):
+        if 'id' in input:
+            instance = File.objects.filter(id=input['id']).first()
+            if instance:
+                return {'instance': instance, 'data': input, 'partial': True}
+            else:
+                raise Exception('File is not found!')
+        else:
+            raise Exception('File id is requires!')
+
+    @classmethod
+    def perform_mutate(cls, serializer, info):
+        file = serializer.instance
+        try:
+            file.delete()
+        except IntegrityError:
+            raise Exception('Integrity error, the file could not be deleted!')
+
+        kwargs = {}
+        for f, field in serializer.fields.items():
+            if f not in ['message']:
+                kwargs[f] = field.get_attribute(file)
+
+        if kwargs:
+            kwargs['message'] = "Deleted successfully!"
+
+        return cls(errors=None, **kwargs)
+
+
 class Mutation(graphene.ObjectType):
     file_source = FileSourceMutation.Field()
     file = FileMutation.Field()
@@ -324,3 +365,4 @@ class Mutation(graphene.ObjectType):
     file_validate = FileValidateMutation.Field()
     file_error_correction = FileErrorCorrectionMutation.Field()
     file_validation_results = FileValidationResultsMutation.Field()
+    file_delete = FileDeleteMutation.Field()
