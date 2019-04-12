@@ -25,8 +25,8 @@ COUNTRY_RELATION_TYPES = [
 class Geolocation(models.Model):
     id = gis_models.AutoField(primary_key=True, editable=False)
     tag = models.CharField(unique=True, max_length=200)
-    iso2 = models.CharField(max_length=2, null=True)
-    iso3 = models.CharField(max_length=3, null=True)
+    iso2 = models.CharField(unique=True, max_length=2, null=True)
+    iso3 = models.CharField(unique=True, max_length=3, null=True)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
@@ -67,10 +67,9 @@ class Region(gis_models.Model):
 class Country(gis_models.Model):
     id = gis_models.AutoField(primary_key=True, editable=False)
     name = gis_models.CharField(unique=True, max_length=100, db_index=True)
-    primary_name = gis_models.BooleanField(
-        default=False)  # Used as primary name for a country
-    iso2 = gis_models.CharField(max_length=2)  # iso2
-    iso3 = gis_models.CharField(max_length=3, null=True, blank=True)
+    primary_name = gis_models.BooleanField(default=False)
+    iso2 = gis_models.CharField(unique=True, max_length=2, null=True)
+    iso3 = gis_models.CharField(unique=True, max_length=3, null=True)
     numerical_code_un = gis_models.IntegerField(null=True, blank=True)
     dac_country_code = gis_models.IntegerField(null=True, blank=True)
     capital_city = gis_models.OneToOneField(
