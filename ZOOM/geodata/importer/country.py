@@ -113,3 +113,34 @@ class CountryImport(object):
                     and the_region is not None:
                 the_country.region = the_region
                 the_country.save()
+
+    def update_hd_polygons(self):
+        """
+        Update HD Polygons provided by Jim
+        """
+        poly_countries = self.get_json_data(
+            "/../data_backup/countries_080419.json"
+        ).get('features')
+        for k in poly_countries:  # .get('features'):
+            if 'iso_a2' in k.get('properties'):
+                iso2 = k.get('properties').get('iso_a2').lower()
+
+                print('Updated HD polygon -> {iso2}'.format(iso2=iso2))
+
+                try:
+                    country = Country.objects.get(iso2=iso2)
+                    country.polygons = json.dumps(k.get('geometry'))
+                    country.save()
+
+                    print('Updated HD polygon -> country {iso2}'.format(
+                        iso2=iso2
+                    ))
+
+                    geolocation = Geolocation.objects.get(iso2=iso2)
+                    geolocation.save()
+
+                    print('Updated HD polygon -> geolocation {iso2}'.format(
+                        iso2=iso2
+                    ))
+                except Country.DoesNotExist:
+                    pass
