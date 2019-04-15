@@ -1,9 +1,11 @@
 import graphene
 from graphene import relay
 from graphene_django.filter import DjangoFilterConnectionField
+
 from django.db import models
 from django.db.models import Count, Sum, Min, Max, Avg
 from django.contrib.gis.geos import MultiPolygon, Point, Polygon
+from django.db.models import Q
 
 
 class OrderedDjangoFilterConnectionField(DjangoFilterConnectionField):
@@ -33,6 +35,7 @@ class OrderedDjangoFilterConnectionField(DjangoFilterConnectionField):
 class AggregationNode(graphene.ObjectType):
     FIELDS_MAPPING = {}
     FIELDS_FILTER_MAPPING = {}
+    FIELDS_OR_FILTER_MAPPING = {}
     Model = models.Model
 
     class Meta:
@@ -47,12 +50,21 @@ class AggregationNode(graphene.ObjectType):
 
     def get_filters(self, context, **kwargs):
         filters = {}
-        for field,filter_field in self.FIELDS_FILTER_MAPPING.items():
+        for field, filter_field in self.FIELDS_FILTER_MAPPING.items():
             value = kwargs.get(field)
             if value:
                 filters[filter_field] = value
 
         return filters
+
+    def get_or_filters(self, context, **kwargs):
+        or_filters = {}
+        for field, filter_field in self.FIELDS_OR_FILTER_MAPPING.items():
+            value = kwargs.get(field)
+            if value:
+                or_filters[filter_field] = value
+
+        return or_filters
 
     def get_aggregations(self, context, **kwargs):
         start = '('
@@ -67,12 +79,19 @@ class AggregationNode(graphene.ObjectType):
 
     def get_results(self, context, **kwargs):
         filters = self.get_filters(context, **kwargs)
+        or_filters = self.get_or_filters(context, **kwargs)
         groups = self.get_group_by(context, **kwargs)
         orders = self.get_order_by(context, **kwargs)
         aggregations = self.get_aggregations(context, **kwargs)
 
+        if or_filters:
+            return self.Model.objects.values(*groups).annotate(
+                **aggregations
+            ).order_by(*orders).filter(Q(**filters) | Q(**or_filters))
+
         return self.Model.objects.values(*groups).annotate(
-            **aggregations).order_by(*orders).filter(**filters)
+            **aggregations
+        ).order_by(*orders).filter(**filters)
 
     def get_nodes(self, context, **kwargs):
         results = self.get_results(context, **kwargs)

@@ -1,5 +1,5 @@
 import graphene
-from graphene import relay, List, String, Int
+from graphene import relay, List, String, Int, Boolean
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from django_filters import FilterSet, NumberFilter, CharFilter
@@ -115,6 +115,18 @@ class DatapointsAggregationNode(AggregationNode):
         'date__In': 'date__in',
         'filterName__In': 'filters__name__in',
         'indicatorName__In': 'indicator__name__in',
+        'geolocationIso2__Is__Null': 'geolocation__iso2__isnull',
+        'geolocationIso3__Is__Null': 'geolocation__iso3__isnull',
+    }
+
+    # OR filter
+    # (a = 1 OR a = Null)
+    # Should be had the same field is on filter too.
+    # This can not use as a stand alone filter
+    # Can not -> (a = null) should be -> (a = 1 OR a = Null)
+    FIELDS_OR_FILTER_MAPPING = {
+        'OR__Geolocation_Iso2__Is__Null': 'geolocation__iso2__isnull',
+        'OR__Geolocation_Iso3__Is__Null': 'geolocation__iso3__isnull',
     }
 
 
@@ -238,6 +250,10 @@ class Query(object):
         date__In=List(of_type=String),
         filterName__In=List(of_type=String),
         indicatorName__In=List(of_type=String),
+        geolocationIso2__Is__Null=Boolean(),
+        geolocationIso3__Is__Null=Boolean(),
+        OR__Geolocation_Iso2__Is__Null=Boolean(),
+        OR__Geolocation_Iso3__Is__Null=Boolean(),
     )
 
     all_filter_headings = DjangoFilterConnectionField(
