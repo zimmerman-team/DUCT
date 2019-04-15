@@ -12,6 +12,7 @@ ci.update_polygon()
 ci.update_alt_name()
 ci.update_country_center()
 ci.update_regions()
+ci.update_hd_polygons()
 
 
 print('Subnational data')
