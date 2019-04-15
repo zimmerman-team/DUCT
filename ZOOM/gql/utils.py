@@ -36,6 +36,7 @@ class AggregationNode(graphene.ObjectType):
     FIELDS_MAPPING = {}
     FIELDS_FILTER_MAPPING = {}
     FIELDS_OR_FILTER_MAPPING = {}
+    FIELD_OR_RELATED_MAPPING = {}
     Model = models.Model
 
     class Meta:
@@ -58,11 +59,22 @@ class AggregationNode(graphene.ObjectType):
         return filters
 
     def get_or_filters(self, context, **kwargs):
+        filters = self.get_filters(context, **kwargs)
+
+        for field in filters.copy():
+            for or_filter, related_field in \
+                    self.FIELD_OR_RELATED_MAPPING.items():
+                if field == related_field:
+                    del filters[field]
+
         or_filters = {}
         for field, filter_field in self.FIELDS_OR_FILTER_MAPPING.items():
             value = kwargs.get(field)
             if value:
                 or_filters[filter_field] = value
+
+        if or_filters and filters:
+            return {**filters, **or_filters}
 
         return or_filters
 

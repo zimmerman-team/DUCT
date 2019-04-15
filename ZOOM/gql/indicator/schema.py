@@ -128,6 +128,11 @@ class DatapointsAggregationNode(AggregationNode):
         'OR__Geolocation_Iso2__Is__Null': 'geolocation__iso2__isnull',
         'OR__Geolocation_Iso3__Is__Null': 'geolocation__iso3__isnull',
     }
+    #  Remove filter related to or_filter on the filter fields
+    FIELD_OR_RELATED_MAPPING = {
+        'OR__Geolocation_Iso2__Is__Null': 'geolocation__iso2__in',
+        'OR__Geolocation_Iso3__Is__Null': 'geolocation__iso3__in',
+    }
 
 
 class FilterHeadingsNode(DjangoObjectType):
