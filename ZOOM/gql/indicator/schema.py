@@ -130,8 +130,8 @@ class DatapointsAggregationNode(AggregationNode):
     }
     #  Remove filter related to or_filter on the filter fields
     FIELD_OR_RELATED_MAPPING = {
-        'OR__Geolocation_Iso2__Is__Null': 'geolocationIso2__In',
-        'OR__Geolocation_Iso3__Is__Null': 'geolocationIso3__In',
+        'OR__Geolocation_Iso2__Is__Null': 'geolocation__iso2__in',
+        'OR__Geolocation_Iso3__Is__Null': 'geolocation__iso3__in',
     }
 
 

@@ -60,9 +60,8 @@ class AggregationNode(graphene.ObjectType):
 
     def get_or_filters(self, context, **kwargs):
         filters = self.get_filters(context, **kwargs)
-        t_filters = filters
 
-        for field in t_filters:
+        for field in filters.copy():
             for or_filter, related_field in \
                     self.FIELD_OR_RELATED_MAPPING.items():
                 if field == related_field:
