@@ -26,8 +26,7 @@ def geolocation_post_save(sender, instance, **kwargs):
         region = Region.objects.get(id=instance.object_id)
         if kwargs.get('created') or\
                 instance.center_longlat != region.center_longlat or\
-                instance.polygons != region.polygons or\
-                instance.iso3 != region.code:
+                instance.polygons != region.polygons:
             instance.center_longlat = region.center_longlat
             instance.polygons = region.polygons
             is_diff = True
