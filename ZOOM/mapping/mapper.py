@@ -20,6 +20,8 @@ from lib.tools import check_column_data_type, convert_df, correct_data
 from metadata.models import File
 from validate.validator import generate_error_data, save_validation_data
 
+from django.db.models import Min
+
 
 def begin_mapping(data):
     # Performs manual mapping process
@@ -540,9 +542,32 @@ def save_datapoints(df_data, final_file_headings, filter_headings_dict, dicts):
         print('Finished saving batch %d hurray! %s' %
               (count, datetime.datetime.now()))
         count += 1
+
+    add_first_indicator_year(ind_dict)
+
     print('Finished')
     metadata.file_status = 4
     metadata.save()
+
+
+def add_first_indicator_year(ind_dict):
+    print('Saving indicators data first year')
+    # so here we basically add the first
+    # data point year to the indicators
+    # that we've just created
+    # so its not the best thing to do this
+    # but thats how i made it #Morty :D
+    # TODO redo this properly, maybe its possible
+    # to save this first year while the csv
+    # is getting read by pandas or sth
+    for ind_key in ind_dict:
+        ind_data = Datapoints.objects.filter(indicator=ind_dict[ind_key].id)
+        #  so yeah currently this works with dates when they are only years
+        #  or with simplo ISO standard date format
+        lowest_date = ind_data.aggregate(Min('date'))
+        #  i dunno why its stored like that... date__min...
+        ind_dict[ind_key].first_data_year = lowest_date['date__min']
+        ind_dict[ind_key].save()
 
 
 def temp_save_file(df_data):
