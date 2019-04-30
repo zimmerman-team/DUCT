@@ -1,5 +1,5 @@
 import graphene
-from graphene import relay, List, String, Int
+from graphene import relay, List, String, Int, Boolean
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from django_filters import FilterSet, NumberFilter, CharFilter
@@ -27,13 +27,15 @@ class IndicatorNode(DjangoObjectType):
 class IndicatorFilter(FilterSet):
     entry_id = NumberFilter(method='filter_entry_id')
     entry_id__in = CharFilter(method='filter_entry_id__in')
+    year__range = CharFilter(method='filter_year__range')
 
     class Meta:
         model = Indicator
         fields = {
             'name': ['exact', 'icontains', 'istartswith'],
             'description': ['exact', 'icontains', 'istartswith'],
-            'file_source': ['exact', 'in'],
+            'file_source__name': ['exact', 'in'],
+            'country__iso2':  ['exact', 'in'],
         }
 
     def filter_entry_id(self, queryset, name, value):
@@ -43,6 +45,12 @@ class IndicatorFilter(FilterSet):
     def filter_entry_id__in(self, queryset, name, value):
         name = 'id__in'
         return queryset.filter(**{name: eval(value)})
+
+    def filter_year__range(self, queryset, name, value):
+        return queryset.filter(
+            datapoints__date__gte=value.split(',')[0],
+            datapoints__date__lte=value.split(',')[1]
+        ).distinct()
 
 
 class DatapointsAggregationNode(AggregationNode):
@@ -62,6 +70,8 @@ class DatapointsAggregationNode(AggregationNode):
     filterId = graphene.Int()
     indicatorFilterHeadingName = graphene.String()
     indicatorFilterHeadingId = graphene.Int()
+    geolocationCenterLongLat = graphene.JSONString()
+    geolocationPolygons = graphene.JSONString()
 
     Model = Datapoints
 
@@ -81,7 +91,9 @@ class DatapointsAggregationNode(AggregationNode):
         'filterName': 'filters__name',
         'filterId': 'filters__id',
         'indicatorFilterHeadingName': 'indicator__filterheadings__name',
-        'indicatorFilterHeadingId': 'indicator__filterheadings__id'
+        'indicatorFilterHeadingId': 'indicator__filterheadings__id',
+        'geolocationCenterLongLat': 'geolocation__center_longlat',
+        'geolocationPolygons': 'geolocation__polygons',
     }
 
     FIELDS_FILTER_MAPPING = {
@@ -98,7 +110,28 @@ class DatapointsAggregationNode(AggregationNode):
         'geolocationContentObject__In': 'geolocation__content_object__in',
         'geolocationType__In': 'geolocation__type__in',
         'filterId__In': 'filters__id__in',
-        'indicatorFilterHeadingId__In': 'indicator__filterheading__id__in'
+        'indicatorFilterHeadingId__In': 'indicator__filterheading__id__in',
+        # TODO: create test for below filed filter
+        'date__In': 'date__in',
+        'filterName__In': 'filters__name__in',
+        'indicatorName__In': 'indicator__name__in',
+        'geolocationIso2__Is__Null': 'geolocation__iso2__isnull',
+        'geolocationIso3__Is__Null': 'geolocation__iso3__isnull',
+    }
+
+    # OR filter
+    # (a = 1 OR a = Null)
+    # Should be had the same field is on filter too.
+    # This can not use as a stand alone filter
+    # Can not -> (a = null) should be -> (a = 1 OR a = Null)
+    FIELDS_OR_FILTER_MAPPING = {
+        'OR__Geolocation_Iso2__Is__Null': 'geolocation__iso2__isnull',
+        'OR__Geolocation_Iso3__Is__Null': 'geolocation__iso3__isnull',
+    }
+    #  Remove filter related to or_filter on the filter fields
+    FIELD_OR_RELATED_MAPPING = {
+        'OR__Geolocation_Iso2__Is__Null': 'geolocation__iso2__in',
+        'OR__Geolocation_Iso3__Is__Null': 'geolocation__iso3__in',
     }
 
 
@@ -218,7 +251,14 @@ class Query(object):
         geolocationContentObject__In=List(of_type=String),
         geolocationType__In=List(of_type=String),
         filterId__In=List(of_type=Int),
-        indicatorFilterHeadingId__In=List(of_type=Int)
+        indicatorFilterHeadingId__In=List(of_type=Int),
+        date__In=List(of_type=String),
+        filterName__In=List(of_type=String),
+        indicatorName__In=List(of_type=String),
+        geolocationIso2__Is__Null=Boolean(),
+        geolocationIso3__Is__Null=Boolean(),
+        OR__Geolocation_Iso2__Is__Null=Boolean(),
+        OR__Geolocation_Iso3__Is__Null=Boolean(),
     )
 
     all_filter_headings = DjangoFilterConnectionField(

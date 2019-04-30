@@ -1,10 +1,16 @@
 import json
-from rest_framework import serializers
-import pandas as pd
 
-from metadata.models import File, FileSource
+import pandas as pd
+from rest_framework import serializers, fields
+
 from indicator.models import MAPPING_DICT
-from graphene_file_upload.scalars import Upload
+from metadata.models import (
+    File, FileSource, FileTags, SurveyData,
+    WHO_TESTED_CHOICES, HOW_SELECT_RESPONDENTS_CHOICES,
+    CLEANING_TECHNIQUES_CHOICES
+)
+from error_correction.utils import DELETE_DICT, UPDATE_DICT
+
 
 class FileSourceSerializer(serializers.ModelSerializer):
     entry_id = serializers.SerializerMethodField()
@@ -22,10 +28,27 @@ class FileSourceSerializer(serializers.ModelSerializer):
         return str(obj.id)
 
 
+class FileTagsSerializer(serializers.ModelSerializer):
+    entry_id = serializers.SerializerMethodField()
+
+    class Meta:
+        model = FileTags
+        fields = (
+            'id',
+            'name',
+            'entry_id'
+        )
+
+    @classmethod
+    def get_entry_id(cls, obj):
+        return str(obj.id)
+
+
 class FileSerializer(serializers.ModelSerializer):
     entry_id = serializers.SerializerMethodField()
     entry_file_heading_list = serializers.SerializerMethodField()
     data_model_heading = serializers.SerializerMethodField()
+    tags = FileTagsSerializer(many=True, read_only=True, required=False)
 
     class Meta:
         model = File
@@ -54,7 +77,9 @@ class FileSerializer(serializers.ModelSerializer):
             'file_heading_list',
             'entry_id',
             'entry_file_heading_list',
-            'data_model_heading'
+            'data_model_heading',
+            'tags',
+            'survey_data'
         )
 
     @classmethod
@@ -68,3 +93,99 @@ class FileSerializer(serializers.ModelSerializer):
     @classmethod
     def get_data_model_heading(cls, obj):
         return json.loads(pd.Series(MAPPING_DICT).to_json())
+
+
+class SurveyDataSerializer(serializers.ModelSerializer):
+    id = serializers.SerializerMethodField()
+    entry_id = serializers.SerializerMethodField()
+    who_did_you_test_with = fields.MultipleChoiceField(
+        choices=WHO_TESTED_CHOICES
+    )
+    select_respondents = fields.MultipleChoiceField(
+        choices=HOW_SELECT_RESPONDENTS_CHOICES
+    )
+    data_cleaning_techniques = fields.MultipleChoiceField(
+        choices=CLEANING_TECHNIQUES_CHOICES
+    )
+
+    class Meta:
+        model = SurveyData
+        fields = (
+            'id',
+            'entry_id',
+            'have_you_tested_tool',
+            'who_did_you_test_with',
+            'considered_senstive',
+            'staff_trained',
+            'ask_sensitive',
+            'select_respondents',
+            'other_respondent',
+            'how_many_respondents',
+            'edit_sheet',
+            'data_cleaning_techniques',
+            'other_cleaning_technique'
+        )
+
+    @classmethod
+    def get_id(cls, obj):
+        return str(obj.id)
+
+    @classmethod
+    def get_entry_id(cls, obj):
+        return str(obj.id)
+
+
+class FileValidateSerializer(serializers.ModelSerializer):
+    success = serializers.BooleanField(read_only=True)
+    error = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = File
+        fields = (
+            'id',
+            'success',
+            'error'
+        )
+
+
+class FileErrorCorrectionSerializer(serializers.ModelSerializer):
+    command = serializers.JSONField()
+    result = serializers.JSONField(read_only=True)
+
+    class Meta:
+        model = File
+        fields = (
+            'id',
+            'command',
+            'result'
+        )
+
+
+class FileValidationResultsSerializer(serializers.ModelSerializer):
+    id = serializers.SerializerMethodField()
+    entry_id = serializers.SerializerMethodField()
+    found_list = serializers.JSONField(read_only=True)
+    missing_list = serializers.JSONField(read_only=True)
+    summary = serializers.JSONField(read_only=True)
+
+    class Meta:
+        model = File
+        fields = (
+            'id',
+            'entry_id',
+            'found_list',
+            'missing_list',
+            'summary'
+        )
+
+
+class FileDeleteSerializer(serializers.ModelSerializer):
+    id = serializers.SerializerMethodField()
+    message = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = File
+        fields = (
+            'id',
+            'message'
+        )

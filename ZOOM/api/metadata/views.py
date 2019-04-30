@@ -1,20 +1,18 @@
-import os
 import logging
+import os
 
-from django.core.files.storage import FileSystemStorage
 from django.conf import settings
-
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.parsers import (
-    FormParser, MultiPartParser, FileUploadParser, MultiPartParser
-)
+from django.core.files.storage import FileSystemStorage
+from rest_framework.generics import (ListCreateAPIView,
+                                     RetrieveUpdateDestroyAPIView)
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.views import APIView
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
+from api.metadata.serializers import FileSerializer, FileSourceSerializer
 from geodata.models import Geolocation
 from metadata.models import File, FileSource
-from api.metadata.serializers import FileSerializer, FileSourceSerializer
 
 
 class FileListView(ListCreateAPIView):
@@ -50,8 +48,8 @@ class FileListView(ListCreateAPIView):
     def perform_create(self, serializer):
         try:
             data = self.request.data
-            data['location'] = Geolocation.objects.get(id  = data['location'])
-            data['source'] = FileSource.objects.get(id= data['source'])
+            data['location'] = Geolocation.objects.get(id=data['location'])
+            data['source'] = FileSource.objects.get(id=data['source'])
             serializer.save(**data.dict())
         except Exception as e:
             logger = logging.getLogger("django")
@@ -59,13 +57,13 @@ class FileListView(ListCreateAPIView):
             context = {}
             context['error'] = "Error occured when saving file"
             context['success'] = 0
-            raise #temp
+            raise  # temp
 
 
 class FileDetailView(RetrieveUpdateDestroyAPIView):
 
     queryset = File.objects.all()
-    serializer_class = FileSerializer 
+    serializer_class = FileSerializer
 
     def perform_update(self, serializer):
         pk = self.kwargs.get('pk')
@@ -83,19 +81,19 @@ class FileDetailView(RetrieveUpdateDestroyAPIView):
             data['location'] = obj
 
         file.update(**data)
-        #file.save()
+        # file.save()
 
     def delete(self, request, *args, **kwargs):
 
         try:
             file_object = self.get_object()
-        except:
+        except BaseException:
             logger = logging.getLogger("django")
             logger.exception("--Error when deleting file")
             context = {}
             context['error'] = "Error when deleting file"
             context['success'] = 0
-            raise #temp 
+            raise  # temp
 
         return self.destroy(request, *args, **kwargs)
 
@@ -103,6 +101,7 @@ class FileDetailView(RetrieveUpdateDestroyAPIView):
 class FileSourceListViewPagination(PageNumberPagination):
     page_size = 100
     page_size_query_param = 'page_size'
+
 
 class FileSourceListView(ListCreateAPIView):
 
@@ -125,7 +124,9 @@ class FileSourceListView(ListCreateAPIView):
             logger = logging.getLogger("django")
             logger.exception("--Problem saving source")
             context = {}
-            context['error'] = "Error occured when saving source. Check if source already exists"
+            context['error'] = \
+                "Error occured when saving source. " \
+                "Check if source already exists"
             context['success'] = 0
             raise
 
@@ -137,7 +138,7 @@ class FileSourceDetailView(RetrieveUpdateDestroyAPIView):
     def delete(self, request, *args, **kwargs):
         try:
             file_source_object = self.get_object()
-        except:
+        except BaseException:
             logger = logging.getLogger("django")
             logger.exception("--Error when deleting file source")
             context = {}
@@ -158,12 +159,21 @@ class FileUploadView(APIView):
             file.file = file_obj
             file.save()
         else:
-            fs = FileSystemStorage(
-                location=os.path.join(settings.MEDIA_ROOT, settings.DATASETS_URL)
-            )
+            location = os.path.join(settings.MEDIA_ROOT, settings.DATASETS_URL)
+
+            fs = FileSystemStorage(location=location)
             filename = fs.save(file_obj.name, file_obj)
-            file_url = '{datasets_url}{filename}'.format(
-                datasets_url=settings.DATASETS_URL,
-                filename=filename
+
+            old_name = location + filename
+            new_name = location + filename + '.new.csv'
+
+            old_file = open(old_name, encoding="ascii", errors="ignore")
+            new_file = open(new_name, "w")
+            new_file.write(old_file.read())
+
+            file_url = '{dataset_url}{filename}'.format(
+                dataset_url=settings.DATASETS_URL,
+                filename=filename + '.new.csv'
             )
+
             return Response(data={"url": file_url}, status=202)

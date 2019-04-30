@@ -1,8 +1,9 @@
 from django.db import models
-from metadata.models import File, FileSource
-from geodata.models import Geolocation
 
-MAPPING_HEADINGS = {                                #Main mapping information
+from geodata.models import Geolocation, Country
+from metadata.models import File, FileSource
+
+MAPPING_HEADINGS = {  # Main mapping information
     'indicator': [],
     'filters': [],
     'geolocation': [],
@@ -11,38 +12,51 @@ MAPPING_HEADINGS = {                                #Main mapping information
     'value': [],
     'comment': [],
 }
-FILTER_HEADINGS = 'filter_headings'                 #Heading to give each column selected as a filter, dictionary format -> {file column heading: desired heading value}
+# Heading to give each column selected as a filter, dictionary format ->
+# {file column heading: desired heading value}
+FILTER_HEADINGS = 'filter_headings'
 
 EXTRA_INFORMATION = {
-    'empty_entries':                                #Values that are compulsory, if mapping is not provided then user must enter value for empty mapping
-        {
-            'empty_indicator': '',
-            'empty_geolocation': {'value':'', 'type':''}, #Value of chosen geolocation. Typpe of geolocation choosen Regional, Subnational or Country
-            'empty_filter': '',
-            'empty_value_format': {},                     #File column heading: associated data type (Numeric percentage etc)
-            'empty_date': ''
-        },
+    'empty_entries':  # Values that are compulsory, if mapping is not provided
+    # then user must enter value for empty mapping
+    {
+        'empty_indicator': '',
+        # Value of chosen geolocation. Typpe of geolocation choosen Regional,
+        # Subnational or Country
+        'empty_geolocation': {'value': '', 'type': ''},
+        'empty_filter': '',
+        # File column heading: associated data type (Numeric percentage
+        # etc)
+        'empty_value_format': {},
+        'empty_date': '',
+        'empty_value': '',
+    },
     'multi_mapped':
         {
-            'column_heading': {},                #Columns headings that are associated with datamodel, dictionary format
-            'column_values': {},                 #The values within the column that are associated with datamodel, dictionary format
-        },
+            # Columns headings that are associated with datamodel, dictionary
+            # format
+            'column_heading': {},
+            # The values within the column that are associated with datamodel,
+            # dictionary format
+            'column_values': {},
+    },
     'point_based_info':
         {
-            'coord': {'lat': '', 'lon': ''},    #Coordinates of point
-            'subnational': '',                    #Subnational region point lies in
-            'country': '',                        #Country point lies in
-            'type': '',                           #Type of point based_data. eg. Hospital, School, encounter, attack etc
-        }
+            'coord': {'lat': '', 'lon': ''},  # Coordinates of point
+            'subnational': '',  # Subnational region point lies in
+            'country': '',  # Country point lies in
+            'type': '',
+            # Type of point based_data. eg. Hospital,
+            # School, encounter, attack etc
+    }
 }
 
 MAPPING_DICT = {
     'metadata_id': '',
-    'mapping_dict': MAPPING_HEADINGS, #Must always have
-    FILTER_HEADINGS: {},              #Must always have
+    'mapping_dict': MAPPING_HEADINGS,  # Must always have
+    FILTER_HEADINGS: {},  # Must always have
     'extra_information': EXTRA_INFORMATION
 }
-#ADDITIONAL_HEADINGS = {'metadata'}
 
 
 class DateFormat(models.Model):
@@ -59,14 +73,19 @@ class Indicator(models.Model):
     id = models.AutoField(primary_key=True, editable=False)
     name = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
+    first_data_year = models.CharField(max_length=200, default='2005')
     file_source = models.ForeignKey(FileSource, on_delete=models.CASCADE)
+    file = models.ForeignKey(File, on_delete=models.CASCADE)
+    country = models.ForeignKey(
+        Country, on_delete=models.CASCADE, blank=True, null=True
+    )
 
 
 class FilterHeadings(models.Model):
     id = models.AutoField(primary_key=True, editable=False)
     name = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
-    # Allow aggrgeation on a column within ZOOM
+    # Allow aggregation on a column within ZOOM
     aggregation_allowed = models.BooleanField(default=False)
     indicator = models.ForeignKey(Indicator, on_delete=models.CASCADE)
 
@@ -106,7 +125,8 @@ class Filters(models.Model):
     date_format = models.ForeignKey(
         DateFormat, on_delete=models.SET_NULL, null=True)
 
-    indicator = models.ForeignKey(Indicator, on_delete=models.CASCADE)#For filtering, makes it quicker#
+    # For filtering, makes it quicker#
+    indicator = models.ForeignKey(Indicator, on_delete=models.CASCADE)
 
 
 def clean_up_indicators():

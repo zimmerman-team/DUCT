@@ -9,7 +9,7 @@
                 "iso2": "AF"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -886,7 +886,7 @@
                 "iso2": "DM"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -1671,7 +1671,7 @@
                 "iso2": "LC"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -2207,7 +2207,7 @@
                 "iso2": "AL"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -2310,7 +2310,7 @@
                 "iso2": "AE"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -2918,7 +2918,7 @@
                 "iso2": "AM"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -5690,7 +5690,7 @@
                 "iso2": "TF"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -6726,7 +6726,7 @@
                 "iso2": "AT"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -7086,7 +7086,7 @@
                 "iso2": "BI"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -7153,7 +7153,7 @@
                 "iso2": "BE"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -7228,7 +7228,7 @@
                 "iso2": "BJ"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -7343,7 +7343,7 @@
                 "iso2": "BF"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -7514,7 +7514,7 @@
                 "iso2": "BD"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -7673,7 +7673,7 @@
                 "iso2": "BG"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -7909,7 +7909,7 @@
                 "iso2": "BA"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -8012,7 +8012,7 @@
                 "iso2": "BY"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -8203,7 +8203,7 @@
                 "iso2": "BZ"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -8298,7 +8298,7 @@
                 "iso2": "BM"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -8657,7 +8657,7 @@
                 "iso2": "BO"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -8912,7 +8912,7 @@
                 "iso2": "BR"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -9739,7 +9739,7 @@
                 "iso2": "BN"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -9786,7 +9786,7 @@
                 "iso2": "BT"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -9853,7 +9853,7 @@
                 "iso2": "BW"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -10028,7 +10028,7 @@
                 "iso2": "CF"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -13604,7 +13604,7 @@
                 "iso2": "CH"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -15173,7 +15173,7 @@
                 "iso2": "CI"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -15372,7 +15372,7 @@
                 "iso2": "CM"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -15631,7 +15631,7 @@
                 "iso2": "CD"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -16134,7 +16134,7 @@
                 "iso2": "CG"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -16345,7 +16345,7 @@
                 "iso2": "CO"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -16760,7 +16760,7 @@
                 "iso2": "CR"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -16919,7 +16919,7 @@
                 "iso2": "CU"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -17101,7 +17101,7 @@
                 "name": "Northern Cyprus"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -17180,7 +17180,7 @@
                 "iso2": "CY"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -17255,7 +17255,7 @@
                 "iso2": "CZ"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -17410,7 +17410,7 @@
                 "iso2": "DE"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -17657,7 +17657,7 @@
                 "iso2": "DJ"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -17849,7 +17849,7 @@
                 "iso2": "DO"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -17968,7 +17968,7 @@
                 "iso2": "DZ"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -18231,7 +18231,7 @@
                 "iso2": "EC"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -18378,7 +18378,7 @@
                 "iso2": "EG"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -18561,7 +18561,7 @@
                 "iso2": "ER"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -18688,7 +18688,7 @@
                 "iso2": "ES"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -18907,7 +18907,7 @@
                 "iso2": "EE"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -18990,7 +18990,7 @@
                 "iso2": "ET"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -19241,7 +19241,7 @@
                 "iso2": "FI"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -19521,7 +19521,7 @@
                 "iso2": "FK"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -19817,7 +19817,7 @@
                 "iso2": "GA"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -20201,7 +20201,7 @@
                 "iso2": "GE"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -20312,7 +20312,7 @@
                 "iso2": "GH"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -20427,7 +20427,7 @@
                 "iso2": "GN"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -20722,7 +20722,7 @@
                 "iso2": "GM"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -20801,7 +20801,7 @@
                 "iso2": "GW"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -20892,7 +20892,7 @@
                 "iso2": "GQ"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -21172,7 +21172,7 @@
                 "iso2": "GL"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -21715,7 +21715,7 @@
                 "iso2": "GT"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -21870,7 +21870,7 @@
                 "iso2": "GF"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -21961,7 +21961,7 @@
                 "iso2": "GY"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -22136,7 +22136,7 @@
                 "iso2": "HN"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -22379,7 +22379,7 @@
                 "iso2": "HR"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -22562,7 +22562,7 @@
                 "iso2": "HT"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -22661,7 +22661,7 @@
                 "iso2": "HU"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -23865,7 +23865,7 @@
                 "iso2": "IN"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -24424,7 +24424,7 @@
                 "iso2": "IE"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -24491,7 +24491,7 @@
                 "iso2": "IR"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -24806,7 +24806,7 @@
                 "iso2": "IQ"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -24941,7 +24941,7 @@
                 "iso2": "IS"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -25036,7 +25036,7 @@
                 "iso2": "IL"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -25516,7 +25516,7 @@
                 "iso2": "JM"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -25575,7 +25575,7 @@
                 "iso2": "JO"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -25951,7 +25951,7 @@
                 "iso2": "KZ"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -26414,7 +26414,7 @@
                 "iso2": "KE"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -26577,7 +26577,7 @@
                 "iso2": "KG"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -26732,7 +26732,7 @@
                 "iso2": "KH"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -26815,7 +26815,7 @@
                 "iso2": "KR"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -26900,13 +26900,13 @@
         },
         {
             "type": "Feature",
-            "id": "XKX",
+            "id": "CS-KM",
             "properties": {
                 "name": "Kosovo",
                 "iso2": "XK"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [20.76216,42.05186],
@@ -26942,7 +26942,7 @@
                 "iso2": "KW"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -26993,7 +26993,7 @@
                 "iso2": "LA"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -27156,7 +27156,7 @@
                 "iso2": "LB"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -27215,7 +27215,7 @@
                 "iso2": "LR"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -27338,7 +27338,7 @@
                 "iso2": "LY"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -27577,7 +27577,7 @@
                 "iso2": "LK"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -27632,7 +27632,7 @@
                 "iso2": "LS"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -27695,7 +27695,7 @@
                 "iso2": "LT"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -27786,7 +27786,7 @@
                 "iso2": "LU"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -27829,7 +27829,7 @@
                 "iso2": "LV"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -27932,7 +27932,7 @@
                 "iso2": "MA"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -28203,7 +28203,7 @@
                 "iso2": "MD"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -28326,7 +28326,7 @@
                 "iso2": "MG"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -28537,7 +28537,7 @@
                 "iso2": "MX"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -29232,7 +29232,7 @@
                 "iso2": "MK"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -29315,7 +29315,7 @@
                 "iso2": "ML"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -29634,7 +29634,7 @@
                 "iso2": "MM"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -29929,7 +29929,7 @@
                 "iso2": "ME"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -30016,7 +30016,7 @@
                 "iso2": "MN"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -30331,7 +30331,7 @@
                 "iso2": "MZ"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -30654,7 +30654,7 @@
                 "iso2": "MR"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -30825,7 +30825,7 @@
                 "iso2": "MW"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -31221,7 +31221,7 @@
                 "iso2": "NA"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -31412,7 +31412,7 @@
                 "iso2": "NC"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -31479,7 +31479,7 @@
                 "iso2": "NE"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -31726,7 +31726,7 @@
                 "iso2": "NG"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -31973,7 +31973,7 @@
                 "iso2": "NI"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -32196,7 +32196,7 @@
                 "iso2": "NL"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -32648,7 +32648,7 @@
                 "iso2": "NP"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -33249,7 +33249,7 @@
                 "iso2": "PK"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -33528,7 +33528,7 @@
                 "iso2": "PA"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -33751,7 +33751,7 @@
                 "iso2": "PE"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -34904,7 +34904,7 @@
                 "iso2": "PL"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -35099,7 +35099,7 @@
                 "iso2": "PR"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -35150,7 +35150,7 @@
                 "iso2": "KP"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -35337,7 +35337,7 @@
                 "iso2": "PT"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -35484,7 +35484,7 @@
                 "iso2": "PY"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -35631,7 +35631,7 @@
                 "iso2": "QA"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -35682,7 +35682,7 @@
                 "iso2": "RO"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -38330,7 +38330,7 @@
                 "iso2": "RW"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -38397,7 +38397,7 @@
                 "iso2": "EH"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -38524,7 +38524,7 @@
                 "iso2": "SA"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -38843,7 +38843,7 @@
                 "iso2": "SD"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -39174,7 +39174,7 @@
                 "iso2": "SS"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -39441,7 +39441,7 @@
                 "iso2": "SN"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -39813,7 +39813,7 @@
                 "iso2": "SL"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -39916,7 +39916,7 @@
                 "iso2": "SV"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -40010,7 +40010,7 @@
                 "name": "Somaliland"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -40121,7 +40121,7 @@
                 "iso2": "SO"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -40280,7 +40280,7 @@
                 "iso2": "RS"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -40479,7 +40479,7 @@
                 "iso2": "SR"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -40598,7 +40598,7 @@
                 "iso2": "SK"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -40745,7 +40745,7 @@
                 "iso2": "SI"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -40832,7 +40832,7 @@
                 "iso2": "SE"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -41003,11 +41003,11 @@
             "type": "Feature",
             "id": "SWZ",
             "properties": {
-                "name": "Swaziland",
+                "name": "Eswatini",
                 "iso2": "SZ"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -41066,7 +41066,7 @@
                 "iso2": "SY"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -41189,7 +41189,7 @@
                 "iso2": "TD"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -41436,7 +41436,7 @@
                 "iso2": "TG"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -41527,7 +41527,7 @@
                 "iso2": "TH"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -41798,7 +41798,7 @@
                 "iso2": "TJ"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -41977,7 +41977,7 @@
                 "iso2": "TM"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -42208,7 +42208,7 @@
                 "iso2": "TL"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -42267,7 +42267,7 @@
                 "iso2": "TT"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -42314,7 +42314,7 @@
                 "iso2": "TN"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -42742,7 +42742,7 @@
                 "iso2": "TW"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -42793,7 +42793,7 @@
                 "iso2": "TZ"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -43004,7 +43004,7 @@
                 "iso2": "UG"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -43127,7 +43127,7 @@
                 "iso2": "UA"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -43534,7 +43534,7 @@
                 "iso2": "UY"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -45462,7 +45462,7 @@
                 "iso2": "UZ"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -45693,7 +45693,7 @@
                 "iso2": "VE"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -46076,7 +46076,7 @@
                 "iso2": "VN"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -46336,7 +46336,7 @@
                 "iso2": "PS"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -46387,7 +46387,7 @@
                 "iso2": "YE"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -46578,7 +46578,7 @@
                 "iso2": "ZA"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -46971,7 +46971,7 @@
                 "iso2": "ZM"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
@@ -47230,7 +47230,7 @@
                 "iso2": "ZW"
             },
             "geometry": {
-                "type": "MultiPolygon",
+                "type": "Polygon",
                 "coordinates": [
                     [
                         [
