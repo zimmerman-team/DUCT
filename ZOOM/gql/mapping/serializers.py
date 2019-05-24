@@ -11,7 +11,10 @@ class MappingSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'data',
-            'entry_id'
+            'entry_id',
+            'file',
+            'status',
+            'error_message'
         )
 
     @classmethod

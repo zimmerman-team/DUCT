@@ -1,12 +1,8 @@
-# Sample production settings, change as required
-import os
 from ZOOM.base_settings import *
 
 BASE_DIR = os.path.dirname(os.path.realpath(__name__))
 
 DEBUG = False
-
-# for signing keys: https://docs.djangoproject.com/en/1.8/topics/signing/
 SECRET_KEY = '__SECRET_KEY_HERE__'
 
 DATABASES = {
@@ -28,7 +24,6 @@ CACHES = {
 }
 
 API_CACHE_SECONDS = 60 * 60 * 24
-
 ROOT_ORGANISATIONS = []
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
@@ -42,7 +37,7 @@ WSGI_APPLICATION = 'ZOOM.wsgi.application'
 ERROR_LOGS_ENABLED = True
 
 try:
-    from local_settings import *
+    from .local_settings import *
 except ImportError:
     pass
 
