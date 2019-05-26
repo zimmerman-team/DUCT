@@ -17,17 +17,20 @@ class MappingMutation(SerializerMutation):
 
     @classmethod
     def get_serializer_kwargs(cls, root, info, **input):
-        file_id = input['metadata_id']
+        file_id = input['data']['metadata_id']
         input['error_message'] = ''
         input['status'] = 'INITIAL'
+        input['task_id'] = ''
 
         try:
             file = File.objects.get(id=file_id)
-            input['file'] = file
+            input['file'] = file.id
 
-            mapping = file.mapping
-            if mapping:
+            try:
+                mapping = Mapping.objects.get(file=file)
                 input['id'] = mapping.id
+            except Mapping.DoesNotExist:
+                pass
 
         except File.DoesNotExist:
             raise Exception(
