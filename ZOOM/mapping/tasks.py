@@ -4,6 +4,8 @@ import time
 from celery import shared_task
 from celery.result import AsyncResult
 
+from django.conf import settings
+
 # import the logging library
 import logging
 
@@ -71,4 +73,4 @@ def mapping_status_task(mapping_id, task_id):
         instance.save()
 
         # Sleep every 1 minutes
-        time.sleep(60)
+        time.sleep(settings.ZOOM_TASK_TIMER)
