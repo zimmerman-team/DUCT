@@ -9,8 +9,8 @@ import json
 class GeolocationsTestCase(TestCase):
 
     def setUp(self):
-        self.dummy_geolocation = factory.GeolocationFactory.create()
         self.dummy_region = factory.RegionFactory.create()
+        self.dummy_geolocation = factory.GeolocationFactory.create()
         self.client = Client(schema)
 
     def test_allGeolocation(self):
@@ -30,8 +30,10 @@ class GeolocationsTestCase(TestCase):
             """
 
         result = self.client.execute(query)
-        self.assertEqual(result['data']['allGeolocations']['edges'][0]['node']
-                         ['tag'], geolocation.tag)
+        self.assertEqual(
+            result['data']['allGeolocations']['edges'][0]['node']['tag'],
+            geolocation.tag
+        )
 
     def test_allGeolocation_region_polygons(self):
         # Get region record
@@ -56,6 +58,7 @@ class GeolocationsTestCase(TestCase):
             }
             """
         result = schema.execute(query)
+
         # Check if polygons at the current record has
         # the same coordinates with the GraphQL query
         result_polygons = json.loads(
@@ -63,6 +66,7 @@ class GeolocationsTestCase(TestCase):
                 'polygons']
         )
         result_polygons_in_dict = json.loads(result_polygons)
+
         # The centerLonglat is JSONString, so it is needed to convert again
         # to the Python dictionary
         polygons_in_dict = json.loads(polygons_in_json)
@@ -76,6 +80,7 @@ class GeolocationsTestCase(TestCase):
         region = Region.objects.first()
         center_longlat = region.center_longlat
         center_longlat_in_json = center_longlat.geojson
+
         # GraphQL Query
         query = """
                     {allGeolocations(tag:"asia")
@@ -93,17 +98,21 @@ class GeolocationsTestCase(TestCase):
                     }    
                 """
         result = schema.execute(query)
+
         # Check if center_longlat at the current record has
         # the same coordinates with the GraphQL query
         result_center_longlat = json.loads(
             result.data['allGeolocations']['edges'][0]['node']['region'][
                 'centerLonglat']
         )
+
         # The centerLonglat is JSONString, so it is needed to convert again
         # to the Python dictionary
         result_center_longlat_in_dict = json.loads(result_center_longlat)
         center_longlat_in_dict = json.loads(center_longlat_in_json)
-        self.assertEqual(center_longlat_in_dict['coordinates'],
-                         result_center_longlat_in_dict['coordinates'])
+        self.assertEqual(
+            center_longlat_in_dict['coordinates'],
+            result_center_longlat_in_dict['coordinates']
+        )
 
 

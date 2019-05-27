@@ -36,11 +36,10 @@ class GeolocationFactory(NoDatabaseFactory):
     class Meta:
         model = models.Geolocation
 
-
     tag = 'asia'
     iso2 = ''
     iso3 = ''
-    type='region'
+    type = 'region'
     object_id = 4
     content_type_id = 15
 
@@ -59,8 +58,6 @@ class RegionFactory(NoDatabaseFactory):
                             '[100.0, 1.0], [100.0, 0.0]],'
                             '[[100.2, 0.2], [100.8, 0.2], [100.8, 0.8],'
                             ' [100.2, 0.8], [100.2, 0.2]]]]}')
-
-
 
 
 class CityFactory(NoDatabaseFactory):
