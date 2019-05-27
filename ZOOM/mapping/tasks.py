@@ -13,6 +13,7 @@ from mapping.mapper import begin_mapping
 from metadata.models import File
 from mapping.utils import update_country_on_indicator
 from mapping.models import Mapping
+from mapping.utils import send_confirmation_email
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -74,3 +75,11 @@ def mapping_status_task(mapping_id, task_id):
 
         # Sleep every 1 minutes
         time.sleep(settings.ZOOM_TASK_TIMER)
+
+    # Send confirmation email
+    if settings.ZOOM_TASK_EMAIL_CONFIRMATION_ENABLE:
+        send_confirmation_email(
+            status=instance.status == 'SUCCESS',
+            file_id=instance.file_id,
+            mapping_id=instance.id
+        )
