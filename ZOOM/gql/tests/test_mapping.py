@@ -1,10 +1,14 @@
+import os
+import json
+
+from django.contrib.contenttypes.models import ContentType
+
 from gql.schema import schema
 from django.test import TestCase
 from gql.tests import factory
 from mapping.models import Mapping
 from geodata.importer.country import CountryImport
-import os
-import json
+from geodata.models import Country
 
 
 class MappingTestCase(TestCase):
@@ -17,14 +21,18 @@ class MappingTestCase(TestCase):
         self.dummy_file_source = factory.FileSourceFactory(
             name='dummy_file_source'
         )
+
+        content_type_id = ContentType.objects.get_for_model(Country).id
+        country = Country.objects.get(iso2='al')
         self.dummy_geolocation = factory.GeolocationFactory(
             tag='Albania',
             iso2='al',
             iso3='alb',
-            object_id=4,
-            content_type_id=15,
+            object_id=country.id,
+            content_type_id=content_type_id,
             type='country'
         )
+
         self.dummy_file = factory.FileFactory(
             title="test",
             description="test",
