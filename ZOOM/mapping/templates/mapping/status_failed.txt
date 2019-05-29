@@ -1,0 +1,10 @@
+Hello,
+
+This is an automated message indicating, mapping your CSV is failed!
+Please check your data or contact ZOOM Teams.
+
+File ID #{{ file_id }}.
+Mapping ID #{{ mapping_id }}.
+
+Regards,
+ZOOM Teams
