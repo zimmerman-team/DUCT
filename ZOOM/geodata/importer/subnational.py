@@ -35,12 +35,10 @@ class SubnationalImport(object):
                     ).save()
 
     def update_kenya(self):
-        kenya_counties = self.get_json_data(
-            '/../data_backup/kenyan-counties.geojson'
-        )
+        kenya_counties = self.get_json_data("/../data_backup/counties.json")
 
         for k in kenya_counties.get('features'):
-            name = k.get('properties').get('COUNTY')
+            name = k.get('properties').get('COUNTY_NAM')
             if name:
                 name = name.lower()
                 polygons = json.dumps(k.get('geometry'))
