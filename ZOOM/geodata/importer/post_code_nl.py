@@ -120,10 +120,11 @@ class PostCodeNL(object):
                     ')'])
                 long_lat = fromstr(point_string, srid=4326)
                 pc.center_longlat = long_lat
+                pc.save()
                 try:
                     geolocation = Geolocation.objects.get(tag=pc.code)
                     geolocation.save()
-                    print("Updated {code}:".format(code=pc.code))
+                    print("Updated {code}".format(code=pc.code))
                 except Geolocation.DoesNotExist:
                     pass
             except PostCode.DoesNotExist:
