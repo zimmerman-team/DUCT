@@ -134,7 +134,7 @@ class File(models.Model):
     update_frequency = models.CharField(max_length=100)
     comments = models.TextField()
     accessibility = models.CharField(max_length=100, choices=(
-        ('o', 'open'), ('p', 'private'), ('r', 'request')))
+        ('o', 'open'), ('p', 'private'), ('r', 'request'), ('a', 'all')))
     data_quality = models.CharField(max_length=1000)
     number_of_rows = models.IntegerField(
         help_text='No. of rows within dataset')
