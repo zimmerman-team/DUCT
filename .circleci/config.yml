@@ -1,4 +1,4 @@
-version: 2.1
+version: 2
 jobs:
   set_up_test_deploy:
     docker:
