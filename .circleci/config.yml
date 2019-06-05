@@ -65,7 +65,6 @@ jobs:
       - add_ssh_keys:
           name: Add SSH KEY
           fingerprints: "2e:df:ac:b8:9a:6b:d8:88:a4:ea:ff:77:dd:9a:45:a3"
-            - run: eval ssh-agent -s
 
       - run:
           name: Update DUCT
