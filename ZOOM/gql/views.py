@@ -103,6 +103,6 @@ class AuthenticatedGraphQLView(GraphQLView):
                     HttpResponseForbidden(data.content)
                 )
 
-        super(AuthenticatedGraphQLView, self).execute_graphql_request(
+        return super(AuthenticatedGraphQLView, self).execute_graphql_request(
             request, data, query, variables, operation_name, show_graphiql
         )
