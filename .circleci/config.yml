@@ -80,6 +80,9 @@ jobs:
               ssh-keyscan "$SSH_HOST_STAGING" >> ~/.ssh/known_hosts
             elif [ "${CIRCLE_BRANCH}" == "feature" ]; then
               ssh-keyscan "$SSH_HOST_DEV" >> ~/.ssh/known_hosts
+            else
+              ssh-keyscan "$SSH_HOST_DEV" >> ~/.ssh/known_hosts
+            fi
 
       - add_ssh_keys:
           name: Add SSH KEY
