@@ -50,7 +50,6 @@ class IndicatorFilter(FilterSet):
         # here is causing the query set to lag, so for now we use this work around
         # which actually works, #JustDjangoThings
         ids = queryset.values_list('id')
-        better_quer_set = Indicator.objects.filter(id__in=ids)
         # 1) country__iso2=value -
         # so here we want to filter by the country association saved in the
         # indicator model, mainly the subnational, postcode, province etc.
@@ -66,7 +65,8 @@ class IndicatorFilter(FilterSet):
         # and here we actually filter the indicators which datapoints
         # which have been mapped out by country, have the specified
         # country
-        return better_quer_set.filter(
+        return Indicator.objects.filter(
+            Q(id__in=ids) &
             Q(country__iso2=value) |
             Q(datapoints__geolocation__type='pointbased') |
             Q(datapoints__geolocation__country__iso2=value)
