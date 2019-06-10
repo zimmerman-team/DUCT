@@ -41,8 +41,16 @@ class IndicatorFilter(FilterSet):
         }
 
     def filter_country__iso2(self, queryset, name, value):
-        # Q(creator=owner) | Q(moderated=False)
-
+        # Oke so we do this nonsesne of converting the query set to
+        # a sorts of id list, because, this filter happens after the year range
+        # and apperantly because the year_range uses a deep relation filter
+        # and distinct it makes this query insanely slow, even though the object
+        # count of that query is lower than the object count of 'objects.all()'
+        # with which this filter works fine, so i assume the distinct function
+        # here is causing the query set to lag, so for now we use this work around
+        # which actually works, #JustDjangoThings
+        ids = queryset.values_list('id')
+        better_quer_set = Indicator.objects.filter(id__in=ids)
         # 1) country__iso2=value -
         # so here we want to filter by the country association saved in the
         # indicator model, mainly the subnational, postcode, province etc.
@@ -58,7 +66,7 @@ class IndicatorFilter(FilterSet):
         # and here we actually filter the indicators which datapoints
         # which have been mapped out by country, have the specified
         # country
-        return queryset.filter(
+        return better_quer_set.filter(
             Q(country__iso2=value) |
             Q(datapoints__geolocation__type='pointbased') |
             Q(datapoints__geolocation__country__iso2=value)
@@ -73,10 +81,14 @@ class IndicatorFilter(FilterSet):
         return queryset.filter(**{name: eval(value)})
 
     def filter_year__range(self, queryset, name, value):
-        return queryset.filter(
+        lol = queryset.all().count()
+        lel = queryset.filter(
             datapoints__date__gte=value.split(',')[0],
             datapoints__date__lte=value.split(',')[1]
         ).distinct()
+        lull = lel.count()
+        lul = lel.all().count()
+        return lel
 
 
 class DatapointsAggregationNode(AggregationNode):
