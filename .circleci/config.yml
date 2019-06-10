@@ -73,6 +73,14 @@ jobs:
 #            . env/bin/activate
 #            flake8 ZOOM
 
+      - run:
+          name: Add target host to known_hosts files
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              ssh-keyscan "$SSH_HOST_STAGING" >> ~/.ssh/known_hosts
+            elif [ "${CIRCLE_BRANCH}" == "feature" ]; then
+              ssh-keyscan "$SSH_HOST_DEV" >> ~/.ssh/known_hosts
+
       - add_ssh_keys:
           name: Add SSH KEY
           fingerprints: $FINGERPRINT
