@@ -6,7 +6,6 @@ from django.db import models
 from multiselectfield import MultiSelectField
 
 from geodata.models import Geolocation
-from mapping.models import Mapping
 
 
 def upload_to(instance, filename='test'):
@@ -123,7 +122,6 @@ class SurveyData(models.Model):
 
 
 class File(models.Model):
-    # Metadata related fields
     id = models.AutoField(primary_key=True, editable=False)
     title = models.CharField(max_length=100,)
     description = models.TextField()
@@ -134,9 +132,9 @@ class File(models.Model):
     methodology = models.CharField(max_length=150)
     define_methodology = models.TextField()
     update_frequency = models.CharField(max_length=100)
-    comments = models.TextField()  # caveats
+    comments = models.TextField()
     accessibility = models.CharField(max_length=100, choices=(
-        ('o', 'open'), ('p', 'private'), ('r', 'request')))
+        ('o', 'open'), ('p', 'private'), ('r', 'request'), ('a', 'all')))
     data_quality = models.CharField(max_length=1000)
     number_of_rows = models.IntegerField(
         help_text='No. of rows within dataset')
@@ -159,17 +157,13 @@ class File(models.Model):
         on_delete=models.SET_NULL,
         null=True)
     source = models.ForeignKey(FileSource, on_delete=models.CASCADE)
-
-    # Back-end operational fields
     original_file_location = models.CharField(max_length=300)
-    mapping_used = models.ForeignKey(
-        Mapping, null=True, on_delete=models.SET_NULL)
     file_status = models.CharField(max_length=100, choices=(
         ('1', 'Uploaded'), ('2', 'Error Correction'), ('3', 'Mapping'),
         ('4', 'Saved')))
     datatypes_overview_file_location = models.CharField(
-        max_length=500)  # location
-    error_file_location = models.CharField(max_length=500)  # location
+        max_length=500)
+    error_file_location = models.CharField(max_length=500)
     file = models.FileField(upload_to=upload_to, max_length=500, null=True)
     file_heading_list = JSONField(null=True)
 

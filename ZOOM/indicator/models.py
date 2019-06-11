@@ -135,3 +135,13 @@ def clean_up_indicators():
         filterInd = Datapoints.objects.filter(indicator=ind)
         if filterInd.count() == 0:
             ind.delete()
+
+
+def clean_up_dates():
+    data_points = Datapoints.objects.all()
+    for data_point in data_points:
+        if "." in data_point.date:
+            dot_index = data_point.date.index('.')
+            new_date = data_point.date[:dot_index]
+            data_point.date = new_date
+            data_point.save()

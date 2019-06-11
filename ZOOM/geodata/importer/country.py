@@ -15,6 +15,7 @@ class CountryImport(object):
         self.get_json_data = get_json_data
 
     def update_alt_name(self):
+        # We don't use an alternative name anymore
         admin_countries = self.get_json_data(
             "/../data_backup/alternative_names.json")
         for k in admin_countries:
@@ -22,9 +23,19 @@ class CountryImport(object):
             name = k.get('name').lower()
             c, created = Country.objects.get_or_create(
                 name=name, iso2=country_iso2)
+
             if created:
                 c.save()
                 Geolocation(content_object=c, tag=name, type='country').save()
+            else:
+                try:
+                    Geolocation.objects.get(tag=name)
+                except Geolocation.DoesNotExist:
+                    Geolocation(
+                        content_object=c,
+                        tag=name,
+                        type='country'
+                    ).save()
 
     def update_polygon(self):
         admin_countries = self.get_json_data(
@@ -44,9 +55,23 @@ class CountryImport(object):
             if created:
                 c.save()
 
+            # Add or update geolocation
+            try:
+                geolocation = Geolocation.objects.get(tag=c.name)
+            except Geolocation.DoesNotExist:
+                geolocation = Geolocation(
+                    content_object=c,
+                    tag=c.name,
+                    type='country'
+                )
+
+            geolocation.save()
+            print('Country : {name}:'.format(name=c.name))
+
         poly_countries = self.get_json_data(
             "/../data_backup/country_data.json").get(
-            'features')
+            'features'
+        )
         for k in poly_countries:  # .get('features'):
             if 'iso2' in k.get('properties'):
                 iso2 = k.get('properties').get('iso2').lower()
@@ -61,6 +86,19 @@ class CountryImport(object):
 
                 c.polygons = json.dumps(k.get('geometry'))
                 c.save()
+
+                # Add or update geolocation
+                try:
+                    geolocation = Geolocation.objects.get(tag=c.name)
+                except Geolocation.DoesNotExist:
+                    geolocation = Geolocation(
+                        content_object=c,
+                        tag=c.name,
+                        type='country'
+                    )
+
+                geolocation.save()
+                print('Polygon : {name}:'.format(name=c.name))
 
     def update_country_center(self):
         country_centers = self.get_json_data(

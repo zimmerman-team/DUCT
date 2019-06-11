@@ -1,28 +1,8 @@
-# Sample production settings, change as needed
-import os
 from ZOOM.base_settings import *
 
 DEBUG = True
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
-
-MIDDLEWARE_CLASSES += [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
-]
-
-INSTALLED_APPS += {
-    'debug_toolbar',
-}
-
-
-def custom_show_toolbar(self):
-    return True
-
-
 SECRET_KEY = '__DEV_SECRET_KEY__'
-
-DEBUG_TOOLBAR_CONFIG = {
-    'SHOW_TOOLBAR_CALLBACK': custom_show_toolbar,
-}
 
 DATABASES = {
     'default': {
@@ -50,6 +30,5 @@ API_CACHE_SECONDS = 0
 
 try:
     from .local_settings import *
-except ImportError as e:
-    print(e)
+except ImportError:
     pass
