@@ -53,15 +53,6 @@ CONSINDERED_SENSITIVE_CHOICES = (
     ('2', 'Don\'t know')
 )
 
-HOW_SELECT_RESPONDENTS_CHOICES = (
-    ('0', 'Other'),
-    ('1', 'Simple random samplimng'),
-    ('2', 'Stratified sampling'),
-    ('3', 'Cluster sampling'),
-    ('4', 'Systematic sampling'),
-    ('5', 'Multistage sampling')
-)
-
 CLEANING_TECHNIQUES_CHOICES = (
     ('0', 'Other'),
     ('1', 'Check for outliers'),

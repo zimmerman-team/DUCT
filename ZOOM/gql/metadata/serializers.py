@@ -6,10 +6,9 @@ from rest_framework import serializers, fields
 from indicator.models import MAPPING_DICT
 from metadata.models import (
     File, FileSource, FileTags, SurveyData,
-    WHO_TESTED_CHOICES, HOW_SELECT_RESPONDENTS_CHOICES,
+    WHO_TESTED_CHOICES,
     CLEANING_TECHNIQUES_CHOICES
 )
-from error_correction.utils import DELETE_DICT, UPDATE_DICT
 
 
 class FileSourceSerializer(serializers.ModelSerializer):
@@ -100,9 +99,6 @@ class SurveyDataSerializer(serializers.ModelSerializer):
     entry_id = serializers.SerializerMethodField()
     who_did_you_test_with = fields.MultipleChoiceField(
         choices=WHO_TESTED_CHOICES
-    )
-    select_respondents = fields.MultipleChoiceField(
-        choices=HOW_SELECT_RESPONDENTS_CHOICES
     )
     data_cleaning_techniques = fields.MultipleChoiceField(
         choices=CLEANING_TECHNIQUES_CHOICES
