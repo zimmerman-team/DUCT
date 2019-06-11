@@ -97,11 +97,8 @@ class SurveyData(models.Model):
         help_text='It was possible for respondents to not answer certain '
                   'questions if they found them to personal/sensitive?',
         choices=CONSINDERED_SENSITIVE_CHOICES)
-    select_respondents = MultiSelectField(
-        choices=HOW_SELECT_RESPONDENTS_CHOICES,
-        help_text='How did you select respondents?')
-    other_respondent = models.CharField(
-        max_length=200, help_text='If other respondent, explain',
+    select_respondents = models.CharField(
+        max_length=200, help_text='How did you select respondents?',
         null=True, blank=True, default='')
     how_many_respondents = models.CharField(
         max_length=100,

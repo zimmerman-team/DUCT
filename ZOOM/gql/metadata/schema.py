@@ -191,9 +191,6 @@ class SurveyDataFilter(FilterSet):
             'select_respondents': [
                 'exact', 'in'
             ],
-            'other_respondent': [
-                'exact', 'in'
-            ],
             'how_many_respondents': [
                 'exact', 'in'
             ],
