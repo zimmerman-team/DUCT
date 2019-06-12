@@ -3,6 +3,7 @@ from graphene import relay, List, String, Int, Boolean
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from django_filters import FilterSet, NumberFilter, CharFilter
+from django.db.models import Q
 
 from gql.utils import AggregationNode
 from indicator.models import (
@@ -28,6 +29,7 @@ class IndicatorFilter(FilterSet):
     entry_id = NumberFilter(method='filter_entry_id')
     entry_id__in = CharFilter(method='filter_entry_id__in')
     year__range = CharFilter(method='filter_year__range')
+    country__iso2 = CharFilter(method='filter_country__iso2')
 
     class Meta:
         model = Indicator
@@ -35,9 +37,40 @@ class IndicatorFilter(FilterSet):
             'name': ['exact', 'icontains', 'istartswith'],
             'description': ['exact', 'icontains', 'istartswith'],
             'file_source__name': ['exact', 'in'],
-            'country__iso2':  ['exact', 'in'],
             'file__accessibility': ['exact', 'in'],
         }
+
+    def filter_country__iso2(self, queryset, name, value):
+        # Oke so we do this nonsesne of converting the query set to
+        # a sorts of id list, because, this filter happens after the year range
+        # and apperantly because the year_range uses a deep relation filter
+        # and distinct it makes this query insanely slow, even though the object
+        # count of that query is lower than the object count of 'objects.all()'
+        # with which this filter works fine, so i assume the distinct function
+        # here is causing the query set to lag, so for now we use this work around
+        # which actually works, #JustDjangoThings
+        ids = queryset.values_list('id')
+        # 1) country__iso2=value -
+        # so here we want to filter by the country association saved in the
+        # indicator model, mainly the subnational, postcode, province etc.
+        # relation with a country is saved in the indicator, and i'm not
+        # redoing it(#Morty) cause this approach has been done and
+        # it might be more optimal then doing relation checks over relation checks
+        # over relation checks
+        # 2) datapoints__geolocation__type='pointbased' -
+        # We also want to retrieve all of the point based data, cause they are
+        # unnasociated with specific countries, but they might be the ones
+        # that the user wants to map in their kenya/NL focus pages
+        # 3) datapoints__geolocation__country__iso2=value -
+        # and here we actually filter the indicators which datapoints
+        # which have been mapped out by country, have the specified
+        # country
+        return Indicator.objects.filter(
+            Q(id__in=ids) &
+            Q(country__iso2=value) |
+            Q(datapoints__geolocation__type='pointbased') |
+            Q(datapoints__geolocation__country__iso2=value)
+        ).distinct()
 
     def filter_entry_id(self, queryset, name, value):
         name = 'id'
@@ -48,10 +81,14 @@ class IndicatorFilter(FilterSet):
         return queryset.filter(**{name: eval(value)})
 
     def filter_year__range(self, queryset, name, value):
-        return queryset.filter(
+        lol = queryset.all().count()
+        lel = queryset.filter(
             datapoints__date__gte=value.split(',')[0],
             datapoints__date__lte=value.split(',')[1]
         ).distinct()
+        lull = lel.count()
+        lul = lel.all().count()
+        return lel
 
 
 class DatapointsAggregationNode(AggregationNode):
