@@ -92,8 +92,8 @@ class SurveyData(models.Model):
         max_length=200, help_text='How did you select respondents?',
         null=True, blank=True, default='')
     how_many_respondents = models.CharField(
-        max_length=100,
-        help_text='How many respondents were interviewed/participated?')
+        max_length=200,
+        help_text='How many respondents were interviewed/participated?', null=True, blank=True, default='')
     edit_sheet = models.CharField(
         max_length=100,
         help_text='Did you clean/edit the data before uploading it?',
