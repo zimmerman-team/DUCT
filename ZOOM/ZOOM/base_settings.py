@@ -1,5 +1,6 @@
 import sys
 import os
+from dotenv import load_dotenv, find_dotenv
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -92,7 +93,6 @@ MIDDLEWARE_CLASSES = [
 ]
 
 MIDDLEWARE = [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -107,7 +107,6 @@ ROOT_URLCONF = 'ZOOM.urls'
 # Application definition
 
 INSTALLED_APPS = [
-    'django_rq',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -115,7 +114,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
-    'grappelli',
     'django.contrib.admin',
     'django.contrib.gis',
     'rest_framework',
@@ -126,10 +124,8 @@ INSTALLED_APPS = [
     'mapping',
     'indicator',
     'geodata',
-    'task_queue',
     'django_extensions',
     'test_without_migrations',
-    'admin_reorder',
     'metadata',
     'graphene_django',
     'gql',
@@ -160,28 +156,6 @@ REST_FRAMEWORK = {
     ),
 }
 
-RQ_QUEUES = {
-    'default': {
-        'HOST': 'localhost',
-        'PORT': 6379,
-        'DB': 0,
-        'DEFAULT_TIMEOUT': 3600,
-    },
-    'parser': {
-        'HOST': 'localhost',
-        'PORT': 6379,
-        'DB': 0,
-        'DEFAULT_TIMEOUT': 5400,
-    },
-    'mapper': {
-        'HOST': 'localhost',
-        'PORT': 6379,
-        'DB': 0,
-        'DEFAULT_TIMEOUT': 5400,
-    }
-}
-
-GRAPPELLI_ADMIN_TITLE = 'ZOOM admin'
 LOGIN_REDIRECT_URL = '/admin/'
 
 CORS_ORIGIN_ALLOW_ALL = True
@@ -272,3 +246,9 @@ ZOOM_TASK_EMAIL_SENDER = 'devops-zz@zimmermanzimmerman.nl'
 ZOOM_TASK_EMAIL_RECEIVER = 'devops-zz@zimmermanzimmerman.nl'
 ZOOM_TASK_EMAIL_MAPPING_SUCCESS_SUBJECT = 'ZOOM Mapping Success!'
 ZOOM_TASK_EMAIL_MAPPING_FAILED_SUBJECT = 'ZOOM Mapping Failed!'
+
+# LOAD .env FILE
+
+ENV_FILE = find_dotenv()
+if ENV_FILE:
+    load_dotenv(ENV_FILE)
