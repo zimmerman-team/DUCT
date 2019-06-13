@@ -53,15 +53,6 @@ CONSINDERED_SENSITIVE_CHOICES = (
     ('2', 'Don\'t know')
 )
 
-HOW_SELECT_RESPONDENTS_CHOICES = (
-    ('0', 'Other'),
-    ('1', 'Simple random samplimng'),
-    ('2', 'Stratified sampling'),
-    ('3', 'Cluster sampling'),
-    ('4', 'Systematic sampling'),
-    ('5', 'Multistage sampling')
-)
-
 CLEANING_TECHNIQUES_CHOICES = (
     ('0', 'Other'),
     ('1', 'Check for outliers'),
@@ -97,15 +88,12 @@ class SurveyData(models.Model):
         help_text='It was possible for respondents to not answer certain '
                   'questions if they found them to personal/sensitive?',
         choices=CONSINDERED_SENSITIVE_CHOICES)
-    select_respondents = MultiSelectField(
-        choices=HOW_SELECT_RESPONDENTS_CHOICES,
-        help_text='How did you select respondents?')
-    other_respondent = models.CharField(
-        max_length=200, help_text='If other respondent, explain',
+    select_respondents = models.CharField(
+        max_length=200, help_text='How did you select respondents?',
         null=True, blank=True, default='')
     how_many_respondents = models.CharField(
-        max_length=100,
-        help_text='How many respondents were interviewed/participated?')
+        max_length=200,
+        help_text='How many respondents were interviewed/participated?', null=True, blank=True, default='')
     edit_sheet = models.CharField(
         max_length=100,
         help_text='Did you clean/edit the data before uploading it?',

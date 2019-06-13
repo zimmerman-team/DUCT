@@ -2,7 +2,7 @@ import graphene
 from graphene import relay, List, String, Int, Boolean
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
-from django_filters import FilterSet, NumberFilter, CharFilter
+from django_filters import FilterSet, NumberFilter, CharFilter, BaseInFilter
 from django.db.models import Q
 
 from gql.utils import AggregationNode
@@ -28,6 +28,8 @@ class IndicatorNode(DjangoObjectType):
 class IndicatorFilter(FilterSet):
     entry_id = NumberFilter(method='filter_entry_id')
     entry_id__in = CharFilter(method='filter_entry_id__in')
+    file__entry_id = NumberFilter(method='filter_file__entry_id')
+    file__entry_id__in = CharFilter(method='filter_file__entry_id__in')
     year__range = CharFilter(method='filter_year__range')
     country__iso2 = CharFilter(method='filter_country__iso2')
 
@@ -38,6 +40,7 @@ class IndicatorFilter(FilterSet):
             'description': ['exact', 'icontains', 'istartswith'],
             'file_source__name': ['exact', 'in'],
             'file__accessibility': ['exact', 'in'],
+            'file__title': ['exact', 'in']
         }
 
     def filter_country__iso2(self, queryset, name, value):
@@ -80,15 +83,20 @@ class IndicatorFilter(FilterSet):
         name = 'id__in'
         return queryset.filter(**{name: eval(value)})
 
+    def filter_file__entry_id(self, queryset, name, value):
+        name = 'file__id'
+        return queryset.filter(**{name: value})
+
+    def filter_file__entry_id__in(self, queryset, name, value):
+        name = 'file__id__in'
+        value_list = value.split(',')
+        return queryset.filter(**{name: value_list})
+
     def filter_year__range(self, queryset, name, value):
-        lol = queryset.all().count()
-        lel = queryset.filter(
+        return queryset.filter(
             datapoints__date__gte=value.split(',')[0],
             datapoints__date__lte=value.split(',')[1]
         ).distinct()
-        lull = lel.count()
-        lul = lel.all().count()
-        return lel
 
 
 class DatapointsAggregationNode(AggregationNode):
