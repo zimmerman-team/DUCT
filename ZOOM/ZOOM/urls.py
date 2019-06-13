@@ -4,23 +4,23 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.admin.views.decorators import staff_member_required
 
-from api.views import overview
-
 from graphene_django.views import GraphQLView
+
 from gql.views import AuthenticatedGraphQLView
+from gql.public.schema import schema
 
 admin.autodiscover()
 
 app_name = 'main'
 
 urlpatterns = [
-    url(r'^$', overview, name='api-root'),
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include('api.urls', namespace='api')),
     url(r'^graphql', AuthenticatedGraphQLView.as_view(graphiql=True)),
-    url(r'^graphiql', staff_member_required(
+    url(r'^admin-graphql', staff_member_required(
         GraphQLView.as_view(graphiql=True)
     )),
+    url(r'^public-graphql', GraphQLView.as_view(graphiql=True, schema=schema)),
 ]
 
 if settings.DEBUG:
