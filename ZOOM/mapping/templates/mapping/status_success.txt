@@ -1,0 +1,9 @@
+Hello,
+
+This is an automated message indicating, mapping your CSV is success!
+
+File ID #{{ file_id }}.
+Mapping ID #{{ mapping_id }}.
+
+Regards,
+ZOOM Teams

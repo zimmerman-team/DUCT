@@ -1,7 +1,6 @@
-
-# Django settings for OIPA project.
 import sys
 import os
+from dotenv import load_dotenv, find_dotenv
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -13,8 +12,6 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                # Insert your TEMPLATE_CONTEXT_PROCESSORS here or use this
-                # list if you haven't customized them:
                 'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.i18n',
@@ -24,12 +21,6 @@ TEMPLATES = [
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
             ],
-            #'loaders': [
-            #    ('django.template.loaders.cached.Loader', [
-            #        'django.template.loaders.filesystem.Loader',
-            #        'django.template.loaders.app_directories.Loader',
-            #    ]),
-            #],
         },
     },
 ]
@@ -87,7 +78,6 @@ STATIC_URL = "/static/"
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 MIDDLEWARE_CLASSES = [
@@ -95,9 +85,7 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    # 'django_otp.middleware.OTPMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -105,12 +93,10 @@ MIDDLEWARE_CLASSES = [
 ]
 
 MIDDLEWARE = [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -121,7 +107,6 @@ ROOT_URLCONF = 'ZOOM.urls'
 # Application definition
 
 INSTALLED_APPS = [
-    'django_rq',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -129,7 +114,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
-    'grappelli',
     'django.contrib.admin',
     'django.contrib.gis',
     'rest_framework',
@@ -140,11 +124,8 @@ INSTALLED_APPS = [
     'mapping',
     'indicator',
     'geodata',
-    'task_queue',
-    #'djsupervisor',
     'django_extensions',
     'test_without_migrations',
-    'admin_reorder',
     'metadata',
     'graphene_django',
     'gql',
@@ -175,28 +156,6 @@ REST_FRAMEWORK = {
     ),
 }
 
-RQ_QUEUES = {
-    'default': {
-        'HOST': 'localhost',
-        'PORT': 6379,
-        'DB': 0,
-        'DEFAULT_TIMEOUT': 3600,
-    },
-    'parser': {
-        'HOST': 'localhost',
-        'PORT': 6379,
-        'DB': 0,
-        'DEFAULT_TIMEOUT': 5400,
-    },
-    'mapper': {
-        'HOST': 'localhost',
-        'PORT': 6379,
-        'DB': 0,
-        'DEFAULT_TIMEOUT': 5400,
-    }
-}
-
-GRAPPELLI_ADMIN_TITLE = 'ZOOM admin'
 LOGIN_REDIRECT_URL = '/admin/'
 
 CORS_ORIGIN_ALLOW_ALL = True
@@ -272,26 +231,24 @@ LOGGING = {
     },
 }
 
-'''LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'standard': {
-            'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
-        },
-    },
-    'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': 'mapper.log',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-    },
-}'''
+# CELERY CONFIG
+
+CELERY_BROKER_URL = 'amqp://localhost'
+CELERY_RESULT_BACKEND = 'amqp://localhost'
+CELERY_ALWAYS_EAGER = True
+CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
+
+# TASKS CONFIG
+
+ZOOM_TASK_TIMER = 30
+ZOOM_TASK_EMAIL_CONFIRMATION_ENABLE = False
+ZOOM_TASK_EMAIL_SENDER = 'devops-zz@zimmermanzimmerman.nl'
+ZOOM_TASK_EMAIL_RECEIVER = 'devops-zz@zimmermanzimmerman.nl'
+ZOOM_TASK_EMAIL_MAPPING_SUCCESS_SUBJECT = 'ZOOM Mapping Success!'
+ZOOM_TASK_EMAIL_MAPPING_FAILED_SUBJECT = 'ZOOM Mapping Failed!'
+
+# LOAD .env FILE
+
+ENV_FILE = find_dotenv()
+if ENV_FILE:
+    load_dotenv(ENV_FILE)

@@ -134,6 +134,7 @@ class SurveyDataNode(DjangoObjectType):
     staff_trained = graphene.String()
     ask_sensitive = graphene.String()
     select_respondents = graphene.String()
+    how_many_respondents = graphene.String()
     edit_sheet = graphene.String()
     data_cleaning_techniques = graphene.String()
 
@@ -158,9 +159,6 @@ class SurveyDataNode(DjangoObjectType):
 
     def resolve_ask_sensitive(self, context, **kwargs):
         return ','.join(self.ask_sensitive)
-
-    def resolve_select_respondents(self, context, **kwargs):
-        return ','.join(self.select_respondents)
 
     def resolve_edit_sheet(self, context, **kwargs):
         return ','.join(self.edit_sheet)
@@ -189,9 +187,6 @@ class SurveyDataFilter(FilterSet):
                 'exact', 'in'
             ],
             'select_respondents': [
-                'exact', 'in'
-            ],
-            'other_respondent': [
                 'exact', 'in'
             ],
             'how_many_respondents': [

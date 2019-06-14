@@ -14,6 +14,8 @@ from api.metadata.serializers import FileSerializer, FileSourceSerializer
 from geodata.models import Geolocation
 from metadata.models import File, FileSource
 
+from gql.views import requires_scope
+
 
 class FileListView(ListCreateAPIView):
 
@@ -152,6 +154,7 @@ class FileSourceDetailView(RetrieveUpdateDestroyAPIView):
 class FileUploadView(APIView):
     parser_classes = (MultiPartParser, )
 
+    @requires_scope()
     def post(self, request):
         file_obj = request.FILES['file']
         if 'id' in request.data:

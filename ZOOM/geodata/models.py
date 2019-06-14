@@ -1,4 +1,4 @@
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.db import models as gis_models
 from django.db import models
@@ -59,6 +59,7 @@ class Region(gis_models.Model):
     language = gis_models.CharField(max_length=2, null=True)
     data_source = gis_models.CharField(max_length=100, null=True, blank=True)
     objects = gis_models.Manager()
+    geolocation = GenericRelation(Geolocation, related_query_name='region')
 
     def __unicode__(self):
         return self.name
@@ -100,6 +101,7 @@ class Country(gis_models.Model):
     wikipedia = gis_models.CharField(null=True, blank=True, max_length=150)
     language = gis_models.CharField(max_length=2, null=True)
     data_source = gis_models.CharField(max_length=100, null=True, blank=True)
+    geolocation = GenericRelation(Geolocation, related_query_name='country')
     objects = gis_models.Manager()
 
     class Meta:
@@ -124,6 +126,7 @@ class City(gis_models.Model):
     language = gis_models.CharField(max_length=2, null=True)
     data_source = gis_models.CharField(max_length=100, null=True, blank=True)
     objects = gis_models.Manager()
+    geolocation = GenericRelation(Geolocation, related_query_name='city')
 
     @property
     def is_capital(self):
@@ -153,6 +156,7 @@ class SubNational(gis_models.Model):
     language = gis_models.CharField(max_length=2, null=True)
     data_source = gis_models.CharField(max_length=100, null=True, blank=True)
     objects = gis_models.Manager()
+    geolocation = GenericRelation(Geolocation, related_query_name='sub_national')
 
     def __unicode__(self):
         return self.name
@@ -171,6 +175,7 @@ class PointBased(gis_models.Model):
     comment = gis_models.TextField()
     data_source = gis_models.CharField(max_length=100, null=True, blank=True)
     objects = gis_models.Manager()
+    geolocation = GenericRelation(Geolocation, related_query_name='point_based')
 
     @property
     def is_capital(self):
@@ -198,6 +203,7 @@ class Province(gis_models.Model):
     language = gis_models.CharField(max_length=2, null=True)
     data_source = gis_models.CharField(max_length=100, null=True, blank=True)
     objects = gis_models.Manager()
+    geolocation = GenericRelation(Geolocation, related_query_name='province')
 
     class Meta:
         unique_together = ("country", "name")
@@ -220,6 +226,7 @@ class PostCode(gis_models.Model):
     language = gis_models.CharField(max_length=2, null=True)
     data_source = gis_models.CharField(max_length=100, null=True, blank=True)
     objects = gis_models.Manager()
+    geolocation = GenericRelation(Geolocation, related_query_name='post_code')
 
     class Meta:
         unique_together = ("country", "code")
