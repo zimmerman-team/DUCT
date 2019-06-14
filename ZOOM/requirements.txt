@@ -28,7 +28,7 @@ django-modeladmin-reorder==0.3.1
 django-multiselectfield==0.1.8
 django-redis-cache==1.7.1
 django-test-without-migrations==0.6
-djangorestframework==3.8.2
+djangorestframework==3.9.1
 djangorestframework-csv==2.1.0
 djangorestframework-stubs==0.4.2
 docopt==0.6.2
