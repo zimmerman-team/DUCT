@@ -2,7 +2,7 @@ import graphene
 from graphene import relay, List, String, Int, Boolean
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
-from django_filters import FilterSet, NumberFilter, CharFilter
+from django_filters import FilterSet, NumberFilter, CharFilter, BaseInFilter
 from django.db.models import Q
 
 from gql.utils import AggregationNode
@@ -28,6 +28,8 @@ class IndicatorNode(DjangoObjectType):
 class IndicatorFilter(FilterSet):
     entry_id = NumberFilter(method='filter_entry_id')
     entry_id__in = CharFilter(method='filter_entry_id__in')
+    file__entry_id = NumberFilter(method='filter_file__entry_id')
+    file__entry_id__in = CharFilter(method='filter_file__entry_id__in')
     year__range = CharFilter(method='filter_year__range')
     country__iso2 = CharFilter(method='filter_country__iso2')
 
@@ -38,6 +40,7 @@ class IndicatorFilter(FilterSet):
             'description': ['exact', 'icontains', 'istartswith'],
             'file_source__name': ['exact', 'in'],
             'file__accessibility': ['exact', 'in'],
+            'file__title': ['exact', 'in']
         }
 
     def filter_country__iso2(self, queryset, name, value):
@@ -80,15 +83,20 @@ class IndicatorFilter(FilterSet):
         name = 'id__in'
         return queryset.filter(**{name: eval(value)})
 
+    def filter_file__entry_id(self, queryset, name, value):
+        name = 'file__id'
+        return queryset.filter(**{name: value})
+
+    def filter_file__entry_id__in(self, queryset, name, value):
+        name = 'file__id__in'
+        value_list = value.split(',')
+        return queryset.filter(**{name: value_list})
+
     def filter_year__range(self, queryset, name, value):
-        lol = queryset.all().count()
-        lel = queryset.filter(
+        return queryset.filter(
             datapoints__date__gte=value.split(',')[0],
             datapoints__date__lte=value.split(',')[1]
         ).distinct()
-        lull = lel.count()
-        lul = lel.all().count()
-        return lel
 
 
 class DatapointsAggregationNode(AggregationNode):
@@ -155,6 +163,7 @@ class DatapointsAggregationNode(AggregationNode):
         'indicatorName__In': 'indicator__name__in',
         'geolocationIso2__Is__Null': 'geolocation__iso2__isnull',
         'geolocationIso3__Is__Null': 'geolocation__iso3__isnull',
+        'indicatorId__In': 'indicator__id__in',
     }
 
     # OR filter
@@ -248,7 +257,9 @@ class FiltersNode(DjangoObjectType):
 
 class FiltersFilter(FilterSet):
     entry_id = NumberFilter(method='filter_entry_id')
-    entry_id__in = CharFilter(method='filter_entry_id__in')
+    entry_id__in = CharFilter(method='filter_entry_id_in')
+    indicator_id = NumberFilter(method='filter_indicator_id')
+    indicator_id__in = CharFilter(method='filter_indicator_id_in')
 
     class Meta:
         model = Filters
@@ -256,8 +267,7 @@ class FiltersFilter(FilterSet):
             'name': ['exact', 'icontains', 'istartswith'],
             'description': ['exact', 'icontains', 'istartswith'],
             'metadata': ['exact', 'in'],
-            'indicator__name' :['exact', 'in'],
-            'indicator__id': ['exact', 'in'],
+            'indicator__name': ['exact', 'in'],
             'heading__id': ['exact', 'in'],
             'heading__name': ['exact', 'in']
         }
@@ -266,8 +276,16 @@ class FiltersFilter(FilterSet):
         name = 'id'
         return queryset.filter(**{name: value})
 
-    def filter_entry_id__in(self, queryset, name, value):
+    def filter_entry_id_in(self, queryset, name, value):
         name = 'id__in'
+        return queryset.filter(**{name: eval(value)})
+
+    def filter_indicator_id(self, queryset, name, value):
+        name = 'indicator__id'
+        return queryset.filter(**{name: value})
+
+    def filter_indicator_id_in(self, queryset, name, value):
+        name = 'indicator__id__in'
         return queryset.filter(**{name: eval(value)})
 
 
@@ -293,6 +311,7 @@ class Query(object):
         date__In=List(of_type=String),
         filterName__In=List(of_type=String),
         indicatorName__In=List(of_type=String),
+        indicatorId__In=List(of_type=Int),
         geolocationIso2__Is__Null=Boolean(),
         geolocationIso3__Is__Null=Boolean(),
         OR__Geolocation_Iso2__Is__Null=Boolean(),
