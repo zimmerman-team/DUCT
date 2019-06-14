@@ -4,6 +4,7 @@ from graphene_django.rest_framework.mutation import SerializerMutation
 from rest_framework import serializers
 
 from mapping.models import Mapping
+from metadata.models import File
 from gql.mapping.serializers import MappingSerializer
 
 
@@ -16,16 +17,35 @@ class MappingMutation(SerializerMutation):
 
     @classmethod
     def get_serializer_kwargs(cls, root, info, **input):
-        if 'id' in input:
-            instance = Mapping.objects.filter(
-                id=input['id']).first()
+        file_id = input['data']['metadata_id']
+        input['error_message'] = ''
+        input['status'] = 'INITIAL'
+        input['task_id'] = ''
 
+        try:
+            file = File.objects.get(id=file_id)
+            input['file'] = file.id
+
+            try:
+                mapping = Mapping.objects.get(file=file)
+                input['id'] = mapping.id
+            except Mapping.DoesNotExist:
+                pass
+
+        except File.DoesNotExist:
+            raise Exception(
+                'file with metadata_id={file_id} not found!'.format(
+                    file_id=file_id
+                )
+            )
+
+        if 'id' in input:
+            instance = Mapping.objects.filter(id=input['id']).first()
             if instance:
                 return {'instance': instance, 'data': input, 'partial': True}
             else:
                 raise http.Http404
 
-        # A foreign key bugs on SerializerMutation
         serializer = MappingSerializer(data=input)
         if not serializer.is_valid():
             raise Exception(serializer.errors)

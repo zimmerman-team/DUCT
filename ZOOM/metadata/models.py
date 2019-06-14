@@ -6,7 +6,6 @@ from django.db import models
 from multiselectfield import MultiSelectField
 
 from geodata.models import Geolocation
-from mapping.models import Mapping
 
 
 def upload_to(instance, filename='test'):
@@ -54,15 +53,6 @@ CONSINDERED_SENSITIVE_CHOICES = (
     ('2', 'Don\'t know')
 )
 
-HOW_SELECT_RESPONDENTS_CHOICES = (
-    ('0', 'Other'),
-    ('1', 'Simple random samplimng'),
-    ('2', 'Stratified sampling'),
-    ('3', 'Cluster sampling'),
-    ('4', 'Systematic sampling'),
-    ('5', 'Multistage sampling')
-)
-
 CLEANING_TECHNIQUES_CHOICES = (
     ('0', 'Other'),
     ('1', 'Check for outliers'),
@@ -98,15 +88,12 @@ class SurveyData(models.Model):
         help_text='It was possible for respondents to not answer certain '
                   'questions if they found them to personal/sensitive?',
         choices=CONSINDERED_SENSITIVE_CHOICES)
-    select_respondents = MultiSelectField(
-        choices=HOW_SELECT_RESPONDENTS_CHOICES,
-        help_text='How did you select respondents?')
-    other_respondent = models.CharField(
-        max_length=200, help_text='If other respondent, explain',
+    select_respondents = models.CharField(
+        max_length=200, help_text='How did you select respondents?',
         null=True, blank=True, default='')
     how_many_respondents = models.CharField(
-        max_length=100,
-        help_text='How many respondents were interviewed/participated?')
+        max_length=200,
+        help_text='How many respondents were interviewed/participated?', null=True, blank=True, default='')
     edit_sheet = models.CharField(
         max_length=100,
         help_text='Did you clean/edit the data before uploading it?',
@@ -123,7 +110,6 @@ class SurveyData(models.Model):
 
 
 class File(models.Model):
-    # Metadata related fields
     id = models.AutoField(primary_key=True, editable=False)
     title = models.CharField(max_length=100,)
     description = models.TextField()
@@ -134,9 +120,9 @@ class File(models.Model):
     methodology = models.CharField(max_length=150)
     define_methodology = models.TextField()
     update_frequency = models.CharField(max_length=100)
-    comments = models.TextField()  # caveats
+    comments = models.TextField()
     accessibility = models.CharField(max_length=100, choices=(
-        ('o', 'open'), ('p', 'private'), ('r', 'request')))
+        ('o', 'open'), ('p', 'private'), ('r', 'request'), ('a', 'all')))
     data_quality = models.CharField(max_length=1000)
     number_of_rows = models.IntegerField(
         help_text='No. of rows within dataset')
@@ -159,17 +145,13 @@ class File(models.Model):
         on_delete=models.SET_NULL,
         null=True)
     source = models.ForeignKey(FileSource, on_delete=models.CASCADE)
-
-    # Back-end operational fields
     original_file_location = models.CharField(max_length=300)
-    mapping_used = models.ForeignKey(
-        Mapping, null=True, on_delete=models.SET_NULL)
     file_status = models.CharField(max_length=100, choices=(
         ('1', 'Uploaded'), ('2', 'Error Correction'), ('3', 'Mapping'),
         ('4', 'Saved')))
     datatypes_overview_file_location = models.CharField(
-        max_length=500)  # location
-    error_file_location = models.CharField(max_length=500)  # location
+        max_length=500)
+    error_file_location = models.CharField(max_length=500)
     file = models.FileField(upload_to=upload_to, max_length=500, null=True)
     file_heading_list = JSONField(null=True)
 
