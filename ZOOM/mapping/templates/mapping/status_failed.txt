@@ -6,5 +6,7 @@ Please check your data or contact ZOOM Teams.
 File ID #{{ file_id }}.
 Mapping ID #{{ mapping_id }}.
 
+{{error_message|safe}}"
+
 Regards,
 ZOOM Teams
