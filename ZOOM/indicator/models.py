@@ -73,7 +73,7 @@ class Indicator(models.Model):
     id = models.AutoField(primary_key=True, editable=False)
     name = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
-    first_data_year = models.CharField(max_length=200, default='2005')
+    last_data_year = models.CharField(max_length=200, default='2005')
     file_source = models.ForeignKey(FileSource, on_delete=models.CASCADE)
     file = models.ForeignKey(File, on_delete=models.CASCADE)
     country = models.ForeignKey(
