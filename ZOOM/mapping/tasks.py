@@ -51,11 +51,33 @@ def mapping_task(mapping_id):
     instance = Mapping.objects.get(id=mapping_id)
 
     try:
-        mapping(instance)
+        # Only initial status can be mapping
+        if instance.status == 'INITIAL':
+            mapping(instance)
+            instance.status = 'SUCCESS'
+            instance.error_message = ''
+            instance.save()
+
+            # Send a success email
+            send_confirmation_email(
+                status=instance.status,
+                file_id=instance.file_id,
+                mapping_id=instance.id
+            )
+
     except Exception as e:
-        # Save error to the mapping model
-        instance.error_message = 'Failed: {e}'.format(e=str(e))
+        # Save error & make a status "FAILURE"
+        instance.error_message = 'Exception: {e}'.format(e=str(e))
+        instance.status = 'FAILURE'
         instance.save()
+
+        # Send a failure email
+        send_confirmation_email(
+            status=instance.status == 'SUCCESS',
+            file_id=instance.file_id,
+            mapping_id=instance.id,
+            error_message=instance.error_message
+        )
 
         # Send error to logger
         logger.exception(msg=str(e))
@@ -75,11 +97,3 @@ def mapping_status_task(mapping_id, task_id):
 
         # Sleep every 1 minutes
         time.sleep(settings.ZOOM_TASK_TIMER)
-
-    # Send confirmation email
-    if settings.ZOOM_TASK_EMAIL_CONFIRMATION_ENABLE:
-        send_confirmation_email(
-            status=instance.status == 'SUCCESS',
-            file_id=instance.file_id,
-            mapping_id=instance.id
-        )
