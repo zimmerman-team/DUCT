@@ -20,7 +20,7 @@ from lib.tools import check_column_data_type, convert_df, correct_data
 from metadata.models import File
 from validate.validator import generate_error_data, save_validation_data
 
-from django.db.models import Min
+from django.db.models import Min, Max
 
 
 def begin_mapping(data):
@@ -564,9 +564,9 @@ def add_first_indicator_year(ind_dict):
         ind_data = Datapoints.objects.filter(indicator=ind_dict[ind_key].id)
         #  so yeah currently this works with dates when they are only years
         #  or with simplo ISO standard date format
-        lowest_date = ind_data.aggregate(Min('date'))
+        biggest_date = ind_data.aggregate(Max('date'))
         #  i dunno why its stored like that... date__min...
-        ind_dict[ind_key].first_data_year = lowest_date['date__min']
+        ind_dict[ind_key].last_data_year = biggest_date['date__max']
         ind_dict[ind_key].save()
 
 

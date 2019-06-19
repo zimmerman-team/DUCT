@@ -28,7 +28,10 @@ def update_country_on_indicator(file):
                     indicator.save()
 
 
-def send_confirmation_email(status, file_id, mapping_id, email=None):
+def send_confirmation_email(
+        status, file_id, mapping_id,email=None,
+        error_message=None):
+
     if status:
         template = render_to_string('mapping/status_success.txt', {
             'file_id': file_id,
@@ -39,6 +42,7 @@ def send_confirmation_email(status, file_id, mapping_id, email=None):
         template = render_to_string('mapping/status_failed.txt', {
             'file_id': file_id,
             'mapping_id': mapping_id,
+            'error_message': error_message
         })
         subject = settings.ZOOM_TASK_EMAIL_MAPPING_FAILED_SUBJECT
 
