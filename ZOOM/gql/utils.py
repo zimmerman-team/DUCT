@@ -1,3 +1,5 @@
+import logging
+
 import graphene
 from graphene import relay
 from graphene_django.filter import DjangoFilterConnectionField
@@ -6,6 +8,10 @@ from django.db import models
 from django.db.models import Count, Sum, Min, Max, Avg
 from django.contrib.gis.geos import MultiPolygon, Point, Polygon
 from django.db.models import Q
+from django.contrib.sessions.backends.db import SessionStore
+
+
+email_session_key = None
 
 
 class OrderedDjangoFilterConnectionField(DjangoFilterConnectionField):
@@ -125,3 +131,32 @@ class AggregationNode(graphene.ObjectType):
             nodes.append(node)
 
         return nodes
+
+
+def set_session_email(session_email):
+    # Save email verified to the session
+    # to use it in other view
+    session_store = SessionStore()
+    session_store['session_email'] = session_email
+    session_store.save()
+
+    # Expose the session key to use in other view
+    # This is needed to assign variable email_session_key in other module,
+    # so it can be used as a global variable,
+    # please find which module call this function and follow the logic
+    return session_store.session_key
+
+
+def get_session_email():
+    # Save email verified to the session
+    # to use it in other view
+    try:
+        session_store = SessionStore(session_key=email_session_key)
+
+        return session_store['session_email']
+
+    except Exception as e:
+        # Maybe this user is admin, so can access without token
+        logging.exception(e)
+
+        return None

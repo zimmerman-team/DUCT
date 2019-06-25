@@ -15,7 +15,8 @@ class MappingSerializer(serializers.ModelSerializer):
             'file',
             'status',
             'error_message',
-            'task_id'
+            'task_id',
+            'session_email'
         )
 
     @classmethod
