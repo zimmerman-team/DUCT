@@ -34,3 +34,4 @@ class Mapping(models.Model):
         blank=True,
         default=''
     )
+    session_email = models.EmailField(blank=True, null=True, default=None)

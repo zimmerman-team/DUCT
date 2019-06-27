@@ -6,6 +6,7 @@ from rest_framework import serializers
 from mapping.models import Mapping
 from metadata.models import File
 from gql.mapping.serializers import MappingSerializer
+from gql.utils import get_session_email
 
 
 class MappingMutation(SerializerMutation):
@@ -21,6 +22,7 @@ class MappingMutation(SerializerMutation):
         input['error_message'] = ''
         input['status'] = 'INITIAL'
         input['task_id'] = ''
+        input['session_email'] = get_session_email()
 
         try:
             file = File.objects.get(id=file_id)

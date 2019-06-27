@@ -1,6 +1,8 @@
 import os
 import jwt
 import json
+import logging
+
 from functools import wraps
 
 from django.http import JsonResponse
@@ -20,6 +22,9 @@ from rest_framework.decorators import (
     permission_classes,
     api_view
 )
+
+import gql.utils
+from gql.utils import set_session_email
 
 
 def get_token_auth_header(cls):
@@ -62,10 +67,17 @@ def requires_scope():
                 )
 
                 if decoded.get("email_verified"):
+                    # Save user email for the auto messaging
+                    # And set session as global variable
+                    # function set_user_email will return session key
+                    gql.utils.email_session_key = set_session_email(
+                        decoded.get('email')
+                    )
+
                     return f(*args, **kwargs)
 
             except Exception as e:
-                pass
+                logging.exception(e)
 
             response = JsonResponse(
                 {'message': 'You don\'t have access to this resource'}
