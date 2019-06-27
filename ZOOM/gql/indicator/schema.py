@@ -69,10 +69,10 @@ class IndicatorFilter(FilterSet):
         # which have been mapped out by country, have the specified
         # country
         return Indicator.objects.filter(
-            Q(id__in=ids) &
-            Q(country__iso2=value) |
-            Q(datapoints__geolocation__type='pointbased') |
-            Q(datapoints__geolocation__country__iso2=value)
+            Q(id__in=ids) & Q(
+                Q(country__iso2=value) |
+                Q(datapoints__geolocation__type='pointbased') |
+                Q(datapoints__geolocation__country__iso2=value))
         ).distinct()
 
     def filter_entry_id(self, queryset, name, value):
