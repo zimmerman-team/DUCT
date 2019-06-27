@@ -1,14 +1,12 @@
 import logging
 
 import graphene
+from django.contrib.gis.geos import MultiPolygon, Point, Polygon
+from django.contrib.sessions.backends.db import SessionStore
+from django.db import models
+from django.db.models import Avg, Count, Max, Min, Q, Sum
 from graphene import relay
 from graphene_django.filter import DjangoFilterConnectionField
-
-from django.db import models
-from django.db.models import Count, Sum, Min, Max, Avg
-from django.contrib.gis.geos import MultiPolygon, Point, Polygon
-from django.db.models import Q
-from django.contrib.sessions.backends.db import SessionStore
 
 email_session_key = None
 
