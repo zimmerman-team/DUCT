@@ -1,11 +1,14 @@
+import logging
+
 import graphene
+from django.contrib.gis.geos import MultiPolygon, Point, Polygon
+from django.contrib.sessions.backends.db import SessionStore
+from django.db import models
+from django.db.models import Avg, Count, Max, Min, Q, Sum
 from graphene import relay
 from graphene_django.filter import DjangoFilterConnectionField
 
-from django.db import models
-from django.db.models import Count, Sum, Min, Max, Avg
-from django.contrib.gis.geos import MultiPolygon, Point, Polygon
-from django.db.models import Q
+email_session_key = None
 
 
 class OrderedDjangoFilterConnectionField(DjangoFilterConnectionField):
@@ -97,13 +100,12 @@ class AggregationNode(graphene.ObjectType):
         aggregations = self.get_aggregations(context, **kwargs)
 
         if or_filters:
-            return self.Model.objects.values(*groups).annotate(
-                **aggregations
-            ).order_by(*orders).filter(Q(**filters) | Q(**or_filters))
+            return self.Model.objects.filter(Q(**filters) | Q(**or_filters))\
+                .values(*groups).annotate(**aggregations).order_by(*orders)
 
-        return self.Model.objects.values(*groups).annotate(
+        return self.Model.objects.filter(**filters).values(*groups).annotate(
             **aggregations
-        ).order_by(*orders).filter(**filters)
+        ).order_by(*orders)
 
     def get_nodes(self, context, **kwargs):
         results = self.get_results(context, **kwargs)
@@ -125,3 +127,32 @@ class AggregationNode(graphene.ObjectType):
             nodes.append(node)
 
         return nodes
+
+
+def set_session_email(session_email):
+    # Save email verified to the session
+    # to use it in other view
+    session_store = SessionStore()
+    session_store['session_email'] = session_email
+    session_store.save()
+
+    # Expose the session key to use in other view
+    # This is needed to assign variable email_session_key in other module,
+    # so it can be used as a global variable,
+    # please find which module call this function and follow the logic
+    return session_store.session_key
+
+
+def get_session_email():
+    # Save email verified to the session
+    # to use it in other view
+    try:
+        session_store = SessionStore(session_key=email_session_key)
+
+        return session_store['session_email']
+
+    except Exception as e:
+        # Maybe this user is admin, so can access without token
+        logging.exception(e)
+
+        return None

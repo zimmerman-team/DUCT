@@ -310,7 +310,7 @@ def correct_data(df_data, correction_data, error_data,
         # Geolocation
         if correction_data[key][1] in GEOTYPE_HEADINGS:
             if not point_based:
-                if df_data[key].dtype == object:
+                if df_data[key].dtype == object and not isinstance(df_data[key][0], int):
                     df_data[key] = df_data[key].str.lower()
                     filter_used = not_null_filter & (~numeric_filter) & (
                         error_data[key][error_data[key] ==
