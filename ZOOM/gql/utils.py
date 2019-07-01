@@ -1,15 +1,12 @@
 import logging
 
 import graphene
+from django.contrib.gis.geos import MultiPolygon, Point, Polygon
+from django.contrib.sessions.backends.db import SessionStore
+from django.db import models
+from django.db.models import Avg, Count, Max, Min, Q, Sum
 from graphene import relay
 from graphene_django.filter import DjangoFilterConnectionField
-
-from django.db import models
-from django.db.models import Count, Sum, Min, Max, Avg
-from django.contrib.gis.geos import MultiPolygon, Point, Polygon
-from django.db.models import Q
-from django.contrib.sessions.backends.db import SessionStore
-
 
 email_session_key = None
 
@@ -103,13 +100,12 @@ class AggregationNode(graphene.ObjectType):
         aggregations = self.get_aggregations(context, **kwargs)
 
         if or_filters:
-            return self.Model.objects.values(*groups).annotate(
-                **aggregations
-            ).order_by(*orders).filter(Q(**filters) | Q(**or_filters))
+            return self.Model.objects.filter(Q(**filters) | Q(**or_filters))\
+                .values(*groups).annotate(**aggregations).order_by(*orders)
 
-        return self.Model.objects.values(*groups).annotate(
+        return self.Model.objects.filter(**filters).values(*groups).annotate(
             **aggregations
-        ).order_by(*orders).filter(**filters)
+        ).order_by(*orders)
 
     def get_nodes(self, context, **kwargs):
         results = self.get_results(context, **kwargs)
