@@ -316,6 +316,7 @@ class Query(object):
         geolocationIso3__Is__Null=Boolean(),
         OR__Geolocation_Iso2__Is__Null=Boolean(),
         OR__Geolocation_Iso3__Is__Null=Boolean(),
+        unique_indicator=Boolean(),
     )
 
     all_filter_headings = DjangoFilterConnectionField(
