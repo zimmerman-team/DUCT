@@ -84,13 +84,13 @@ class IndicatorFilter(FilterSet):
         return queryset.filter(**{name: eval(value)})
 
     def filter_file__entry_id(self, queryset, name, value):
-        name = 'file__id'
-        return queryset.filter(**{name: value})
+        return queryset.filter(file__id=value)
 
     def filter_file__entry_id__in(self, queryset, name, value):
-        name = 'file__id__in'
         value_list = value.split(',')
-        return queryset.filter(**{name: value_list})
+        # so with this tweek of filtering doesnt matter what file ids are passed in we
+        # always return the public indicators
+        return queryset.filter(Q(file__id__in=value_list) | Q(file__accessibility='a'))
 
     def filter_year__range(self, queryset, name, value):
         return queryset.filter(

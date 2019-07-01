@@ -1,6 +1,7 @@
 import sys
 import os
 from dotenv import load_dotenv, find_dotenv
+from celery.schedules import crontab
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -237,6 +238,10 @@ CELERY_BROKER_URL = 'amqp://localhost'
 CELERY_RESULT_BACKEND = 'amqp://localhost'
 CELERY_ALWAYS_EAGER = True
 CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
+CELERY_BEAT_SCHEDULE = {'mapping-iati-data': {
+        'task': 'mapping.tasks.mapping_iati_data',
+        'schedule': crontab(minute=0, hour=0)
+    }}
 
 # TASKS CONFIG
 
