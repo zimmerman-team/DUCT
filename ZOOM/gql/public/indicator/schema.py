@@ -71,6 +71,8 @@ class Query(gql.indicator.schema.Query):
         geolocationIso3__Is__Null=Boolean(),
         OR__Geolocation_Iso2__Is__Null=Boolean(),
         OR__Geolocation_Iso3__Is__Null=Boolean(),
+        unique_indicator=Boolean(),
+        indicator_file_accesibility=String(),
     )
 
     def resolve_datapoints_aggregation(self, context, **kwargs):

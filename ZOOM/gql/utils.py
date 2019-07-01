@@ -1,15 +1,12 @@
 import logging
 
 import graphene
+from django.contrib.gis.geos import MultiPolygon, Point, Polygon
+from django.contrib.sessions.backends.db import SessionStore
+from django.db import models
+from django.db.models import Avg, Count, Max, Min, Q, Sum
 from graphene import relay
 from graphene_django.filter import DjangoFilterConnectionField
-
-from django.db import models
-from django.db.models import Count, Sum, Min, Max, Avg
-from django.contrib.gis.geos import MultiPolygon, Point, Polygon
-from django.db.models import Q
-from django.contrib.sessions.backends.db import SessionStore
-
 
 email_session_key = None
 
@@ -103,16 +100,37 @@ class AggregationNode(graphene.ObjectType):
         aggregations = self.get_aggregations(context, **kwargs)
 
         if or_filters:
-            return self.Model.objects.values(*groups).annotate(
-                **aggregations
-            ).order_by(*orders).filter(Q(**filters) | Q(**or_filters))
+            return self.Model.objects.filter(Q(**filters) | Q(**or_filters))\
+                .values(*groups).annotate(**aggregations).order_by(*orders)
 
-        return self.Model.objects.values(*groups).annotate(
+        return self.Model.objects.filter(**filters).values(*groups).annotate(
             **aggregations
-        ).order_by(*orders).filter(**filters)
+        ).order_by(*orders)
 
     def get_nodes(self, context, **kwargs):
         results = self.get_results(context, **kwargs)
+        # so here we'll want to return data points with the unique
+        # indicators specified, so mainly this is used to avoid
+        # indicators with duplicate names, so that their datapoints values
+        # would not get aggregated when they're filtered by indicator name
+        if 'unique_indicator' in kwargs and kwargs['unique_indicator'] and results.count() > 0:
+            indicator_ids = []
+            indicator_names = []
+            # oke so first we get the unique id's of the datapoints indicators and their names
+            unique_id_tuple = list(results.values_list('indicator__name', 'indicator__id', named=True).distinct())
+            for item_tuple in unique_id_tuple:
+                ind_name = getattr(item_tuple, 'indicator__name')
+                # so yeah basically because we're working with duplicate names
+                # and in the results there might be indicators with different names
+                # we just need to weeed out the duplicate names, and save the
+                # leftover ids, and refilter that result query, by NOT duplicate
+                # indicator name ids == ezi
+                if ind_name not in indicator_names:
+                    indicator_names.append(ind_name)
+                    indicator_ids.append(getattr(item_tuple, 'indicator__id'))
+
+            results = results.filter(indicator__id__in=indicator_ids)
+
         nodes = []
         aggregation = kwargs['aggregation']
         for result in results:

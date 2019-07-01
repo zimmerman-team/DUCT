@@ -84,13 +84,13 @@ class IndicatorFilter(FilterSet):
         return queryset.filter(**{name: eval(value)})
 
     def filter_file__entry_id(self, queryset, name, value):
-        name = 'file__id'
-        return queryset.filter(**{name: value})
+        return queryset.filter(file__id=value)
 
     def filter_file__entry_id__in(self, queryset, name, value):
-        name = 'file__id__in'
         value_list = value.split(',')
-        return queryset.filter(**{name: value_list})
+        # so with this tweek of filtering doesnt matter what file ids are passed in we
+        # always return the public indicators
+        return queryset.filter(Q(file__id__in=value_list) | Q(file__accessibility='a'))
 
     def filter_year__range(self, queryset, name, value):
         return queryset.filter(
@@ -164,6 +164,7 @@ class DatapointsAggregationNode(AggregationNode):
         'geolocationIso2__Is__Null': 'geolocation__iso2__isnull',
         'geolocationIso3__Is__Null': 'geolocation__iso3__isnull',
         'indicatorId__In': 'indicator__id__in',
+        'indicator_file_accesibility': 'indicator__file__accessibility'
     }
 
     # OR filter
@@ -316,6 +317,8 @@ class Query(object):
         geolocationIso3__Is__Null=Boolean(),
         OR__Geolocation_Iso2__Is__Null=Boolean(),
         OR__Geolocation_Iso3__Is__Null=Boolean(),
+        unique_indicator=Boolean(),
+        indicator_file_accesibility=String(),
     )
 
     all_filter_headings = DjangoFilterConnectionField(
