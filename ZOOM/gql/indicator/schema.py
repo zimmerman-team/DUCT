@@ -164,6 +164,7 @@ class DatapointsAggregationNode(AggregationNode):
         'geolocationIso2__Is__Null': 'geolocation__iso2__isnull',
         'geolocationIso3__Is__Null': 'geolocation__iso3__isnull',
         'indicatorId__In': 'indicator__id__in',
+        'indicator_file_accesibility': 'indicator__file__accessibility'
     }
 
     # OR filter
@@ -317,6 +318,7 @@ class Query(object):
         OR__Geolocation_Iso2__Is__Null=Boolean(),
         OR__Geolocation_Iso3__Is__Null=Boolean(),
         unique_indicator=Boolean(),
+        indicator_file_accesibility=String(),
     )
 
     all_filter_headings = DjangoFilterConnectionField(
