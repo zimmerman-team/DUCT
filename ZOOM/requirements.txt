@@ -21,7 +21,7 @@ croniter==0.3.25
 cryptography==2.7
 dealer==2.0.5
 defusedxml==0.5.0
-Django==2.1.9
+Django==2.1.10
 django-bootstrap3==9.1.0
 django-cors-headers==2.4.0
 django-debug-toolbar==1.9.1
