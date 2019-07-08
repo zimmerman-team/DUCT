@@ -9,7 +9,8 @@ DUCT has been build as part of Zoom, a Data platform for data informed
 strategy in combating the AIDS epidemic in cooperation with Aidsfonds that
 works towards ending AIDS in a world where all people affected by HIV/AIDS have access to prevention, treatment, care and support and HumanityX who are supporting organisations in the peace, justice and humanitarian sectors to adopt digital innovations in order to increase their impact on society.
 
-DUCT uses ####  Auth0 for authenticated access to endpoints and certain data.
+#### Auth0
+DUCT uses <a href="https://auth0.com" >auth0</a> for authenticated access to certain endpoints and certain data.
 
 
 ## Requirements
