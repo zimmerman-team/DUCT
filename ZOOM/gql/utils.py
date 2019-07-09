@@ -2,6 +2,7 @@ import logging
 
 import graphene
 from django.contrib.gis.geos import MultiPolygon, Point, Polygon
+from django.contrib.postgres.aggregates import ArrayAgg
 from django.contrib.sessions.backends.db import SessionStore
 from django.db import models
 from django.db.models import Avg, Count, Max, Min, Q, Sum
@@ -52,6 +53,24 @@ class AggregationNode(graphene.ObjectType):
         return [('-' if '-' == field[0] else '') + self.FIELDS_MAPPING
                 .get(field.replace('-', '')) for field in kwargs['orderBy']]
 
+    def get_requested_fields(self, context, **kwargs):
+        requested_fields = []
+
+        for selection in context.field_asts[0].selection_set.selections:
+            if self.FIELDS_MAPPING.get(selection.name.value) != 'value':
+                requested_fields.append(self.FIELDS_MAPPING.get(selection.name.value))
+
+        return requested_fields
+
+    def get_requested_names(self, context, **kwargs):
+        requested_names = []
+
+        for selection in context.field_asts[0].selection_set.selections:
+            if self.FIELDS_MAPPING.get(selection.name.value) != 'value':
+                requested_names.append(selection.name.value)
+
+        return requested_names
+
     def get_filters(self, context, **kwargs):
         filters = {}
         for field, filter_field in self.FIELDS_FILTER_MAPPING.items():
@@ -98,17 +117,28 @@ class AggregationNode(graphene.ObjectType):
         groups = self.get_group_by(context, **kwargs)
         orders = self.get_order_by(context, **kwargs)
         aggregations = self.get_aggregations(context, **kwargs)
+        requested_fields = self.get_requested_fields(context, **kwargs)
+        missing_fields = list(set(requested_fields).symmetric_difference(groups))
+        missing_field_aggr = {}
+
+        # so here we form the array aggregation parameters for the fields
+        # that are NOT in the groupBy query, they should be returned
+        # as arrays for the filtered data points
+        for field in missing_fields:
+            missing_field_aggr[field] = ArrayAgg(field, distinct=True)
 
         if or_filters:
             return self.Model.objects.filter(Q(**filters) | Q(**or_filters))\
-                .values(*groups).annotate(**aggregations).order_by(*orders)
+                .values(*groups).annotate(**aggregations, **missing_field_aggr).order_by(*orders)
 
         return self.Model.objects.filter(**filters).values(*groups).annotate(
-            **aggregations
+            **aggregations,
+            **missing_field_aggr
         ).order_by(*orders)
 
     def get_nodes(self, context, **kwargs):
         results = self.get_results(context, **kwargs)
+        requested_names = self.get_requested_names(context, **kwargs)
         # so here we'll want to return data points with the unique
         # indicators specified, so mainly this is used to avoid
         # indicators with duplicate names, so that their datapoints values
@@ -134,9 +164,10 @@ class AggregationNode(graphene.ObjectType):
         nodes = []
         aggregation = kwargs['aggregation']
         for result in results:
+
             node = self.__class__(**{field: result[
                 self.FIELDS_MAPPING.get(
-                    field)] for field in kwargs['groupBy']})
+                    field)] for field in requested_names})
 
             for field, value in node.__dict__.items():
                 if type(value) in [MultiPolygon, Polygon, Point]:

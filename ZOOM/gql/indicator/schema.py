@@ -119,6 +119,10 @@ class DatapointsAggregationNode(AggregationNode):
     geolocationCenterLongLat = graphene.JSONString()
     geolocationPolygons = graphene.JSONString()
 
+    @staticmethod
+    def resolve_geolocationTag(parent, info):
+        return parent.geolocationTag
+
     Model = Datapoints
 
     FIELDS_MAPPING = {
