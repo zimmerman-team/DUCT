@@ -53,6 +53,7 @@ class Query(gql.indicator.schema.Query):
     datapoints_aggregation = graphene.List(
         DatapointsAggregationPublicNode,
         groupBy=List(of_type=String),
+        fields=List(of_type=String),
         orderBy=List(of_type=String),
         aggregation=List(of_type=String),
         geolocationTag__In=List(of_type=String),

@@ -54,22 +54,7 @@ class AggregationNode(graphene.ObjectType):
                 .get(field.replace('-', '')) for field in kwargs['orderBy']]
 
     def get_requested_fields(self, context, **kwargs):
-        requested_fields = []
-
-        for selection in context.field_asts[0].selection_set.selections:
-            if self.FIELDS_MAPPING.get(selection.name.value) != 'value':
-                requested_fields.append(self.FIELDS_MAPPING.get(selection.name.value))
-
-        return requested_fields
-
-    def get_requested_names(self, context, **kwargs):
-        requested_names = []
-
-        for selection in context.field_asts[0].selection_set.selections:
-            if self.FIELDS_MAPPING.get(selection.name.value) != 'value':
-                requested_names.append(selection.name.value)
-
-        return requested_names
+        return [self.FIELDS_MAPPING.get(field) for field in kwargs['fields']] if 'fields' in kwargs else []
 
     def get_filters(self, context, **kwargs):
         filters = {}
@@ -118,7 +103,7 @@ class AggregationNode(graphene.ObjectType):
         orders = self.get_order_by(context, **kwargs)
         aggregations = self.get_aggregations(context, **kwargs)
         requested_fields = self.get_requested_fields(context, **kwargs)
-        missing_fields = list(set(requested_fields).symmetric_difference(groups))
+        missing_fields = list(set(requested_fields) - set(groups))
         missing_field_aggr = {}
 
         # so here we form the array aggregation parameters for the fields
@@ -138,7 +123,7 @@ class AggregationNode(graphene.ObjectType):
 
     def get_nodes(self, context, **kwargs):
         results = self.get_results(context, **kwargs)
-        requested_names = self.get_requested_names(context, **kwargs)
+        fields_to_return = kwargs['fields'] if 'fields' in kwargs else kwargs['groupBy']
         # so here we'll want to return data points with the unique
         # indicators specified, so mainly this is used to avoid
         # indicators with duplicate names, so that their datapoints values
@@ -167,7 +152,7 @@ class AggregationNode(graphene.ObjectType):
 
             node = self.__class__(**{field: result[
                 self.FIELDS_MAPPING.get(
-                    field)] for field in requested_names})
+                    field)] for field in fields_to_return})
 
             for field, value in node.__dict__.items():
                 if type(value) in [MultiPolygon, Polygon, Point]:

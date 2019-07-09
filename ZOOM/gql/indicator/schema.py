@@ -119,10 +119,6 @@ class DatapointsAggregationNode(AggregationNode):
     geolocationCenterLongLat = graphene.JSONString()
     geolocationPolygons = graphene.JSONString()
 
-    @staticmethod
-    def resolve_geolocationTag(parent, info):
-        return parent.geolocationTag
-
     Model = Datapoints
 
     FIELDS_MAPPING = {
@@ -303,6 +299,7 @@ class Query(object):
     datapoints_aggregation = graphene.List(
         DatapointsAggregationNode,
         groupBy=List(of_type=String),
+        fields=List(of_type=String),
         orderBy=List(of_type=String),
         aggregation=List(of_type=String),
         geolocationTag__In=List(of_type=String),
