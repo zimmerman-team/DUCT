@@ -1,4 +1,10 @@
 import logging
+import os
+import sys
+import json
+from django.conf import settings
+import random
+import string
 
 import graphene
 from django.contrib.gis.geos import MultiPolygon, Point, Polygon
@@ -8,6 +14,7 @@ from django.db import models
 from django.db.models import Avg, Count, Max, Min, Q, Sum
 from graphene import relay
 from graphene_django.filter import DjangoFilterConnectionField
+import pydash
 
 email_session_key = None
 
@@ -148,6 +155,13 @@ class AggregationNode(graphene.ObjectType):
 
         nodes = []
         aggregation = kwargs['aggregation']
+        # this variable will be only used for geoJson file forming
+        country_layers = {
+            "type": 'FeatureCollection',
+            "features": []
+        }
+        max_value = -sys.maxsize - 1
+        min_value = sys.maxsize
         for result in results:
 
             node = self.__class__(**{field: result[
@@ -161,6 +175,110 @@ class AggregationNode(graphene.ObjectType):
             for field in aggregation:
                 f = field[field.find('(') + 1:field.rfind(')')]
                 setattr(node, f, result[f])
+
+                # so if a geoJsonUrl was requested(mainly used for the geoJson layers for the map)
+                # we will form a json object and save it to a file
+                if kwargs['geoJsonUrl']:
+                    if node.geolocationPolygons is not None:
+                        exist_layer_index = pydash.arrays.find_index(
+                            country_layers['features'],
+                            lambda featz: node.geolocationTag == featz['properties']['name'])
+
+                        if exist_layer_index == -1:
+                            label = node.filterName if isinstance(node.filterName, str) else ', '.join(node.filterName)
+                            value = round(node.value)
+
+                            # here we get the max and mins of this
+                            # data
+                            if value > max_value:
+                                max_value = value
+                            if value < min_value:
+                                min_value = value
+
+                            # here we push the geoJson data
+                            country_layers['features'].append({
+                                "geometry": node.geolocationPolygons,
+                                "properties": {
+                                    "indName": node.indicatorName,
+                                    "name": node.geolocationTag,
+                                    "iso2": node.geolocationIso2,
+                                    "geolocationType": node.geolocationType,
+                                    "value": value,
+                                    "format": node.valueFormatType,
+                                    "percentile": 0,
+                                    "tooltipLabels": [
+                                        {
+                                            "subIndName": node.filterName,
+                                            "format": node.valueFormatType,
+                                            "label": label,
+                                            "value": round(node.value)
+                                        }
+                                    ],
+                                }
+                            }
+                            )
+                        else:
+                            country_layers['features'][exist_layer_index]['properties']['value'] += round(node.value)
+
+                            # here we get the max and mins of this
+                            # data
+                            if country_layers['features'][exist_layer_index]['properties']['value'] > max_value:
+                                max_value = value
+                            if country_layers['features'][exist_layer_index]['properties']['value'] < min_value:
+                                min_value = value
+
+                            country_layers['features'][exist_layer_index]['properties']['tooltipLabels'].append(
+                                {
+                                    "subIndName": node.filterName,
+                                    "format": node.valueFormatType,
+                                    "label": node.filterName,
+                                    "value": round(node.value)
+                                }
+                            )
+                else:
+                    # else we form the nodes normally
+                    nodes.append(node)
+
+        if kwargs['geoJsonUrl'] and len(country_layers['features']) > 0:
+            unique_count = 0
+            # so after we're done forming the geoJson we update
+            # the percentiles of the properties
+            # and generate the count of uniqValues
+            # for coloring purposes
+            country_layers['features'] = pydash.arrays.sort(
+                country_layers['features'], key=lambda featz: featz['properties']['value'])
+
+            current_value = country_layers['features'][0]['properties']['value']
+
+            for index, feat in enumerate(country_layers['features']):
+                if current_value != feat['properties']['value']:
+                    unique_count += 1
+                    current_value = feat['properties']['value']
+
+                country_layers['features'][index]['properties']['percentile'] = unique_count
+
+            # and now when everything has been formed correctly
+            # we write the geoJson into a file
+            # and add the unique layer node to the nodes
+            # response
+
+            # we ofcourse generate a random string for this
+            # geojson file name of ours, so that it wouldn't
+            # collide with others
+            letters = string.ascii_lowercase
+            file_key = ''.join(random.choice(letters) for i in range(50))
+
+            file_name = 'geo_json{file_key}.json'.format(file_key=file_key)
+
+            file_url = 'static/temp_geo_jsons/' + file_name
+
+            full_path_to_file = os.path.join(settings.BASE_DIR, file_url)
+
+            with open(full_path_to_file, 'w') as json_file:
+                json.dump(country_layers, json_file)
+
+            node = self.__class__(geoJsonUrl=file_url, uniqCount=unique_count,
+                                  minValue=min_value, maxValue=max_value)
 
             nodes.append(node)
 

@@ -118,6 +118,10 @@ class DatapointsAggregationNode(AggregationNode):
     indicatorFilterHeadingId = graphene.Int()
     geolocationCenterLongLat = graphene.JSONString()
     geolocationPolygons = graphene.JSONString()
+    geoJsonUrl = graphene.String()
+    uniqCount = graphene.Int()
+    minValue = graphene.Int()
+    maxValue = graphene.Int()
 
     Model = Datapoints
 
@@ -320,6 +324,7 @@ class Query(object):
         OR__Geolocation_Iso3__Is__Null=Boolean(),
         unique_indicator=Boolean(),
         indicator_file_accesibility=String(),
+        geoJsonUrl=Boolean()
     )
 
     all_filter_headings = DjangoFilterConnectionField(
