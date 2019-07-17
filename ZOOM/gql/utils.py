@@ -1,6 +1,5 @@
 import logging
 import os
-import sys
 import json
 from django.conf import settings
 import random
@@ -8,12 +7,13 @@ import string
 
 import graphene
 from django.contrib.gis.geos import MultiPolygon, Point, Polygon
-from django.contrib.postgres.aggregates import ArrayAgg
+from django.contrib.postgres.aggregates import ArrayAgg, JSONBAgg
 from django.contrib.sessions.backends.db import SessionStore
 from django.db import models
 from django.db.models import Avg, Count, Max, Min, Q, Sum
 from graphene import relay
 from graphene_django.filter import DjangoFilterConnectionField
+from gql.big_feature_generator.big_feature_generator import BigFeatureGenerator
 import pydash
 
 email_session_key = None
@@ -119,6 +119,24 @@ class AggregationNode(graphene.ObjectType):
         for field in missing_fields:
             missing_field_aggr[field] = ArrayAgg(field, distinct=True)
 
+        if 'geoJsonUrl' in kwargs and kwargs['geoJsonUrl'] and 'filters__name' in groups:
+            # so if the data for geojson needs to be dissagregated by sub-indicators(filters)
+            # we'll apply a different aggregation logic for geojsons feature processing
+            # threads to work faster in parallel
+            # so we'll get the arrays of sub-indicators(filters) for our grouped datapoint
+            missing_field_aggr['filters__name'] = ArrayAgg('filters__name')
+            # and we'll get the arrays of values for these sub-indicators
+            missing_field_aggr['value'] = ArrayAgg('value')
+            # we'll also need the NOT distinct value format types
+            # for the data to be shown correctly
+            missing_field_aggr['value_format__type'] = ArrayAgg('value_format__type')
+            # and we'll remove the filters__name from the group by so that
+            # values would be added for the whole indicator, as thats what we need
+            # for the layers themselves
+            groups.remove('filters__name')
+            #  aand we remove the aggregation as we'll aggregate this ourselves
+            aggregations = {}
+
         if or_filters:
             return self.Model.objects.filter(Q(**filters) | Q(**or_filters))\
                 .values(*groups).annotate(**aggregations, **missing_field_aggr).order_by(*orders)
@@ -160,86 +178,41 @@ class AggregationNode(graphene.ObjectType):
             "type": 'FeatureCollection',
             "features": []
         }
-        max_value = -sys.maxsize - 1
-        min_value = sys.maxsize
-        for result in results:
+        min_value = 0
+        max_value = 0
 
-            node = self.__class__(**{field: result[
-                self.FIELDS_MAPPING.get(
-                    field)] for field in fields_to_return})
+        result_count = results.count()
+        # so if a geoJsonUrl was requested(mainly used for the geoJson layers for the map)
+        # we will form a json object and save it to a file
+        if 'geoJsonUrl' in kwargs and kwargs['geoJsonUrl'] and result_count > 0:
+            thread_amount = 1
+            if result_count > 40000:
+                thread_amount = settings.THREADS_FOR_PROCESSING
 
-            for field, value in node.__dict__.items():
-                if type(value) in [MultiPolygon, Polygon, Point]:
-                    setattr(node, field, value.json)
+            feature_generator = BigFeatureGenerator(all_results=results,
+                                                    result_count=result_count,
+                                                    thread_amount=thread_amount)
 
-            for field in aggregation:
-                f = field[field.find('(') + 1:field.rfind(')')]
-                setattr(node, f, result[f])
+            country_layers['features'] = feature_generator.generate_features()
+            min_value = feature_generator.min_value
+            max_value = feature_generator.max_value
+        else:
+            for result in results:
+                node = self.__class__(**{field: result[
+                    self.FIELDS_MAPPING.get(
+                        field)] for field in fields_to_return})
 
-                # so if a geoJsonUrl was requested(mainly used for the geoJson layers for the map)
-                # we will form a json object and save it to a file
-                if kwargs['geoJsonUrl']:
-                    if node.geolocationPolygons is not None:
-                        exist_layer_index = pydash.arrays.find_index(
-                            country_layers['features'],
-                            lambda featz: node.geolocationTag == featz['properties']['name'])
+                for field, value in node.__dict__.items():
+                    if type(value) in [MultiPolygon, Polygon, Point]:
+                        setattr(node, field, value.json)
 
-                        if exist_layer_index == -1:
-                            label = node.filterName if isinstance(node.filterName, str) else ', '.join(node.filterName)
-                            value = round(node.value)
+                for field in aggregation:
+                    f = field[field.find('(') + 1:field.rfind(')')]
+                    setattr(node, f, result[f])
+                # else we form the nodes normally
+                nodes.append(node)
 
-                            # here we get the max and mins of this
-                            # data
-                            if value > max_value:
-                                max_value = value
-                            if value < min_value:
-                                min_value = value
-
-                            # here we push the geoJson data
-                            country_layers['features'].append({
-                                "geometry": node.geolocationPolygons,
-                                "properties": {
-                                    "indName": node.indicatorName,
-                                    "name": node.geolocationTag,
-                                    "iso2": node.geolocationIso2,
-                                    "geolocationType": node.geolocationType,
-                                    "value": value,
-                                    "format": node.valueFormatType,
-                                    "percentile": 0,
-                                    "tooltipLabels": [
-                                        {
-                                            "subIndName": node.filterName,
-                                            "format": node.valueFormatType,
-                                            "label": label,
-                                            "value": round(node.value)
-                                        }
-                                    ],
-                                }
-                            }
-                            )
-                        else:
-                            country_layers['features'][exist_layer_index]['properties']['value'] += round(node.value)
-
-                            # here we get the max and mins of this
-                            # data
-                            if country_layers['features'][exist_layer_index]['properties']['value'] > max_value:
-                                max_value = value
-                            if country_layers['features'][exist_layer_index]['properties']['value'] < min_value:
-                                min_value = value
-
-                            country_layers['features'][exist_layer_index]['properties']['tooltipLabels'].append(
-                                {
-                                    "subIndName": node.filterName,
-                                    "format": node.valueFormatType,
-                                    "label": node.filterName,
-                                    "value": round(node.value)
-                                }
-                            )
-                else:
-                    # else we form the nodes normally
-                    nodes.append(node)
-
-        if kwargs['geoJsonUrl'] and len(country_layers['features']) > 0:
+        if 'geoJsonUrl' in kwargs and kwargs['geoJsonUrl'] and len(country_layers['features']) > 0:
             unique_count = 0
             # so after we're done forming the geoJson we update
             # the percentiles of the properties
@@ -262,13 +235,19 @@ class AggregationNode(graphene.ObjectType):
             # and add the unique layer node to the nodes
             # response
 
-            # we ofcourse generate a random string for this
-            # geojson file name of ours, so that it wouldn't
-            # collide with others
-            letters = string.ascii_lowercase
-            file_key = ''.join(random.choice(letters) for i in range(50))
+            if 'currentGeoJson' in kwargs and kwargs['currentGeoJson'] is not None:
+                # so if its the current geojson that needs to be changed
+                # overwrite the same one, and the name of the file is of course
+                # passed from the frontend
+                file_name = kwargs['currentGeoJson']
+            else:
+                # we ofcourse generate a random string for this
+                # geojson file name of ours, so that it wouldn't
+                # collide with others
+                letters = string.ascii_lowercase
+                file_key = ''.join(random.choice(letters) for i in range(50))
 
-            file_name = 'geo_json{file_key}.json'.format(file_key=file_key)
+                file_name = 'geo_json{file_key}.json'.format(file_key=file_key)
 
             file_url = 'static/temp_geo_jsons/' + file_name
 

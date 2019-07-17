@@ -252,6 +252,10 @@ ZOOM_TASK_EMAIL_RECEIVER = 'devops-zz@zimmermanzimmerman.nl'
 ZOOM_TASK_EMAIL_MAPPING_SUCCESS_SUBJECT = 'ZOOM Mapping Success!'
 ZOOM_TASK_EMAIL_MAPPING_FAILED_SUBJECT = 'ZOOM Mapping Failed!'
 
+# this variable very much is dependant on your machine
+# and its used to process huge layer data
+THREADS_FOR_PROCESSING = 4
+
 # LOAD .env FILE
 
 ENV_FILE = find_dotenv()
