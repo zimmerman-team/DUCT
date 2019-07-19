@@ -111,6 +111,11 @@ media/
 .DS_Store
 samples/datasets
 
+# exclude everything
+static/temp_geo_jsons/*
+
+# exception to the rule
+!static/temp_geo_jsons/.gitkeep
 
 # Big data
 geodata/data_backup/NL_PC6.json
