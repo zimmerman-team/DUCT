@@ -38,8 +38,6 @@ class BigFeatureGenerator:
         for result in results:
             if 'geolocation__polygons' in result and result['geolocation__polygons'] is not None:
 
-                print('PROCESS NUMBER: ', process_number, 'PROCESSED AMOUNT: ', number_of_processed)
-
                 value_format = result['value_format__type'][0] if \
                     isinstance(result['value_format__type'], list) else result['value_format__type']
 
@@ -153,8 +151,11 @@ class BigFeatureGenerator:
 
         end_time = time.time()
 
-        print('Time it took to process geojson with ',
-              self.process_amount, ' processes: ', end_time-start_time)
+        if self.result_count > 40000:
+            print('[', datetime.datetime.now(), ']')
+            print('Processors used: ', self.process_amount)
+            print('Time it took to process geojson with ',
+                  self.result_count, ' records in it: ', end_time - start_time)
 
         # and we return features
         return self.features
