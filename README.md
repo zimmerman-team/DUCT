@@ -64,7 +64,7 @@ DUCT uses <a href="https://auth0.com" >auth0</a> for authenticated access to cer
         ZOOM_TASK_EMAIL_SENDER = your_email_sender
         ZOOM_TASK_EMAIL_RECEIVER = your_default_email_receiver
        ```
- * Also in your local_settings.py ^ you can add this variable 'THREADS_FOR_PROCESSING=' and specify a number of threads. Basically this is used for big geodata processing, data that contains more than 40000 data points. Of course the amount of threads to be used would very much be dependant on your machine, if you use too much it will be slower, too little it could be faster. The default of this variable is already set to 4.
+ * Also in your local_settings.py ^ you can add this variable 'POCESS_WORKER_AMOUNT=' and specify a number of desired process workers. Basically this is used for big geodata processing, data that contains more than 40000 data points. Of course the amount of process workers to be used would very much be dependant on your machine, it should never exceed the amount of cores your machine has, and of course if you use to many process workers(like 20) it might work slower in comparison to using less process workers(like 4) because of pre process initiation tasks. The default of this variable is already set to 2.
  * In 'DUCT/ZOOM' folder create a file called '.env' and add these variables to it(mainly used for specific DUCT endpoints that can only be accessed with a user signed in via auth0 api): 
    ```
     AUTH0_DOMAIN=your_auth_domain
