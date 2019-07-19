@@ -2,38 +2,44 @@ import ast
 import time
 import sys
 import math
-from threading import Thread
+from multiprocessing import Process, Manager, cpu_count
 import pydash
+import datetime
+datetime.datetime.now()
 
 
-# so the main purpose of this class is to use threads to increase the geojson processing
+# so the main purpose of this class is to use multiprocessing to increase the geojson processing
 # of huge amounts of data, if the data amount passed in here is not huge,
-# the thread_amount should be set to one as then it will just work as a simple one off function
-# if the data IS big then the thread amount should be passed in depending on your requirement
-# best is to use one thread for 10000 - 20000 data items, and of course this thread amount
+# the process_amount should be set to one as then it will just work as a simple one off function
+# if the data IS big then the process amount should be passed in depending on your requirement
+# best is to use one process for 10000 - 20000 data items, and of course this process amount
 # is very much dependant on the machines specs, use too much -> its gonna be slower
 # use too little -> it could be faster
 class BigFeatureGenerator:
 
-    def __init__(self, all_results, result_count,  thread_amount=1):
+    def __init__(self, all_results, result_count,  process_amount=1):
+        max_cpu = cpu_count() - 1 if cpu_count() > 1 else 1
         self.features = []
         self.existing_geolocations = []
         self.max_value = -sys.maxsize - 1
         self.min_value = sys.maxsize
-        self.min_max_array = []
-        self.thread_amount = thread_amount
+        # so we don't want the specified process amount to exceed or be equal
+        # to the max cpu count on this machine(at least one cpu should remain for any
+        # other tasks)
+        self.process_amount = process_amount if process_amount <= cpu_count() else max_cpu
         self.all_results = all_results
         self.result_count = result_count
 
-    def geo_data_process_thread(self, results, thread_number):
-        print('START ', thread_number)
+    def geo_data_process(self, results, process_number, return_dict):
         number_of_processed = 0
         local_min_value = sys.maxsize
         local_max_value = -sys.maxsize - 1
+        features = []
         for result in results:
-            if result['geolocation__polygons'] is not None:
+            if 'geolocation__polygons' in result and result['geolocation__polygons'] is not None:
 
-                print('MY NUMBER: ', thread_number, 'ITEMS PROCESSED: ', number_of_processed)
+                print('PROCESS NUMBER: ', process_number, 'PROCESSED AMOUNT: ', number_of_processed)
+
                 value_format = result['value_format__type'][0] if \
                     isinstance(result['value_format__type'], list) else result['value_format__type']
 
@@ -84,7 +90,7 @@ class BigFeatureGenerator:
                 if local_min_value > sum_value:
                     local_min_value = sum_value
 
-                self.features.append({
+                features.append({
                     "geometry": ast.literal_eval(result['geolocation__polygons'].json),
                     "properties": {
                         "indName": result['indicator__name'],
@@ -101,47 +107,54 @@ class BigFeatureGenerator:
 
             number_of_processed += 1
 
-        self.min_max_array.append({
+        return_dict[process_number] = {
+            "features": features,
             "min_value": local_min_value,
             "max_value": local_max_value
-        })
+        }
 
     def generate_features(self):
-        threads = []
+        processes = []
         batch_start = 0
-        batch_size = math.ceil(self.result_count/self.thread_amount)
+        batch_size = math.ceil(self.result_count/self.process_amount)
+
+        manager = Manager()
+        return_dict = manager.dict()
 
         start_time = time.time()
 
-        # we start the threads
-        for i in range(0, self.thread_amount):
+        # we start the processes
+        for i in range(0, self.process_amount):
             batch_end = batch_start+batch_size
             batch_end = batch_end if batch_end < self.result_count else self.result_count
-            curr_results = self.all_results[batch_start:batch_end]
-            threads.append(Thread(target=self.geo_data_process_thread, args=(curr_results, i)))
-            threads[-1].start()
+            curr_results = list(self.all_results[batch_start:batch_end])
+            processes.append(Process(target=self.geo_data_process, args=(curr_results, i, return_dict)))
+            processes[-1].start()
             batch_start += batch_size
 
-        # we join the threads
-        for thread in threads:
+        # we join the processes
+        for process in processes:
             """
-            Waits for threads to complete before moving on with the main
+            Waits for processes to complete before moving on with the main
             script.
             """
-            thread.join()
+            process.join()
+
+        generated_items = return_dict.values()
 
         # and here we get the overall min and max values
-        # generated by each thread from their used batch's
-        for item in self.min_max_array:
+        # generated by each process from their used batch's
+        for item in generated_items:
             if self.max_value < item['max_value']:
                 self.max_value = item['max_value']
             if self.min_value > item['min_value']:
                 self.min_value = item['min_value']
+            self.features += item['features']
 
         end_time = time.time()
 
         print('Time it took to process geojson with ',
-              self.thread_amount, ' threads: ', end_time-start_time)
+              self.process_amount, ' processes: ', end_time-start_time)
 
         # and we return features
         return self.features

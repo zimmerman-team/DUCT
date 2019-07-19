@@ -254,7 +254,11 @@ ZOOM_TASK_EMAIL_MAPPING_FAILED_SUBJECT = 'ZOOM Mapping Failed!'
 
 # this variable very much is dependant on your machine
 # and its used to process huge layer data
-THREADS_FOR_PROCESSING = 4
+# IMPORTANT THIS DEPENDS ON THE CORE COUNT ON YOUR MACHINE!
+# ALSO NOTE: that using to many workers might be slower,
+# than using a little less, because of tasks that need to be
+# done before the processes are initiated
+POCESS_WORKER_AMOUNT = 2
 
 # LOAD .env FILE
 

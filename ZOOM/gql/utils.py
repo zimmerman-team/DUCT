@@ -122,7 +122,7 @@ class AggregationNode(graphene.ObjectType):
         if 'geoJsonUrl' in kwargs and kwargs['geoJsonUrl'] and 'filters__name' in groups:
             # so if the data for geojson needs to be dissagregated by sub-indicators(filters)
             # we'll apply a different aggregation logic for geojsons feature processing
-            # threads to work faster in parallel
+            # to work faster in when using multiprocessing parallel
             # so we'll get the arrays of sub-indicators(filters) for our grouped datapoint
             missing_field_aggr['filters__name'] = ArrayAgg('filters__name')
             # and we'll get the arrays of values for these sub-indicators
@@ -185,13 +185,13 @@ class AggregationNode(graphene.ObjectType):
         # so if a geoJsonUrl was requested(mainly used for the geoJson layers for the map)
         # we will form a json object and save it to a file
         if 'geoJsonUrl' in kwargs and kwargs['geoJsonUrl'] and result_count > 0:
-            thread_amount = 1
+            process_amount = 1
             if result_count > 40000:
-                thread_amount = settings.THREADS_FOR_PROCESSING
+                process_amount = settings.POCESS_WORKER_AMOUNT
 
             feature_generator = BigFeatureGenerator(all_results=results,
                                                     result_count=result_count,
-                                                    thread_amount=thread_amount)
+                                                    process_amount=process_amount)
 
             country_layers['features'] = feature_generator.generate_features()
             min_value = feature_generator.min_value
@@ -236,18 +236,20 @@ class AggregationNode(graphene.ObjectType):
             # response
 
             if 'currentGeoJson' in kwargs and kwargs['currentGeoJson'] is not None:
-                # so if its the current geojson that needs to be changed
-                # overwrite the same one, and the name of the file is of course
-                # passed from the frontend
+                # so we will remove the previous geojson and generate a new one
                 file_name = kwargs['currentGeoJson']
-            else:
-                # we ofcourse generate a random string for this
-                # geojson file name of ours, so that it wouldn't
-                # collide with others
-                letters = string.ascii_lowercase
-                file_key = ''.join(random.choice(letters) for i in range(50))
+                file_url = 'static/temp_geo_jsons/' + file_name
+                full_path_to_file = os.path.join(settings.BASE_DIR, file_url)
+                if os.path.exists(full_path_to_file):
+                    os.remove(full_path_to_file)
 
-                file_name = 'geo_json{file_key}.json'.format(file_key=file_key)
+            # we ofcourse generate a random string for this
+            # geojson file name of ours, so that it wouldn't
+            # collide with others
+            letters = string.ascii_lowercase
+            file_key = ''.join(random.choice(letters) for i in range(50))
+
+            file_name = 'geo_json{file_key}.json'.format(file_key=file_key)
 
             file_url = 'static/temp_geo_jsons/' + file_name
 
