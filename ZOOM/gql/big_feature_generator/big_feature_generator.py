@@ -26,7 +26,7 @@ class BigFeatureGenerator:
         # so we don't want the specified process amount to exceed or be equal
         # to the max cpu count on this machine(at least one cpu should remain for any
         # other tasks)
-        self.process_amount = process_amount if process_amount <= cpu_count() else max_cpu
+        self.process_amount = max_cpu if process_amount >= cpu_count() else process_amount
         self.all_results = all_results
         self.result_count = result_count
 
