@@ -121,8 +121,6 @@ class BigFeatureGenerator:
 
         start_time = time.time()
 
-        print('proccesors used: ', self.process_amount)
-
         # we start the processes
         for i in range(0, self.process_amount):
             batch_end = batch_start+batch_size
