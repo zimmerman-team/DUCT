@@ -1,8 +1,8 @@
 import graphene
-from graphene import relay, List, String, Int, Boolean
+from graphene import relay, List, String, Int, Boolean, JSONString
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
-from django_filters import FilterSet, NumberFilter, CharFilter, BaseInFilter
+from django_filters import FilterSet, NumberFilter, CharFilter
 from django.db.models import Q
 
 from gql.utils import AggregationNode
@@ -122,6 +122,7 @@ class DatapointsAggregationNode(AggregationNode):
     uniqCount = graphene.Int()
     minValue = graphene.Int()
     maxValue = graphene.Int()
+    resultCount = graphene.Int()
 
     Model = Datapoints
 
@@ -325,7 +326,10 @@ class Query(object):
         unique_indicator=Boolean(),
         indicator_file_accesibility=String(),
         geoJsonUrl=Boolean(),
-        currentGeoJson=String()
+        currentGeoJson=String(),
+        indicatorSet=JSONString(),
+        page=Int(),
+        page_size=Int()
     )
 
     all_filter_headings = DjangoFilterConnectionField(

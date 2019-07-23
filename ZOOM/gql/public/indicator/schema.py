@@ -1,6 +1,6 @@
 import graphene
 
-from graphene import List, String, Int, Boolean
+from graphene import List, String, Int, Boolean, JSONString
 from graphene_django.filter import DjangoFilterConnectionField
 
 import gql.indicator.schema
@@ -75,7 +75,10 @@ class Query(gql.indicator.schema.Query):
         unique_indicator=Boolean(),
         indicator_file_accesibility=String(),
         geoJsonUrl=Boolean(),
-        currentGeoJson=String()
+        currentGeoJson=String(),
+        indicatorSet=JSONString(),
+        page=Int(),
+        page_size=Int()
     )
 
     def resolve_datapoints_aggregation(self, context, **kwargs):

@@ -4,6 +4,7 @@ import json
 from django.conf import settings
 import random
 import string
+from django.core.paginator import Paginator
 
 import graphene
 from django.contrib.gis.geos import MultiPolygon, Point, Polygon
@@ -137,17 +138,43 @@ class AggregationNode(graphene.ObjectType):
             #  aand we remove the aggregation as we'll aggregate this ourselves
             aggregations = {}
 
+        # TODO: THIS GOT POSTPONED, because to make the current NON-ZOOM-FORMAT
+        #  tablechart work, there should be many aggregation logic changes
+        #  or changes in the final result format, and worst case may also
+        #  intil processing huge data. And mainly it got postponed
+        #  because it is unknown if the current table chart is what
+        #  zoom people actually want.
+        seperate_ind_queryset = self.Model.objects.all()
+        if 'indicatorSet' in kwargs and kwargs['indicatorSet']:
+            seperate_ind_queryset = self.Model.objects.none()
+            # so this we mainly use for the table chart
+            # so that pagination sorting and other table backend things would work
+            # along side different indicator-subIndicator querysets
+            # mainly this weird logic is applied to avoid indicators which have
+            # sub-indicators with the same name, datapoint combination, cause normally querying the
+            # same sub-indicator would return it for both indicators
+            # whereas we might want to get it only for one of the indicators
+            # we will also add in specific groupB
+            for ind_item in kwargs['indicatorSet']:
+                if 'indicatorId' in ind_item:
+                    seperate_ind_queryset = \
+                        seperate_ind_queryset | \
+                        self.Model.objects.filter(
+                            indicator_id=ind_item['indicatorId'],
+                            filters__name=','.join(ind_item['indicatorSubInds']))
+
         if or_filters:
-            return self.Model.objects.filter(Q(**filters) | Q(**or_filters))\
+            return seperate_ind_queryset.filter(Q(**filters) | Q(**or_filters))\
                 .values(*groups).annotate(**aggregations, **missing_field_aggr).order_by(*orders)
 
-        return self.Model.objects.filter(**filters).values(*groups).annotate(
+        return seperate_ind_queryset.filter(**filters).values(*groups).annotate(
             **aggregations,
             **missing_field_aggr
         ).order_by(*orders)
 
     def get_nodes(self, context, **kwargs):
         results = self.get_results(context, **kwargs)
+
         fields_to_return = kwargs['fields'] if 'fields' in kwargs else kwargs['groupBy']
         # so here we'll want to return data points with the unique
         # indicators specified, so mainly this is used to avoid
@@ -170,6 +197,11 @@ class AggregationNode(graphene.ObjectType):
                     indicator_ids.append(getattr(item_tuple, 'indicator__id'))
 
             results = results.filter(indicator__id__in=indicator_ids)
+
+        if 'page' in kwargs and 'page_size' in kwargs:
+            paginated_res = Paginator(results, kwargs['page_size']).page(kwargs['page'])
+        else:
+            paginated_res = results
 
         nodes = []
         aggregation = kwargs['aggregation']
@@ -197,7 +229,7 @@ class AggregationNode(graphene.ObjectType):
             min_value = feature_generator.min_value
             max_value = feature_generator.max_value
         else:
-            for result in results:
+            for result in paginated_res:
                 node = self.__class__(**{field: result[
                     self.FIELDS_MAPPING.get(
                         field)] for field in fields_to_return})
@@ -262,6 +294,15 @@ class AggregationNode(graphene.ObjectType):
                                   minValue=min_value, maxValue=max_value)
 
             nodes.append(node)
+
+        # and here we'll insert the result count
+        # of all of the datapoints as the first
+        # item in the nodes
+        # seemed like the easiest way with the current
+        # setup of datapoints aggregation
+        if 'page' in kwargs and 'page_size' in kwargs:
+            node = self.__class__(resultCount=result_count)
+            nodes.insert(0, node)
 
         return nodes
 
