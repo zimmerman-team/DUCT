@@ -93,6 +93,7 @@ class DynamicDetailView(DynamicView, RetrieveAPIView):
 
 
 def remove_geo_json(request):
+    print('remove file request made')
     if request.method == 'DELETE':
         # so we will remove the previous geojson and generate a new one
         file_name = request.GET['fileName']
