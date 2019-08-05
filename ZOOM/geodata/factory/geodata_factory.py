@@ -1,7 +1,7 @@
-from django.contrib.gis.geos import Point
 import factory
-from geodata import models
+from django.contrib.gis.geos import Point
 
+from geodata import models
 
 
 class NoDatabaseFactory(factory.django.DjangoModelFactory):
@@ -43,5 +43,3 @@ class Adm1RegionFactory(NoDatabaseFactory):
 
     adm1_code = 'ABW-5150'
     name = "State in Aruba"
-
-

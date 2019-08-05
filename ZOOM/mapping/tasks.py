@@ -1,19 +1,18 @@
 # Create your tasks here
 from __future__ import absolute_import, unicode_literals
-import time
-from celery import shared_task, task
-from celery.result import AsyncResult
-
-from django.conf import settings
 
 # import the logging library
 import logging
+import time
+
+from celery import shared_task, task
+from celery.result import AsyncResult
+from django.conf import settings
 
 from mapping.mapper import begin_mapping
-from metadata.models import File
-from mapping.utils import update_country_on_indicator
 from mapping.models import Mapping
-from mapping.utils import send_confirmation_email
+from mapping.utils import send_confirmation_email, update_country_on_indicator
+from metadata.models import File
 from scripts.map_iati_data import map_iati_data
 
 # Get an instance of a logger

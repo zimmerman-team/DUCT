@@ -1,10 +1,11 @@
-import pandas as pd
-import numpy as np
-import os
-import math
 import json
+import math
+import os
 import sys
-from django.test import RequestFactory, Client
+
+import numpy as np
+import pandas as pd
+from django.test import Client, RequestFactory
 from rest_framework.test import APIClient
 
 URL = "http://127.0.0.1:8000/api/"

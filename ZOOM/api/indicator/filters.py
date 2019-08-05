@@ -1,8 +1,12 @@
-from django_filters import FilterSet
-from indicator.models import Indicator#, IndicatorDatapoint, IndicatorCategory
-from api.generics.filters import CommaSeparatedStickyCharFilter
-from rest_framework import filters
 import urllib
+
+from django_filters import FilterSet
+from rest_framework import filters
+
+from api.generics.filters import CommaSeparatedStickyCharFilter
+from indicator.models import \
+    Indicator  # , IndicatorDatapoint, IndicatorCategory
+
 
 class SearchFilter(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):

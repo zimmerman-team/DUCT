@@ -1,8 +1,10 @@
 import json
-from gql.schema import schema
+
 from django.test import TestCase
-from gql.tests import factory
+
 from geodata.models import Country
+from gql.schema import schema
+from gql.tests import factory
 
 
 class CountryTestCase(TestCase):

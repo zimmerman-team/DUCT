@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from metadata.models import File, FileSource
 
+
 class FileSourceSerializer(serializers.ModelSerializer):
 	
 	class Meta:
@@ -40,4 +41,3 @@ class FileSerializer(serializers.ModelSerializer):
 			'source',
 			'file'
 		)
-

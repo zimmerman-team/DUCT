@@ -1,11 +1,13 @@
-from django.contrib.gis.geos import fromstr
-from geodata.models import Region, Geolocation
-from geodata.importer.common import get_json_data
-from django.contrib.gis.geos import MultiPolygon
-from django.contrib.gis import geos
-import pandas as pd
-import os
 import json
+import os
+
+import pandas as pd
+from django.contrib.gis import geos
+from django.contrib.gis.geos import MultiPolygon, fromstr
+
+from geodata.importer.common import get_json_data
+from geodata.models import Geolocation, Region
+
 
 class RegionImport():
     """

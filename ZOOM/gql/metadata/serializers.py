@@ -1,14 +1,11 @@
 import json
 
 import pandas as pd
-from rest_framework import serializers, fields
+from rest_framework import fields, serializers
 
 from indicator.models import MAPPING_DICT
-from metadata.models import (
-    File, FileSource, FileTags, SurveyData,
-    WHO_TESTED_CHOICES,
-    CLEANING_TECHNIQUES_CHOICES
-)
+from metadata.models import (CLEANING_TECHNIQUES_CHOICES, WHO_TESTED_CHOICES,
+                             File, FileSource, FileTags, SurveyData)
 
 
 class FileSourceSerializer(serializers.ModelSerializer):

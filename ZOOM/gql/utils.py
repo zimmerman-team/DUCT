@@ -1,11 +1,12 @@
+import json
 import logging
 import os
-import json
-from django.conf import settings
 import random
 import string
 
 import graphene
+import pydash
+from django.conf import settings
 from django.contrib.gis.geos import MultiPolygon, Point, Polygon
 from django.contrib.postgres.aggregates import ArrayAgg, JSONBAgg
 from django.contrib.sessions.backends.db import SessionStore
@@ -13,8 +14,8 @@ from django.db import models
 from django.db.models import Avg, Count, Max, Min, Q, Sum
 from graphene import relay
 from graphene_django.filter import DjangoFilterConnectionField
+
 from gql.big_feature_generator.big_feature_generator import BigFeatureGenerator
-import pydash
 
 email_session_key = None
 
@@ -286,7 +287,8 @@ def get_session_email():
     try:
         session_store = SessionStore(session_key=email_session_key)
 
-        return session_store['session_email']
+        return session_store['session_email'] if 'session_email' in session_store \
+            else settings.ZOOM_TASK_EMAIL_RECEIVER
 
     except Exception as e:
         # Maybe this user is admin, so can access without token

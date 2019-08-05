@@ -1,12 +1,12 @@
 import graphene
 
 import gql.geodata.schema
-import gql.metadata.schema
+import gql.indicator.mutation
 import gql.indicator.schema
+import gql.mapping.mutation
 import gql.mapping.schema
 import gql.metadata.mutation
-import gql.indicator.mutation
-import gql.mapping.mutation
+import gql.metadata.schema
 
 
 class Query(gql.geodata.schema.Query,

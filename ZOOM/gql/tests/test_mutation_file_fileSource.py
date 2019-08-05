@@ -1,8 +1,10 @@
-from gql.schema import schema
-from django.test import TestCase
-from metadata.models import FileSource, File
-from gql.tests import factory
 import os
+
+from django.test import TestCase
+
+from gql.schema import schema
+from gql.tests import factory
+from metadata.models import File, FileSource
 
 
 class MutationTestCase(TestCase):
@@ -11,11 +13,12 @@ class MutationTestCase(TestCase):
         self.dummy_file_source = factory.FileSourceFactory(
             name='dummy_file_source'
         )
+        alb = factory.CountryFactory(name='Albania', iso2='al', iso3='alb')
         self.dummy_geolocation = factory.GeolocationFactory(
             tag='Albania',
             iso2='al',
             iso3='alb',
-            object_id=4,
+            object_id=alb.id,
             content_type_id=15,
             type='country'
         )

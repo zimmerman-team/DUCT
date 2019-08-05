@@ -56,16 +56,15 @@ jobs:
           name: Creating log folder for pytest
           command: mkdir ZOOM/logs
 
-#      - run:
-#          name: Run Pytest tests
-#          command: |
-#            . env/bin/activate
-#            # Run tests and generate test coverage report:
-#            ./ZOOM/manage.py test
+      - run:
+          name: Run Pytest tests
+          command: |
+            . env/bin/activate
+            ./ZOOM/manage.py test
 
-#      - store_artifacts:
-#          path: test-reports
-#          destination: test-reports
+      - store_artifacts:
+          path: test-reports
+          destination: test-reports
 
 #      - run:
 #          name: Run pep8 code style checks

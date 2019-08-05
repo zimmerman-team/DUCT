@@ -1,4 +1,5 @@
-from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.fields import (GenericForeignKey,
+                                                GenericRelation)
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.db import models as gis_models
 from django.db import models

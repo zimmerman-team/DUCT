@@ -1,6 +1,6 @@
-from django.conf.urls import url
-from django.conf.urls import include
-from api.views import welcome 
+from django.conf.urls import include, url
+
+from api.views import welcome
 
 app_name='api'
 

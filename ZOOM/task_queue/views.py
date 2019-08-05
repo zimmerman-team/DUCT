@@ -1,18 +1,16 @@
-from django.contrib.admin.views.decorators import staff_member_required
-from django.http import HttpResponse
-
 import json
 from math import ceil
-from redis import Redis
+
 import django_rq
+from django.contrib.admin.views.decorators import staff_member_required
+from django.http import HttpResponse
 from django_rq import get_connection
-from rq import requeue_job
-from rq import get_failed_queue
-from rq import Worker
-from rq_scheduler import Scheduler
-from rq.registry import FinishedJobRegistry
+from redis import Redis
+from rq import Worker, get_failed_queue, requeue_job
 from rq.exceptions import NoSuchJobError
 from rq.job import Job
+from rq.registry import FinishedJobRegistry
+from rq_scheduler import Scheduler
 
 from task_queue import tasks
 
@@ -255,4 +253,3 @@ def reschedule_all_failed(request):
         requeue_job(job.id, connection=queue.connection)
 
     return HttpResponse('Success')
-

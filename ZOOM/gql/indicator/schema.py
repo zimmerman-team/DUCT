@@ -1,17 +1,12 @@
 import graphene
-from graphene import relay, List, String, Int, Boolean
+from django.db.models import Q
+from django_filters import BaseInFilter, CharFilter, FilterSet, NumberFilter
+from graphene import Boolean, Int, List, String, relay
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
-from django_filters import FilterSet, NumberFilter, CharFilter, BaseInFilter
-from django.db.models import Q
 
 from gql.utils import AggregationNode
-from indicator.models import (
-    Indicator,
-    Datapoints,
-    FilterHeadings,
-    Filters
-)
+from indicator.models import Datapoints, FilterHeadings, Filters, Indicator
 
 
 class IndicatorNode(DjangoObjectType):

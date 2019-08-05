@@ -1,15 +1,14 @@
 import logging
 
-from django.core.mail import send_mail
-from django.template.loader import render_to_string
 from django.conf import settings
 from django.contrib.sessions.backends.db import SessionStore
-
-from indicator.models import Indicator
-from geodata.models import COUNTRY_RELATION_TYPES
-from mapping.models import Mapping
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
 
 import gql.utils
+from geodata.models import COUNTRY_RELATION_TYPES
+from indicator.models import Indicator
+from mapping.models import Mapping
 
 
 def update_country_on_indicator(file):

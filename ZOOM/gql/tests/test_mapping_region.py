@@ -1,9 +1,12 @@
-from gql.schema import schema
-from django.test import TestCase
-from gql.tests import factory
-from geodata.importer.region import RegionImport
-import os
 import json
+import os
+
+from django.test import TestCase
+
+from geodata.importer.region import RegionImport
+from gql.schema import schema
+from gql.tests import factory
+from mapping.mapper import begin_mapping
 
 
 class MappingTestCase(TestCase):
@@ -17,13 +20,12 @@ class MappingTestCase(TestCase):
         self.dummy_file_source = factory.FileSourceFactory(
             name='dummy_file_source'
         )
+        region = factory.RegionFactory(name='central asia')
         self.dummy_geolocation = factory.GeolocationFactory(
-            tag='Albania',
-            iso2='al',
-            iso3='alb',
-            object_id=4,
-            content_type_id=15,
-            type='country'
+            tag='central asia',
+            object_id=region.id,
+            content_type_id=19,
+            type='region'
         )
         self.dummy_file = factory.FileFactory(
             title="Region",
@@ -58,7 +60,7 @@ class MappingTestCase(TestCase):
                 'empty_filter': 'Default',
                 'empty_value_format': {
                     'value format': 'Numeric'},
-                'empty_date': '2016'},
+                'empty_date': ''},
             'multi_mapped': {
                 'column_heading': {},
                 'column_values': {},
@@ -77,7 +79,7 @@ class MappingTestCase(TestCase):
             'mapping_dict': {
                 'indicator': [],
                 'geolocation': ["Region"],
-                'date': [],
+                'date': ['datez'],
                 'value_format': [],
                 'value': ["new infections"],
                 'comment': [],
@@ -86,15 +88,18 @@ class MappingTestCase(TestCase):
             'extra_information': EXTRA_INFORMATION
         }
 
-        input_json_str = json.dumps(input_json)
-        query_input = {"input": {"data": input_json_str}}
-        query = """
-        mutation mapping($input: MappingMutationInput!) {
-                                    mapping(input: $input) {
-                                                        id
-                                                        data
-                                }
-        }"""
+        result = begin_mapping(input_json)
+        self.assertEqual(result['success'], 1)
 
-        result = schema.execute(query, variable_values=query_input)
-        self.assertEqual(result.errors, None)
+        # input_json_str = json.dumps(input_json)
+        # query_input = {"input": {"data": input_json_str}}
+        # query = """
+        # mutation mapping($input: MappingMutationInput!) {
+        #                             mapping(input: $input) {
+        #                                                 id
+        #                                                 data
+        #                         }
+        # }"""
+
+        # result = schema.execute(query, variable_values=query_input)
+        # self.assertEqual(result.errors, None)

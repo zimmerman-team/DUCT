@@ -1,8 +1,8 @@
 import graphene
 
 import gql.geodata.schema
-import gql.metadata.schema
 import gql.mapping.schema
+import gql.metadata.schema
 import gql.public.indicator.schema
 
 

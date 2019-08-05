@@ -1,8 +1,8 @@
 from django.db.models import signals
 from django.dispatch import receiver
 
-from validate.validator import validate
 from metadata.models import File
+from validate.validator import validate
 
 
 @receiver(signals.post_save, sender=File)

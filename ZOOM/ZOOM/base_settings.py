@@ -1,7 +1,8 @@
-import sys
 import os
-from dotenv import load_dotenv, find_dotenv
+import sys
+
 from celery.schedules import crontab
+from dotenv import find_dotenv, load_dotenv
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 

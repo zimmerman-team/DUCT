@@ -1,8 +1,10 @@
 from rest_framework import serializers
-from indicator import models as indicator_models
-from geodata import models as geo_models
-from metadata.models import File, FileSource
+
 from api.generics.serializers import DynamicFieldsModelSerializer
+from geodata import models as geo_models
+from indicator import models as indicator_models
+from metadata.models import File, FileSource
+
 
 class FileSourceSerializer(serializers.ModelSerializer):
     class Meta:
@@ -125,4 +127,3 @@ class IndicatorSerializer(serializers.ModelSerializer):
             'description',
             #'file_source__id'
         )
-

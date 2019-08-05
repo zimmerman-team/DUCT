@@ -1,27 +1,19 @@
-import os
-import jwt
 import json
 import logging
-
+import os
 from functools import wraps
 
-from django.http import JsonResponse
-from django.http import HttpResponseForbidden
-
-from six.moves.urllib import request as req
-from cryptography.x509 import load_pem_x509_certificate
-from cryptography.hazmat.backends import default_backend
-
-from graphene_django.views import GraphQLView, HttpError
-
+import jwt
 import rest_framework
+from cryptography.hazmat.backends import default_backend
+from cryptography.x509 import load_pem_x509_certificate
+from django.http import HttpResponseForbidden, JsonResponse
+from graphene_django.views import GraphQLView, HttpError
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.decorators import (api_view, authentication_classes,
+                                       permission_classes)
 from rest_framework.permissions import AllowAny
-from rest_framework.decorators import (
-    authentication_classes,
-    permission_classes,
-    api_view
-)
+from six.moves.urllib import request as req
 
 import gql.utils
 from gql.utils import set_session_email

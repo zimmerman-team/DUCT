@@ -1,9 +1,9 @@
-from django import http
 import graphene
+from django import http
 from graphene_django.rest_framework.mutation import SerializerMutation
 
-from indicator.models import Indicator
 from gql.indicator.serializers import IndicatorSerializer
+from indicator.models import Indicator
 
 
 class IndicatorMutation(SerializerMutation):

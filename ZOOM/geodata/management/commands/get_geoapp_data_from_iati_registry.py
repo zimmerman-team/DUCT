@@ -1,5 +1,7 @@
 from django.core.management.base import BaseCommand
+
 from geodata.geoapp_data import CodeListImporter
+
 
 class Command(BaseCommand):
 
