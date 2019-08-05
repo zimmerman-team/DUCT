@@ -13,7 +13,7 @@ jobs:
       - image: mdillon/postgis:9.6
 
     environment:
-      POSTGRES_USER: circleci
+      POSTGRES_USER: zoom
       POSTGRES_DB: circle_test
 
     working_directory: ~/DUCT
