@@ -66,5 +66,3 @@
 
 #         # table joined twice, hence 3 aliases
 #         self.assertEqual(len(query.__dict__['alias_map']), 3)
-
-

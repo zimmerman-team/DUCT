@@ -57,4 +57,3 @@
 #         self.country_import.update_regions()
 #         country = Country.objects.all()[0]
 #         self.assertEqual(country.region, region)
-

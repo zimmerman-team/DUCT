@@ -1,12 +1,12 @@
-from django import http
 import graphene
+from django import http
 from graphene_django.rest_framework.mutation import SerializerMutation
 from rest_framework import serializers
 
-from mapping.models import Mapping
-from metadata.models import File
 from gql.mapping.serializers import MappingSerializer
 from gql.utils import get_session_email
+from mapping.models import Mapping
+from metadata.models import File
 
 
 class MappingMutation(SerializerMutation):

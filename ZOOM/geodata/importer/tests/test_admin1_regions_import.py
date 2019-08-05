@@ -45,4 +45,3 @@
 #         self.assertEqual(adm1_region.country.code, 'AF')
 #         self.assertEqual(adm1_region.name, "State in AF")
 #         self.assertIsNotNone(adm1_region.polygon)
-

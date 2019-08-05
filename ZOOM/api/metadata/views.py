@@ -12,9 +12,8 @@ from rest_framework.views import APIView
 
 from api.metadata.serializers import FileSerializer, FileSourceSerializer
 from geodata.models import Geolocation
-from metadata.models import File, FileSource
-
 from gql.views import requires_scope
+from metadata.models import File, FileSource
 
 
 class FileListView(ListCreateAPIView):

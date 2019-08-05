@@ -7,9 +7,9 @@ from graphene import relay
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 
+from error_correction.utils import ERROR_CORRECTION_DICT
 from indicator.models import MAPPING_DICT
 from metadata.models import File, FileSource, FileTags, SurveyData
-from error_correction.utils import ERROR_CORRECTION_DICT
 
 
 class FileSourceNode(DjangoObjectType):

@@ -3,15 +3,17 @@
 # it works with the /transactions/aggregations/ end point and
 # creates 'Sector', 'Transactions' & 'Activity Status' indicator
 # dataset
+import csv
 import datetime
-import requests
+import os
+
 import pydash
-from metadata.models import File, FileSource
+import requests
+from django.conf import settings
+
 from indicator.models import Indicator
 from mapping.mapper import begin_mapping
-import csv
-import os
-from django.conf import settings
+from metadata.models import File, FileSource
 
 oipa_base_url = 'https://yoda.oipa.nl/api/'
 
@@ -116,7 +118,6 @@ def map_iati_data():
         if map_it:
             print('STARTED MAPPING IATI DATA')
             print('TIME:', datetime.datetime.now())
-
 
             # creating the file source for the dataset
             file_source = FileSource.objects.create(

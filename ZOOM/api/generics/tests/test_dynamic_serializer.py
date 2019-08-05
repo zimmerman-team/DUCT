@@ -69,5 +69,3 @@
 #         self.assertIn('id', serializer.data)
 #         self.assertNotIn('name', serializer.data)
 #         self.assertNotIn('description', serializer.data)
-
-

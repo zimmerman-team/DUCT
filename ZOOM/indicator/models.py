@@ -1,6 +1,6 @@
 from django.db import models
 
-from geodata.models import Geolocation, Country
+from geodata.models import Country, Geolocation
 from metadata.models import File, FileSource
 
 MAPPING_HEADINGS = {  # Main mapping information

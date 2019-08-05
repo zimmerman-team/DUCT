@@ -5,22 +5,18 @@ import pandas as pd
 from django import http
 from django.conf import settings
 from django.db import IntegrityError
-
 from graphene_django.rest_framework.mutation import SerializerMutation
 from rest_framework import serializers
 
 from error_correction.utils import (delete_data, error_correction, get_errors,
                                     update)
-from gql.metadata.serializers import (
-    FileErrorCorrectionSerializer,
-    FileSerializer,
-    FileSourceSerializer,
-    FileTagsSerializer,
-    FileValidateSerializer,
-    SurveyDataSerializer,
-    FileValidationResultsSerializer,
-    FileDeleteSerializer
-)
+from gql.metadata.serializers import (FileDeleteSerializer,
+                                      FileErrorCorrectionSerializer,
+                                      FileSerializer, FileSourceSerializer,
+                                      FileTagsSerializer,
+                                      FileValidateSerializer,
+                                      FileValidationResultsSerializer,
+                                      SurveyDataSerializer)
 from lib.tools import check_file_formatting
 from metadata.models import File, FileSource, FileTags, SurveyData
 from validate.validator import generate_error_data, validate

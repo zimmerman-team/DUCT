@@ -1,4 +1,5 @@
 import csv
+
 from geodata.models import Geolocation
 
 

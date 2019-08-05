@@ -1,14 +1,10 @@
 import graphene
-
-from graphene import List, String, Int, Boolean
+from graphene import Boolean, Int, List, String
 from graphene_django.filter import DjangoFilterConnectionField
 
 import gql.indicator.schema
-from gql.indicator.schema import (
-    IndicatorNode,
-    IndicatorFilter,
-    DatapointsAggregationNode,
-)
+from gql.indicator.schema import (DatapointsAggregationNode, IndicatorFilter,
+                                  IndicatorNode)
 
 # NOTE: this is really hard code if want to filter with other option
 # or other filter for public endpoint please add or change here
@@ -80,4 +76,3 @@ class Query(gql.indicator.schema.Query):
 
     def resolve_datapoints_aggregation(self, context, **kwargs):
         return DatapointsAggregationPublicNode().get_nodes(context, **kwargs)
-

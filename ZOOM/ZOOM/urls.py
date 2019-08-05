@@ -3,11 +3,10 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.admin.views.decorators import staff_member_required
-
 from graphene_django.views import GraphQLView
 
-from gql.views import AuthenticatedGraphQLView
 from gql.public.schema import schema
+from gql.views import AuthenticatedGraphQLView
 
 admin.autodiscover()
 

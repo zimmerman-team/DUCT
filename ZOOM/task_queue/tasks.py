@@ -1,14 +1,14 @@
-from django.conf import settings
-
 import datetime
 import time
-from redis import Redis
 
-from django_rq import job
 import django_rq
-from rq import Queue, Connection, Worker
+from django.conf import settings
+from django_rq import job
+from redis import Redis
+from rq import Connection, Queue, Worker
 from rq.job import Job
 
+from manual_mapping.manual_mapper import manual_mapper
 
 redis_conn = Redis()
 
@@ -68,21 +68,8 @@ def update_city_data():
 ###############################
 
 
-from manual_mapping.manual_mapper import manual_mapper
 
 @job
 def manual_mapping_job(data):
     context = manual_mapper(data)
     return context
-
-
-
-
-
-
-
-
-
-
-
-

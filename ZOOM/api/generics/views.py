@@ -1,9 +1,12 @@
-from django.http.response import HttpResponse
-from rest_framework.generics import RetrieveAPIView, GenericAPIView, ListAPIView
-from api.generics.serializers import DynamicFieldsModelSerializer
-from django.db.models.fields.related import ForeignKey, OneToOneField
 import os
+
 from django.conf import settings
+from django.db.models.fields.related import ForeignKey, OneToOneField
+from django.http.response import HttpResponse
+from rest_framework.generics import (GenericAPIView, ListAPIView,
+                                     RetrieveAPIView)
+
+from api.generics.serializers import DynamicFieldsModelSerializer
 
 
 class DynamicView(GenericAPIView):
@@ -102,4 +105,3 @@ def remove_geo_json(request):
         if os.path.exists(full_path_to_file):
             os.remove(full_path_to_file)
         return HttpResponse('FILE REMOVED!')
-

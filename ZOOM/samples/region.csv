@@ -1,9 +1,9 @@
-Region,new infections
-Asia,308.8
-Africa,393.8
-North America,520.2
-South America,800.9
-Antarctica,1570.9
-Europe,1744.2
-Australia,2426
-Asia,4719
+Region,new infections,datez
+central asia,308.8,2016
+central asia,393.8,2017
+central asia,520.2,2018
+central asia,800.9,2000
+central asia,1570.9,2011
+central asia,1744.2,2012
+central asia,2426,2013
+central asia,4719,2014
