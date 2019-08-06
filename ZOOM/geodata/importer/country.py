@@ -5,6 +5,9 @@ from django.contrib.gis.geos import fromstr
 from geodata.importer.common import get_json_data
 from geodata.models import Country, Geolocation, Region
 
+from shapely.geometry import shape, mapping
+from shapely.ops import cascaded_union
+
 
 class CountryImport(object):
     """
@@ -196,3 +199,27 @@ class CountryImport(object):
                     ))
                 except Country.DoesNotExist:
                     pass
+
+    # this basically merges the country polygons associated with a region
+    # thus forming the region polygon and from that making the center coordinates
+    def update_region_polygons_centers(self):
+        for region in Region.objects.all():
+            print('region', region.name)
+            count_polygons = []
+
+            for country in region.country_set.all():
+                if country.polygons:
+                    shapely_pol = shape(json.loads(country.polygons.json))
+                    count_polygons.append(shapely_pol.buffer(0))
+
+            region_layer = cascaded_union(count_polygons)
+            region_layer_json = mapping(region_layer)
+
+            if 'geometries' in region_layer_json and len(region_layer_json['geometries']) == 0:
+                print('exception: ', 'No Country geometries found')
+                print('region: ', region.name)
+            else:
+                region_center_json = mapping(region_layer.centroid)
+                region.center_longlat = json.dumps(region_center_json)
+                region.polygons = json.dumps(region_layer_json)
+                region.save()
