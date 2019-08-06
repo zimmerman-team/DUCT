@@ -5,6 +5,9 @@ from django.contrib.gis.geos import fromstr
 from geodata.importer.common import get_json_data
 from geodata.models import Country, Geolocation, Region
 
+from shapely.geometry import shape, mapping
+from shapely.ops import cascaded_union
+
 
 class CountryImport(object):
     """
@@ -196,3 +199,22 @@ class CountryImport(object):
                     ))
                 except Country.DoesNotExist:
                     pass
+
+    # this basically merges the country polygons associated with a region
+    # thus forming the region polygon
+    def update_region_polygons(self):
+        for region in Region.objects.all():
+            print('region', region.name)
+            count_polygons = []
+            for country in region.country_set.all():
+                if country.polygons:
+                    shapely_pol = shape(json.loads(country.polygons.json))
+                    count_polygons.append(shapely_pol.buffer(0))
+            joint_json = mapping(cascaded_union(count_polygons))
+            region.polygons = json.dumps(joint_json)
+            if 'geometries' in joint_json and len(joint_json['geometries']) == 0:
+                print('exception: ', 'GeometryCollection')
+                print('region: ', region.name)
+                print('polygon json: ', mapping(cascaded_union(count_polygons)))
+            else:
+                region.save()
