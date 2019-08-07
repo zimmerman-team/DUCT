@@ -220,6 +220,16 @@ class CountryImport(object):
                 print('region: ', region.name)
             else:
                 region_center_json = mapping(region_layer.centroid)
-                region.center_longlat = json.dumps(region_center_json)
-                region.polygons = json.dumps(region_layer_json)
+
+                layer_json_string = json.dumps(region_layer_json)
+                center_json_string = json.dumps(region_center_json)
+
+                region.center_longlat = center_json_string
+                region.polygons = layer_json_string
                 region.save()
+                # we also save the polygons and center long lats
+                # to the appropriate geolocation object
+                geolocation = Geolocation.objects.filter(tag=region.name).get()
+                geolocation.polygons = layer_json_string
+                geolocation.center_longlat = center_json_string
+                geolocation.save()
