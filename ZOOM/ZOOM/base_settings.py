@@ -123,6 +123,7 @@ INSTALLED_APPS = [
     'validate',
     'lib',
     'error_correction',
+    'general_tasks',
     'mapping',
     'indicator',
     'geodata',
@@ -242,7 +243,12 @@ CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 CELERY_BEAT_SCHEDULE = {'mapping-iati-data': {
         'task': 'mapping.tasks.mapping_iati_data',
         'schedule': crontab(minute=0, hour=0)
-    }}
+    },
+    'cleaning-temp-jsons': {
+        'task': 'general_tasks.tasks.clean_temp_geo_jsons',
+        'schedule': crontab(minute=0, hour=0)
+    }
+}
 
 # TASKS CONFIG
 
