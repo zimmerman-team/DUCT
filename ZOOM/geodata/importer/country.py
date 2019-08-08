@@ -212,6 +212,12 @@ class CountryImport(object):
                     shapely_pol = shape(json.loads(country.polygons.json))
                     count_polygons.append(shapely_pol.buffer(0))
 
+            # and we also save the region code to the geolocations
+            # iso3, cause in the previous script, the initial load script
+            # it wasn't saved
+            geolocation = Geolocation.objects.filter(tag=region.name).get()
+            geolocation.iso3 = region.code
+
             region_layer = cascaded_union(count_polygons)
             region_layer_json = mapping(region_layer)
 
@@ -229,7 +235,7 @@ class CountryImport(object):
                 region.save()
                 # we also save the polygons and center long lats
                 # to the appropriate geolocation object
-                geolocation = Geolocation.objects.filter(tag=region.name).get()
                 geolocation.polygons = layer_json_string
                 geolocation.center_longlat = center_json_string
-                geolocation.save()
+
+            geolocation.save()
