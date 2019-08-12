@@ -74,7 +74,7 @@ class CodeListImporter():
             try:
                 model = apps.get_model(app_label='geodata', model_name=model_name)
             except LookupError:
-                print ''.join(['Model not found: ', model_name])
+                print(''.join(['Model not found: ', model_name]))
                 return False
 
         if not item:
