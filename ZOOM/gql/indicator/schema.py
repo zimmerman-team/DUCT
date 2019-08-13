@@ -1,11 +1,11 @@
-import graphene
 from django.db.models import Q
 from django_filters import CharFilter, FilterSet, NumberFilter
 from graphene import Boolean, Int, List, String, relay
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
+import graphene
 
-from gql.utils import AggregationNode
+from gql.utils import AggregationNode, StringListFilter
 from indicator.models import Datapoints, FilterHeadings, Filters, Indicator
 
 
@@ -27,13 +27,14 @@ class IndicatorFilter(FilterSet):
     file__entry_id__in = CharFilter(method='filter_file__entry_id__in')
     year__range = CharFilter(method='filter_year__range')
     country__iso2 = CharFilter(method='filter_country__iso2')
+    fileSource__name__in = StringListFilter(method='file_source__name__in')
 
     class Meta:
         model = Indicator
         fields = {
             'name': ['exact', 'icontains', 'istartswith'],
             'description': ['exact', 'icontains', 'istartswith'],
-            'file_source__name': ['exact', 'in'],
+            'file_source__name': ['exact'],
             'file__accessibility': ['exact', 'in'],
             'file__title': ['exact', 'in']
         }
@@ -98,6 +99,10 @@ class IndicatorFilter(FilterSet):
             datapoints__date__gte=value.split(',')[0],
             datapoints__date__lte=value.split(',')[1]
         ).distinct()
+
+    def file_source__name__in(self, queryset, name, value):
+        name = 'file_source__name__in'
+        return queryset.filter(**{name: value})
 
 
 class DatapointsAggregationNode(AggregationNode):
