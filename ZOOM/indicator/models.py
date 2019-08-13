@@ -80,6 +80,9 @@ class Indicator(models.Model):
         Country, on_delete=models.CASCADE, blank=True, null=True
     )
 
+    def __str__(self):
+        return str(self.id)
+
 
 class FilterHeadings(models.Model):
     id = models.AutoField(primary_key=True, editable=False)

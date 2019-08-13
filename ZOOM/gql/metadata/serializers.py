@@ -9,6 +9,7 @@ from metadata.models import (CLEANING_TECHNIQUES_CHOICES, WHO_TESTED_CHOICES,
 
 
 class FileSourceSerializer(serializers.ModelSerializer):
+    id = serializers.SerializerMethodField()
     entry_id = serializers.SerializerMethodField()
 
     class Meta:
@@ -20,11 +21,16 @@ class FileSourceSerializer(serializers.ModelSerializer):
         )
 
     @classmethod
+    def get_id(cls, obj):
+        return str(obj.id)
+
+    @classmethod
     def get_entry_id(cls, obj):
         return str(obj.id)
 
 
 class FileTagsSerializer(serializers.ModelSerializer):
+    id = serializers.SerializerMethodField()
     entry_id = serializers.SerializerMethodField()
 
     class Meta:
@@ -36,11 +42,16 @@ class FileTagsSerializer(serializers.ModelSerializer):
         )
 
     @classmethod
+    def get_id(cls, obj):
+        return str(obj.id)
+
+    @classmethod
     def get_entry_id(cls, obj):
         return str(obj.id)
 
 
 class FileSerializer(serializers.ModelSerializer):
+    id = serializers.SerializerMethodField()
     entry_id = serializers.SerializerMethodField()
     entry_file_heading_list = serializers.SerializerMethodField()
     data_model_heading = serializers.SerializerMethodField()
@@ -77,6 +88,10 @@ class FileSerializer(serializers.ModelSerializer):
             'tags',
             'survey_data'
         )
+
+    @classmethod
+    def get_id(cls, obj):
+        return str(obj.id)
 
     @classmethod
     def get_entry_id(cls, obj):
