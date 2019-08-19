@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from django.conf import settings
 from django.contrib.gis.geos import Point
-from django.db.models import Max, Min
+from django.db.models import Max, Min  # NOQA: F401
 
 from api.indicator.views import reset_mapping
 from geodata.models import Geolocation, PointBased
@@ -373,11 +373,6 @@ def get_save_unique_datapoints(df_data,
             final_file_headings['filters'][j],
             final_file_headings['value_format'],
         ]).size().reset_index()
-        unique_filter_date_formats = df_data.groupby([
-            final_file_headings['indicator'],
-            final_file_headings['filters'][j],
-            final_file_headings['date_format'],
-        ]).size().reset_index()
         unique_filter_geolocation_formats = df_data.groupby([
             final_file_headings['indicator'],
             final_file_headings['filters'][j],
@@ -426,7 +421,7 @@ def get_save_unique_datapoints(df_data,
 
 
 def save_datapoints(df_data, final_file_headings, filter_headings_dict, dicts):
-    '''Saves each line that is valid of csv file to data model.
+    """Saves each line that is valid of csv file to data model.
 
     Args:
         df_data (Dataframe): data of csv file in a dataframe.
@@ -435,19 +430,15 @@ def save_datapoints(df_data, final_file_headings, filter_headings_dict, dicts):
         reverse_mapping ({str: str}): inverse of final_file_headings.
         dicts ([str:{str:Model}]): list of dictionaries
         containing foreign keys.
-    '''
+    """
 
     metadata = df_data['metadata'][0]
 
     ind_dict, headings_dict, geolocation_dict, \
         value_format_dict, filters_dict = dicts
     f1 = (lambda x: Datapoints(**x))
-    f2 = (lambda x, y: x.datapoints.add(*y))  # Really really slow
-    f3 = (lambda x: x.save())  # remove save()will be slow
 
     vfunc = np.vectorize(f1)
-    vfunc2 = np.vectorize(f2)
-    vfunc3 = np.vectorize(f3)
 
     df_filters = pd.DataFrame(columns=final_file_headings['filters'])
     unique_df_filters = pd.DataFrame(columns=final_file_headings['filters'])
@@ -491,7 +482,7 @@ def save_datapoints(df_data, final_file_headings, filter_headings_dict, dicts):
         next_batch += 100000
         if next_batch > df_data['indicator'].size:  # shouldn't be needed
             next_batch = df_data['indicator'].size
-            i = batch_size + 1  # shouldn't happen
+            i = batch_size + 1  # NOQA: F841
 
         data_to_save = df_data[previous_batch:next_batch].to_dict(
             orient='records')
@@ -501,7 +492,6 @@ def save_datapoints(df_data, final_file_headings, filter_headings_dict, dicts):
         bulk_list = vfunc(np.array(data_to_save))
         data = Datapoints.objects.bulk_create(
             list(bulk_list))  # Bulk create datapoints
-        bulk_list = []  # Bulk list emptied to free space
 
         data = np.array(data)
         filter_data = df_filters[previous_batch:next_batch]  # Get filter batch

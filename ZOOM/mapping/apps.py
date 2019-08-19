@@ -7,4 +7,4 @@ class MappingConfig(AppConfig):
     name = 'mapping'
 
     def ready(self):
-        import mapping.signals
+        import mapping.signals  # NOQA: F401

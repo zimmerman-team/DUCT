@@ -1,11 +1,7 @@
-import logging
-
 from django.conf import settings
-from django.contrib.sessions.backends.db import SessionStore
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 
-import gql.utils
 from geodata.models import COUNTRY_RELATION_TYPES
 from indicator.models import Indicator
 from mapping.models import Mapping
