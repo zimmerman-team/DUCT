@@ -19,8 +19,6 @@ def validate(id):
     print("Begining Validation")
 
     newdoc = ['']  # Future: using array in case user uploads multiple files
-    found_mapping = []  # Future: automatic mapping ###
-
     newdoc[0] = str(File.objects.get(id=id).file)
 
     # Future: loop here if uploaded multiple files or distrubute with tasks
