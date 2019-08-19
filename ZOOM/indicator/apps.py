@@ -7,4 +7,4 @@ class IndicatorConfig(AppConfig):
     name = 'indicator'
 
     def ready(self):
-        import indicator.signals
+        import indicator.signals  # NOQA: F401
