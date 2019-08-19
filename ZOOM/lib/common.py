@@ -1,7 +1,6 @@
 import json
 import os
 import pickle
-import time
 import uuid
 
 import numpy as np
@@ -101,20 +100,6 @@ def get_file_data(id):
     return df_data
 
 
-def save_mapping(id, instance):
-    """Saves user mapping for file"""
-    file = File.objects.get(id=id)
-    # Need to make mappings unique
-    '''c, created = Mapping.objects.get_or_create(data=json.dumps(mapping))
-    if created:
-        print('Created new mapping')
-        c.save()'''
-    c = Mapping(data=json.dumps(mapping))
-    c.save()
-    file.mapping_used = c
-    file.save()
-
-
 def get_mapping(id):
     """Get user mapping for file"""
     file = File.objects.get(id=id)
@@ -144,7 +129,8 @@ def get_headings_data_model(df_file):
     # Get datapoint headings
     for field in Datapoints._meta.fields:
         data_model_headings.append(field.name)  # .get_attname_column())
-    # skip first four headings as irrelevant to user input, should use filter for this
+    # skip first four headings as irrelevant
+    # to user input, should use filter for this
 
     data_model_headings = data_model_headings[4:len(data_model_headings)]
     data_model_headings = filter(

@@ -1,19 +1,14 @@
-import re
-import sys
-import unicodedata
 from collections import Counter
 
 import dateutil.parser as date_parser
 import numpy as np
 import pandas as pd
 
-from geodata.models import GEOTYPE_HEADINGS, Country, Geolocation
-from indicator.models import Datapoints
-from lib.common import get_geolocation_dictionary
+from geodata.models import GEOTYPE_HEADINGS, Geolocation
 
 
 def identify_col_dtype(column_values, file_heading, dicts):
-    '''Identify the data types for each value in a column.
+    """Identify the data types for each value in a column.
 
     Args:
         column_values (Series): values related to a column.
@@ -25,12 +20,8 @@ def identify_col_dtype(column_values, file_heading, dicts):
         found and the percentage of data found of that type.
         error_counter ([str]): list of data types found
         for each cell in the column.
-    '''
+    """
 
-    # reload(sys)
-    # sys.setdefaultencoding('utf-8') #not eccomended to use
-
-    dtypes_found = []
     error_counter = column_values.astype('str')
     error_counter[:] = np.NaN
     not_null_filter = column_values.notnull()
@@ -44,12 +35,6 @@ def identify_col_dtype(column_values, file_heading, dicts):
     # Country Check###
     if (np.sum(error_counter.notnull()) < len(error_counter)):
 
-        # Remove special characters
-        # try:
-        # unicode changed in python 3, below solution doesn't
-        # work when comparing against strings anymore
-        # f = (lambda x: str(unicodedata.normalize('NFKD', x).lower().
-        # encode('ascii','ignore')).strip().replace('_', ' '))
         f = (lambda x: str(x.lower().replace('_', ' ')
                            if isinstance(x, str) else x))
         # filter_used = not_null_filter & (~numeric_filter)
@@ -60,11 +45,7 @@ def identify_col_dtype(column_values, file_heading, dicts):
         country_filter = tmp_country_values.notnull()
         error_counter[filter_used] = tmp_country_values[country_filter]
 
-    # Check if coordinates
-    filter_used = (error_counter.isnull()) & (not_null_filter &
-                                              (~numeric_filter))
-
-    ###Clean up###
+    # Clean up
     error_counter[~not_null_filter] = 'blank'
 
     filter_used = (error_counter.isnull()) & (not_null_filter &
@@ -74,7 +55,6 @@ def identify_col_dtype(column_values, file_heading, dicts):
     filter_used = (error_counter.isnull()) & (not_null_filter & numeric_filter)
     error_counter[filter_used] = 'numeric'
 
-    dtypes_found = np.unique(error_counter)
     prob_list = get_prob_list(error_counter)
 
     return prob_list, error_counter
@@ -82,7 +62,7 @@ def identify_col_dtype(column_values, file_heading, dicts):
 
 def check_if_date(file_heading, column_values, not_null_filter, numeric_filter,
                   error_counter):
-    '''Check if column values could be a date.
+    """Check if column values could be a date.
 
     Args:
         file_heading (str): heading of the file.
@@ -97,7 +77,7 @@ def check_if_date(file_heading, column_values, not_null_filter, numeric_filter,
         error_counter ([int]): error data, a list that will
         contain all data types for column_values.
 
-    '''
+    """
 
     # assuming time or date will have appropiate heading, perhaps a bad
     # assumption
@@ -158,7 +138,7 @@ def update_cell_type(value, error_counter, line_no, file_heading):
         # Integer
         try:
             tmp = int(value)
-            ##Checking Date###
+            # Checking Date
             result = date_check_f(file_heading)
             if result:
                 try:
@@ -171,9 +151,8 @@ def update_cell_type(value, error_counter, line_no, file_heading):
                 dtype = 'numeric'
         # String
         except Exception:
-            ####Checking Date###
+            # Checking Date
             f = (lambda x: str(x).lower().strip().replace('_', ' '))
-            #value = f(value)
             result = date_check_f(file_heading)
 
             if result:
@@ -183,7 +162,7 @@ def update_cell_type(value, error_counter, line_no, file_heading):
                 except Exception:
                     result = False
 
-            ###Country Check###
+            # Country Check
             if (not result):
                 value = f(value)
                 result, dtype = check_if_cell_country(value)
@@ -226,8 +205,6 @@ def check_column_data_type(field, dtypes):
     """
 
     dtypes = [i for i in dtypes]
-    dtype_set = set()
-    result = False
     if field == 'geolocation':
         geotype_list = GEOTYPE_HEADINGS
         dtype_set = set(dtypes) & set(geotype_list)
@@ -273,7 +250,7 @@ def correct_data(df_data,
                  error_data,
                  index_order,
                  point_based=False):
-    '''Corrects data for each column according to correction_data.
+    """Corrects data for each column according to correction_data.
 
     Args:
         df_data (Dataframe): dataframe of CSV file.
@@ -285,10 +262,7 @@ def correct_data(df_data,
 
     Returns:
         new_df (Dataframe): the converted dataframe.
-    '''
-
-    value = {}
-    dicts = get_geolocation_dictionary()
+    """
 
     def clean_lambda(x):
         return x.strip().lower()
@@ -345,16 +319,12 @@ def correct_data(df_data,
 
 
 def lookForError(f, default, x):
-    try:
-        value = f(x)
-    except Exception:
-        value = default
     return default
 
 
 def convert_df(df_data, multi_entry_dict, data_model_dict, value_format_value,
                dtypes_dict):
-    '''Remaps dataframe based on relationship between columns and data model.
+    """Remaps dataframe based on relationship between columns and data model.
 
     Args:
         mappings ({str:[str]}): the users chosen mappings for a file column.
@@ -371,14 +341,13 @@ def convert_df(df_data, multi_entry_dict, data_model_dict, value_format_value,
         new_df (Dataframe): newly formatted dataframe.
         dtypes_dict ({str:str}): stores the data-types found for each heading.
         mappings ({str:[str]}): the users chosen mappings for a file column.
-    '''
+    """
 
     if not value_format_value:
         value_format_value = {}
 
     relationship_dict = multi_entry_dict['column_heading']
     left_over_dict = multi_entry_dict['column_values']
-    columns = []
 
     new_df = pd.DataFrame(columns=df_data.columns)
 
@@ -488,7 +457,5 @@ def get_line_index(line_records, line_no):
     return -1
 
 
-# from file_upload.models import File
-
 if __name__ == '__main__':
-    main()
+    main()  # NOQA: F821
