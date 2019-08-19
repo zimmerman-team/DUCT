@@ -27,7 +27,8 @@ with open(filename, 'r') as f:
         geometry = feature['geometry']
         s = shape(geometry)
         centerCoordinates = s.centroid.wkt
-        # so yeah this is a weird way of getting the long lat data from this centroid
+        # so yeah this is a weird way of getting the
+        # long lat data from this centroid
         # but didn't find a more easier way of getting this
         long = float(centerCoordinates[centerCoordinates.index('(') +
                                        1:centerCoordinates.rfind(' ')])

@@ -21,27 +21,31 @@ iati_indicator_endpoint = 'transactions/aggregations/'
 
 aids_fonds_identifier = 'NL-KVK-41207989'
 
-activity_status_query = oipa_base_url + iati_indicator_endpoint + "?group_by=transaction_date_year,recipient_country," \
-                                                                  "activity_status&aggregations=activity_count&format" \
-                                                                  "=json&reporting_organisation_identifier=" + \
-                        aids_fonds_identifier
+extra_query = "?group_by=transaction_date_year,recipient_country," \
+              "activity_status&aggregations=activity_count&format" \
+              "=json&reporting_organisation_identifier="
+activity_status_query = oipa_base_url + iati_indicator_endpoint + extra_query \
+                        + aids_fonds_identifier
 
-sector_query = oipa_base_url + iati_indicator_endpoint + "?aggregations=activity_count&format=json&group_by" \
-                                                         "=transaction_date_year,recipient_country," \
-                                                         "sector&reporting_organisation_identifier=" + \
-               aids_fonds_identifier
+extra_query = "?aggregations=activity_count&format=json&group_by" \
+              "=transaction_date_year,recipient_country," \
+              "sector&reporting_organisation_identifier="
+sector_query = oipa_base_url + iati_indicator_endpoint + extra_query \
+               + aids_fonds_identifier
 
-transactions_query = oipa_base_url + iati_indicator_endpoint + "?aggregations=value&format=json&group_by" \
-                                                               "=transaction_date_year,recipient_country," \
-                                                               "transaction_type&reporting_organisation_identifier=" \
+extra_query = "?aggregations=value&format=json&group_by" \
+              "=transaction_date_year,recipient_country," \
+              "transaction_type&reporting_organisation_identifier="
+transactions_query = oipa_base_url + iati_indicator_endpoint + extra_query \
                      + aids_fonds_identifier
 
 # with this query we will check if the organisations
 # data has been updated in OIPA, meaning if the
 # last_updated_datetime has changed, ONLY THEN
 # will we remapp the iati dataset
-last_updated_query = oipa_base_url + "activities/?fields=last_updated_datetime&page=1&page_size=1&format=json" \
-                                     "&reporting_organisation_identifier=" + aids_fonds_identifier
+extra_query = "activities/?fields=last_updated_datetime&page=1&page_size=1" \
+              "&format=json&reporting_organisation_identifier="
+last_updated_query = oipa_base_url + extra_query + aids_fonds_identifier
 
 iati_indicator_metadata = [{
     "query": activity_status_query,
@@ -97,7 +101,8 @@ def map_iati_data():
             # done
             if file.title != dataset_title:
                 print(
-                    'OIPA DATA HAS BEEN UPDATED, IATI DATASET REMAPPING INITIATED: ',
+                    'OIPA DATA HAS BEEN UPDATED, '
+                    'IATI DATASET REMAPPING INITIATED: ',
                     datetime.datetime.now())
                 map_it = True
                 # then we find the indicators
@@ -110,7 +115,8 @@ def map_iati_data():
                 file.delete()
             else:
                 print(
-                    'OIPA DATA HAS NOT BEEN UPDATED, NOT REMAPPING THE IATI DATASET: ',
+                    'OIPA DATA HAS NOT BEEN UPDATED, '
+                    'NOT REMAPPING THE IATI DATASET: ',
                     datetime.datetime.now())
         else:
             print('NEW IATI DATASET BEING MAPPED', datetime.datetime.now())
@@ -135,7 +141,8 @@ def map_iati_data():
                     'Indicator', 'Sub-indicator', 'ISO2', 'Year',
                     'Value Format', 'Value'
                 ])
-                # and here we retrieve and write the actual values of this dataset
+                # and here we retrieve and write
+                # the actual values of this dataset
                 for iati_ind_item in iati_indicator_metadata:
                     # and here we start forming the dataset
                     # starting from activity status
