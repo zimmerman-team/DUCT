@@ -10,12 +10,17 @@ import pydash
 datetime.datetime.now()
 
 
-# so the main purpose of this class is to use multiprocessing to increase the geojson processing
+# so the main purpose of this class is to
+# use multiprocessing to increase the geojson processing
 # of huge amounts of data, if the data amount passed in here is not huge,
-# the process_amount should be set to one as then it will just work as a simple one off function
-# if the data IS big then the process amount should be passed in depending on your requirement
-# best is to use one process for 10000 - 20000 data items, and of course this process amount
-# is very much dependant on the machines specs, use too much -> its gonna be slower
+# the process_amount should be set to one
+# as then it will just work as a simple one off function
+# if the data IS big then the process amount
+# should be passed in depending on your requirement
+# best is to use one process for 10000 - 20000 data items,
+# and of course this process amount
+# is very much dependant on the machines specs,
+# use too much -> its gonna be slower
 # use too little -> it could be faster
 class BigFeatureGenerator:
     def __init__(self, all_results, result_count, process_amount=1):
@@ -25,7 +30,8 @@ class BigFeatureGenerator:
         self.max_value = -sys.maxsize - 1
         self.min_value = sys.maxsize
         # so we don't want the specified process amount to exceed or be equal
-        # to the max cpu count on this machine(at least one cpu should remain for any
+        # to the max cpu count
+        # on this machine(at least one cpu should remain for any
         # other tasks)
         self.process_amount = max_cpu if process_amount >= cpu_count(
         ) else process_amount
@@ -42,7 +48,9 @@ class BigFeatureGenerator:
                     'geolocation__polygons'] is not None:
 
                 value_format = result['value_format__type'][0] if \
-                    isinstance(result['value_format__type'], list) else result['value_format__type']
+                    isinstance(
+                        result['value_format__type'], list
+                    ) else result['value_format__type']
 
                 tool_tip_labels = []
                 # so if values are a list that means that the data
@@ -77,7 +85,8 @@ class BigFeatureGenerator:
                                 result['value'][index]
                             })
                 else:
-                    filter_string = result['filters__name'] if isinstance(result['filters__name'], str) else \
+                    filter_string = result['filters__name'] if isinstance(
+                        result['filters__name'], str) else \
                         ', '.join(result['filters__name'])
                     label = result['indicator__name'] + ' - ' + filter_string
 
@@ -138,7 +147,8 @@ class BigFeatureGenerator:
         # we start the processes
         for i in range(0, self.process_amount):
             batch_end = batch_start + batch_size
-            batch_end = batch_end if batch_end < self.result_count else self.result_count
+            batch_end = batch_end \
+                if batch_end < self.result_count else self.result_count
             curr_results = list(self.all_results[batch_start:batch_end])
             processes.append(
                 Process(target=self.geo_data_process,

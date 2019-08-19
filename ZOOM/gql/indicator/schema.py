@@ -1,6 +1,6 @@
 import graphene
 from django.db.models import Q
-from django_filters import BaseInFilter, CharFilter, FilterSet, NumberFilter
+from django_filters import CharFilter, FilterSet, NumberFilter
 from graphene import Boolean, Int, List, String, relay
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
@@ -42,10 +42,12 @@ class IndicatorFilter(FilterSet):
         # Oke so we do this nonsesne of converting the query set to
         # a sorts of id list, because, this filter happens after the year range
         # and apperantly because the year_range uses a deep relation filter
-        # and distinct it makes this query insanely slow, even though the object
+        # and distinct it makes this query
+        # insanely slow, even though the object
         # count of that query is lower than the object count of 'objects.all()'
         # with which this filter works fine, so i assume the distinct function
-        # here is causing the query set to lag, so for now we use this work around
+        # here is causing the query set to lag,
+        # so for now we use this work around
         # which actually works, #JustDjangoThings
         ids = queryset.values_list('id')
         # 1) country__iso2=value -
@@ -53,7 +55,8 @@ class IndicatorFilter(FilterSet):
         # indicator model, mainly the subnational, postcode, province etc.
         # relation with a country is saved in the indicator, and i'm not
         # redoing it(#Morty) cause this approach has been done and
-        # it might be more optimal then doing relation checks over relation checks
+        # it might be more optimal then doing
+        # relation checks over relation checks
         # over relation checks
         # 2) datapoints__geolocation__type='pointbased' -
         # We also want to retrieve all of the point based data, cause they are
@@ -82,7 +85,8 @@ class IndicatorFilter(FilterSet):
 
     def filter_file__entry_id__in(self, queryset, name, value):
         value_list = value.split(',')
-        # so with this tweek of filtering doesnt matter what file ids are passed in we
+        # so with this tweek of filtering
+        # doesnt matter what file ids are passed in we
         # always return the public indicators
         return queryset.filter(
             Q(file__id__in=value_list) | Q(file__accessibility='a'))

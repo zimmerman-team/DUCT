@@ -46,7 +46,7 @@ def requires_scope():
                 jwks = json.loads(jsonurl.read())
                 cert = '-----BEGIN CERTIFICATE-----\n' + \
                         jwks['keys'][0]['x5c'][0] + \
-                        '\n-----END CERTIFICATE-----'
+                        '\n-----END CERTIFICATE-----'  # NOQA: E127
                 certificate = load_pem_x509_certificate(
                     cert.encode('utf-8'), default_backend())
                 public_key = certificate.public_key()

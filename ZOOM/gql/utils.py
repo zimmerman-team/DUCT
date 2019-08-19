@@ -8,10 +8,10 @@ import graphene
 import pydash
 from django.conf import settings
 from django.contrib.gis.geos import MultiPolygon, Point, Polygon
-from django.contrib.postgres.aggregates import ArrayAgg, JSONBAgg
+from django.contrib.postgres.aggregates import ArrayAgg
 from django.contrib.sessions.backends.db import SessionStore
 from django.db import models
-from django.db.models import Avg, Count, Max, Min, Q, Sum
+from django.db.models import Avg, Count, Max, Min, Q, Sum   # NOQA: F401
 from graphene import relay
 from graphene_django.filter import DjangoFilterConnectionField
 
@@ -123,10 +123,13 @@ class AggregationNode(graphene.ObjectType):
 
         if 'geoJsonUrl' in kwargs and kwargs[
                 'geoJsonUrl'] and 'filters__name' in groups:
-            # so if the data for geojson needs to be dissagregated by sub-indicators(filters)
-            # we'll apply a different aggregation logic for geojsons feature processing
+            # so if the data for geojson needs to
+            # be dissagregated by sub-indicators(filters)
+            # we'll apply a different aggregation logic
+            # for geojsons feature processing
             # to work faster in when using multiprocessing parallel
-            # so we'll get the arrays of sub-indicators(filters) for our grouped datapoint
+            # so we'll get the arrays of sub-indicators(filters)
+            # for our grouped datapoint
             missing_field_aggr['filters__name'] = ArrayAgg('filters__name')
             # and we'll get the arrays of values for these sub-indicators
             missing_field_aggr['value'] = ArrayAgg('value')
@@ -135,7 +138,8 @@ class AggregationNode(graphene.ObjectType):
             missing_field_aggr['value_format__type'] = ArrayAgg(
                 'value_format__type')
             # and we'll remove the filters__name from the group by so that
-            # values would be added for the whole indicator, as thats what we need
+            # values would be added for the whole indicator,
+            # as thats what we need
             # for the layers themselves
             groups.remove('filters__name')
             #  aand we remove the aggregation as we'll aggregate this ourselves
@@ -143,7 +147,9 @@ class AggregationNode(graphene.ObjectType):
 
         if or_filters:
             return self.Model.objects.filter(Q(**filters) | Q(**or_filters))\
-                .values(*groups).annotate(**aggregations, **missing_field_aggr).order_by(*orders)
+                .values(*groups).annotate(
+                **aggregations, **missing_field_aggr
+            ).order_by(*orders)
 
         return self.Model.objects.filter(**filters).values(*groups).annotate(
             **aggregations, **missing_field_aggr).order_by(*orders)
@@ -160,7 +166,8 @@ class AggregationNode(graphene.ObjectType):
                 'unique_indicator'] and results.count() > 0:
             indicator_ids = []
             indicator_names = []
-            # oke so first we get the unique id's of the datapoints indicators and their names
+            # oke so first we get the unique id's of the datapoints
+            # indicators and their names
             unique_id_tuple = list(
                 results.values_list('indicator__name',
                                     'indicator__id',
@@ -168,9 +175,11 @@ class AggregationNode(graphene.ObjectType):
             for item_tuple in unique_id_tuple:
                 ind_name = getattr(item_tuple, 'indicator__name')
                 # so yeah basically because we're working with duplicate names
-                # and in the results there might be indicators with different names
+                # and in the results there might
+                # be indicators with different names
                 # we just need to weeed out the duplicate names, and save the
-                # leftover ids, and refilter that result query, by NOT duplicate
+                # leftover ids, and refilter
+                # that result query, by NOT duplicate
                 # indicator name ids == ezi
                 if ind_name not in indicator_names:
                     indicator_names.append(ind_name)
@@ -186,9 +195,11 @@ class AggregationNode(graphene.ObjectType):
         max_value = 0
 
         result_count = results.count()
-        # so if a geoJsonUrl was requested(mainly used for the geoJson layers for the map)
+        # so if a geoJsonUrl was requested(mainly used
+        # for the geoJson layers for the map)
         # we will form a json object and save it to a file
-        if 'geoJsonUrl' in kwargs and kwargs['geoJsonUrl'] and result_count > 0:
+        if 'geoJsonUrl' in kwargs and kwargs['geoJsonUrl'] \
+                and result_count > 0:
             process_amount = 1
             if result_count > 40000:
                 process_amount = settings.POCESS_WORKER_AMOUNT
@@ -300,7 +311,8 @@ def get_session_email():
     try:
         session_store = SessionStore(session_key=email_session_key)
 
-        return session_store['session_email'] if 'session_email' in session_store \
+        return session_store['session_email'] \
+            if 'session_email' in session_store \
             else settings.ZOOM_TASK_EMAIL_RECEIVER
 
     except Exception as e:
