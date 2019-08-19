@@ -187,7 +187,8 @@ LOGGING = {
     'formatters': {
         'standard': {
             'format':
-            "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] msg: %(message)s args: %(args)s",
+            "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] "
+            "msg: %(message)s args: %(args)s",
             'datefmt': "%d/%b/%Y %H:%M:%S"
         },
     },

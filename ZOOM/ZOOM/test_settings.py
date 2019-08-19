@@ -1,4 +1,4 @@
-from ZOOM.production_settings import *
+from ZOOM.production_settings import *  # NOQA: F401 F403
 
 SPATIALITE_LIBRARY_PATH = 'mod_spatialite'
 

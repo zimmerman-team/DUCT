@@ -1,6 +1,6 @@
-from ZOOM.base_settings import *
+from ZOOM.base_settings import *  # NOQA: F403
 
-BASE_DIR = os.path.dirname(os.path.realpath(__name__))
+BASE_DIR = os.path.dirname(os.path.realpath(__name__))  # NOQA: F405
 
 DEBUG = False
 SECRET_KEY = '__SECRET_KEY_HERE__'
@@ -26,8 +26,8 @@ CACHES = {
 API_CACHE_SECONDS = 60 * 60 * 24
 ROOT_ORGANISATIONS = []
 
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static/'), )
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")  # NOQA: F405
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static/'), )  # NOQA: F405
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'ZOOM.wsgi.application'
@@ -35,6 +35,6 @@ WSGI_APPLICATION = 'ZOOM.wsgi.application'
 ERROR_LOGS_ENABLED = True
 
 try:
-    from .local_settings import *
+    from .local_settings import *  # NOQA: F401 F403
 except ImportError:
     pass
