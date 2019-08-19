@@ -16,8 +16,7 @@ class Migration(migrations.Migration):
             field=models.CharField(
                 choices=[('Yes', 'Yes'), ('No', 'No'),
                          ("Don't know", "Don't know")],
-                help_text=
-                'It was possible for respondents to not answer certain questions if they found them to personal/sensitive?',
+                help_text='It was possible for respondents to not answer certain questions if they found them to personal/sensitive?',   # NOQA: E501
                 max_length=100),
         ),
         migrations.AlterField(
@@ -26,8 +25,7 @@ class Migration(migrations.Migration):
             field=models.CharField(
                 choices=[('Yes', 'Yes'), ('No', 'No'),
                          ("Don't know", "Don't know")],
-                help_text=
-                'Staff was trained on how to ask the sensitive information to avoid influencing the respondent’s answer?',
+                help_text='Staff was trained on how to ask the sensitive information to avoid influencing the respondent’s answer?',  # NOQA: E501
                 max_length=100),
         ),
     ]

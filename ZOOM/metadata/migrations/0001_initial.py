@@ -111,8 +111,7 @@ class Migration(migrations.Migration):
                  models.CharField(
                      choices=[('Yes', 'Yes'), ('No', 'No'),
                               ("Don't know", "Don't know")],
-                     help_text=
-                     'Have you tested the tool in a pilot or with a test group before conducting it?',
+                     help_text='Have you tested the tool in a pilot or with a test group before conducting it?',   # NOQA: E501
                      max_length=100)),
                 ('who_did_you_test_with',
                  multiselectfield.db.fields.MultiSelectField(
@@ -127,22 +126,19 @@ class Migration(migrations.Migration):
                  models.CharField(
                      choices=[('Yes', 'Yes'), ('No', 'No'),
                               ("Don't know", "Don't know")],
-                     help_text=
-                     'The data contains information which can be considered senstive? (f.e. financial, health, food security information)',
+                     help_text='The data contains information which can be considered senstive? (f.e. financial, health, food security information)',   # NOQA: E501
                      max_length=100)),
                 ('staff_trained',
                  models.CharField(
                      choices=[('Yes', 'Yes'), ('No', 'No'),
                               ("Don't know", "Don't know")],
-                     help_text=
-                     'Staff was trained on how to ask the senstive information to avoid influencing the respondent’s anwers?',
+                     help_text='Staff was trained on how to ask the senstive information to avoid influencing the respondent’s anwers?',   # NOQA: E501
                      max_length=100)),
                 ('ask_sensitive',
                  models.CharField(
                      choices=[('Yes', 'Yes'), ('No', 'No'),
                               ("Don't know", "Don't know")],
-                     help_text=
-                     'It was possible for respondents to not answer certain questions if they found them to personal/senstive?',
+                     help_text='It was possible for respondents to not answer certain questions if they found them to personal/senstive?',   # NOQA: E501
                      max_length=100)),
                 ('select_respondents',
                  multiselectfield.db.fields.MultiSelectField(
@@ -160,15 +156,13 @@ class Migration(migrations.Migration):
                                   max_length=200)),
                 ('how_many_respondents',
                  models.CharField(
-                     help_text=
-                     'How many respondents were interviewed/participated?',
+                     help_text='How many respondents were interviewed/participated?',   # NOQA: E501
                      max_length=100)),
                 ('edit_sheet',
                  models.CharField(
                      choices=[('Yes', 'Yes'), ('No', 'No'),
                               ("Don't know", "Don't know")],
-                     help_text=
-                     'Did you clean/edit the data before uploading it?',
+                     help_text='Did you clean/edit the data before uploading it?',  # NOQA: E501
                      max_length=100)),
                 ('data_cleaning_techniques',
                  multiselectfield.db.fields.MultiSelectField(

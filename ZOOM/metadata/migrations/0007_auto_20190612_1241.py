@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
             field=models.CharField(
                 blank=True,
                 default='',
-                help_text='How many respondents were interviewed/participated?',
+                help_text='How many respondents were interviewed/participated?',  # NOQA: E501
                 max_length=200,
                 null=True),
         ),

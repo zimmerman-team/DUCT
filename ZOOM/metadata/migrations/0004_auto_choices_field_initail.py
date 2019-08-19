@@ -18,8 +18,7 @@ class Migration(migrations.Migration):
             name='ask_sensitive',
             field=models.CharField(
                 choices=[('0', 'No'), ('1', 'Yes'), ('2', "Don't know")],
-                help_text=
-                'It was possible for respondents to not answer certain questions if they found them to personal/sensitive?',
+                help_text='It was possible for respondents to not answer certain questions if they found them to personal/sensitive?',  # NOQA: E501
                 max_length=100),
         ),
         migrations.AlterField(
@@ -27,8 +26,7 @@ class Migration(migrations.Migration):
             name='considered_senstive',
             field=models.CharField(
                 choices=[('0', 'No'), ('1', 'Yes'), ('2', "Don't know")],
-                help_text=
-                'The data contains information which can be considered senstive? (f.e. financial, health, food security information)',
+                help_text='The data contains information which can be considered senstive? (f.e. financial, health, food security information)',   # NOQA: E501
                 max_length=100),
         ),
         migrations.AlterField(
@@ -56,8 +54,7 @@ class Migration(migrations.Migration):
             name='have_you_tested_tool',
             field=models.CharField(
                 choices=[('0', 'No'), ('1', 'Yes'), ('2', "Don't know")],
-                help_text=
-                'Have you tested the tool in a pilot or with a test group before conducting it?',
+                help_text='Have you tested the tool in a pilot or with a test group before conducting it?',   # NOQA: E501
                 max_length=100),
         ),
         migrations.AlterField(
@@ -77,8 +74,7 @@ class Migration(migrations.Migration):
             name='staff_trained',
             field=models.CharField(
                 choices=[('0', 'No'), ('1', 'Yes'), ('2', "Don't know")],
-                help_text=
-                'Staff was trained on how to ask the sensitive information to avoid influencing the respondent’s answer?',
+                help_text='Staff was trained on how to ask the sensitive information to avoid influencing the respondent’s answer?',  # NOQA: E501
                 max_length=100),
         ),
         migrations.AlterField(

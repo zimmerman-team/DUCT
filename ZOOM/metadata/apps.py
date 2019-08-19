@@ -7,4 +7,4 @@ class MetadataConfig(AppConfig):
     name = 'metadata'
 
     def ready(self):
-        import metadata.signals
+        import metadata.signals  # NOQA: F401
