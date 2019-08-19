@@ -13,6 +13,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='mapping',
             name='task_id',
-            field=models.CharField(blank=True, default='', max_length=60, null=True),
+            field=models.CharField(blank=True,
+                                   default='',
+                                   max_length=60,
+                                   null=True),
         ),
     ]

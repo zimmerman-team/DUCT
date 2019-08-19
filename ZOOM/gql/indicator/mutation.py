@@ -7,7 +7,6 @@ from indicator.models import Indicator
 
 
 class IndicatorMutation(SerializerMutation):
-
     class Meta:
         serializer_class = IndicatorSerializer
         model_operations = ['create', 'update']
@@ -16,8 +15,7 @@ class IndicatorMutation(SerializerMutation):
     @classmethod
     def get_serializer_kwargs(cls, root, info, **input):
         if 'id' in input:
-            instance = Indicator.objects.filter(
-                id=input['id']).first()
+            instance = Indicator.objects.filter(id=input['id']).first()
             if instance:
                 return {'instance': instance, 'data': input, 'partial': True}
             else:

@@ -13,10 +13,11 @@ logger = logging.getLogger(__name__)
 
 
 class CodeListImporter():
-
     def __init__(self):
         self.looping_through_version = "2.02"
-        self.iati_versions = ["2.02",]
+        self.iati_versions = [
+            "2.02",
+        ]
 
     def synchronise_with_codelists(self):
         self.get_codelist_data(name="RegionVocabulary")
@@ -60,7 +61,7 @@ class CodeListImporter():
             item = Region(region_vocabulary=region_voc)
 
         if name is None or name == '':
-            logger.log(0, 'name is null in '+tag)
+            logger.log(0, 'name is null in ' + tag)
             name = code
 
         model = None
@@ -72,7 +73,8 @@ class CodeListImporter():
 
         if not model:
             try:
-                model = apps.get_model(app_label='geodata', model_name=model_name)
+                model = apps.get_model(app_label='geodata',
+                                       model_name=model_name)
             except LookupError:
                 print(''.join(['Model not found: ', model_name]))
                 return False
@@ -84,20 +86,23 @@ class CodeListImporter():
         item.name = name
         item.codelist_iati_version = self.looping_through_version
 
-
-        item = self.add_to_model_if_field_exists(model, item, 'description', description)
+        item = self.add_to_model_if_field_exists(model, item, 'description',
+                                                 description)
         item = self.add_to_model_if_field_exists(model, item, 'url', url)
         if category:
-            item = self.add_to_model_if_field_exists(model, item, 'category_id', category)
+            item = self.add_to_model_if_field_exists(model, item,
+                                                     'category_id', category)
 
-        if item is not None and not model.objects.filter(pk=item.code).exists():
+        if item is not None and not model.objects.filter(
+                pk=item.code).exists():
             try:
                 item.save()
             except IntegrityError as err:
                 print("Error: {}".format(err))
                 pass
 
-    def add_to_model_if_field_exists(self, model, item, field_name, field_content):
+    def add_to_model_if_field_exists(self, model, item, field_name,
+                                     field_content):
         try:
             model._meta.get_field(field_name)
             setattr(item, field_name, field_content)
@@ -106,26 +111,26 @@ class CodeListImporter():
         return item
 
     def add_missing_items(self):
-        Country.objects.get_or_create(
-            code="XK",
-            defaults={
-                'name': 'Kosovo',
-                'language': 'en'})
-        Country.objects.get_or_create(
-            code="YU",
-            defaults={
-                'name': 'Former Yugoslavia',
-                'language': 'en'})
-        Country.objects.get_or_create(
-            code="AC",
-            defaults={
-                'name': 'Ascension Island',
-                'language': 'en'})
-        Country.objects.get_or_create(
-            code="TA",
-            defaults={
-                'name': 'Tristan da Cunha',
-                'language': 'en'})
+        Country.objects.get_or_create(code="XK",
+                                      defaults={
+                                          'name': 'Kosovo',
+                                          'language': 'en'
+                                      })
+        Country.objects.get_or_create(code="YU",
+                                      defaults={
+                                          'name': 'Former Yugoslavia',
+                                          'language': 'en'
+                                      })
+        Country.objects.get_or_create(code="AC",
+                                      defaults={
+                                          'name': 'Ascension Island',
+                                          'language': 'en'
+                                      })
+        Country.objects.get_or_create(code="TA",
+                                      defaults={
+                                          'name': 'Tristan da Cunha',
+                                          'language': 'en'
+                                      })
 
     def get_codelist_data(self, elem=None, name=None):
 
@@ -144,19 +149,17 @@ class CodeListImporter():
                 current_codelist.fields = fields
                 current_codelist.save()
             else:
-                new_codelist = Codelist(
-                    name=name,
-                    description=description,
-                    count=count,
-                    fields=fields,
-                    date_updated=date_updated)
+                new_codelist = Codelist(name=name,
+                                        description=description,
+                                        count=count,
+                                        fields=fields,
+                                        date_updated=date_updated)
                 new_codelist.save()
 
-        cur_downloaded_xml = ("http://iatistandard.org/"
-        	                  + self.looping_through_version.replace('.','') +
+        cur_downloaded_xml = ("http://iatistandard.org/" +
+                              self.looping_through_version.replace('.', '') +
                               "/codelists/downloads/clv1/"
                               "codelist/" + name + ".xml")
-        
 
         cur_file_opener = urllib2.build_opener()
         cur_xml_file = cur_file_opener.open(cur_downloaded_xml)
@@ -166,10 +169,8 @@ class CodeListImporter():
 
     def loop_through_codelists(self, version):
         downloaded_xml = urllib2.Request(
-            "http://iatistandard.org/"
-            + version.replace('.','') +
+            "http://iatistandard.org/" + version.replace('.', '') +
             "/codelists/downloads/clv1/codelist.xml")
-
 
         file_opener = urllib2.build_opener()
         xml_file = file_opener.open(downloaded_xml)

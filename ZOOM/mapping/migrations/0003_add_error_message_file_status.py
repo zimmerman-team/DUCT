@@ -20,11 +20,24 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='mapping',
             name='file',
-            field=models.OneToOneField(default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='metadata.File'),
+            field=models.OneToOneField(
+                default=None,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to='metadata.File'),
         ),
         migrations.AddField(
             model_name='mapping',
             name='status',
-            field=models.CharField(choices=[('INITIAL', 'INITIAL'), ('PENDING', 'PENDING'), ('RECEIVED', 'RECEIVED'), ('STARTED', 'STARTED'), ('SUCCESS', 'SUCCESS'), ('FAILURE', 'FAILURE'), ('REVOKED', 'REVOKED'), ('RETRY', 'RETRY')], default='INITIAL', max_length=10),
+            field=models.CharField(choices=[('INITIAL', 'INITIAL'),
+                                            ('PENDING', 'PENDING'),
+                                            ('RECEIVED', 'RECEIVED'),
+                                            ('STARTED', 'STARTED'),
+                                            ('SUCCESS', 'SUCCESS'),
+                                            ('FAILURE', 'FAILURE'),
+                                            ('REVOKED', 'REVOKED'),
+                                            ('RETRY', 'RETRY')],
+                                   default='INITIAL',
+                                   max_length=10),
         ),
     ]

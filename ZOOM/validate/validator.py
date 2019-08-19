@@ -65,8 +65,8 @@ def generate_error_data(df_file):
     dicts = get_geolocation_dictionary()
 
     for heading in file_heading_list:
-        prob_list, error_count = identify_col_dtype(
-            df_file[heading], heading, dicts)
+        prob_list, error_count = identify_col_dtype(df_file[heading], heading,
+                                                    dicts)
         dtypes_dict[heading] = prob_list
         error_data[heading] = error_count
 

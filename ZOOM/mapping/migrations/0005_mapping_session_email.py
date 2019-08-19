@@ -13,6 +13,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='mapping',
             name='session_email',
-            field=models.EmailField(blank=True, default=None, max_length=254, null=True),
+            field=models.EmailField(blank=True,
+                                    default=None,
+                                    max_length=254,
+                                    null=True),
         ),
     ]

@@ -8,16 +8,8 @@ class MappingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Mapping
-        fields = (
-            'id',
-            'data',
-            'entry_id',
-            'file',
-            'status',
-            'error_message',
-            'task_id',
-            'session_email'
-        )
+        fields = ('id', 'data', 'entry_id', 'file', 'status', 'error_message',
+                  'task_id', 'session_email')
 
     @classmethod
     def get_entry_id(cls, obj):

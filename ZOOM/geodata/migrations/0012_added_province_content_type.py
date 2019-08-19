@@ -13,6 +13,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='geolocation',
             name='type',
-            field=models.CharField(choices=[('country', 'country'), ('region', 'region'), ('subnational', 'subnational'), ('city', 'city'), ('pointbased', 'pointbased'), ('province', 'province')], max_length=100),
+            field=models.CharField(choices=[('country', 'country'),
+                                            ('region', 'region'),
+                                            ('subnational', 'subnational'),
+                                            ('city', 'city'),
+                                            ('pointbased', 'pointbased'),
+                                            ('province', 'province')],
+                                   max_length=100),
         ),
     ]

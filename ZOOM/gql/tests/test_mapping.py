@@ -10,23 +10,19 @@ from mapping.models import Mapping
 
 
 class MappingTestCase(TestCase):
-
     def setUp(self):
         ci = CountryImport()
         ci.update_polygon()
         ci.update_alt_name()
 
         self.dummy_file_source = factory.FileSourceFactory(
-            name='dummy_file_source'
-        )
-        self.dummy_geolocation = factory.GeolocationFactory(
-            tag='Albania',
-            iso2='al',
-            iso3='alb',
-            object_id=4,
-            content_type_id=15,
-            type='country'
-        )
+            name='dummy_file_source')
+        self.dummy_geolocation = factory.GeolocationFactory(tag='Albania',
+                                                            iso2='al',
+                                                            iso3='alb',
+                                                            object_id=4,
+                                                            content_type_id=15,
+                                                            type='country')
         self.dummy_file = factory.FileFactory(
             title="test",
             description="test",
@@ -44,8 +40,7 @@ class MappingTestCase(TestCase):
             file_types="csv",
             location=self.dummy_geolocation,
             source=self.dummy_file_source,
-            file=os.path.abspath("samples/AIDSinfotest.csv")
-        )
+            file=os.path.abspath("samples/AIDSinfotest.csv"))
 
     def test_mapping_mutation(self):
 
@@ -62,7 +57,9 @@ class MappingTestCase(TestCase):
                 "comment": ["Source"],
                 "filters": ["Subgroup"]
             },
-            'filter_headings': {"Subgroup": "Subgroup"},
+            'filter_headings': {
+                "Subgroup": "Subgroup"
+            },
         }
 
         input_json_str = json.dumps(input_json)
@@ -94,7 +91,6 @@ class MappingTestCase(TestCase):
         }"""
 
         result = schema.execute(query)
-        result_mapping_object = Mapping.objects.get(id=result.data
-                                                    ['allMappings']['edges'][0]
-                                                    ['node']['entryId'])
+        result_mapping_object = Mapping.objects.get(
+            id=result.data['allMappings']['edges'][0]['node']['entryId'])
         self.assertTrue(result_mapping_object)

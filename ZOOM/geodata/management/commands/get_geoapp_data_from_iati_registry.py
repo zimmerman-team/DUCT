@@ -4,7 +4,6 @@ from geodata.geoapp_data import CodeListImporter
 
 
 class Command(BaseCommand):
-
     def handle(self, *args, **options):
 
         cl = CodeListImporter()

@@ -10,7 +10,6 @@ from metadata.models import File
 
 
 class MappingMutation(SerializerMutation):
-
     class Meta:
         serializer_class = MappingSerializer
         model_operations = ['create', 'update']
@@ -37,9 +36,7 @@ class MappingMutation(SerializerMutation):
         except File.DoesNotExist:
             raise Exception(
                 'file with metadata_id={file_id} not found!'.format(
-                    file_id=file_id
-                )
-            )
+                    file_id=file_id))
 
         if 'id' in input:
             instance = Mapping.objects.filter(id=input['id']).first()

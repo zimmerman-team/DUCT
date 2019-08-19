@@ -19,9 +19,7 @@ UPDATE_DICT = {
 }
 
 # For deleting all rows
-DELETE_DICT = {
-    'row_keys': []
-}
+DELETE_DICT = {'row_keys': []}
 
 # Main dictionary sed for making call
 ERROR_CORRECTION_DICT = {
@@ -93,8 +91,7 @@ def error_correction(data, error_toggle, error_rows):
                 if row > len(df_data[df_data.columns[0]]) - 1:
                     break
 
-                temp_dict = {'line no.': int(org_data['line_no'][
-                                                 row])}
+                temp_dict = {'line no.': int(org_data['line_no'][row])}
 
                 for column in df_data.columns:
                     temp_dict[column] = str(df_data[column][row])
@@ -102,8 +99,8 @@ def error_correction(data, error_toggle, error_rows):
                 output_list.append(temp_dict)
 
             if output_list:
-                error_messages = data['error_data'][
-                                     'error_messages'][start_pos:end_pos]
+                error_messages = data['error_data']['error_messages'][
+                    start_pos:end_pos]
                 data['error_data']['error_messages'] = error_messages
                 total_amount = len(error_rows)
 
@@ -112,7 +109,8 @@ def error_correction(data, error_toggle, error_rows):
             'total_amount': total_amount,
             'columns': df_columns,
             # added json dumps, front end couldn't read original format
-            'error_data': data['error_data']}
+            'error_data': data['error_data']
+        }
     else:
         print('not csv')
 
@@ -155,15 +153,17 @@ def find_and_replace(df_data, data):
 def filter_for_errors(df_data, data):
     filter_column = data['error_filter_value']
     error_data, dtypes_dict = get_dtype_data(data['id'])
-    errors, line_nos = check_dtypes(
-        error_data, dtypes_dict, [filter_column], data['start_pos'],
-        data['end_pos'])
+    errors, line_nos = check_dtypes(error_data, dtypes_dict, [filter_column],
+                                    data['start_pos'], data['end_pos'])
     return df_data[line_nos[filter_column]]
 
 
 # Need to apply optimisation here, put filter here
-def check_dtypes(error_data, dtypes_dict,
-                 column_headings, start_pos=0, end_pos=0):
+def check_dtypes(error_data,
+                 dtypes_dict,
+                 column_headings,
+                 start_pos=0,
+                 end_pos=0):
     """Check cells against the most popular choice"""
     errors = {}
     line_nos = {}
@@ -184,6 +184,7 @@ def check_dtypes(error_data, dtypes_dict,
             errors[i] = []
             line_nos[i] = []
     return errors, line_nos
+
 
 # should combine with error_correction to optimise?
 
@@ -242,17 +243,12 @@ def get_errors(data):
                     if row not in error_rows:
                         error_rows.append(row)
 
-                    message = (
-                        'Found a ' +
-                        j +
-                        ' value instead of the most populous value ' +
-                        dtype + '.'
-                    )
+                    message = ('Found a ' + j +
+                               ' value instead of the most populous value ' +
+                               dtype + '.')
                     line_no = str(row)
                     error_message_row = dict()
-                    error_message_row[''.join([line_no, '|', i])] = (
-                        message
-                    )
+                    error_message_row[''.join([line_no, '|', i])] = (message)
                     error_messages.append(error_message_row)
                     counter += 1
                 except Exception as e:
@@ -275,13 +271,12 @@ def update(id, data):
             count += 1
         data['header_value'] = tmp
         df_data = df_data.rename(
-            columns={
-                data['header_tobe_changed']: data['header_value']})
-        dtypes_dict[data['header_value']
-                    ] = dtypes_dict[data['header_tobe_changed']]
+            columns={data['header_tobe_changed']: data['header_value']})
+        dtypes_dict[data['header_value']] = dtypes_dict[
+            data['header_tobe_changed']]
         dtypes_dict.pop(data['header_tobe_changed'], None)
-        error_data[data['header_value']
-                   ] = error_data[data['header_tobe_changed']]
+        error_data[data['header_value']] = error_data[
+            data['header_tobe_changed']]
         error_data.pop(data['header_tobe_changed'], None)
     else:
         heading = data['column']
@@ -294,14 +289,12 @@ def update(id, data):
         # When used GraphQL will be to else
         if type(error_data[next(iter(error_data))]) == list:
             prob_list, error_count = update_cell_type(
-                df_data[heading][line_no],
-                dtypes_dict[heading], line_no, heading
-            )
+                df_data[heading][line_no], dtypes_dict[heading], line_no,
+                heading)
         else:
             prob_list, error_count = update_cell_type(
-                df_data[heading][line_no],
-                error_data[heading], line_no, heading
-            )
+                df_data[heading][line_no], error_data[heading], line_no,
+                heading)
 
         dtypes_dict[heading] = error_count
         error_data[heading] = prob_list

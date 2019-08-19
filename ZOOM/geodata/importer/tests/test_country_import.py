@@ -7,7 +7,6 @@
 # from geodata.models import Country
 # from geodata.importer.country import CountryImport
 
-
 # class CountryImportTestCase(TestCase):
 
 #     def setUp(self):

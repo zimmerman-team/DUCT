@@ -2,6 +2,7 @@ from celery import task
 from django.conf import settings
 import os
 
+
 @task
 def clean_temp_geo_jsons():
     path_to_temp = os.path.join(settings.BASE_DIR, 'static/temp_geo_jsons/')

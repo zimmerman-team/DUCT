@@ -25,15 +25,11 @@ class SubnationalImport(object):
                 print(name)
 
                 c, created = SubNational.objects.get_or_create(
-                    name=name, country=country, polygons=polygons
-                )
+                    name=name, country=country, polygons=polygons)
                 if created:
                     c.save()
-                    Geolocation(
-                        content_object=c,
-                        tag=name,
-                        type='subnational'
-                    ).save()
+                    Geolocation(content_object=c, tag=name,
+                                type='subnational').save()
 
     def update_kenya(self):
         kenya_counties = self.get_json_data("/../data_backup/counties.json")
@@ -71,10 +67,9 @@ class SubnationalImport(object):
 
                 point_loc_str = ''.join([
                     'POINT(',
-                    str(county_centers[c]["longitude"]),
-                    ' ',
-                    str(county_centers[c]["latitude"]),
-                    ')'])
+                    str(county_centers[c]["longitude"]), ' ',
+                    str(county_centers[c]["latitude"]), ')'
+                ])
                 longlat = fromstr(point_loc_str, srid=4326)
 
                 sub_national.center_longlat = longlat
@@ -82,14 +77,11 @@ class SubnationalImport(object):
 
                 try:
                     geolocation = Geolocation.objects.get(
-                        tag=sub_national.name.lower()
-                    )
+                        tag=sub_national.name.lower())
                     geolocation.save()
 
                     print('Update long lat geolocation: {name}'.format(
-                        name=sub_national.name)
-                    )
+                        name=sub_national.name))
                 except Geolocation.DoesNotExist:
                     print('Not found geolocation not fount: {name}'.format(
-                        name=c.lower())
-                    )
+                        name=c.lower()))

@@ -16,6 +16,7 @@ redis_conn = Redis()
 ######## GEODATA TASKS ########
 ###############################
 
+
 @job
 def update_all_geo_data():
     queue = django_rq.get_queue("default")
@@ -28,7 +29,9 @@ def update_all_geo_data():
 @job
 def get_new_geoapp_data_from_iati_api():
     from django.core import management
-    management.call_command('get_geoapp_data_from_iati_registry', verbosity=0, interactive=False)
+    management.call_command('get_geoapp_data_from_iati_registry',
+                            verbosity=0,
+                            interactive=False)
 
 
 @job
@@ -62,11 +65,9 @@ def update_city_data():
     ci.update_cities()
 
 
-
 ###############################
 #### MANUAL MAPPING TASKS #####
 ###############################
-
 
 
 @job

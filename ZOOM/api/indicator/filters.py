@@ -12,14 +12,16 @@ class SearchFilter(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         query = request.query_params.get('q', None)
         query_lookup = request.query_params.get('q_lookup', None)
-        lookup_expr = 'exact' #'ft'
+        lookup_expr = 'exact'  #'ft'
         if query_lookup:
             lookup_expr = query_lookup
 
         if query:
-            return queryset.filter(**{'search_vector_text__{0}'.format(lookup_expr): query})
+            return queryset.filter(
+                **{'search_vector_text__{0}'.format(lookup_expr): query})
 
         return queryset
+
 
 #check if this can be removed
 '''class ListFilter(Filter):
@@ -70,7 +72,6 @@ class IndicatorDataFilter(FilterSet):
             'unit_of_measure'
         )
 '''
-
 '''    
     def ind_filter(self, qs, name, value):
         ind = Indicator.objects.get(id=urllib.unquote(value))

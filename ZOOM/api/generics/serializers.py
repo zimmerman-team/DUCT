@@ -8,7 +8,6 @@ class DynamicFieldsSerializer(serializers.Serializer):
     """
     Serializer allowing for dynamic field instantiation
     """
-
     def __init__(self, *args, **kwargs):
         fields = kwargs.pop('fields', ())
 
@@ -24,11 +23,11 @@ class DynamicFieldsSerializer(serializers.Serializer):
             for field_name in existing - allowed:
                 self.fields.pop(field_name)
 
+
 class DynamicFieldsModelSerializer(serializers.ModelSerializer):
     """
     Serializer allowing for dynamic field instantiation
     """
-
     def __init__(self, *args, **kwargs):
         fields = kwargs.pop('fields', ())
 

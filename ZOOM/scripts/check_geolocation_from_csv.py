@@ -24,17 +24,14 @@ class CheckGeolocation(object):
                     Geolocation.objects.get(tag=tag)
                     valid = valid + 1
                     print('{tag} is valid. Valid is {valid}'.format(
-                        tag=tag, valid=valid)
-                    )
+                        tag=tag, valid=valid))
                 except Geolocation.DoesNotExist:
                     invalid_tags.append(tag)
                     invalid = invalid + 1
                     print('{tag} is invalid. Invalid is {invalid}'.format(
-                        tag=tag, invalid=invalid)
-                    )
+                        tag=tag, invalid=invalid))
 
         print('Total valid {valid} and invalid {invalid}'.format(
-            valid=valid, invalid=invalid)
-        )
+            valid=valid, invalid=invalid))
 
         print('Invalid tags: {tags}'.format(tags=','.join(invalid_tags)))

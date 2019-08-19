@@ -9,13 +9,11 @@ from api.indicator.views import IndicatorList
 #from api.indicator.views import IndicatorCategoryDataList
 #from api.indicator.views import reset_mapping
 
-
 app_name = 'indicator'
 
 urlpatterns = [
-    url(r'^$',
-        IndicatorList.as_view(),
-        name=''),]
+    url(r'^$', IndicatorList.as_view(), name=''),
+]
 ''' url(r'^data/$',
         IndicatorDataList.as_view(),
         name='indicator-data-list'),

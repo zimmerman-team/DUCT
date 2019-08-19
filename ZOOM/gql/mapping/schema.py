@@ -37,6 +37,5 @@ class MappingFilter(FilterSet):
 
 class Query(object):
     mapping = relay.Node.Field(MappingNode)
-    all_mappings = DjangoFilterConnectionField(
-        MappingNode, filterset_class=MappingFilter
-    )
+    all_mappings = DjangoFilterConnectionField(MappingNode,
+                                               filterset_class=MappingFilter)

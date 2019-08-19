@@ -15,7 +15,6 @@ ci.update_regions()
 ci.update_hd_polygons()
 ci.update_region_polygons_centers()
 
-
 print('Subnational data')
 si = SubnationalImport()
 si.update_polygon()

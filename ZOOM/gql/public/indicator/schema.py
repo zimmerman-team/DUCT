@@ -12,28 +12,25 @@ from gql.indicator.schema import (DatapointsAggregationNode, IndicatorFilter,
 
 
 class IndicatorPublicFilter(IndicatorFilter):
-
     def __init__(self, data=None, queryset=None, *, request=None, prefix=None):
 
         # Filter only for indicator with file has 'a' accessibility
         if queryset is None:
             queryset = self._meta.model._default_manager.filter(
-                file__accessibility='a'
-            )
+                file__accessibility='a')
         else:
             queryset = queryset.filter(file__accessibility='a')
 
-        super(IndicatorPublicFilter, self).__init__(
-            data=data, queryset=queryset, request=request, prefix=prefix
-        )
+        super(IndicatorPublicFilter, self).__init__(data=data,
+                                                    queryset=queryset,
+                                                    request=request,
+                                                    prefix=prefix)
 
 
 class DatapointsAggregationPublicNode(DatapointsAggregationNode):
-
     def get_filters(self, context, **kwargs):
-        filters = super(DatapointsAggregationPublicNode, self).get_filters(
-            context, **kwargs
-        )
+        filters = super(DatapointsAggregationPublicNode,
+                        self).get_filters(context, **kwargs)
 
         # Filter only for indicator with file has 'a' accessibility
         filters['indicator__file__accessibility'] = 'a'
@@ -43,8 +40,7 @@ class DatapointsAggregationPublicNode(DatapointsAggregationNode):
 
 class Query(gql.indicator.schema.Query):
     all_indicators = DjangoFilterConnectionField(
-        IndicatorNode, filterset_class=IndicatorPublicFilter
-    )
+        IndicatorNode, filterset_class=IndicatorPublicFilter)
 
     datapoints_aggregation = graphene.List(
         DatapointsAggregationPublicNode,
@@ -71,8 +67,7 @@ class Query(gql.indicator.schema.Query):
         unique_indicator=Boolean(),
         indicator_file_accesibility=String(),
         geoJsonUrl=Boolean(),
-        currentGeoJson=String()
-    )
+        currentGeoJson=String())
 
     def resolve_datapoints_aggregation(self, context, **kwargs):
         return DatapointsAggregationPublicNode().get_nodes(context, **kwargs)

@@ -34,7 +34,7 @@ class RegionFactory(NoDatabaseFactory):
 
     code = '689'
     name = 'South & Central Asia, regional'
-    center_longlat = Point(2,4)
+    center_longlat = Point(2, 4)
 
 
 class Adm1RegionFactory(NoDatabaseFactory):

@@ -14,8 +14,9 @@ key_name = input('Please enter name of the key of the geolocation\n'
                  'which is under the "feature.properties" key.\n'
                  'For example the key could be called "COUNTRY_NAME": ')
 print('-------------------------------------------------------')
-store_to = input('Please enter the full path to a place and file where\n'
-                 'this json should be saved. For example "~/data/country_centers.json": ')
+store_to = input(
+    'Please enter the full path to a place and file where\n'
+    'this json should be saved. For example "~/data/country_centers.json": ')
 
 print('Script has started...')
 
@@ -28,8 +29,10 @@ with open(filename, 'r') as f:
         centerCoordinates = s.centroid.wkt
         # so yeah this is a weird way of getting the long lat data from this centroid
         # but didn't find a more easier way of getting this
-        long = float(centerCoordinates[centerCoordinates.index('(')+1:centerCoordinates.rfind(' ')])
-        lat = float(centerCoordinates[centerCoordinates.rfind(' ')+1:centerCoordinates.rfind(')')])
+        long = float(centerCoordinates[centerCoordinates.index('(') +
+                                       1:centerCoordinates.rfind(' ')])
+        lat = float(centerCoordinates[centerCoordinates.rfind(' ') +
+                                      1:centerCoordinates.rfind(')')])
 
         centerJson[feature['properties'][key_name]] = {
             'longitude': long,

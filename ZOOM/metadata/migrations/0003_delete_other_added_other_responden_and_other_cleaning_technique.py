@@ -17,11 +17,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='surveydata',
             name='other_cleaning_technique',
-            field=models.CharField(blank=True, default='', help_text='If other respondent, explain', max_length=200, null=True),
+            field=models.CharField(blank=True,
+                                   default='',
+                                   help_text='If other respondent, explain',
+                                   max_length=200,
+                                   null=True),
         ),
         migrations.AddField(
             model_name='surveydata',
             name='other_respondent',
-            field=models.CharField(blank=True, default='', help_text='If other respondent, explain', max_length=200, null=True),
+            field=models.CharField(blank=True,
+                                   default='',
+                                   help_text='If other respondent, explain',
+                                   max_length=200,
+                                   null=True),
         ),
     ]

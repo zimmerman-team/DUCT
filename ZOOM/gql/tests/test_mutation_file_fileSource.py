@@ -11,17 +11,14 @@ class MutationTestCase(TestCase):
     def setUp(self):
         # Dummy objects
         self.dummy_file_source = factory.FileSourceFactory(
-            name='dummy_file_source'
-        )
+            name='dummy_file_source')
         alb = factory.CountryFactory(name='Albania', iso2='al', iso3='alb')
-        self.dummy_geolocation = factory.GeolocationFactory(
-            tag='Albania',
-            iso2='al',
-            iso3='alb',
-            object_id=alb.id,
-            content_type_id=15,
-            type='country'
-        )
+        self.dummy_geolocation = factory.GeolocationFactory(tag='Albania',
+                                                            iso2='al',
+                                                            iso3='alb',
+                                                            object_id=alb.id,
+                                                            content_type_id=15,
+                                                            type='country')
 
     def test_mutation_file_source(self):
         name = 'something'

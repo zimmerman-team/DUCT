@@ -10,7 +10,6 @@ from mapping.mapper import begin_mapping
 
 
 class MappingTestCase(TestCase):
-
     def setUp(self):
         # initialize  Region
         ri = RegionImport()
@@ -18,15 +17,13 @@ class MappingTestCase(TestCase):
 
         # creating dummy objects for testing
         self.dummy_file_source = factory.FileSourceFactory(
-            name='dummy_file_source'
-        )
+            name='dummy_file_source')
         region = factory.RegionFactory(name='central asia')
         self.dummy_geolocation = factory.GeolocationFactory(
             tag='central asia',
             object_id=region.id,
             content_type_id=19,
-            type='region'
-        )
+            type='region')
         self.dummy_file = factory.FileFactory(
             title="Region",
             description="test",
@@ -44,8 +41,7 @@ class MappingTestCase(TestCase):
             file_types="csv",
             location=self.dummy_geolocation,
             source=self.dummy_file_source,
-            file=os.path.abspath("samples/region.csv")
-        )
+            file=os.path.abspath("samples/region.csv"))
 
     def test_mapping_mutation(self):
 
@@ -56,11 +52,14 @@ class MappingTestCase(TestCase):
                 'empty_indicator': 'Test Region',
                 'empty_geolocation': {
                     'value': '',
-                    'type': ''},
+                    'type': ''
+                },
                 'empty_filter': 'Default',
                 'empty_value_format': {
-                    'value format': 'Numeric'},
-                'empty_date': ''},
+                    'value format': 'Numeric'
+                },
+                'empty_date': ''
+            },
             'multi_mapped': {
                 'column_heading': {},
                 'column_values': {},
@@ -68,11 +67,13 @@ class MappingTestCase(TestCase):
             'point_based_info': {
                 'coord': {
                     'lat': '',
-                    'lon': ''},
+                    'lon': ''
+                },
                 'subnational': '',
                 'country': '',
                 'type': '',
-            }}
+            }
+        }
 
         input_json = {
             'metadata_id': file_id,
@@ -84,7 +85,9 @@ class MappingTestCase(TestCase):
                 'value': ["new infections"],
                 'comment': [],
             },
-            "filter_headings": {"filters": "filters"},
+            "filter_headings": {
+                "filters": "filters"
+            },
             'extra_information': EXTRA_INFORMATION
         }
 

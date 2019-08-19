@@ -7,13 +7,11 @@ from geodata.models import City, Country, Geolocation
 
 
 class Cities(object):
-
     def __init__(self, language):
         self.language = language
 
     def update(self):
-        items = get_json_data(
-            '/../data_backup/cities.json').get('features')
+        items = get_json_data('/../data_backup/cities.json').get('features')
         for item in items:
             name = item['properties']['NAME'].lower()
             the_country = None
@@ -33,26 +31,22 @@ class Cities(object):
             try:
                 city = City.objects.get(name=name)
             except City.DoesNotExist:
-                city = City(
-                    name=name,
-                    country=country,
-                    ascii_name=ascii_name,
-                    polygons=polygons,
-                    center_longlat=longlat,
-                    language=self.language
-                )
+                city = City(name=name,
+                            country=country,
+                            ascii_name=ascii_name,
+                            polygons=polygons,
+                            center_longlat=longlat,
+                            language=self.language)
                 city.save()
 
                 try:
                     Geolocation.objects.get(tag=name)
                 except Geolocation.DoesNotExist:
-                    Geolocation(
-                        content_object=city,
-                        tag=name,
-                        type='city',
-                        polygons=polygons,
-                        center_longlat=longlat
-                    ).save()
+                    Geolocation(content_object=city,
+                                tag=name,
+                                type='city',
+                                polygons=polygons,
+                                center_longlat=longlat).save()
 
             if item['properties']['FEATURECLA'] == "Admin-0 capital":
                 if the_country:

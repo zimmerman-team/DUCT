@@ -10,7 +10,6 @@ from gql.tests import factory
 
 
 class MappingTestCase(TestCase):
-
     def setUp(self):
         # initialize  subnational/Country
         ci = CountryImport()
@@ -22,16 +21,13 @@ class MappingTestCase(TestCase):
 
         # creating dummy objects for testing
         self.dummy_file_source = factory.FileSourceFactory(
-            name='dummy_file_source'
-        )
-        self.dummy_geolocation = factory.GeolocationFactory(
-            tag='Albania',
-            iso2='al',
-            iso3='alb',
-            object_id=4,
-            content_type_id=15,
-            type='country'
-        )
+            name='dummy_file_source')
+        self.dummy_geolocation = factory.GeolocationFactory(tag='Albania',
+                                                            iso2='al',
+                                                            iso3='alb',
+                                                            object_id=4,
+                                                            content_type_id=15,
+                                                            type='country')
         self.dummy_file = factory.FileFactory(
             title="Region",
             description="test",
@@ -49,8 +45,7 @@ class MappingTestCase(TestCase):
             file_types="csv",
             location=self.dummy_geolocation,
             source=self.dummy_file_source,
-            file=os.path.abspath("samples/subnational.csv")
-        )
+            file=os.path.abspath("samples/subnational.csv"))
 
     def test_mapping_mutation(self):
 
@@ -61,11 +56,14 @@ class MappingTestCase(TestCase):
                 'empty_indicator': 'Test Region',
                 'empty_geolocation': {
                     'value': '',
-                    'type': ''},
+                    'type': ''
+                },
                 'empty_filter': 'Default',
                 'empty_value_format': {
-                    'value format': 'Numeric'},
-                'empty_date': '2016'},
+                    'value format': 'Numeric'
+                },
+                'empty_date': '2016'
+            },
             'multi_mapped': {
                 'column_heading': {},
                 'column_values': {},
@@ -73,11 +71,13 @@ class MappingTestCase(TestCase):
             'point_based_info': {
                 'coord': {
                     'lat': '',
-                    'lon': ''},
+                    'lon': ''
+                },
                 'subnational': '',
                 'country': '',
                 'type': '',
-            }}
+            }
+        }
 
         input_json = {
             'metadata_id': file_id,
@@ -89,7 +89,9 @@ class MappingTestCase(TestCase):
                 'value': ["new infections"],
                 'comment': [],
             },
-            "filter_headings": {"filters": "filters"},
+            "filter_headings": {
+                "filters": "filters"
+            },
             'extra_information': EXTRA_INFORMATION
         }
 

@@ -65,10 +65,9 @@ class IndicatorFilter(FilterSet):
         # country
         return Indicator.objects.filter(
             Q(id__in=ids) & Q(
-                Q(country__iso2=value) |
-                Q(datapoints__geolocation__type='pointbased') |
-                Q(datapoints__geolocation__country__iso2=value))
-        ).distinct()
+                Q(country__iso2=value)
+                | Q(datapoints__geolocation__type='pointbased')
+                | Q(datapoints__geolocation__country__iso2=value))).distinct()
 
     def filter_entry_id(self, queryset, name, value):
         name = 'id'
@@ -85,13 +84,13 @@ class IndicatorFilter(FilterSet):
         value_list = value.split(',')
         # so with this tweek of filtering doesnt matter what file ids are passed in we
         # always return the public indicators
-        return queryset.filter(Q(file__id__in=value_list) | Q(file__accessibility='a'))
+        return queryset.filter(
+            Q(file__id__in=value_list) | Q(file__accessibility='a'))
 
     def filter_year__range(self, queryset, name, value):
         return queryset.filter(
             datapoints__date__gte=value.split(',')[0],
-            datapoints__date__lte=value.split(',')[1]
-        ).distinct()
+            datapoints__date__lte=value.split(',')[1]).distinct()
 
 
 class DatapointsAggregationNode(AggregationNode):
@@ -187,7 +186,7 @@ class FilterHeadingsNode(DjangoObjectType):
 
     class Meta:
         model = FilterHeadings
-        interfaces = (relay.Node,)
+        interfaces = (relay.Node, )
 
     def resolve_entry_id(self, context, **kwargs):
         return self.id
@@ -219,7 +218,7 @@ class DatapointsNode(DjangoObjectType):
 
     class Meta:
         model = Datapoints
-        interfaces = (relay.Node,)
+        interfaces = (relay.Node, )
 
     def resolve_entry_id(self, context, **kwargs):
         return self.id
@@ -292,8 +291,7 @@ class FiltersFilter(FilterSet):
 class Query(object):
     indicator = relay.Node.Field(IndicatorNode)
     all_indicators = DjangoFilterConnectionField(
-        IndicatorNode, filterset_class=IndicatorFilter
-    )
+        IndicatorNode, filterset_class=IndicatorFilter)
 
     datapoints_aggregation = graphene.List(
         DatapointsAggregationNode,
@@ -320,20 +318,16 @@ class Query(object):
         unique_indicator=Boolean(),
         indicator_file_accesibility=String(),
         geoJsonUrl=Boolean(),
-        currentGeoJson=String()
-    )
+        currentGeoJson=String())
 
     all_filter_headings = DjangoFilterConnectionField(
-        FilterHeadingsNode, filterset_class=FilterHeadingsFilter
-    )
+        FilterHeadingsNode, filterset_class=FilterHeadingsFilter)
 
     all_data_points = DjangoFilterConnectionField(
-        DatapointsNode, filterset_class=DatapointsFilter
-    )
+        DatapointsNode, filterset_class=DatapointsFilter)
 
-    all_filters = DjangoFilterConnectionField(
-        FiltersNode, filterset_class=FiltersFilter
-    )
+    all_filters = DjangoFilterConnectionField(FiltersNode,
+                                              filterset_class=FiltersFilter)
 
     def resolve_datapoints_aggregation(self, context, **kwargs):
         return DatapointsAggregationNode().get_nodes(context, **kwargs)

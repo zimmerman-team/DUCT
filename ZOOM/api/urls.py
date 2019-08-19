@@ -2,7 +2,7 @@ from django.conf.urls import include, url
 
 from api.views import welcome
 
-app_name='api'
+app_name = 'api'
 
 urlpatterns = [
     url(r'^$', welcome, name='api-root'),

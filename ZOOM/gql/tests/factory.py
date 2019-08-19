@@ -36,13 +36,12 @@ class CountryFactory(NoDatabaseFactory):
 class GeolocationFactory(NoDatabaseFactory):
     class Meta:
         model = models.Geolocation
-        django_get_or_create = ('iso2',)
-
+        django_get_or_create = ('iso2', )
 
     tag = 'asia'
     iso2 = ''
     iso3 = ''
-    type='region'
+    type = 'region'
     object_id = 4
     content_type_id = 15
 

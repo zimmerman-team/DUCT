@@ -32,20 +32,20 @@ class CityImport():
                 country_iso2 = c['properties']['ISO_A2']
                 namepar = c['properties']['NAMEPAR']
 
-                point_loc_str = 'POINT(' + str(longitude) + ' ' + str(latitude) + ')'
+                point_loc_str = 'POINT(' + str(longitude) + ' ' + str(
+                    latitude) + ')'
                 longlat = fromstr(point_loc_str, srid=4326)
 
                 if Country.objects.filter(code=country_iso2).exists():
                     the_country = Country.objects.get(code=country_iso2)
 
-                new_city = City(
-                    geoname_id=geoid,
-                    name=name,
-                    country=the_country,
-                    location=longlat,
-                    ascii_name=ascii_name,
-                    alt_name=alt_name,
-                    namepar=namepar)
+                new_city = City(geoname_id=geoid,
+                                name=name,
+                                country=the_country,
+                                location=longlat,
+                                ascii_name=ascii_name,
+                                alt_name=alt_name,
+                                namepar=namepar)
 
                 new_city.save()
 

@@ -1,1 +1,0 @@
-/home/osboxes/Documents/Zimmerman/ZOOM-CSV-MAPPER/ZOOM/ZOOM/settings.py

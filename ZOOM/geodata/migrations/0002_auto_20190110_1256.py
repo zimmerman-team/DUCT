@@ -14,6 +14,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='country',
             name='polygons',
-            field=django.contrib.gis.db.models.fields.GeometryCollectionField(blank=True, null=True, srid=4326),
+            field=django.contrib.gis.db.models.fields.GeometryCollectionField(
+                blank=True, null=True, srid=4326),
         ),
     ]

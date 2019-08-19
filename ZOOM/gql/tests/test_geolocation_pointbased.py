@@ -10,20 +10,16 @@ from mapping.mapper import begin_mapping
 
 
 class GeolocationPointBasedTestCase(TestCase):
-
     def setUp(self):
         self.dummy_file_source = factory.FileSourceFactory(
-            name='dummy_file_source'
-        )
+            name='dummy_file_source')
         alb = factory.CountryFactory(name='Albania', iso2='al', iso3='alb')
-        self.dummy_geolocation = factory.GeolocationFactory(
-            tag='Albania',
-            iso2='al',
-            iso3='alb',
-            object_id=alb.id,
-            content_type_id=15,
-            type='country'
-        )
+        self.dummy_geolocation = factory.GeolocationFactory(tag='Albania',
+                                                            iso2='al',
+                                                            iso3='alb',
+                                                            object_id=alb.id,
+                                                            content_type_id=15,
+                                                            type='country')
         self.dummy_file = factory.FileFactory(
             title="test",
             description="test",
@@ -41,8 +37,7 @@ class GeolocationPointBasedTestCase(TestCase):
             file_types="csv",
             location=self.dummy_geolocation,
             source=self.dummy_file_source,
-            file=os.path.abspath("samples/point_based.csv")
-        )
+            file=os.path.abspath("samples/point_based.csv"))
 
         file_id = self.dummy_file.id
 
@@ -51,11 +46,14 @@ class GeolocationPointBasedTestCase(TestCase):
                 'empty_indicator': 'Test pointbased',
                 'empty_geolocation': {
                     'value': '',
-                    'type': ''},
+                    'type': ''
+                },
                 'empty_filter': 'Default',
                 'empty_value_format': {
-                    'value format': 'Numeric'},
-                'empty_date': '2016'},
+                    'value format': 'Numeric'
+                },
+                'empty_date': '2016'
+            },
             'multi_mapped': {
                 'column_heading': {},
                 'column_values': {},
@@ -63,15 +61,19 @@ class GeolocationPointBasedTestCase(TestCase):
             'point_based_info': {
                 'coord': {
                     'lat': 'Lat location 1',
-                    'lon': 'Long location 1'},
+                    'lon': 'Long location 1'
+                },
                 'subnational': '',
                 'country': '',
                 'type': '',
-            }}
+            }
+        }
 
         input_json = {
             'metadata_id': file_id,
-            "filter_headings": {"filters": "filters"},
+            "filter_headings": {
+                "filters": "filters"
+            },
             "extra_information": EXTRA_INFORMATION,
             'mapping_dict': {
                 'indicator': [],
@@ -124,9 +126,9 @@ class GeolocationPointBasedTestCase(TestCase):
             point_coords = PointBased.objects.get(
                 id=a.object_id).center_longlat.json
 
-            result_coords = json.loads(result.data["allGeolocations"]["edges"][i][
-                                 "node"]["pointBased"]["centerLonglat"])
+            result_coords = json.loads(
+                result.data["allGeolocations"]["edges"][i]["node"]
+                ["pointBased"]["centerLonglat"])
 
-            self.assertEqual(point_coords,
-                             result_coords)
+            self.assertEqual(point_coords, result_coords)
             i += 1

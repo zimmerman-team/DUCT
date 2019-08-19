@@ -27,7 +27,8 @@ class RegionImport():
         #         instance.save()
         #         Geolocation(content_object=instance, tag=name, type='region').save()
 
-        region_centers = self.get_json_data("/../data_backup/region_center_locations.json")
+        region_centers = self.get_json_data(
+            "/../data_backup/region_center_locations.json")
 
         # for r in region_centers:
         #     if Region.objects.filter(code=r).exists():
@@ -37,13 +38,12 @@ class RegionImport():
         #         current_region.center_longlat = longlat
         #         current_region.save()
 
-
         for r in region_centers:
             region = Region()
             region.code = r
             point_loc_str = 'POINT(%s %s)' % (
-            str(region_centers[r]["longitude"]),
-            str(region_centers[r]["latitude"]))
+                str(region_centers[r]["longitude"]),
+                str(region_centers[r]["latitude"]))
             longlat = fromstr(point_loc_str, srid=4326)
             region.center_longlat = longlat
             region.save()

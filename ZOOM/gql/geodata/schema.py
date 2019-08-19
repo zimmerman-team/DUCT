@@ -15,9 +15,7 @@ class CountryNode(DjangoObjectType):
 
     class Meta:
         model = Country
-        only_fields = (
-            'iso2', 'iso3', 'name'
-        )
+        only_fields = ('iso2', 'iso3', 'name')
         interfaces = (relay.Node, )
 
     def resolve_entry_id(self, context, **kwargs):
@@ -59,9 +57,7 @@ class RegionNode(DjangoObjectType):
 
     class Meta:
         model = Region
-        only_fields = (
-            'name', 'code'
-        )
+        only_fields = ('name', 'code')
         interfaces = (relay.Node, )
 
     def resolve_entry_id(self, context, **kwargs):
@@ -144,7 +140,10 @@ class CityNode(DjangoObjectType):
 
     class Meta:
         model = City
-        exclude_fields = ('center_longlat', 'polygons', )
+        exclude_fields = (
+            'center_longlat',
+            'polygons',
+        )
         interfaces = (relay.Node, )
 
     def resolve_entry_id(self, context, **kwargs):
@@ -179,9 +178,8 @@ class PointBasedNode(DjangoObjectType):
 
     class Meta:
         model = PointBased
-        only_fields = (
-            'id', 'name', 'type', 'subnational', 'comment', 'data_source'
-        )
+        only_fields = ('id', 'name', 'type', 'subnational', 'comment',
+                       'data_source')
         interfaces = (relay.Node, )
 
     def resolve_geolocation(self, context, **kwargs):
@@ -222,10 +220,8 @@ class GeolocationNode(DjangoObjectType):
 
     class Meta:
         model = Geolocation
-        exclude_fields = (
-            'center_longlat', 'polygons'
-        )
-        interfaces = (relay.Node,)
+        exclude_fields = ('center_longlat', 'polygons')
+        interfaces = (relay.Node, )
 
     def resolve_entry_id(self, context, **kwargs):
         return self.id
@@ -267,7 +263,7 @@ class GeolocatioFilter(FilterSet):
     class Meta:
         model = Geolocation
         fields = {
-            'tag': ['exact', 'icontains', 'istartswith','in'],
+            'tag': ['exact', 'icontains', 'istartswith', 'in'],
             'object_id': ['exact'],
             'type': ['exact', 'in'],
         }
@@ -280,9 +276,9 @@ class GeolocatioFilter(FilterSet):
         name = 'id__in'
         return queryset.filter(**{name: eval(value)})
 
-    def filter_object_id__in(self,queryset,name,value):
+    def filter_object_id__in(self, queryset, name, value):
         name = 'object_id__in'
-        return queryset.filter(**{name:eval(value)})
+        return queryset.filter(**{name: eval(value)})
 
 
 class ProvinceNode(DjangoObjectType):
@@ -292,9 +288,7 @@ class ProvinceNode(DjangoObjectType):
 
     class Meta:
         model = Province
-        only_fields = (
-            'name'
-        )
+        only_fields = ('name')
         interfaces = (relay.Node, )
 
     def resolve_entry_id(self, context, **kwargs):
@@ -328,24 +322,21 @@ class ProvinceFilter(FilterSet):
 
 class Query(object):
     country = relay.Node.Field(CountryNode)
-    all_countries = DjangoFilterConnectionField(
-        CountryNode, filterset_class=CountryFilter
-    )
+    all_countries = DjangoFilterConnectionField(CountryNode,
+                                                filterset_class=CountryFilter)
 
     geolocation = relay.Node.Field(GeolocationNode)
     all_geolocations = DjangoFilterConnectionField(
-        GeolocationNode, filterset_class=GeolocatioFilter
-    )
+        GeolocationNode, filterset_class=GeolocatioFilter)
 
     point_based = relay.Node.Field(PointBasedNode)
     all_point_based = DjangoFilterConnectionField(
-        PointBasedNode, filterset_class=PointBasedFilter
-    )
+        PointBasedNode, filterset_class=PointBasedFilter)
 
     region = relay.Node.Field(RegionNode)
-    all_regions = DjangoFilterConnectionField(
-         RegionNode, filterset_class=RegionFilter)
+    all_regions = DjangoFilterConnectionField(RegionNode,
+                                              filterset_class=RegionFilter)
 
     province = relay.Node.Field(ProvinceNode)
-    all_provinces = DjangoFilterConnectionField(
-        ProvinceNode, filterset_class=ProvinceFilter)
+    all_provinces = DjangoFilterConnectionField(ProvinceNode,
+                                                filterset_class=ProvinceFilter)

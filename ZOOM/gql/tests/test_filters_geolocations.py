@@ -6,7 +6,6 @@ from gql.tests import factory
 
 
 class FiltersGeolocationsTestCase(TestCase):
-
     def setUp(self):
         # so for the dummy geolocations we create
         # appropriate geolocation items
@@ -17,32 +16,28 @@ class FiltersGeolocationsTestCase(TestCase):
         self.obj_id_1 = alb.id
         self.obj_id_2 = andr.id
         # Dummy geolocations
-        factory.GeolocationFactory(
-            tag='albania',
-            iso2='al',
-            iso3='alb',
-            object_id=alb.id,
-            content_type_id=16,
-            type='country')
-        factory.GeolocationFactory(
-            tag='andora',
-            iso2='ad',
-            iso3='and',
-            object_id=andr.id,
-            content_type_id=16,
-            type='country')
-        factory.GeolocationFactory(
-            tag='bahamas',
-            iso2='bs',
-            iso3='bhs',
-            object_id=bah.id,
-            content_type_id=16,
-            type='country')
-        factory.GeolocationFactory(
-            tag='amsterdam',
-            object_id=amst.id,
-            content_type_id=15,
-            type='city')
+        factory.GeolocationFactory(tag='albania',
+                                   iso2='al',
+                                   iso3='alb',
+                                   object_id=alb.id,
+                                   content_type_id=16,
+                                   type='country')
+        factory.GeolocationFactory(tag='andora',
+                                   iso2='ad',
+                                   iso3='and',
+                                   object_id=andr.id,
+                                   content_type_id=16,
+                                   type='country')
+        factory.GeolocationFactory(tag='bahamas',
+                                   iso2='bs',
+                                   iso3='bhs',
+                                   object_id=bah.id,
+                                   content_type_id=16,
+                                   type='country')
+        factory.GeolocationFactory(tag='amsterdam',
+                                   object_id=amst.id,
+                                   content_type_id=15,
+                                   type='city')
 
     def test_filter_first_geolocations(self):
         geolocation = Geolocation.objects.first()
@@ -61,8 +56,9 @@ class FiltersGeolocationsTestCase(TestCase):
         """
 
         result = schema.execute(query)
-        self.assertEqual(result.data['allGeolocations']['edges'][0]['node']
-                         ['tag'], geolocation.tag)
+        self.assertEqual(
+            result.data['allGeolocations']['edges'][0]['node']['tag'],
+            geolocation.tag)
 
     def test_filter_last_geolocations(self):
         geolocation = Geolocation.objects.last()
@@ -81,8 +77,9 @@ class FiltersGeolocationsTestCase(TestCase):
         """
 
         result = schema.execute(query)
-        self.assertEqual(result.data['allGeolocations']['edges'][0]['node']
-                         ['tag'], geolocation.tag)
+        self.assertEqual(
+            result.data['allGeolocations']['edges'][0]['node']['tag'],
+            geolocation.tag)
 
     def test_filter_tag_geolocations(self):
         geolocation = Geolocation.objects.filter(tag='albania')
@@ -101,8 +98,9 @@ class FiltersGeolocationsTestCase(TestCase):
         """
 
         result = schema.execute(query)
-        self.assertEqual(result.data['allGeolocations']['edges'][0]['node']
-                         ['tag'], geolocation[0].tag)
+        self.assertEqual(
+            result.data['allGeolocations']['edges'][0]['node']['tag'],
+            geolocation[0].tag)
 
     def test_filter_tag_icontains_geolocations(self):
         geolocation = Geolocation.objects.filter(tag__contains="lb")
@@ -121,8 +119,9 @@ class FiltersGeolocationsTestCase(TestCase):
         """
 
         result = schema.execute(query)
-        self.assertEqual(result.data['allGeolocations']['edges'][0]['node']
-                         ['tag'], geolocation[0].tag)
+        self.assertEqual(
+            result.data['allGeolocations']['edges'][0]['node']['tag'],
+            geolocation[0].tag)
 
     def test_filter_tag_istartswith_geolocations(self):
         geolocation = Geolocation.objects.filter(tag__startswith="al")
@@ -141,8 +140,9 @@ class FiltersGeolocationsTestCase(TestCase):
         """
 
         result = schema.execute(query)
-        self.assertEqual(result.data['allGeolocations']['edges'][0]['node']
-                         ['tag'], geolocation[0].tag)
+        self.assertEqual(
+            result.data['allGeolocations']['edges'][0]['node']['tag'],
+            geolocation[0].tag)
 
     def test_filter_tag_In_geolocations(self):
         geolocation = Geolocation.objects.filter(tag__in=["albania", "andora"])
@@ -161,10 +161,12 @@ class FiltersGeolocationsTestCase(TestCase):
         """
 
         result = schema.execute(query)
-        self.assertEqual(result.data['allGeolocations']['edges'][0]['node']
-                         ['tag'], geolocation[0].tag)
-        self.assertEqual(result.data['allGeolocations']['edges'][1]['node']
-                         ['tag'], geolocation[1].tag)
+        self.assertEqual(
+            result.data['allGeolocations']['edges'][0]['node']['tag'],
+            geolocation[0].tag)
+        self.assertEqual(
+            result.data['allGeolocations']['edges'][1]['node']['tag'],
+            geolocation[1].tag)
 
     def test_filter_objectId_geolocations(self):
         geolocation = Geolocation.objects.filter(object_id=self.obj_id_1)
@@ -187,11 +189,13 @@ class FiltersGeolocationsTestCase(TestCase):
 
         result = schema.execute(query, variable_values=object_id_str)
 
-        self.assertEqual(result.data['allGeolocations']['edges'][0]['node']
-                         ['objectId'], geolocation[0].object_id)
+        self.assertEqual(
+            result.data['allGeolocations']['edges'][0]['node']['objectId'],
+            geolocation[0].object_id)
 
     def test_filter_objectId_In_geolocations(self):
-        geolocation = Geolocation.objects.filter(object_id__in=[self.obj_id_1, self.obj_id_2])
+        geolocation = Geolocation.objects.filter(
+            object_id__in=[self.obj_id_1, self.obj_id_2])
         query = """
         query geolocations($object_id_str: String!){
             allGeolocations(objectId_In: $object_id_str) {
@@ -207,13 +211,17 @@ class FiltersGeolocationsTestCase(TestCase):
         }
         """
 
-        object_id_str = {"object_id_str": str(self.obj_id_1) + ',' + str(self.obj_id_2)}
+        object_id_str = {
+            "object_id_str": str(self.obj_id_1) + ',' + str(self.obj_id_2)
+        }
 
         result = schema.execute(query, variable_values=object_id_str)
-        self.assertEqual(result.data['allGeolocations']['edges'][0]['node']
-                         ['objectId'], geolocation[0].object_id)
-        self.assertEqual(result.data['allGeolocations']['edges'][1]['node']
-                         ['objectId'], geolocation[1].object_id)
+        self.assertEqual(
+            result.data['allGeolocations']['edges'][0]['node']['objectId'],
+            geolocation[0].object_id)
+        self.assertEqual(
+            result.data['allGeolocations']['edges'][1]['node']['objectId'],
+            geolocation[1].object_id)
 
     def test_filter_type_geolocations(self):
         geolocation = Geolocation.objects.filter(type="city")
@@ -233,8 +241,9 @@ class FiltersGeolocationsTestCase(TestCase):
         """
 
         result = schema.execute(query)
-        self.assertEqual(result.data['allGeolocations']['edges'][0]['node']
-                         ['tag'], geolocation[0].tag)
+        self.assertEqual(
+            result.data['allGeolocations']['edges'][0]['node']['tag'],
+            geolocation[0].tag)
 
     def test_filter_type_In_geolocations(self):
         geolocation = Geolocation.objects.filter(type__in=['country', 'city'])
@@ -254,14 +263,18 @@ class FiltersGeolocationsTestCase(TestCase):
         """
 
         result = schema.execute(query)
-        self.assertEqual(result.data['allGeolocations']['edges'][0]['node']
-                         ['tag'], geolocation[0].tag)
-        self.assertEqual(result.data['allGeolocations']['edges'][1]['node']
-                         ['tag'], geolocation[1].tag)
-        self.assertEqual(result.data['allGeolocations']['edges'][2]['node']
-                         ['tag'], geolocation[2].tag)
-        self.assertEqual(result.data['allGeolocations']['edges'][3]['node']
-                         ['tag'], geolocation[3].tag)
+        self.assertEqual(
+            result.data['allGeolocations']['edges'][0]['node']['tag'],
+            geolocation[0].tag)
+        self.assertEqual(
+            result.data['allGeolocations']['edges'][1]['node']['tag'],
+            geolocation[1].tag)
+        self.assertEqual(
+            result.data['allGeolocations']['edges'][2]['node']['tag'],
+            geolocation[2].tag)
+        self.assertEqual(
+            result.data['allGeolocations']['edges'][3]['node']['tag'],
+            geolocation[3].tag)
 
     def test_filter_entryId_geolocations(self):
         geolocation = Geolocation.objects.first()
@@ -282,8 +295,9 @@ class FiltersGeolocationsTestCase(TestCase):
         """ % geolocation_id
 
         result = schema.execute(query)
-        self.assertEqual(result.data['allGeolocations']['edges'][0]['node']
-                         ['tag'], geolocation.tag)
+        self.assertEqual(
+            result.data['allGeolocations']['edges'][0]['node']['tag'],
+            geolocation.tag)
 
     def test_filter_entryId_In_geolocations(self):
         geolocation = Geolocation.objects.all()[:2]
@@ -305,7 +319,9 @@ class FiltersGeolocationsTestCase(TestCase):
         """ % (id_one, id_two)
 
         result = schema.execute(query)
-        self.assertEqual(result.data['allGeolocations']['edges'][0]['node']
-                         ['tag'], geolocation[0].tag)
-        self.assertEqual(result.data['allGeolocations']['edges'][1]['node']
-                         ['tag'], geolocation[1].tag)
+        self.assertEqual(
+            result.data['allGeolocations']['edges'][0]['node']['tag'],
+            geolocation[0].tag)
+        self.assertEqual(
+            result.data['allGeolocations']['edges'][1]['node']['tag'],
+            geolocation[1].tag)

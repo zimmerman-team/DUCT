@@ -43,42 +43,39 @@ transactions_query = oipa_base_url + iati_indicator_endpoint + "?aggregations=va
 last_updated_query = oipa_base_url + "activities/?fields=last_updated_datetime&page=1&page_size=1&format=json" \
                                      "&reporting_organisation_identifier=" + aids_fonds_identifier
 
-iati_indicator_metadata = [
-    {
-        "query": activity_status_query,
-        "ind_val": 'Activity Status',
-        "filter_place": 'activity_status.name',
-        "geo_place": 'recipient_country.code',
-        "date_place": 'transaction_date_year',
-        "format_val": 'Activities',
-        "value_place": 'activity_count'
-    },
-    {
-        "query": sector_query,
-        "ind_val": 'Sector',
-        "filter_place": 'sector.name',
-        "geo_place": 'recipient_country.code',
-        "date_place": 'transaction_date_year',
-        "format_val": 'Activities',
-        "value_place": 'activity_count'
-    },
-    {
-        "query": transactions_query,
-        "ind_val": 'Transactions',
-        "filter_place": 'transaction_type.name',
-        "geo_place": 'recipient_country.code',
-        "date_place": 'transaction_date_year',
-        "format_val": 'EUR',
-        "value_place": 'value'
-    }
-]
+iati_indicator_metadata = [{
+    "query": activity_status_query,
+    "ind_val": 'Activity Status',
+    "filter_place": 'activity_status.name',
+    "geo_place": 'recipient_country.code',
+    "date_place": 'transaction_date_year',
+    "format_val": 'Activities',
+    "value_place": 'activity_count'
+}, {
+    "query": sector_query,
+    "ind_val": 'Sector',
+    "filter_place": 'sector.name',
+    "geo_place": 'recipient_country.code',
+    "date_place": 'transaction_date_year',
+    "format_val": 'Activities',
+    "value_place": 'activity_count'
+}, {
+    "query": transactions_query,
+    "ind_val": 'Transactions',
+    "filter_place": 'transaction_type.name',
+    "geo_place": 'recipient_country.code',
+    "date_place": 'transaction_date_year',
+    "format_val": 'EUR',
+    "value_place": 'value'
+}]
 
 
 def map_iati_data():
     try:
         # so first we check if OIPA data has been updated
         last_updated_data = requests.get(last_updated_query).json()
-        last_updated_time = last_updated_data['results'][0]['last_updated_datetime']
+        last_updated_time = last_updated_data['results'][0][
+            'last_updated_datetime']
 
         file_source_name = 'AIDSFONDS IATI DATASET'
 
@@ -99,7 +96,9 @@ def map_iati_data():
             # and we can easily update it, otherwise nothing should be
             # done
             if file.title != dataset_title:
-                print('OIPA DATA HAS BEEN UPDATED, IATI DATASET REMAPPING INITIATED: ', datetime.datetime.now())
+                print(
+                    'OIPA DATA HAS BEEN UPDATED, IATI DATASET REMAPPING INITIATED: ',
+                    datetime.datetime.now())
                 map_it = True
                 # then we find the indicators
                 indicators = Indicator.objects.filter(file__id=file.id)
@@ -110,7 +109,9 @@ def map_iati_data():
                 file_source.delete()
                 file.delete()
             else:
-                print('OIPA DATA HAS NOT BEEN UPDATED, NOT REMAPPING THE IATI DATASET: ', datetime.datetime.now())
+                print(
+                    'OIPA DATA HAS NOT BEEN UPDATED, NOT REMAPPING THE IATI DATASET: ',
+                    datetime.datetime.now())
         else:
             print('NEW IATI DATASET BEING MAPPED', datetime.datetime.now())
             map_it = True
@@ -120,21 +121,20 @@ def map_iati_data():
             print('TIME:', datetime.datetime.now())
 
             # creating the file source for the dataset
-            file_source = FileSource.objects.create(
-                name=file_source_name
-            )
+            file_source = FileSource.objects.create(name=file_source_name)
 
             full_path_to_dataset = os.path.join(
-                os.path.join(
-                    settings.MEDIA_ROOT,
-                    settings.DATASETS_URL),
+                os.path.join(settings.MEDIA_ROOT, settings.DATASETS_URL),
                 'AIDSFONDS_IATI_DATASET.csv')
 
             # create and saving the csv file
             with open(full_path_to_dataset, 'w') as writeFile:
                 writer = csv.writer(writeFile)
                 # we write the headers
-                writer.writerow(['Indicator', 'Sub-indicator', 'ISO2', 'Year', 'Value Format', 'Value'])
+                writer.writerow([
+                    'Indicator', 'Sub-indicator', 'ISO2', 'Year',
+                    'Value Format', 'Value'
+                ])
                 # and here we retrieve and write the actual values of this dataset
                 for iati_ind_item in iati_indicator_metadata:
                     # and here we start forming the dataset
@@ -145,11 +145,15 @@ def map_iati_data():
                         # so yeah here we form the dataset with values
                         writer.writerow([
                             iati_ind_item['ind_val'],
-                            pydash.objects.get(item, iati_ind_item['filter_place']),
-                            pydash.objects.get(item, iati_ind_item['geo_place']),
-                            pydash.objects.get(item, iati_ind_item['date_place']),
+                            pydash.objects.get(item,
+                                               iati_ind_item['filter_place']),
+                            pydash.objects.get(item,
+                                               iati_ind_item['geo_place']),
+                            pydash.objects.get(item,
+                                               iati_ind_item['date_place']),
                             iati_ind_item['format_val'],
-                            pydash.objects.get(item, iati_ind_item['value_place'])
+                            pydash.objects.get(item,
+                                               iati_ind_item['value_place'])
                         ])
 
             writeFile.close()
@@ -174,19 +178,23 @@ def map_iati_data():
                 original_file_location=full_path_to_dataset,
                 file_status='1',
                 error_file_location='',
-                file=full_path_to_dataset
-            )
+                file=full_path_to_dataset)
             # datatypes_overview_file_location
 
             # so this is gonna be the mapping dict for that
             # iati data
             data = {
                 "metadata_id": file_man.id,
-                "filter_headings": {"Sub-indicator": "Sub-indicator"},
+                "filter_headings": {
+                    "Sub-indicator": "Sub-indicator"
+                },
                 "extra_information": {
                     "empty_entries": {
                         "empty_indicator": '',
-                        "empty_geolocation": {"value": '', "type": ''},
+                        "empty_geolocation": {
+                            "value": '',
+                            "type": ''
+                        },
                         "empty_filter": '',
                         "empty_value_format": {},
                         "empty_date": ''
@@ -196,7 +204,10 @@ def map_iati_data():
                         "column_values": {}
                     },
                     "point_based_info": {
-                        "coord": {"lat": '', "lon": ''},
+                        "coord": {
+                            "lat": '',
+                            "lon": ''
+                        },
                         "subnational": '',
                         "country": '',
                         "type": ''

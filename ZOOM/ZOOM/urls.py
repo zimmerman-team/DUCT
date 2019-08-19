@@ -16,18 +16,13 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include('api.urls', namespace='api')),
     url(r'^graphql', AuthenticatedGraphQLView.as_view(graphiql=True)),
-    url(r'^admin-graphql', staff_member_required(
-        GraphQLView.as_view(graphiql=True)
-    )),
+    url(r'^admin-graphql',
+        staff_member_required(GraphQLView.as_view(graphiql=True))),
     url(r'^public-graphql', GraphQLView.as_view(graphiql=True, schema=schema)),
 ]
 
 if settings.DEBUG:
-    urlpatterns += static(
-        settings.STATIC_URL,
-        document_root=settings.STATIC_ROOT
-    )
-    urlpatterns += static(
-        settings.MEDIA_URL,
-        document_root=settings.MEDIA_ROOT
-    )
+    urlpatterns += static(settings.STATIC_URL,
+                          document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)

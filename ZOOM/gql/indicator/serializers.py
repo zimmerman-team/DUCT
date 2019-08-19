@@ -4,12 +4,6 @@ from indicator.models import Indicator
 
 
 class IndicatorSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Indicator
-        fields = (
-            'id',
-            'name',
-            'description',
-            'file_source'
-        )
+        fields = ('id', 'name', 'description', 'file_source')

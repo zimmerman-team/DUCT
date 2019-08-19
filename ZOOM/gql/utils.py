@@ -21,12 +21,10 @@ email_session_key = None
 
 
 class OrderedDjangoFilterConnectionField(DjangoFilterConnectionField):
-
     @classmethod
-    def connection_resolver(
-            cls, resolver, connection, default_manager, max_limit,
-            enforce_first_or_last, filterset_class, filtering_args,
-            root, info, **args):
+    def connection_resolver(cls, resolver, connection, default_manager,
+                            max_limit, enforce_first_or_last, filterset_class,
+                            filtering_args, root, info, **args):
 
         filter_kwargs = {k: v for k, v in args.items() if k in filtering_args}
         qs = default_manager.get_queryset() \
@@ -38,10 +36,10 @@ class OrderedDjangoFilterConnectionField(DjangoFilterConnectionField):
         if order:
             qs = qs.order_by(*order)
 
-        return super(DjangoFilterConnectionField, cls).connection_resolver(
-            resolver, connection, qs, max_limit,
-            enforce_first_or_last, root, info, **args
-        )
+        return super(DjangoFilterConnectionField,
+                     cls).connection_resolver(resolver, connection, qs,
+                                              max_limit, enforce_first_or_last,
+                                              root, info, **args)
 
 
 class AggregationNode(graphene.ObjectType):
@@ -58,11 +56,13 @@ class AggregationNode(graphene.ObjectType):
         return [self.FIELDS_MAPPING.get(field) for field in kwargs['groupBy']]
 
     def get_order_by(self, context, **kwargs):
-        return [('-' if '-' == field[0] else '') + self.FIELDS_MAPPING
-                .get(field.replace('-', '')) for field in kwargs['orderBy']]
+        return [('-' if '-' == field[0] else '') +
+                self.FIELDS_MAPPING.get(field.replace('-', ''))
+                for field in kwargs['orderBy']]
 
     def get_requested_fields(self, context, **kwargs):
-        return [self.FIELDS_MAPPING.get(field) for field in kwargs['fields']] if 'fields' in kwargs else []
+        return [self.FIELDS_MAPPING.get(field)
+                for field in kwargs['fields']] if 'fields' in kwargs else []
 
     def get_filters(self, context, **kwargs):
         filters = {}
@@ -98,10 +98,11 @@ class AggregationNode(graphene.ObjectType):
         end = ')'
         return {
             field[field.find(start) + len(start):field.rfind(end)]:
-                eval(field[:field.find(start) + 1] + '"' +
-                     self.FIELDS_MAPPING.get(
-                         field[field.find(start) + len(start):field.rfind(end)]
-                ) + '"' + field[-1:]) for field in kwargs['aggregation']
+            eval(field[:field.find(start) + 1] + '"' +
+                 self.FIELDS_MAPPING.get(field[field.find(start) +
+                                               len(start):field.rfind(end)]) +
+                 '"' + field[-1:])
+            for field in kwargs['aggregation']
         }
 
     def get_results(self, context, **kwargs):
@@ -120,7 +121,8 @@ class AggregationNode(graphene.ObjectType):
         for field in missing_fields:
             missing_field_aggr[field] = ArrayAgg(field, distinct=True)
 
-        if 'geoJsonUrl' in kwargs and kwargs['geoJsonUrl'] and 'filters__name' in groups:
+        if 'geoJsonUrl' in kwargs and kwargs[
+                'geoJsonUrl'] and 'filters__name' in groups:
             # so if the data for geojson needs to be dissagregated by sub-indicators(filters)
             # we'll apply a different aggregation logic for geojsons feature processing
             # to work faster in when using multiprocessing parallel
@@ -130,7 +132,8 @@ class AggregationNode(graphene.ObjectType):
             missing_field_aggr['value'] = ArrayAgg('value')
             # we'll also need the NOT distinct value format types
             # for the data to be shown correctly
-            missing_field_aggr['value_format__type'] = ArrayAgg('value_format__type')
+            missing_field_aggr['value_format__type'] = ArrayAgg(
+                'value_format__type')
             # and we'll remove the filters__name from the group by so that
             # values would be added for the whole indicator, as thats what we need
             # for the layers themselves
@@ -143,22 +146,25 @@ class AggregationNode(graphene.ObjectType):
                 .values(*groups).annotate(**aggregations, **missing_field_aggr).order_by(*orders)
 
         return self.Model.objects.filter(**filters).values(*groups).annotate(
-            **aggregations,
-            **missing_field_aggr
-        ).order_by(*orders)
+            **aggregations, **missing_field_aggr).order_by(*orders)
 
     def get_nodes(self, context, **kwargs):
         results = self.get_results(context, **kwargs)
-        fields_to_return = kwargs['fields'] if 'fields' in kwargs else kwargs['groupBy']
+        fields_to_return = kwargs['fields'] if 'fields' in kwargs else kwargs[
+            'groupBy']
         # so here we'll want to return data points with the unique
         # indicators specified, so mainly this is used to avoid
         # indicators with duplicate names, so that their datapoints values
         # would not get aggregated when they're filtered by indicator name
-        if 'unique_indicator' in kwargs and kwargs['unique_indicator'] and results.count() > 0:
+        if 'unique_indicator' in kwargs and kwargs[
+                'unique_indicator'] and results.count() > 0:
             indicator_ids = []
             indicator_names = []
             # oke so first we get the unique id's of the datapoints indicators and their names
-            unique_id_tuple = list(results.values_list('indicator__name', 'indicator__id', named=True).distinct())
+            unique_id_tuple = list(
+                results.values_list('indicator__name',
+                                    'indicator__id',
+                                    named=True).distinct())
             for item_tuple in unique_id_tuple:
                 ind_name = getattr(item_tuple, 'indicator__name')
                 # so yeah basically because we're working with duplicate names
@@ -175,10 +181,7 @@ class AggregationNode(graphene.ObjectType):
         nodes = []
         aggregation = kwargs['aggregation']
         # this variable will be only used for geoJson file forming
-        country_layers = {
-            "type": 'FeatureCollection',
-            "features": []
-        }
+        country_layers = {"type": 'FeatureCollection', "features": []}
         min_value = 0
         max_value = 0
 
@@ -190,18 +193,21 @@ class AggregationNode(graphene.ObjectType):
             if result_count > 40000:
                 process_amount = settings.POCESS_WORKER_AMOUNT
 
-            feature_generator = BigFeatureGenerator(all_results=results,
-                                                    result_count=result_count,
-                                                    process_amount=process_amount)
+            feature_generator = BigFeatureGenerator(
+                all_results=results,
+                result_count=result_count,
+                process_amount=process_amount)
 
             country_layers['features'] = feature_generator.generate_features()
             min_value = feature_generator.min_value
             max_value = feature_generator.max_value
         else:
             for result in results:
-                node = self.__class__(**{field: result[
-                    self.FIELDS_MAPPING.get(
-                        field)] for field in fields_to_return})
+                node = self.__class__(
+                    **{
+                        field: result[self.FIELDS_MAPPING.get(field)]
+                        for field in fields_to_return
+                    })
 
                 for field, value in node.__dict__.items():
                     if type(value) in [MultiPolygon, Polygon, Point]:
@@ -213,30 +219,35 @@ class AggregationNode(graphene.ObjectType):
                 # else we form the nodes normally
                 nodes.append(node)
 
-        if 'geoJsonUrl' in kwargs and kwargs['geoJsonUrl'] and len(country_layers['features']) > 0:
+        if 'geoJsonUrl' in kwargs and kwargs['geoJsonUrl'] and len(
+                country_layers['features']) > 0:
             unique_count = 0
             # so after we're done forming the geoJson we update
             # the percentiles of the properties
             # and generate the count of uniqValues
             # for coloring purposes
             country_layers['features'] = pydash.arrays.sort(
-                country_layers['features'], key=lambda featz: featz['properties']['value'])
+                country_layers['features'],
+                key=lambda featz: featz['properties']['value'])
 
-            current_value = country_layers['features'][0]['properties']['value']
+            current_value = country_layers['features'][0]['properties'][
+                'value']
 
             for index, feat in enumerate(country_layers['features']):
                 if current_value != feat['properties']['value']:
                     unique_count += 1
                     current_value = feat['properties']['value']
 
-                country_layers['features'][index]['properties']['percentile'] = unique_count
+                country_layers['features'][index]['properties'][
+                    'percentile'] = unique_count
 
             # and now when everything has been formed correctly
             # we write the geoJson into a file
             # and add the unique layer node to the nodes
             # response
 
-            if 'currentGeoJson' in kwargs and kwargs['currentGeoJson'] is not None:
+            if 'currentGeoJson' in kwargs and kwargs[
+                    'currentGeoJson'] is not None:
                 # so we will remove the previous geojson and generate a new one
                 file_name = kwargs['currentGeoJson']
                 file_url = 'static/temp_geo_jsons/' + file_name
@@ -259,8 +270,10 @@ class AggregationNode(graphene.ObjectType):
             with open(full_path_to_file, 'w') as json_file:
                 json.dump(country_layers, json_file)
 
-            node = self.__class__(geoJsonUrl=file_url, uniqCount=unique_count,
-                                  minValue=min_value, maxValue=max_value)
+            node = self.__class__(geoJsonUrl=file_url,
+                                  uniqCount=unique_count,
+                                  minValue=min_value,
+                                  maxValue=max_value)
 
             nodes.append(node)
 

@@ -19,11 +19,15 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='region',
             name='polygons',
-            field=django.contrib.gis.db.models.fields.GeometryField(blank=True, null=True, srid=4326),
+            field=django.contrib.gis.db.models.fields.GeometryField(blank=True,
+                                                                    null=True,
+                                                                    srid=4326),
         ),
         migrations.AlterField(
             model_name='subnational',
             name='polygons',
-            field=django.contrib.gis.db.models.fields.GeometryField(blank=True, null=True, srid=4326),
+            field=django.contrib.gis.db.models.fields.GeometryField(blank=True,
+                                                                    null=True,
+                                                                    srid=4326),
         ),
     ]

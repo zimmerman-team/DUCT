@@ -27,9 +27,7 @@ API_CACHE_SECONDS = 60 * 60 * 24
 ROOT_ORGANISATIONS = []
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-STATICFILES_DIRS = (
-     os.path.join(BASE_DIR, 'static/'),
-)
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static/'), )
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'ZOOM.wsgi.application'

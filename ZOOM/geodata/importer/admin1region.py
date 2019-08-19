@@ -13,7 +13,8 @@ class Adm1RegionImport():
         self.get_json_data = get_json_data
 
     def update_from_json(self):
-        adm1_regions = self.get_json_data("/../data_backup/admin_1_regions.json")
+        adm1_regions = self.get_json_data(
+            "/../data_backup/admin_1_regions.json")
 
         for r in adm1_regions['features']:
 
@@ -22,61 +23,19 @@ class Adm1RegionImport():
             p = r["properties"]
 
             field_list = [
-                'adm1_code',
-                'OBJECTID_1',
-                'diss_me',
-                'adm1_cod_1',
-                'wikipedia',
-                'adm0_sr',
-                'name',
-                'name_alt',
-                'name_local',
-                'type',
-                'type_en',
-                'code_local',
-                'code_hasc',
-                'note',
-                'hasc_maybe',
-                'region',
-                'region_cod',
-                'provnum_ne',
-                'gadm_level',
-                'check_me',
-                'scalerank',
-                'datarank',
-                'abbrev',
-                'postal',
-                'area_sqkm',
-                'sameascity',
-                'labelrank',
-                'featurecla',
-                'name_len',
-                'mapcolor9',
-                'mapcolor13',
-                'fips',
-                'fips_alt',
-                'woe_id',
-                'woe_label',
-                'woe_name',
-                'sov_a3',
-                'adm0_a3',
-                'adm0_label',
-                'admin',
-                'geonunit',
-                'gu_a3',
-                'gn_id',
-                'gn_name',
-                'gns_id',
-                'gns_name',
-                'gn_level',
-                'gn_region',
-                'gn_a1_code',
-                'region_sub',
-                'sub_code',
-                'gns_level',
-                'gns_lang',
-                'gns_adm1',
-                'gns_region']
+                'adm1_code', 'OBJECTID_1', 'diss_me', 'adm1_cod_1',
+                'wikipedia', 'adm0_sr', 'name', 'name_alt', 'name_local',
+                'type', 'type_en', 'code_local', 'code_hasc', 'note',
+                'hasc_maybe', 'region', 'region_cod', 'provnum_ne',
+                'gadm_level', 'check_me', 'scalerank', 'datarank', 'abbrev',
+                'postal', 'area_sqkm', 'sameascity', 'labelrank', 'featurecla',
+                'name_len', 'mapcolor9', 'mapcolor13', 'fips', 'fips_alt',
+                'woe_id', 'woe_label', 'woe_name', 'sov_a3', 'adm0_a3',
+                'adm0_label', 'admin', 'geonunit', 'gu_a3', 'gn_id', 'gn_name',
+                'gns_id', 'gns_name', 'gn_level', 'gn_region', 'gn_a1_code',
+                'region_sub', 'sub_code', 'gns_level', 'gns_lang', 'gns_adm1',
+                'gns_region'
+            ]
 
             for field in field_list:
                 if p.get(field):
@@ -95,7 +54,8 @@ class Adm1RegionImport():
                     longitude = str(p.get('longitude'))
                     latitude = str(p.get('latitude'))
                     point_loc_str = 'POINT(' + longitude + ' ' + latitude + ')'
-                    the_adm1_region.center_location = fromstr(point_loc_str, srid=4326)
+                    the_adm1_region.center_location = fromstr(point_loc_str,
+                                                              srid=4326)
                 except KeyError:
                     print "Admin 1 region with code %s has an illegal center location..." % the_adm1_region.adm1_code
 

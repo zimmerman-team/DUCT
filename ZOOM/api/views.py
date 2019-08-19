@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 
-@api_view(('GET',))
+@api_view(('GET', ))
 def overview(request, format=None):
     """
     ### ZOOM-CSV-MAPPER Rest API ###
@@ -19,7 +19,8 @@ def overview(request, format=None):
     """
     return Response('TODO go to api/')
 
-@api_view(('GET',))
+
+@api_view(('GET', ))
 def welcome(request, format=None):
     """
     ## REST API
@@ -54,8 +55,7 @@ def welcome(request, format=None):
     }''')
 
 
-
-@api_view(('GET',))
+@api_view(('GET', ))
 def health_check(request, format=None):
     """
     Performs an API health check

@@ -16,21 +16,23 @@ from metadata.models import File
 def get_geolocation_dictionary():
     dict = {}
     dict['iso2'] = list(
-        Geolocation.objects.values_list(
-            'iso2', flat=True).distinct())
+        Geolocation.objects.values_list('iso2', flat=True).distinct())
     dict['iso2'] = [x for x in dict['iso2'] if x is not None]
     value_dict = {k.lower(): 'iso2' for k in dict['iso2']}
     dict['iso3'] = list(
-        Geolocation.objects.values_list(
-            'iso3', flat=True).distinct())
+        Geolocation.objects.values_list('iso3', flat=True).distinct())
     dict['iso3'] = [x for x in dict['iso3'] if x is not None]
     value_dict = {**value_dict, **{k.lower(): 'iso3' for k in dict['iso3']}}
     for entry in list(Geolocation.objects.distinct('type')):
-        dict[entry.type] = list(Geolocation.objects.filter(
-            type=entry.type).values_list('tag', flat=True).distinct())
+        dict[entry.type] = list(
+            Geolocation.objects.filter(type=entry.type).values_list(
+                'tag', flat=True).distinct())
         dict[entry.type] = [x for x in dict[entry.type] if x is not None]
-        value_dict = {**value_dict,
-                      **{k.lower(): entry.type for k in dict[entry.type]}}
+        value_dict = {
+            **value_dict,
+            **{k.lower(): entry.type
+               for k in dict[entry.type]}
+        }
     return value_dict
 
 
@@ -43,10 +45,8 @@ def save_validation_data(error_data, id, dtypes_dict):
         dtypes_dict ({str:str}): stores the data-types for each heading.
     """
 
-    path = os.path.join(
-        os.path.dirname(
-            settings.BASE_DIR),
-        'ZOOM/media/tmpfiles')
+    path = os.path.join(os.path.dirname(settings.BASE_DIR),
+                        'ZOOM/media/tmpfiles')
     tmp_id = str(uuid.uuid4())
     error_file = path + "/" + tmp_id + "_error_data.txt"
 
@@ -147,10 +147,9 @@ def get_headings_data_model(df_file):
     # skip first four headings as irrelevant to user input, should use filter for this
 
     data_model_headings = data_model_headings[4:len(data_model_headings)]
-    data_model_headings = filter(lambda x: "search_vector_text" != x and
-                                 "date_format" != x and
-                                 "date_created" != x and
-                                 "file" != x, data_model_headings)
+    data_model_headings = filter(
+        lambda x: "search_vector_text" != x and "date_format" != x and
+        "date_created" != x and "file" != x, data_model_headings)
     remaining_mapping = data_model_headings
     zip_list = zip(file_heading_list, dtypes_list, validation_results)
     # change this to add hover for file heading
@@ -184,11 +183,8 @@ def get_column_information(df_file, dtypes_dict):
         validation_results.append(df_file[heading].isnull().sum())
         data_str = []
         for types in dtypes_dict[heading]:
-            data_str.append("" +
-                            str(types[1]) +
-                            " of data a " +
-                            str(types[0]) +
-                            " value.")
+            data_str.append("" + str(types[1]) + " of data a " +
+                            str(types[0]) + " value.")
         dtypes_list.append(data_str)
         column_detail = df_file[heading].describe()
         summary_results.append(np.array(column_detail).astype('str'))

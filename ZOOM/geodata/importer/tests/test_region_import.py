@@ -5,7 +5,6 @@
 # from geodata.models import Region
 # from geodata.importer.region import RegionImport
 
-
 # class RegionAdminTestCase(TestCase):
 
 #     def setUp(self):

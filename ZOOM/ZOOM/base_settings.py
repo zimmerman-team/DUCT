@@ -8,10 +8,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': (os.path.join(
-            os.path.dirname(__file__), '..', 'templates').replace('\\','/'),),
-        'APP_DIRS': True,
+        'BACKEND':
+        'django.template.backends.django.DjangoTemplates',
+        'DIRS': (os.path.join(os.path.dirname(__file__), '..',
+                              'templates').replace('\\', '/'), ),
+        'APP_DIRS':
+        True,
         'OPTIONS': {
             'context_processors': [
                 'django.contrib.auth.context_processors.auth',
@@ -27,11 +29,12 @@ TEMPLATES = [
     },
 ]
 
+
 def rel(*x):
     return os.path.join(os.path.abspath(os.path.dirname(__file__)), *x)
 
-sys.path.insert(0, rel('..','lib'))
 
+sys.path.insert(0, rel('..', 'lib'))
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
@@ -47,7 +50,7 @@ TIME_ZONE = 'Europe/Amsterdam'
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-us'
 
-APPEND_SLASH=True
+APPEND_SLASH = True
 
 SITE_ID = 1
 
@@ -144,15 +147,13 @@ RQ_SHOW_ADMIN_LINK = True
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'api.pagination.CustomPagination',
-    'PAGE_SIZE': 10,
-    'DEFAULT_FILTER_BACKENDS': (
-        'django_filters.rest_framework.DjangoFilterBackend',
-    ),
-    'DEFAULT_PARSER_CLASSES': (
-        'rest_framework.parsers.JSONParser',
-
-    ),
+    'DEFAULT_PAGINATION_CLASS':
+    'api.pagination.CustomPagination',
+    'PAGE_SIZE':
+    10,
+    'DEFAULT_FILTER_BACKENDS':
+    ('django_filters.rest_framework.DjangoFilterBackend', ),
+    'DEFAULT_PARSER_CLASSES': ('rest_framework.parsers.JSONParser', ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.BrowsableAPIRenderer',
         'rest_framework.renderers.JSONRenderer',
@@ -178,17 +179,15 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240
 
 # GraphQL setting
 
-GRAPHENE = {
-    'SCHEMA': 'gql.schema.schema',
-    'SCHEMA_OUTPUT': 'data/schema.json'
-}
+GRAPHENE = {'SCHEMA': 'gql.schema.schema', 'SCHEMA_OUTPUT': 'data/schema.json'}
 
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
     'formatters': {
         'standard': {
-            'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] msg: %(message)s args: %(args)s",
+            'format':
+            "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] msg: %(message)s args: %(args)s",
             'datefmt': "%d/%b/%Y %H:%M:%S"
         },
     },
@@ -240,7 +239,8 @@ CELERY_BROKER_URL = 'amqp://localhost'
 CELERY_RESULT_BACKEND = 'amqp://localhost'
 CELERY_ALWAYS_EAGER = True
 CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
-CELERY_BEAT_SCHEDULE = {'mapping-iati-data': {
+CELERY_BEAT_SCHEDULE = {
+    'mapping-iati-data': {
         'task': 'mapping.tasks.mapping_iati_data',
         'schedule': crontab(minute=0, hour=0)
     },

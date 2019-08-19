@@ -70,21 +70,55 @@ class FileFilter(FilterSet):
         fields = {
             'title': ['exact', 'icontains', 'istartswith', 'in'],
             'description': ['exact', 'icontains', 'istartswith', 'in'],
-            'contains_subnational_data': ['exact', ],
+            'contains_subnational_data': [
+                'exact',
+            ],
             'organisation': ['exact', 'icontains', 'istartswith', 'in'],
             'maintainer': ['exact', 'icontains', 'istartswith', 'in'],
             'date_of_dataset': ['exact', 'gte', 'lte'],
             'methodology': ['exact', 'icontains', 'istartswith', 'in'],
-            'define_methodology': ['exact', 'icontains', ],
-            'update_frequency': ['exact', 'icontains', ],
-            'comments': ['exact', 'icontains', ],
-            'accessibility': ['exact', 'in', ],
-            'data_quality': ['exact', 'in', ],
-            'number_of_rows': ['gte', 'lte', ],
-            'number_of_rows_saved': ['gte', 'lte', ],
-            'file_types': ['exact', 'in', ],
-            'data_uploaded': ['exact', 'gte', 'lte', ],
-            'last_updated': ['exact', 'gte', 'lte', ]
+            'define_methodology': [
+                'exact',
+                'icontains',
+            ],
+            'update_frequency': [
+                'exact',
+                'icontains',
+            ],
+            'comments': [
+                'exact',
+                'icontains',
+            ],
+            'accessibility': [
+                'exact',
+                'in',
+            ],
+            'data_quality': [
+                'exact',
+                'in',
+            ],
+            'number_of_rows': [
+                'gte',
+                'lte',
+            ],
+            'number_of_rows_saved': [
+                'gte',
+                'lte',
+            ],
+            'file_types': [
+                'exact',
+                'in',
+            ],
+            'data_uploaded': [
+                'exact',
+                'gte',
+                'lte',
+            ],
+            'last_updated': [
+                'exact',
+                'gte',
+                'lte',
+            ]
         }
 
     def filter_entry_id(self, queryset, name, value):
@@ -140,7 +174,7 @@ class SurveyDataNode(DjangoObjectType):
 
     class Meta:
         model = SurveyData
-        interfaces = (relay.Node,)
+        interfaces = (relay.Node, )
 
     def resolve_entry_id(self, context, **kwargs):
         return self.id
@@ -174,33 +208,15 @@ class SurveyDataFilter(FilterSet):
     class Meta:
         model = SurveyData
         fields = {
-            'have_you_tested_tool': [
-                'exact', 'in'
-            ],
-            'who_did_you_test_with': [
-                'exact', 'in'
-            ],
-            'staff_trained': [
-                'exact', 'in'
-            ],
-            'ask_sensitive': [
-                'exact', 'in'
-            ],
-            'select_respondents': [
-                'exact', 'in'
-            ],
-            'how_many_respondents': [
-                'exact', 'in'
-            ],
-            'edit_sheet': [
-                'exact', 'in'
-            ],
-            'data_cleaning_techniques': [
-                'exact', 'in'
-            ],
-            'other_cleaning_technique': [
-                'exact', 'in'
-            ],
+            'have_you_tested_tool': ['exact', 'in'],
+            'who_did_you_test_with': ['exact', 'in'],
+            'staff_trained': ['exact', 'in'],
+            'ask_sensitive': ['exact', 'in'],
+            'select_respondents': ['exact', 'in'],
+            'how_many_respondents': ['exact', 'in'],
+            'edit_sheet': ['exact', 'in'],
+            'data_cleaning_techniques': ['exact', 'in'],
+            'other_cleaning_technique': ['exact', 'in'],
         }
 
     def filter_entry_id(self, queryset, name, value):
@@ -249,25 +265,20 @@ class FileErrorCorrectionFilter(FilterSet):
 class Query(object):
     file_source = relay.Node.Field(FileSourceNode)
     all_file_sources = DjangoFilterConnectionField(
-        FileSourceNode, filterset_class=FileSourcFilter
-    )
+        FileSourceNode, filterset_class=FileSourcFilter)
 
     file = relay.Node.Field(FileNode)
-    all_files = DjangoFilterConnectionField(
-        FileNode, filterset_class=FileFilter
-    )
+    all_files = DjangoFilterConnectionField(FileNode,
+                                            filterset_class=FileFilter)
 
     file_tags = relay.Node.Field(FileTagsNode)
-    all_file_tags = DjangoFilterConnectionField(
-        FileTagsNode, filterset_class=FileTagsFilter
-    )
+    all_file_tags = DjangoFilterConnectionField(FileTagsNode,
+                                                filterset_class=FileTagsFilter)
 
     survey_data = relay.Node.Field(SurveyDataNode)
     all_survey_datas = DjangoFilterConnectionField(
-        SurveyDataNode, filterset_class=SurveyDataFilter
-    )
+        SurveyDataNode, filterset_class=SurveyDataFilter)
 
     file_error_correction = relay.Node.Field(FileErrorCorrectionNode)
     all_file_error_correction = DjangoFilterConnectionField(
-        FileErrorCorrectionNode, filterset_class=FileErrorCorrectionFilter
-    )
+        FileErrorCorrectionNode, filterset_class=FileErrorCorrectionFilter)

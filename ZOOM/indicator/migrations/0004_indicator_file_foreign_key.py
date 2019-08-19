@@ -14,6 +14,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='indicator',
             name='file',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='metadata.File'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                to='metadata.File'),
         ),
     ]

@@ -20,7 +20,10 @@ class FileListView(ListCreateAPIView):
 
     queryset = File.objects.all()
     serializer_class = FileSerializer
-    parser_classes = (MultiPartParser, FormParser,)
+    parser_classes = (
+        MultiPartParser,
+        FormParser,
+    )
 
     fields = (
         'id',
@@ -109,7 +112,10 @@ class FileSourceListView(ListCreateAPIView):
     queryset = FileSource.objects.all()
     serializer_class = FileSourceSerializer
     pagination_class = FileSourceListViewPagination
-    parser_classes = (MultiPartParser, FormParser,)
+    parser_classes = (
+        MultiPartParser,
+        FormParser,
+    )
 
     fields = (
         'id',
@@ -118,9 +124,7 @@ class FileSourceListView(ListCreateAPIView):
 
     def perform_create(self, serializer):
         try:
-            serializer.save(
-                name=self.request.data.get('name'),
-            )
+            serializer.save(name=self.request.data.get('name'), )
         except Exception as e:
             logger = logging.getLogger("django")
             logger.exception("--Problem saving source")
@@ -182,7 +186,6 @@ class FileUploadView(APIView):
 
             file_url = '{dataset_url}{filename}'.format(
                 dataset_url=settings.DATASETS_URL,
-                filename=filename + '.new.csv'
-            )
+                filename=filename + '.new.csv')
 
             return Response(data={"url": file_url}, status=202)

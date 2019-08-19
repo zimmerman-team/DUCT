@@ -8,7 +8,6 @@ from gql.tests import factory
 
 
 class CountryTestCase(TestCase):
-
     def setUp(self):
         factory.CountryFactory.create()
 
@@ -29,8 +28,9 @@ class CountryTestCase(TestCase):
             """
 
         result = schema.execute(query)
-        self.assertEqual(result.data['allCountries']['edges'][0]['node']
-                         ['name'], country.name)
+        self.assertEqual(
+            result.data['allCountries']['edges'][0]['node']['name'],
+            country.name)
 
     def test_countryCenterLongLat(self):
         # TODO: please make the test for the field polygons
@@ -58,8 +58,7 @@ class CountryTestCase(TestCase):
         # Check if center_longlat at the current record has
         # the same coordinates with the GraphQL query
         center_longlat = json.loads(
-            result.data['allCountries']['edges'][0]['node']['centerLonglat']
-        )
+            result.data['allCountries']['edges'][0]['node']['centerLonglat'])
         # The centerLonglat is JSONString, so it is needed to convert again
         # to the Python dictionary
         center_longlat = json.loads(center_longlat)
@@ -91,11 +90,10 @@ class CountryTestCase(TestCase):
         # Check if center_longlat at the current record has
         # the same coordinates with the GraphQL query
         result_polygons = json.loads(
-            result.data['allCountries']['edges'][0]['node']['polygons']
-        )
+            result.data['allCountries']['edges'][0]['node']['polygons'])
         result_polygons_in_dict = json.loads(result_polygons)
         # The centerLonglat is JSONString, so it is needed to convert again
         # to the Python dictionary
         polygons_in_dict = json.loads(polygons_in_json)
-        self.assertEqual(polygons_in_dict['coordinates'], result_polygons_in_dict[
-            'coordinates'])
+        self.assertEqual(polygons_in_dict['coordinates'],
+                         result_polygons_in_dict['coordinates'])

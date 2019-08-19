@@ -17,6 +17,10 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='surveydata',
             name='select_respondents',
-            field=models.CharField(blank=True, default='', help_text='How did you select respondents?', max_length=200, null=True),
+            field=models.CharField(blank=True,
+                                   default='',
+                                   help_text='How did you select respondents?',
+                                   max_length=200,
+                                   null=True),
         ),
     ]

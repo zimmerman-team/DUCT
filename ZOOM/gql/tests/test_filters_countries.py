@@ -6,7 +6,6 @@ from gql.tests import factory
 
 
 class FiltersCountriesTestCase(TestCase):
-
     def setUp(self):
         # Dummy Country
         factory.CountryFactory(name='Albania', iso2='al', iso3='alb')
@@ -115,8 +114,9 @@ class FiltersCountriesTestCase(TestCase):
         """
 
         result = schema.execute(query)
-        self.assertEqual(result.data['allCountries']['edges'][0]['node']
-                         ['name'], country[0].name)
+        self.assertEqual(
+            result.data['allCountries']['edges'][0]['node']['name'],
+            country[0].name)
 
     def test_filter_name_In_countries(self):
 
@@ -137,10 +137,12 @@ class FiltersCountriesTestCase(TestCase):
         """
 
         result = schema.execute(query)
-        self.assertEqual(result.data['allCountries']['edges'][0]['node']
-                         ['name'], country[0].name)
-        self.assertEqual(result.data['allCountries']['edges'][1]['node']
-                         ['name'], country[1].name)
+        self.assertEqual(
+            result.data['allCountries']['edges'][0]['node']['name'],
+            country[0].name)
+        self.assertEqual(
+            result.data['allCountries']['edges'][1]['node']['name'],
+            country[1].name)
 
     def test_filter_iso2_countries(self):
 
@@ -161,8 +163,9 @@ class FiltersCountriesTestCase(TestCase):
         """
 
         result = schema.execute(query)
-        self.assertEqual(result.data['allCountries']['edges'][0]['node']
-                         ['iso2'], country[0].iso2)
+        self.assertEqual(
+            result.data['allCountries']['edges'][0]['node']['iso2'],
+            country[0].iso2)
 
     def test_filter_iso2_icontains_countries(self):
         country = Country.objects.filter(iso2__contains='al')
@@ -181,8 +184,9 @@ class FiltersCountriesTestCase(TestCase):
         """
 
         result = schema.execute(query)
-        self.assertEqual(result.data['allCountries']['edges'][0]['node']
-                         ['iso2'], country[0].iso2)
+        self.assertEqual(
+            result.data['allCountries']['edges'][0]['node']['iso2'],
+            country[0].iso2)
 
     def test_filter_iso2_istartswith_countries(self):
         country = Country.objects.filter(iso2__istartswith='al')
@@ -201,8 +205,9 @@ class FiltersCountriesTestCase(TestCase):
         """
 
         result = schema.execute(query)
-        self.assertEqual(result.data['allCountries']['edges'][0]['node']
-                         ['iso2'], country[0].iso2)
+        self.assertEqual(
+            result.data['allCountries']['edges'][0]['node']['iso2'],
+            country[0].iso2)
 
     def test_filter_iso2_In_countries(self):
         country = Country.objects.filter(iso2__in=['al', 'bs'])
@@ -224,10 +229,10 @@ class FiltersCountriesTestCase(TestCase):
 
         country_list = [country[0].iso2, country[1].iso2].sort()
 
-        result_list = [result.data['allCountries']['edges'][0]['node']
-                         ['iso2'],
-                       result.data['allCountries']['edges'][1]['node']
-                       ['iso2']].sort()
+        result_list = [
+            result.data['allCountries']['edges'][0]['node']['iso2'],
+            result.data['allCountries']['edges'][1]['node']['iso2']
+        ].sort()
 
         self.assertTrue(country_list == result_list)
 
@@ -248,8 +253,9 @@ class FiltersCountriesTestCase(TestCase):
         """
 
         result = schema.execute(query)
-        self.assertEqual(result.data['allCountries']['edges'][0]['node']
-                         ['iso3'], country[0].iso3)
+        self.assertEqual(
+            result.data['allCountries']['edges'][0]['node']['iso3'],
+            country[0].iso3)
 
     def test_filter_iso3_icontains_countries(self):
         country = Country.objects.filter(iso3__contains='al')
@@ -268,8 +274,9 @@ class FiltersCountriesTestCase(TestCase):
          """
 
         result = schema.execute(query)
-        self.assertEqual(result.data['allCountries']['edges'][0]['node']
-                         ['iso3'], country[0].iso3)
+        self.assertEqual(
+            result.data['allCountries']['edges'][0]['node']['iso3'],
+            country[0].iso3)
 
     def test_filter_iso3_istartswith_countries(self):
         country = Country.objects.filter(iso2__istartswith='al')
@@ -288,8 +295,9 @@ class FiltersCountriesTestCase(TestCase):
         """
 
         result = schema.execute(query)
-        self.assertEqual(result.data['allCountries']['edges'][0]['node']
-                         ['iso3'], country[0].iso3)
+        self.assertEqual(
+            result.data['allCountries']['edges'][0]['node']['iso3'],
+            country[0].iso3)
 
     def test_filter_iso3_In_countries(self):
         country = Country.objects.filter(iso3__in=['alb', 'aus'])
@@ -308,11 +316,13 @@ class FiltersCountriesTestCase(TestCase):
         """
 
         result = schema.execute(query)
-        self.assertEqual(result.data['allCountries']['edges'][0]['node']
-                         ['iso3'], country[0].iso3)
+        self.assertEqual(
+            result.data['allCountries']['edges'][0]['node']['iso3'],
+            country[0].iso3)
 
-        self.assertEqual(result.data['allCountries']['edges'][1]['node']
-                         ['iso3'], country[1].iso3)
+        self.assertEqual(
+            result.data['allCountries']['edges'][1]['node']['iso3'],
+            country[1].iso3)
 
     def test_filter_entryId_countries(self):
         country = Country.objects.first()
@@ -332,8 +342,9 @@ class FiltersCountriesTestCase(TestCase):
         """ % country_id
 
         result = schema.execute(query)
-        self.assertEqual(result.data['allCountries']['edges'][0]['node']
-                         ['name'], country.name)
+        self.assertEqual(
+            result.data['allCountries']['edges'][0]['node']['name'],
+            country.name)
 
     def test_filter_entryId_In_countries(self):
         country = Country.objects.all()[:2]
@@ -354,7 +365,9 @@ class FiltersCountriesTestCase(TestCase):
         """ % (country_id_one, country_id_two)
 
         result = schema.execute(query)
-        self.assertEqual(result.data['allCountries']['edges'][0]['node']
-                         ['name'], country[0].name)
-        self.assertEqual(result.data['allCountries']['edges'][1]['node']
-                         ['name'], country[1].name)
+        self.assertEqual(
+            result.data['allCountries']['edges'][0]['node']['name'],
+            country[0].name)
+        self.assertEqual(
+            result.data['allCountries']['edges'][1]['node']['name'],
+            country[1].name)

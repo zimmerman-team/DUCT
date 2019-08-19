@@ -32,7 +32,6 @@
 #     ]
 # }
 
-
 # class CityImportTestCase(TestCase):
 #     def setUp(self):
 #         self.city = CityFactory.build()

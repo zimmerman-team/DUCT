@@ -13,4 +13,4 @@ class Command(BaseCommand):
       IndicatorDatapoint.objects.update(search_vector_text=vector)
     """
     def handle(self, *args, **options):
-      update_all_unset()
+        update_all_unset()

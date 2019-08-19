@@ -34,20 +34,15 @@ def identify_col_dtype(column_values, file_heading, dicts):
     error_counter = column_values.astype('str')
     error_counter[:] = np.NaN
     not_null_filter = column_values.notnull()
-    numeric_filter = pd.to_numeric(
-        column_values[not_null_filter],
-        errors='coerce').notnull()
+    numeric_filter = pd.to_numeric(column_values[not_null_filter],
+                                   errors='coerce').notnull()
 
     # Checking Date###
-    error_counter = check_if_date(
-        file_heading,
-        column_values,
-        not_null_filter,
-        numeric_filter,
-        error_counter)
+    error_counter = check_if_date(file_heading, column_values, not_null_filter,
+                                  numeric_filter, error_counter)
 
     # Country Check###
-    if(np.sum(error_counter.notnull()) < len(error_counter)):
+    if (np.sum(error_counter.notnull()) < len(error_counter)):
 
         # Remove special characters
         # try:
@@ -66,18 +61,14 @@ def identify_col_dtype(column_values, file_heading, dicts):
         error_counter[filter_used] = tmp_country_values[country_filter]
 
     # Check if coordinates
-    filter_used = (
-        error_counter.isnull()) & (
-        not_null_filter & (
-            ~numeric_filter))
+    filter_used = (error_counter.isnull()) & (not_null_filter &
+                                              (~numeric_filter))
 
     ###Clean up###
     error_counter[~not_null_filter] = 'blank'
 
-    filter_used = (
-        error_counter.isnull()) & (
-        not_null_filter & (
-            ~numeric_filter))
+    filter_used = (error_counter.isnull()) & (not_null_filter &
+                                              (~numeric_filter))
     error_counter[filter_used] = 'text'
 
     filter_used = (error_counter.isnull()) & (not_null_filter & numeric_filter)
@@ -89,8 +80,8 @@ def identify_col_dtype(column_values, file_heading, dicts):
     return prob_list, error_counter
 
 
-def check_if_date(file_heading, column_values,
-                  not_null_filter, numeric_filter, error_counter):
+def check_if_date(file_heading, column_values, not_null_filter, numeric_filter,
+                  error_counter):
     '''Check if column values could be a date.
 
     Args:
@@ -113,8 +104,10 @@ def check_if_date(file_heading, column_values,
     result = 'time' in file_heading.lower() or 'date' in file_heading.lower(
     ) or 'year' in file_heading.lower() or 'period' in file_heading.lower()
     if result:
-        filters = [not_null_filter & numeric_filter, not_null_filter & (
-            ~numeric_filter)]  # [all numeric values, all string values]
+        filters = [
+            not_null_filter & numeric_filter,
+            not_null_filter & (~numeric_filter)
+        ]  # [all numeric values, all string values]
         filter_types = ['int', 'string']
         for i in range(len(filters)):  # length of 2
             filter_applied = filters[i]
@@ -122,8 +115,8 @@ def check_if_date(file_heading, column_values,
             if filter_types[i] == 'int':
                 values = values.astype(int)
             # Find which values are suitable to be a date
-            tmp_data_values = pd.to_datetime(
-                values.astype('str'), errors='coerce')
+            tmp_data_values = pd.to_datetime(values.astype('str'),
+                                             errors='coerce')
             date_dtype_values = error_counter[filter_applied]
 
             # get values that are not null => date
@@ -141,19 +134,15 @@ def get_prob_list(error_counter):
     normalisation = float(len(error_counter))
     for heading, count in Counter(error_counter).most_common():
         prob_list.append(
-            (heading,
-             '{0:.0f}%'.format(
-                 float(count) /
-                 normalisation *
-                 100)))
+            (heading, '{0:.0f}%'.format(float(count) / normalisation * 100)))
     return prob_list
 
 
 def update_cell_type(value, error_counter, line_no, file_heading):
     '''Used when checking just one cell so no vectorisation'''
     # sys.setdefaultencoding('utf-8')
-    date_check_f = (lambda x: 'time' in x.lower() or 'date' in x.lower(
-    ) or 'year' in x.lower() or 'period' in x.lower())
+    date_check_f = (lambda x: 'time' in x.lower() or 'date' in x.lower() or
+                    'year' in x.lower() or 'period' in x.lower())
     date_f = (lambda x: date_parser.parse(str(x)))
 
     try:
@@ -195,10 +184,10 @@ def update_cell_type(value, error_counter, line_no, file_heading):
                     result = False
 
             ###Country Check###
-            if(not result):
+            if (not result):
                 value = f(value)
                 result, dtype = check_if_cell_country(value)
-            if(not result):
+            if (not result):
                 dtype = 'text'
 
     error_counter[line_no] = dtype
@@ -250,10 +239,9 @@ def check_column_data_type(field, dtypes):
             indexes = []
             dtype_set = list(dtype_set)
 
-            for i in range(
-                    len(dtype_set)):
-                    # looking for furthest forward data
-                    #  type found that is compatiable
+            for i in range(len(dtype_set)):
+                # looking for furthest forward data
+                #  type found that is compatiable
                 indexes.append(int(dtypes.index(dtype_set[i])))
 
             indexes.sort()
@@ -263,7 +251,7 @@ def check_column_data_type(field, dtypes):
     elif field == 'value':
         if 'numeric' in dtypes:
             return True, 'numeric', 'numeric'
-        elif'text' in dtypes:
+        elif 'text' in dtypes:
             return True, 'text', 'numeric'
         else:
             return False, dtypes[0], 'numeric'
@@ -280,8 +268,11 @@ def check_column_data_type(field, dtypes):
 
 # use validation error lines to get bad data, would optimise
 # correction_data ['country_name, iso2, iso3 etc']
-def correct_data(df_data, correction_data, error_data,
-                 index_order, point_based=False):
+def correct_data(df_data,
+                 correction_data,
+                 error_data,
+                 index_order,
+                 point_based=False):
     '''Corrects data for each column according to correction_data.
 
     Args:
@@ -299,35 +290,36 @@ def correct_data(df_data, correction_data, error_data,
     value = {}
     dicts = get_geolocation_dictionary()
 
-    def clean_lambda(x): return x.strip().lower()
+    def clean_lambda(x):
+        return x.strip().lower()
 
     for key in correction_data:
         not_null_filter = df_data[key].notnull()
-        numeric_filter = pd.to_numeric(
-            df_data[key][not_null_filter],
-            errors='coerce').notnull()
+        numeric_filter = pd.to_numeric(df_data[key][not_null_filter],
+                                       errors='coerce').notnull()
 
         # Geolocation
         if correction_data[key][1] in GEOTYPE_HEADINGS:
             if not point_based:
-                if df_data[key].dtype == object and not isinstance(df_data[key][0], int):
+                if df_data[key].dtype == object and not isinstance(
+                        df_data[key][0], int):
                     df_data[key] = df_data[key].str.lower()
                     filter_used = not_null_filter & (~numeric_filter) & (
-                        error_data[key][error_data[key] ==
-                                        correction_data[key][0]])
+                        error_data[key][error_data[key] == correction_data[key]
+                                        [0]])
                 else:
-                    filter_used = not_null_filter & (
-                        error_data[key][error_data[key] ==
-                                        correction_data[key][0]])
+                    filter_used = not_null_filter & (error_data[key][
+                        error_data[key] == correction_data[key][0]])
 
                 df_data[key] = df_data[key][filter_used]
         elif correction_data[key][1] == 'date':
             # Numeric check
-            filter_applied1 = ((not_null_filter) & (numeric_filter) & (
-                error_data[key][error_data[key] == correction_data[key][0]]))
+            filter_applied1 = (
+                (not_null_filter) & (numeric_filter) &
+                (error_data[key][error_data[key] == correction_data[key][0]]))
             df_data[key][filter_applied1] = pd.to_datetime(
-                df_data[key][filter_applied1].astype(
-                    'int').astype('str')).dt.year
+                df_data[key][filter_applied1].astype('int').astype(
+                    'str')).dt.year
 
             # String check
             filter_applied2 = ((not_null_filter) & (~numeric_filter)) & (
@@ -360,8 +352,8 @@ def lookForError(f, default, x):
     return default
 
 
-def convert_df(df_data, multi_entry_dict, data_model_dict,
-               value_format_value, dtypes_dict):
+def convert_df(df_data, multi_entry_dict, data_model_dict, value_format_value,
+               dtypes_dict):
     '''Remaps dataframe based on relationship between columns and data model.
 
     Args:
@@ -406,14 +398,14 @@ def convert_df(df_data, multi_entry_dict, data_model_dict,
     for col in relationship_dict:
         if relationship_dict[col] == 'date':
             data_model_dict['date'] = ['date']
-            dtypes_dict[relationship_dict[col]] = [
-                'date'] * len(tmp_df[tmp_df.columns[0]])
+            dtypes_dict[relationship_dict[col]] = ['date'] * len(
+                tmp_df[tmp_df.columns[0]])
         else:
             if 'filters' not in data_model_dict['filters']:
                 data_model_dict['filters'].append('filters')
             data_model_dict['filters'].remove(col)
-            dtypes_dict[relationship_dict[col]] = [
-                'text'] * len(tmp_df[tmp_df.columns[0]])
+            dtypes_dict[relationship_dict[col]] = ['text'] * len(
+                tmp_df[tmp_df.columns[0]])
         data_model_dict['value'] = ['value']
         dtypes_dict[left_over_dict[col]] = dtypes_dict[col]
 
@@ -426,14 +418,23 @@ def check_file_type(file_name):
     if name.endswith('.csv'):
         return True, {'file_type': 'csv', 'success': 1}
     elif name.endswith('.xlsx'):
-        return False, {'file_type': 'xlsx', 'success': 0,
-                       'error': 'Cannot map xlsx files'}
+        return False, {
+            'file_type': 'xlsx',
+            'success': 0,
+            'error': 'Cannot map xlsx files'
+        }
     elif name.endswith('.json'):
-        return False, {'file_type': 'json', 'success': 0,
-                       'error': 'Cannot map json files'}
+        return False, {
+            'file_type': 'json',
+            'success': 0,
+            'error': 'Cannot map json files'
+        }
     else:
-        return False, {'file_type': 'Unrecognised format', 'success': 0,
-                       'error': 'Don\'t recognise file type'}  # .txt format??
+        return False, {
+            'file_type': 'Unrecognised format',
+            'success': 0,
+            'error': 'Don\'t recognise file type'
+        }  # .txt format??
 
 
 def check_file_formatting(file_loc):
@@ -441,17 +442,21 @@ def check_file_formatting(file_loc):
         df_data = pd.read_csv(file_loc)
     except Exception as e:
         return False, {
-            'success': 0,
-            'error': 'Couldn\'t read file, check start of file for text, '
-                     'for malformed columns and  for gaps in data.'
+            'success':
+            0,
+            'error':
+            'Couldn\'t read file, check start of file for text, '
+            'for malformed columns and  for gaps in data.'
         }
     # check column names if unammed give back false
     for key in df_data.columns:
         if 'Unnamed' in key:
             return False, {
-                'success': 0,
-                'error': 'Cannot validate, unnamed columns in data set or '
-                         'unessecary text at start of file.'
+                'success':
+                0,
+                'error':
+                'Cannot validate, unnamed columns in data set or '
+                'unessecary text at start of file.'
             }
         else:
             nan_indexes = pd.isnull(df_data)
@@ -482,8 +487,8 @@ def get_line_index(line_records, line_no):
             i += 1
     return -1
 
-# from file_upload.models import File
 
+# from file_upload.models import File
 
 if __name__ == '__main__':
     main()

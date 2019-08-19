@@ -13,7 +13,6 @@ class CountryImport(object):
     """
     Wrapper class for all import methods used on the Country model
     """
-
     def __init__(self):
         self.get_json_data = get_json_data
 
@@ -24,8 +23,8 @@ class CountryImport(object):
         for k in admin_countries:
             country_iso2 = k.get('iso2').lower()
             name = k.get('name').lower()
-            c, created = Country.objects.get_or_create(
-                name=name, iso2=country_iso2)
+            c, created = Country.objects.get_or_create(name=name,
+                                                       iso2=country_iso2)
 
             if created:
                 c.save()
@@ -34,11 +33,8 @@ class CountryImport(object):
                 try:
                     Geolocation.objects.get(tag=name)
                 except Geolocation.DoesNotExist:
-                    Geolocation(
-                        content_object=c,
-                        tag=name,
-                        type='country'
-                    ).save()
+                    Geolocation(content_object=c, tag=name,
+                                type='country').save()
 
     def update_polygon(self):
         admin_countries = self.get_json_data(
@@ -52,9 +48,10 @@ class CountryImport(object):
             if not country_iso2:
                 continue
 
-            c, created = Country.objects.get_or_create(
-                iso2=country_iso2, iso3=country_iso3, name=name,
-                primary_name=True)
+            c, created = Country.objects.get_or_create(iso2=country_iso2,
+                                                       iso3=country_iso3,
+                                                       name=name,
+                                                       primary_name=True)
             if created:
                 c.save()
 
@@ -62,24 +59,20 @@ class CountryImport(object):
             try:
                 geolocation = Geolocation.objects.get(tag=c.name)
             except Geolocation.DoesNotExist:
-                geolocation = Geolocation(
-                    content_object=c,
-                    tag=c.name,
-                    type='country'
-                )
+                geolocation = Geolocation(content_object=c,
+                                          tag=c.name,
+                                          type='country')
 
             geolocation.save()
             print('Country : {name}:'.format(name=c.name))
 
         poly_countries = self.get_json_data(
-            "/../data_backup/country_data.json").get(
-            'features'
-        )
+            "/../data_backup/country_data.json").get('features')
         for k in poly_countries:  # .get('features'):
             if 'iso2' in k.get('properties'):
                 iso2 = k.get('properties').get('iso2').lower()
-                filtered_set = Country.objects.filter(
-                    iso2=iso2, primary_name=True)
+                filtered_set = Country.objects.filter(iso2=iso2,
+                                                      primary_name=True)
                 if len(filtered_set) > 0:
                     c = filtered_set[0]
                 else:
@@ -94,11 +87,9 @@ class CountryImport(object):
                 try:
                     geolocation = Geolocation.objects.get(tag=c.name)
                 except Geolocation.DoesNotExist:
-                    geolocation = Geolocation(
-                        content_object=c,
-                        tag=c.name,
-                        type='country'
-                    )
+                    geolocation = Geolocation(content_object=c,
+                                              tag=c.name,
+                                              type='country')
 
                 geolocation.save()
                 print('Polygon : {name}:'.format(name=c.name))
@@ -115,10 +106,9 @@ class CountryImport(object):
 
                 point_loc_str = ''.join([
                     'POINT(',
-                    str(country_centers[c]["longitude"]),
-                    ' ',
-                    str(country_centers[c]["latitude"]),
-                    ')'])
+                    str(country_centers[c]["longitude"]), ' ',
+                    str(country_centers[c]["latitude"]), ')'
+                ])
                 longlat = fromstr(point_loc_str, srid=4326)
                 current_country.center_longlat = longlat
                 current_country.save()
@@ -138,10 +128,8 @@ class CountryImport(object):
 
             # Get country by iso2
             if Country.objects.filter(iso2=country_iso2).exists():
-                the_country = Country.objects.get(
-                    iso2=country_iso2,
-                    primary_name=True
-                )
+                the_country = Country.objects.get(iso2=country_iso2,
+                                                  primary_name=True)
 
             # Update or create region
             if Region.objects.filter(code=region_dac_code).exists():
@@ -149,19 +137,14 @@ class CountryImport(object):
                 the_region.name = region_dac_name
                 the_region.save()
             else:
-                the_region = Region(
-                    code=region_dac_code,
-                    name=region_dac_name
-                )
+                the_region = Region(code=region_dac_code, name=region_dac_name)
                 the_region.save()
 
             # Create geolocation record by region
             if not Geolocation.objects.filter(tag=region_dac_name).exists():
-                Geolocation(
-                    tag=region_dac_name,
-                    content_object=the_region,
-                    type='region'
-                ).save()
+                Geolocation(tag=region_dac_name,
+                            content_object=the_region,
+                            type='region').save()
 
             # Update the region of the country
             if the_country:
@@ -174,8 +157,7 @@ class CountryImport(object):
         Update HD Polygons provided by Jim
         """
         poly_countries = self.get_json_data(
-            "/../data_backup/countries_080419.json"
-        ).get('features')
+            "/../data_backup/countries_080419.json").get('features')
         for k in poly_countries:  # .get('features'):
             if 'iso_a2' in k.get('properties'):
                 iso2 = k.get('properties').get('iso_a2').lower()
@@ -188,15 +170,13 @@ class CountryImport(object):
                     country.save()
 
                     print('Updated HD polygon -> country {iso2}'.format(
-                        iso2=iso2
-                    ))
+                        iso2=iso2))
 
                     geolocation = Geolocation.objects.get(iso2=iso2)
                     geolocation.save()
 
                     print('Updated HD polygon -> geolocation {iso2}'.format(
-                        iso2=iso2
-                    ))
+                        iso2=iso2))
                 except Country.DoesNotExist:
                     pass
 
@@ -221,7 +201,8 @@ class CountryImport(object):
             region_layer = cascaded_union(count_polygons)
             region_layer_json = mapping(region_layer)
 
-            if 'geometries' in region_layer_json and len(region_layer_json['geometries']) == 0:
+            if 'geometries' in region_layer_json and len(
+                    region_layer_json['geometries']) == 0:
                 print('exception: ', 'No Country geometries found')
                 print('region: ', region.name)
             else:

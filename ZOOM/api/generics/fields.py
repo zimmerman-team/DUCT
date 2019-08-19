@@ -30,6 +30,7 @@ class PointIATIField(serializers.Field):
             value = " ".join([smart_str(value.y), smart_str(value.x)])
         return value
 
+
 class PointField(serializers.Field):
     """
     A field for handling GeoDjango Point fields as a json format.
@@ -66,8 +67,8 @@ class PointField(serializers.Field):
                 longitude = value.get("longitude")
                 return GEOSGeometry('POINT(%(longitude)s %(latitude)s)' % {
                     "longitude": longitude,
-                    "latitude": latitude}
-                )
+                    "latitude": latitude
+                })
             except (GEOSException, ValueError):
                 self.fail('invalid')
         self.fail('invalid')

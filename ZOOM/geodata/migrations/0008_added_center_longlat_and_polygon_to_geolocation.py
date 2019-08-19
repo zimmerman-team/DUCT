@@ -14,11 +14,15 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='geolocation',
             name='center_longlat',
-            field=django.contrib.gis.db.models.fields.PointField(blank=True, null=True, srid=4326),
+            field=django.contrib.gis.db.models.fields.PointField(blank=True,
+                                                                 null=True,
+                                                                 srid=4326),
         ),
         migrations.AddField(
             model_name='geolocation',
             name='polygons',
-            field=django.contrib.gis.db.models.fields.GeometryField(blank=True, null=True, srid=4326),
+            field=django.contrib.gis.db.models.fields.GeometryField(blank=True,
+                                                                    null=True,
+                                                                    srid=4326),
         ),
     ]

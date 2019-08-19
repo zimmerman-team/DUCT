@@ -13,11 +13,21 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='surveydata',
             name='ask_sensitive',
-            field=models.CharField(choices=[('Yes', 'Yes'), ('No', 'No'), ("Don't know", "Don't know")], help_text='It was possible for respondents to not answer certain questions if they found them to personal/sensitive?', max_length=100),
+            field=models.CharField(
+                choices=[('Yes', 'Yes'), ('No', 'No'),
+                         ("Don't know", "Don't know")],
+                help_text=
+                'It was possible for respondents to not answer certain questions if they found them to personal/sensitive?',
+                max_length=100),
         ),
         migrations.AlterField(
             model_name='surveydata',
             name='staff_trained',
-            field=models.CharField(choices=[('Yes', 'Yes'), ('No', 'No'), ("Don't know", "Don't know")], help_text='Staff was trained on how to ask the sensitive information to avoid influencing the respondent’s answer?', max_length=100),
+            field=models.CharField(
+                choices=[('Yes', 'Yes'), ('No', 'No'),
+                         ("Don't know", "Don't know")],
+                help_text=
+                'Staff was trained on how to ask the sensitive information to avoid influencing the respondent’s answer?',
+                max_length=100),
         ),
     ]

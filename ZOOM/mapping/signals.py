@@ -14,7 +14,4 @@ def mapping_post_save(sender, instance, **kwargs):
         task = mapping_task.delay(mapping_id=mapping_id)
 
         # Update mapping status periodically
-        mapping_status_task.delay(
-            mapping_id=mapping_id,
-            task_id=task.id
-        )
+        mapping_status_task.delay(mapping_id=mapping_id, task_id=task.id)

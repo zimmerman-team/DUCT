@@ -13,6 +13,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='surveydata',
             name='how_many_respondents',
-            field=models.CharField(blank=True, default='', help_text='How many respondents were interviewed/participated?', max_length=200, null=True),
+            field=models.CharField(
+                blank=True,
+                default='',
+                help_text='How many respondents were interviewed/participated?',
+                max_length=200,
+                null=True),
         ),
     ]

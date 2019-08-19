@@ -23,9 +23,9 @@ def add_task(request):
     queue_to_be_added_to = request.GET.get('queue')
     queue = django_rq.get_queue(queue_to_be_added_to)
     func = getattr(tasks, task)
-    
+
     if parameters:
-        queue.enqueue(func, args=(parameters,))
+        queue.enqueue(func, args=(parameters, ))
     else:
         queue.enqueue(func)
     return HttpResponse(json.dumps(True), content_type='application/json')
@@ -44,10 +44,15 @@ def get_workers(request):
 
         if cj:
             cjinfo = {
-                'id': cj.id,
-                'args': cj.args,
-                'enqueued_at': cj.enqueued_at.strftime("%a, %d %b %Y %H:%M:%S +0000"),
-                'description': cj.description}
+                'id':
+                cj.id,
+                'args':
+                cj.args,
+                'enqueued_at':
+                cj.enqueued_at.strftime("%a, %d %b %Y %H:%M:%S +0000"),
+                'description':
+                cj.description
+            }
         else:
             cjinfo = None
 
@@ -55,7 +60,8 @@ def get_workers(request):
             'pid': w.pid,
             'name': w.name,
             'state': w.get_state(),
-            'current_job': cjinfo}
+            'current_job': cjinfo
+        }
 
         workerdata.append(worker_dict)
     data = json.dumps(workerdata)
@@ -88,7 +94,6 @@ def get_current_job(request):
     return HttpResponse(data, content_type='application/json')
 
 
-
 @staff_member_required
 def add_scheduled_task(request):
     from rq_scheduler import Scheduler
@@ -102,18 +107,24 @@ def add_scheduled_task(request):
 
     if parameters:
         scheduler.schedule(
-            scheduled_time=datetime.utcnow(),   # Time for first execution
-            func=getattr(tasks, task),       # Function to be queued
+            scheduled_time=datetime.utcnow(),  # Time for first execution
+            func=getattr(tasks, task),  # Function to be queued
             args=[int(parameters)],
-            interval=int(period),                 # Time before the function is called again, in seconds
-            repeat=None                      # Repeat this number of times (None means repeat forever)
+            interval=int(
+                period
+            ),  # Time before the function is called again, in seconds
+            repeat=
+            None  # Repeat this number of times (None means repeat forever)
         )
     else:
         scheduler.schedule(
-            scheduled_time=datetime.utcnow(),   # Time for first execution
-            func=getattr(tasks, task),       # Function to be queued
-            interval=int(period),                 # Time before the function is called again, in seconds
-            repeat=None                      # Repeat this number of times (None means repeat forever)
+            scheduled_time=datetime.utcnow(),  # Time for first execution
+            func=getattr(tasks, task),  # Function to be queued
+            interval=int(
+                period
+            ),  # Time before the function is called again, in seconds
+            repeat=
+            None  # Repeat this number of times (None means repeat forever)
         )
     return HttpResponse('Success')
 
@@ -133,11 +144,14 @@ def get_queue(request):
 
         job_dict = {
             'job_id': job._id,
-            'created_at': job.created_at.strftime("%a, %d %b %Y %H:%M:%S +0000"),
-            'enqueued_at': job.enqueued_at.strftime("%a, %d %b %Y %H:%M:%S +0000"),
+            'created_at':
+            job.created_at.strftime("%a, %d %b %Y %H:%M:%S +0000"),
+            'enqueued_at':
+            job.enqueued_at.strftime("%a, %d %b %Y %H:%M:%S +0000"),
             'status': job.get_status(),
             'function': job.func_name,
-            'args': job.args}
+            'args': job.args
+        }
 
         jobdata.append(job_dict)
     data = json.dumps(jobdata)
@@ -165,7 +179,8 @@ def get_scheduled_tasks(request):
             'task': job.description,
             'period': interval,
             'args': job.args,
-            'queue': "default"}
+            'queue': "default"
+        }
 
         jobdata.append(job_dict)
 
@@ -197,7 +212,8 @@ def get_failed_tasks(request):
             'func_name': job.description,
             'error_message': job.exc_info,
             'ended_at': job.ended_at.strftime("%a, %d %b %Y %H:%M:%S +0000"),
-            'enqueued_at': job.enqueued_at.strftime("%a, %d %b %Y %H:%M:%S +0000"),
+            'enqueued_at':
+            job.enqueued_at.strftime("%a, %d %b %Y %H:%M:%S +0000"),
             'args': job.args
         }
 
@@ -235,8 +251,10 @@ def get_finished_tasks(request):
             'job_id': job.id,
             'func_name': job.func_name,
             'ended_at': job.ended_at.strftime("%a, %d %b %Y %H:%M:%S +0000"),
-            'enqueued_at': job.enqueued_at.strftime("%a, %d %b %Y %H:%M:%S +0000"),
-            'args': job.args}
+            'enqueued_at':
+            job.enqueued_at.strftime("%a, %d %b %Y %H:%M:%S +0000"),
+            'args': job.args
+        }
 
         jobdata.append(job_dict)
 

@@ -7,7 +7,9 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('metadata', '0003_delete_other_added_other_responden_and_other_cleaning_technique'),
+        ('metadata',
+         '0003_delete_other_added_other_responden_and_other_cleaning_technique'
+         ),
         ('indicator', '0002_indicator_country'),
     ]
 
@@ -15,7 +17,10 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='indicator',
             name='file',
-            field=models.OneToOneField(default=0, on_delete=django.db.models.deletion.CASCADE, to='metadata.File'),
+            field=models.OneToOneField(
+                default=0,
+                on_delete=django.db.models.deletion.CASCADE,
+                to='metadata.File'),
             preserve_default=False,
         ),
     ]

@@ -10,13 +10,10 @@ from rest_framework import serializers
 
 from error_correction.utils import (delete_data, error_correction, get_errors,
                                     update)
-from gql.metadata.serializers import (FileDeleteSerializer,
-                                      FileErrorCorrectionSerializer,
-                                      FileSerializer, FileSourceSerializer,
-                                      FileTagsSerializer,
-                                      FileValidateSerializer,
-                                      FileValidationResultsSerializer,
-                                      SurveyDataSerializer)
+from gql.metadata.serializers import (
+    FileDeleteSerializer, FileErrorCorrectionSerializer, FileSerializer,
+    FileSourceSerializer, FileTagsSerializer, FileValidateSerializer,
+    FileValidationResultsSerializer, SurveyDataSerializer)
 from lib.tools import check_file_formatting
 from metadata.models import File, FileSource, FileTags, SurveyData
 from validate.validator import generate_error_data, validate
@@ -31,8 +28,7 @@ class FileSourceMutation(SerializerMutation):
     @classmethod
     def get_serializer_kwargs(cls, root, info, **input):
         if input.get('id', None):
-            instance = FileSource.objects.filter(
-                id=input['id']).first()
+            instance = FileSource.objects.filter(id=input['id']).first()
             if instance:
                 return {'instance': instance, 'data': input, 'partial': True}
             else:
@@ -74,13 +70,11 @@ class FileMutation(SerializerMutation):
     @classmethod
     def get_serializer_kwargs(cls, root, info, **input):
         if 'id' in input:
-            instance = File.objects.filter(
-                id=input['id']).first()
+            instance = File.objects.filter(id=input['id']).first()
             if instance:
                 if input['file']:
                     instance.file.name = '{media_root}/{filename}'.format(
-                        media_root=settings.MEDIA_ROOT, filename=input['file']
-                    )
+                        media_root=settings.MEDIA_ROOT, filename=input['file'])
                     # file input should be file type
                     input['file'] = instance.file
 
@@ -104,8 +98,7 @@ class FileMutation(SerializerMutation):
         # Temporary instance to save file from a directory
         instance = File()
         instance.file.name = '{media_root}/{filename}'.format(
-            media_root=settings.MEDIA_ROOT, filename=input['file']
-        )
+            media_root=settings.MEDIA_ROOT, filename=input['file'])
         input['file'] = instance.file
 
         # The frontend is needed file_heading_list
@@ -143,8 +136,7 @@ class FileTagsMutation(SerializerMutation):
     @classmethod
     def get_serializer_kwargs(cls, root, info, **input):
         if input.get('id', None):
-            instance = FileTags.objects.filter(
-                id=input['id']).first()
+            instance = FileTags.objects.filter(id=input['id']).first()
             if instance:
                 return {'instance': instance, 'data': input, 'partial': True}
             else:
@@ -167,8 +159,7 @@ class SurveyDataMutation(SerializerMutation):
     @classmethod
     def get_serializer_kwargs(cls, root, info, **input):
         if input.get('id', None):
-            instance = SurveyData.objects.filter(
-                id=input['id']).first()
+            instance = SurveyData.objects.filter(id=input['id']).first()
             if instance:
                 return {'instance': instance, 'data': input, 'partial': True}
             else:
@@ -189,8 +180,7 @@ class FileValidateMutation(SerializerMutation):
     @classmethod
     def get_serializer_kwargs(cls, root, info, **input):
         if input.get('id', None):
-            instance = File.objects.filter(
-                id=input['id']).first()
+            instance = File.objects.filter(id=input['id']).first()
             if instance:
                 return {'instance': instance, 'data': input, 'partial': True}
             else:
@@ -224,8 +214,7 @@ class FileErrorCorrectionMutation(SerializerMutation):
     @classmethod
     def get_serializer_kwargs(cls, root, info, **input):
         if input.get('id', None):
-            instance = File.objects.filter(
-                id=input['id']).first()
+            instance = File.objects.filter(id=input['id']).first()
             if instance:
                 return {'instance': instance, 'data': input, 'partial': True}
             else:
@@ -250,9 +239,7 @@ class FileErrorCorrectionMutation(SerializerMutation):
                 raise Exception(context)
         elif data['delete']:
             try:
-                context = delete_data(
-                    data['file_id'],
-                    data['delete_data'])
+                context = delete_data(data['file_id'], data['delete_data'])
             except Exception as e:
                 context[
                     'error'] = "Error occurred when deleting data from file"
@@ -288,8 +275,7 @@ class FileValidationResultsMutation(SerializerMutation):
     @classmethod
     def get_serializer_kwargs(cls, root, info, **input):
         if input.get('id', None):
-            instance = File.objects.filter(
-                id=int(input['id'])).first()
+            instance = File.objects.filter(id=int(input['id'])).first()
             if instance:
                 return {'instance': instance, 'data': input, 'partial': True}
             else:
@@ -312,14 +298,13 @@ class FileValidationResultsMutation(SerializerMutation):
                 [a for a in results['found_list']]).to_json()
             kwargs['missing_list'] = pd.Series(
                 [a for a in results['missing_list']]).to_json()
-            kwargs['summary'] = pd.Series(
-                [a for a in results['summary']]).to_json()
+            kwargs['summary'] = pd.Series([a for a in results['summary']
+                                           ]).to_json()
 
         return cls(errors=None, **kwargs)
 
 
 class FileDeleteMutation(SerializerMutation):
-
     class Meta:
         serializer_class = FileDeleteSerializer
 

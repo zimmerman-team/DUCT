@@ -3,7 +3,6 @@ from rest_framework import filters
 
 
 class CommaSeparatedCharFilter(CharFilter):
-
     def filter(self, qs, value):
 
         if value:
@@ -15,14 +14,12 @@ class CommaSeparatedCharFilter(CharFilter):
 
 
 class StickyCharFilter(CharFilter):
-
     def filter(self, qs, value):
         qs._next_is_sticky()
         return super(StickyCharFilter, self).filter(qs, value)
 
 
 class CommaSeparatedStickyCharFilter(CharFilter):
-
     def filter(self, qs, value):
 
         if value:
@@ -35,7 +32,6 @@ class CommaSeparatedStickyCharFilter(CharFilter):
 
 
 class CommaSeparatedDateRangeFilter(Filter):
-
     def filter(self, qs, value):
 
         if value in ([], (), {}, None, ''):

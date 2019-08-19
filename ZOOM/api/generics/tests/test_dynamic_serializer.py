@@ -5,10 +5,8 @@
 # from django.test import RequestFactory
 # from rest_framework import serializers
 
-
 # class SimpleModelTypeSerializer(DynamicFieldsSerializer):
 #     code = serializers.CharField()
-
 
 # class SimpleModelSerializer(DynamicFieldsSerializer):
 #     id = serializers.CharField()
@@ -16,12 +14,10 @@
 #     description = serializers.CharField()
 #     type = SimpleModelTypeSerializer()
 
-
 # class SimpleView(APIView):
 #     fields = (
 #             'id',
 #             )
-
 
 # class TestDynamicFields(TestCase):
 #     data = {'id': '10A',

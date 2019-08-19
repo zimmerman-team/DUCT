@@ -6,11 +6,9 @@ from metadata.models import File, FileSource
 
 
 class Parsing():
+    def file_parsing(self, file_source_name, file_name):
 
-
-    def file_parsing(self,file_source_name,file_name):
-
-        file_source_query_input= {"input":{"name": file_source_name}}
+        file_source_query_input = {"input": {"name": file_source_name}}
         file_source_query = """
         mutation fileSource($input: FileSourceMutationInput!) {
             fileSource(input:$input) {
@@ -18,7 +16,7 @@ class Parsing():
             }
         }
         """
-        schema.execute(file_source_query, 
+        schema.execute(file_source_query,
                        variable_values=file_source_query_input)
 
         file_source_id = FileSource.objects.get(name=file_source_name).id
@@ -43,7 +41,7 @@ class Parsing():
                     source: "%s",
                     file: "%s"
 
-                }""" % (location_id, file_source_id,file_name)
+                }""" % (location_id, file_source_id, file_name)
 
         file_mutation = """
                 mutation file {
@@ -69,35 +67,33 @@ class Parsing():
                 }""" % file_mutation_input
 
         schema.execute(file_mutation)
-        file_id = File.objects.get(file=os.path.abspath('samples/'+
+        file_id = File.objects.get(file=os.path.abspath('samples/' +
                                                         file_name)).id
 
         EXTRA_INFORMATION = {
-            'empty_entries':
-                {
-                    'empty_indicator': '',
-                    'empty_geolocation': {'value': '', 'type': ''},
-
-                    'empty_filter': '',
-                    'empty_value_format': {},
-
-                    'empty_date': ''
+            'empty_entries': {
+                'empty_indicator': '',
+                'empty_geolocation': {
+                    'value': '',
+                    'type': ''
                 },
-            'multi_mapped':
-                {
-                    'column_heading': {},
-
-                    'column_values': {},
-
+                'empty_filter': '',
+                'empty_value_format': {},
+                'empty_date': ''
+            },
+            'multi_mapped': {
+                'column_heading': {},
+                'column_values': {},
+            },
+            'point_based_info': {
+                'coord': {
+                    'lat': '',
+                    'lon': ''
                 },
-            'point_based_info':
-                {
-                    'coord': {'lat': '', 'lon': ''},
-                    'subnational': '',
-                    'country': '',
-                    'type': '',
-
-                }
+                'subnational': '',
+                'country': '',
+                'type': '',
+            }
         }
 
         input_json_mapping = {
@@ -108,11 +104,13 @@ class Parsing():
                 'date': ["Time Period"],
                 'value_format': ["Unit"],
                 'value': ["Data Value"],
-                'filters':["Subgroup"],
+                'filters': ["Subgroup"],
                 'comment': ["Source"],
             },
-            "filter_headings": {"Subgroup": "Subgroup"},
-            "extra_information":EXTRA_INFORMATION
+            "filter_headings": {
+                "Subgroup": "Subgroup"
+            },
+            "extra_information": EXTRA_INFORMATION
         }
 
         input_json_str = json.dumps(input_json_mapping)
@@ -125,6 +123,5 @@ class Parsing():
                                         }
                 }"""
 
-
         schema.execute(mapping_mutation,
-                        variable_values=mapping_mutation_input)
+                       variable_values=mapping_mutation_input)

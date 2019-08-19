@@ -42,11 +42,12 @@ def send_confirmation_email(status, file_id, mapping_id, error_message=None):
         })
         subject = settings.ZOOM_TASK_EMAIL_MAPPING_SUCCESS_SUBJECT
     else:
-        template = render_to_string('mapping/status_failed.txt', {
-            'file_id': file_id,
-            'mapping_id': mapping_id,
-            'error_message': error_message
-        })
+        template = render_to_string(
+            'mapping/status_failed.txt', {
+                'file_id': file_id,
+                'mapping_id': mapping_id,
+                'error_message': error_message
+            })
         subject = settings.ZOOM_TASK_EMAIL_MAPPING_FAILED_SUBJECT
 
     # Default receiver if ZZ email
@@ -66,6 +67,8 @@ def send_confirmation_email(status, file_id, mapping_id, error_message=None):
         subject,
         template,
         settings.ZOOM_TASK_EMAIL_SENDER,
-        [receiver, ],
+        [
+            receiver,
+        ],
         fail_silently=False,
     )

@@ -19,8 +19,6 @@ from metadata.models import File
 #from api.indicator.filters import IndicatorFilter#, IndicatorDataFilter, IndicatorCategoryDataFilter, SearchFilter
 #from api.aggregation.views import AggregationView, Aggregation, GroupBy
 #from api.generics.views import DynamicListView
-
-
 '''
 #Better solution needed here!
 @api_view(['GET'])#should do this using ListAPIView as it already does this but don't have time now
@@ -87,7 +85,6 @@ def get_filter_headings(request):
     print("3 ",datetime.datetime.now().time())
     return Response({"success":1, "results": x})
 """
-
 @api_view(['POST'])
 def reset_mapping(request):
     try:
@@ -103,7 +100,8 @@ def reset_mapping(request):
         context['error'] = "Error when resetting mapping"
         context['success'] = 0
         raise #temp'''
-    return Response({"success":1})
+    return Response({"success": 1})
+
 
 '''
 class IndicatorFilterHeadingList(ListAPIView):
@@ -126,7 +124,7 @@ class IndicatorFilterHeadingList(ListAPIView):
         #get ?sector
 
         return queryset"""
-''''''
+''' '''
 class IndicatorFilterList(ListAPIView):
     queryset = IndicatorFilter.objects.all()
     
@@ -151,11 +149,14 @@ class IndicatorFilterList(ListAPIView):
         return queryset"""
 '''
 
+
 class IndicatorList(ListAPIView):
-    queryset = Indicator.objects.all().distinct() #.values("indicator").distinct() #Indicator.objects.all()
+    queryset = Indicator.objects.all().distinct(
+    )  #.values("indicator").distinct() #Indicator.objects.all()
     #filter_backends = (DjangoFilterBackend, )
     #filter_class = IndicatorFilters
     serializer_class = IndicatorSerializer
+
     #ordering = get_ordering
 
     def get_ordering(self):
@@ -163,11 +164,7 @@ class IndicatorList(ListAPIView):
         # validate ordering here
         return ordering
 
-    fields = (
-        'indicator_id',
-        'description',
-        'file_source__id'
-    )
+    fields = ('indicator_id', 'description', 'file_source__id')
 
 
 '''
@@ -233,7 +230,7 @@ class IndicatorDataList(ListAPIView):
     #         return IndicatorDatapoint.objects.none()
     #     return IndicatorDatapoint.objects.all()
 
-''''''
+''' '''
 Data Post Example:
 
 # Without date_value filter:
@@ -254,7 +251,7 @@ Data Post Example:
             "indicator_category_y": "Stocks",
             "date_value": "2004"
 }
-''''''
+''' '''
 
 """class IndicatorCategoryDataList(ListAPIView):
 

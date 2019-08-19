@@ -98,19 +98,17 @@ def begin_mapping(data):
                     final_file_headings[key] = data_model_dict[key][0]
 
         # Normalise data
-        df_data = correct_data(
-            df_data,
-            correction_mappings,
-            error_lines,
-            final_file_headings, point_based)
+        df_data = correct_data(df_data, correction_mappings, error_lines,
+                               final_file_headings, point_based)
 
         # Filter out bad data from datafram
-        filter_applied = (df_data[final_file_headings['indicator']].notnull()
-                          # The sections of data model
-                          # are not allowed to be empty
-                          & df_data[final_file_headings['date']].notnull(
-        ) & df_data[final_file_headings['value']].
-            notnull() & df_data[final_file_headings['geolocation']].notnull())
+        filter_applied = (
+            df_data[final_file_headings['indicator']].notnull()
+            # The sections of data model
+            # are not allowed to be empty
+            & df_data[final_file_headings['date']].notnull()
+            & df_data[final_file_headings['value']].notnull()
+            & df_data[final_file_headings['geolocation']].notnull())
 
         df_data = df_data[filter_applied].reset_index()  # Remove empty values
         df_data[final_file_headings['date']] = pd.to_numeric(
@@ -139,24 +137,20 @@ def begin_mapping(data):
 
         # Save Datapoints
         dicts = [
-            ind_dict,
-            headings_dict,
-            geolocation_dict,
-            value_format_dict,
-            filters_dict]
+            ind_dict, headings_dict, geolocation_dict, value_format_dict,
+            filters_dict
+        ]
 
-        save_datapoints(
-            df_data,
-            final_file_headings,
-            filter_headings_dict,
-            dicts)
+        save_datapoints(df_data, final_file_headings, filter_headings_dict,
+                        dicts)
 
         context = {'success': 1}
         return context
     else:
         context = {
             'error_messages': 'No data in dictionary sent',
-            'success': 0}
+            'success': 0
+        }
         raise context
 
 
@@ -200,7 +194,8 @@ def apply_missing_values(df_data, mappings, dtypes_dict, empty_entries_dict):
         df_data['geolocation'] = \
             empty_entries_dict['empty_geolocation']['value']
         dtypes_dict[mappings['geolocation'][0]] = [
-            empty_entries_dict['empty_geolocation']['type']] * length
+            empty_entries_dict['empty_geolocation']['type']
+        ] * length
 
     if 'empty_filter' in empty_entries_dict and \
             not empty_entries_dict['empty_filter'] == '':
@@ -264,23 +259,24 @@ def check_mapping_dtypes(mappings, dtypes_dict):
                     check_column_data_type(key, dtypes_dict[heading])
 
                 if temp_results_check_dtype:
-                    correction_mappings[heading] = (
-                        temp_found_dtype, temp_convert_dtype)
+                    correction_mappings[heading] = (temp_found_dtype,
+                                                    temp_convert_dtype)
                 else:
                     error = [
-                        heading,
-                        key,
-                        temp_found_dtype,
-                        temp_convert_dtype]
+                        heading, key, temp_found_dtype, temp_convert_dtype
+                    ]
                     error_message.append(error)  # datatype blah blah
 
     context = {'error_messages': error_message, 'success': 0}
     return (not len(error_message) > 0), correction_mappings, context
 
 
-def get_save_unique_datapoints(
-        df_data, final_file_headings, file,
-        date_format, filter_headings_dict, point_based=False):
+def get_save_unique_datapoints(df_data,
+                               final_file_headings,
+                               file,
+                               date_format,
+                               filter_headings_dict,
+                               point_based=False):
     """
     Gets foreign keys for IndicatorDatapoint and saves new entries if needed.
     """
@@ -335,9 +331,9 @@ def get_save_unique_datapoints(
                         name=unique_list[i], center_longlat=point)
                     if created:
                         p.save()
-                        instance = Geolocation(
-                            content_object=p, tag=unique_list[i],
-                            type='pointbased')
+                        instance = Geolocation(content_object=p,
+                                               tag=unique_list[i],
+                                               type='pointbased')
                         instance.save()
                     else:
                         instance = Geolocation.objects.get(tag=unique_list[i])
@@ -346,15 +342,14 @@ def get_save_unique_datapoints(
                         if len(unique_list[i]) == 2:
                             instance = Geolocation.objects.get(
                                 iso2=unique_list[i])
-                        elif len(unique_list[i]) == 3 :
+                        elif len(unique_list[i]) == 3:
                             instance = Geolocation.objects.get(
                                 iso3=unique_list[i])
                         else:
                             instance = Geolocation.objects.get(
                                 tag=unique_list[i])
                     else:
-                        instance = Geolocation.objects.get(
-                            tag=unique_list[i])
+                        instance = Geolocation.objects.get(tag=unique_list[i])
 
                 geolocation_dict[unique_list[i]] = instance  # shold use get?
             else:
@@ -368,29 +363,26 @@ def get_save_unique_datapoints(
     # Save filters
     print('Saving filters')
     for j in range(len(final_file_headings['filters'])):
-        unique_filters = df_data.groupby(
-            [
-                final_file_headings['indicator'],
-                # Important returns a dataframe
-                final_file_headings['filters'][j]]).size().reset_index()
-        unique_filter_value_formats = df_data.groupby(
-            [
-                final_file_headings['indicator'],
-                final_file_headings['filters'][j],
-                final_file_headings['value_format'],
-            ]).size().reset_index()
-        unique_filter_date_formats = df_data.groupby(
-            [
-                final_file_headings['indicator'],
-                final_file_headings['filters'][j],
-                final_file_headings['date_format'],
-            ]).size().reset_index()
-        unique_filter_geolocation_formats = df_data.groupby(
-            [
-                final_file_headings['indicator'],
-                final_file_headings['filters'][j],
-                final_file_headings['geolocation'],
-            ]).size().reset_index()
+        unique_filters = df_data.groupby([
+            final_file_headings['indicator'],
+            # Important returns a dataframe
+            final_file_headings['filters'][j]
+        ]).size().reset_index()
+        unique_filter_value_formats = df_data.groupby([
+            final_file_headings['indicator'],
+            final_file_headings['filters'][j],
+            final_file_headings['value_format'],
+        ]).size().reset_index()
+        unique_filter_date_formats = df_data.groupby([
+            final_file_headings['indicator'],
+            final_file_headings['filters'][j],
+            final_file_headings['date_format'],
+        ]).size().reset_index()
+        unique_filter_geolocation_formats = df_data.groupby([
+            final_file_headings['indicator'],
+            final_file_headings['filters'][j],
+            final_file_headings['geolocation'],
+        ]).size().reset_index()
 
         for i in range(len(unique_filters)):
             filter_name = unique_filters[final_file_headings['filters'][j]][i]
@@ -399,29 +391,29 @@ def get_save_unique_datapoints(
                 filter_headings_dict[final_file_headings['filters'][j]]
             instance, created = Filters.objects.get_or_create(
                 name=filter_name,
-                heading=headings_dict[
-                    indicator + filter_heading_name],
+                heading=headings_dict[indicator + filter_heading_name],
                 indicator=ind_dict[indicator])
             if created:
                 instance.save()
 
-            filters_dict[
-                indicator + filter_heading_name + filter_name] = instance
+            filters_dict[indicator + filter_heading_name +
+                         filter_name] = instance
             # Loop here
             instance.value_format = value_format_dict[
-                unique_filter_value_formats[final_file_headings[
-                    'value_format']][i]]
+                unique_filter_value_formats[
+                    final_file_headings['value_format']][i]]
 
             # [df_data[final_file_headings['date_format']][i]] +
             # instance.date_formats
             instance.date_format = date_format
             instance.metadata = df_data['metadata'][0]
             geo_filter = unique_filter_geolocation_formats[
-                final_file_headings['filters'][j]
-            ] == unique_filters[final_file_headings['filters'][j]][i]
-            geolocation_list = list(unique_filter_geolocation_formats[
-                geo_filter][final_file_headings['geolocation']].map(
-                geolocation_dict))  # TODO Vectorise
+                final_file_headings['filters'][j]] == unique_filters[
+                    final_file_headings['filters'][j]][i]
+            geolocation_list = list(
+                unique_filter_geolocation_formats[geo_filter][
+                    final_file_headings['geolocation']].map(
+                        geolocation_dict))  # TODO Vectorise
             instance.geolocations.add(*geolocation_list)
             instance.save()
 
@@ -473,8 +465,8 @@ def save_datapoints(df_data, final_file_headings, filter_headings_dict, dicts):
     df_data.drop(final_file_headings['filters'], axis=1, inplace=True)
     filter_headings = final_file_headings.pop('filters', None)
 
-    df_data[final_file_headings['indicator']
-            ] = df_data[final_file_headings['indicator']].map(ind_dict)
+    df_data[final_file_headings['indicator']] = df_data[
+        final_file_headings['indicator']].map(ind_dict)
     df_data[final_file_headings['value_format']] \
         = df_data[final_file_headings['value_format']].map(value_format_dict)
     df_data[final_file_headings['geolocation']] \
@@ -569,10 +561,8 @@ def add_first_indicator_year(ind_dict):
 
 
 def temp_save_file(df_data):
-    path = os.path.join(
-        os.path.dirname(
-            settings.BASE_DIR),
-        'ZOOM/media/tmpfiles')
+    path = os.path.join(os.path.dirname(settings.BASE_DIR),
+                        'ZOOM/media/tmpfiles')
     dtype_name = path + '/' + str(uuid.uuid4()) + '.txt'
     with open(dtype_name, 'w') as f:
         pickle.dump(df_data, f)
@@ -584,13 +574,12 @@ def remap_all_files():
     for file in files:
         if file.status == 5:
             context = {'data': {'file': str(file.id)}}
-            reset_mapping(
-                json.dumps(
-                    context,
-                    ensure_ascii=False))  # encoding error
+            reset_mapping(json.dumps(context,
+                                     ensure_ascii=False))  # encoding error
             context = {
                 'data': {
-                    'id': str(
-                        file.id), 'dict': json.loads(
-                        file.mapping_used)}}
+                    'id': str(file.id),
+                    'dict': json.loads(file.mapping_used)
+                }
+            }
             begin_mapping(context)

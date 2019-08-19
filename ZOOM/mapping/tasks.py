@@ -30,8 +30,7 @@ def mapping(instance):
 
     except File.DoesNotExist:
         raise Exception(
-            'File {file_id} does not exists!'.format(file_id=file_id)
-        )
+            'File {file_id} does not exists!'.format(file_id=file_id))
 
     try:
         # Begin mapping
@@ -44,6 +43,7 @@ def mapping(instance):
 
     except Exception as e:
         raise Exception(e)
+
 
 @task
 def mapping_iati_data():
@@ -63,11 +63,9 @@ def mapping_task(mapping_id):
             instance.save()
 
             # Send a success email
-            send_confirmation_email(
-                status=instance.status,
-                file_id=instance.file_id,
-                mapping_id=instance.id
-            )
+            send_confirmation_email(status=instance.status,
+                                    file_id=instance.file_id,
+                                    mapping_id=instance.id)
 
     except Exception as e:
         # Save error & make a status "FAILURE"
@@ -76,12 +74,10 @@ def mapping_task(mapping_id):
         instance.save()
 
         # Send a failure email
-        send_confirmation_email(
-            status=instance.status == 'SUCCESS',
-            file_id=instance.file_id,
-            mapping_id=instance.id,
-            error_message=instance.error_message
-        )
+        send_confirmation_email(status=instance.status == 'SUCCESS',
+                                file_id=instance.file_id,
+                                mapping_id=instance.id,
+                                error_message=instance.error_message)
 
         # Send error to logger
         logger.exception(msg=str(e))
