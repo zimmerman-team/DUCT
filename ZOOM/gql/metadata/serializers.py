@@ -5,7 +5,7 @@ from rest_framework import fields, serializers
 
 from indicator.models import MAPPING_DICT
 from metadata.models import (CLEANING_TECHNIQUES_CHOICES, WHO_TESTED_CHOICES,
-                             File, FileSource, FileTags, SurveyData)
+                             File, FileSource, SurveyData)
 
 
 class FileSourceSerializer(serializers.ModelSerializer):
@@ -29,33 +29,11 @@ class FileSourceSerializer(serializers.ModelSerializer):
         return str(obj.id)
 
 
-class FileTagsSerializer(serializers.ModelSerializer):
-    id = serializers.SerializerMethodField()
-    entry_id = serializers.SerializerMethodField()
-
-    class Meta:
-        model = FileTags
-        fields = (
-            'id',
-            'name',
-            'entry_id'
-        )
-
-    @classmethod
-    def get_id(cls, obj):
-        return str(obj.id)
-
-    @classmethod
-    def get_entry_id(cls, obj):
-        return str(obj.id)
-
-
 class FileSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField()
     entry_id = serializers.SerializerMethodField()
     entry_file_heading_list = serializers.SerializerMethodField()
     data_model_heading = serializers.SerializerMethodField()
-    tags = FileTagsSerializer(many=True, read_only=True, required=False)
 
     class Meta:
         model = File
@@ -85,7 +63,6 @@ class FileSerializer(serializers.ModelSerializer):
             'entry_id',
             'entry_file_heading_list',
             'data_model_heading',
-            'tags',
             'survey_data'
         )
 
