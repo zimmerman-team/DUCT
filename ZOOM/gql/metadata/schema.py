@@ -9,7 +9,7 @@ from graphene_django.filter import DjangoFilterConnectionField
 
 from error_correction.utils import ERROR_CORRECTION_DICT
 from indicator.models import MAPPING_DICT
-from metadata.models import File, FileSource, FileTags, SurveyData
+from metadata.models import File, FileSource, SurveyData
 
 
 class FileSourceNode(DjangoObjectType):
@@ -85,36 +85,6 @@ class FileFilter(FilterSet):
             'file_types': ['exact', 'in', ],
             'data_uploaded': ['exact', 'gte', 'lte', ],
             'last_updated': ['exact', 'gte', 'lte', ]
-        }
-
-    def filter_entry_id(self, queryset, name, value):
-        name = 'id'
-        return queryset.filter(**{name: value})
-
-    def filter_entry_id__in(self, queryset, name, value):
-        name = 'id__in'
-        return queryset.filter(**{name: eval(value)})
-
-
-class FileTagsNode(DjangoObjectType):
-    entry_id = graphene.String()
-
-    class Meta:
-        model = FileTags
-        interfaces = (relay.Node, )
-
-    def resolve_entry_id(self, context, **kwargs):
-        return self.id
-
-
-class FileTagsFilter(FilterSet):
-    entry_id = NumberFilter(method='filter_entry_id')
-    entry_id__in = CharFilter(method='filter_entry_id__in')
-
-    class Meta:
-        model = FileTags
-        fields = {
-            'name': ['exact', 'icontains', 'istartswith', 'in'],
         }
 
     def filter_entry_id(self, queryset, name, value):
@@ -255,11 +225,6 @@ class Query(object):
     file = relay.Node.Field(FileNode)
     all_files = DjangoFilterConnectionField(
         FileNode, filterset_class=FileFilter
-    )
-
-    file_tags = relay.Node.Field(FileTagsNode)
-    all_file_tags = DjangoFilterConnectionField(
-        FileTagsNode, filterset_class=FileTagsFilter
     )
 
     survey_data = relay.Node.Field(SurveyDataNode)
