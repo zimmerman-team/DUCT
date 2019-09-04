@@ -240,12 +240,17 @@ CELERY_BROKER_URL = 'amqp://localhost'
 CELERY_RESULT_BACKEND = 'amqp://localhost'
 CELERY_ALWAYS_EAGER = True
 CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
-CELERY_BEAT_SCHEDULE = {'mapping-iati-data': {
+CELERY_BEAT_SCHEDULE = {
+    'mapping-iati-data': {
         'task': 'mapping.tasks.mapping_iati_data',
         'schedule': crontab(minute=0, hour=0)
     },
     'cleaning-temp-jsons': {
         'task': 'general_tasks.tasks.clean_temp_geo_jsons',
+        'schedule': crontab(minute=0, hour=0)
+    },
+    'delete-garbage-uploaded-files': {
+        'task': 'general_tasks.tasks.delete_garbage_uploaded_files',
         'schedule': crontab(minute=0, hour=0)
     }
 }
