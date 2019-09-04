@@ -16,13 +16,6 @@ def upload_to(instance, filename='test'):
         filename)
 
 
-class FileTags(models.Model):
-    name = models.CharField(
-        unique=True,
-        max_length=100,
-        null=False)
-
-
 class FileSource(models.Model):
     id = models.AutoField(primary_key=True, editable=False)
     name = models.CharField(
@@ -136,7 +129,6 @@ class File(models.Model):
         related_name='file',
         null=True,
         on_delete=models.SET_NULL)
-    tags = models.ManyToManyField(FileTags)
     data_uploaded = models.DateField(auto_now_add=True)
     last_updated = models.DateField(auto_now=True)
 
