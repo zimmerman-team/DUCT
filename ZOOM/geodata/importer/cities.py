@@ -1,5 +1,7 @@
 import json
+
 from django.contrib.gis.geos import fromstr
+
 from geodata.importer.common import get_json_data
 from geodata.models import City, Country, Geolocation
 

@@ -1,26 +1,24 @@
 import datetime
 import json
 import math
-import pickle
 import os
+import pickle
 import uuid
 
 import numpy as np
 import pandas as pd
-from django.contrib.gis.geos import Point
 from django.conf import settings
+from django.contrib.gis.geos import Point
+from django.db.models import Max, Min
 
 from api.indicator.views import reset_mapping
 from geodata.models import Geolocation, PointBased
-from indicator.models import (FILTER_HEADINGS,
-                              Datapoints, DateFormat,
+from indicator.models import (FILTER_HEADINGS, Datapoints, DateFormat,
                               FilterHeadings, Filters, Indicator, ValueFormat)
-from lib.common import (get_dtype_data, get_file_data)
+from lib.common import get_dtype_data, get_file_data
 from lib.tools import check_column_data_type, convert_df, correct_data
 from metadata.models import File
 from validate.validator import generate_error_data, save_validation_data
-
-from django.db.models import Min, Max
 
 
 def begin_mapping(data):

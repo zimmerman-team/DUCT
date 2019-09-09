@@ -1,7 +1,7 @@
-import django.utils.http
-
-from rest_framework import serializers
 import json
+
+import django.utils.http
+from rest_framework import serializers
 
 
 class GeometryField(serializers.Field):

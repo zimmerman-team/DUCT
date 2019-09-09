@@ -1,5 +1,7 @@
 from django.core.management.base import BaseCommand
+
 from indicator.search_vector_update import update_all_unset
+
 
 class Command(BaseCommand):
     """

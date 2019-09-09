@@ -1,14 +1,13 @@
-import urllib2
-import logging
 import datetime
-from lxml import etree
+import logging
+import urllib2
 
-from django.db import IntegrityError
 from django.apps import apps
 from django.core.exceptions import FieldDoesNotExist
+from django.db import IntegrityError
+from lxml import etree
 
-from geodata.models import Country, Region, RegionVocabulary, Codelist
-
+from geodata.models import Codelist, Country, Region, RegionVocabulary
 
 logger = logging.getLogger(__name__)
 
@@ -75,7 +74,7 @@ class CodeListImporter():
             try:
                 model = apps.get_model(app_label='geodata', model_name=model_name)
             except LookupError:
-                print ''.join(['Model not found: ', model_name])
+                print(''.join(['Model not found: ', model_name]))
                 return False
 
         if not item:

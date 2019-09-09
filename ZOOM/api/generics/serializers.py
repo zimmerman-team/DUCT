@@ -1,7 +1,7 @@
+from collections import OrderedDict
+
 from rest_framework import serializers
 from rest_framework.fields import SkipField
-
-from collections import OrderedDict
 
 
 class DynamicFieldsSerializer(serializers.Serializer):
@@ -43,4 +43,3 @@ class DynamicFieldsModelSerializer(serializers.ModelSerializer):
 
             for field_name in existing - allowed:
                 self.fields.pop(field_name)
-

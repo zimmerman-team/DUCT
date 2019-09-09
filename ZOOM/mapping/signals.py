@@ -2,7 +2,7 @@ from django.db.models import signals
 from django.dispatch import receiver
 
 from mapping.models import Mapping
-from mapping.tasks import mapping_task, mapping_status_task
+from mapping.tasks import mapping_status_task, mapping_task
 
 
 @receiver(signals.post_save, sender=Mapping)

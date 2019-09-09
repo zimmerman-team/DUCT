@@ -1,7 +1,8 @@
-from gql.schema import schema
 from django.test import TestCase
-from gql.tests import factory
+
 from geodata.models import Country
+from gql.schema import schema
+from gql.tests import factory
 
 
 class FiltersCountriesTestCase(TestCase):
@@ -220,10 +221,15 @@ class FiltersCountriesTestCase(TestCase):
          """
 
         result = schema.execute(query)
-        self.assertEqual(result.data['allCountries']['edges'][0]['node']
-                         ['iso2'], country[0].iso2)
-        self.assertEqual(result.data['allCountries']['edges'][1]['node']
-                         ['iso2'], country[1].iso2)
+
+        country_list = [country[0].iso2, country[1].iso2].sort()
+
+        result_list = [result.data['allCountries']['edges'][0]['node']
+                         ['iso2'],
+                       result.data['allCountries']['edges'][1]['node']
+                       ['iso2']].sort()
+
+        self.assertTrue(country_list == result_list)
 
     def test_filter_iso3_countries(self):
         country = Country.objects.filter(iso3='alb')

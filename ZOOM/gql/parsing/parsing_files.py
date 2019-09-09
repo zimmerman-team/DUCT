@@ -1,7 +1,8 @@
-from gql.schema import schema
-from metadata.models import FileSource, File
 import json
 import os
+
+from gql.schema import schema
+from metadata.models import File, FileSource
 
 
 class Parsing():

@@ -1,12 +1,11 @@
 import graphene
+from django_filters import CharFilter, FilterSet, NumberFilter
 from graphene import relay
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
-from django_filters import FilterSet, NumberFilter, CharFilter
 
-from geodata.models import (
-    Geolocation, Country, Region, SubNational, PointBased, City, Province
-)
+from geodata.models import (City, Country, Geolocation, PointBased, Province,
+                            Region, SubNational)
 
 
 class CountryNode(DjangoObjectType):

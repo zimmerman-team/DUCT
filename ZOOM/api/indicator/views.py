@@ -1,21 +1,25 @@
-from django.db.models import Count, Sum, F, Avg, Max, Min
-from django.db.models import FloatField
+import datetime
+import urllib
+
+import numpy as np
+from django.db.models import Avg, Count, F, FloatField, Max, Min, Sum
 from django.db.models.functions import Cast
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import serializers
+from rest_framework.decorators import api_view
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+
+from api.indicator.serializers import \
+    IndicatorSerializer  # , IndicatorDataSerializer, IndicatorCategorySerializer
+from indicator.models import (  # , IndicatorCategory, update_indicator_counts
+    Datapoints, Indicator)
 from metadata.models import File
-from indicator.models import Datapoints, Indicator#, IndicatorCategory, update_indicator_counts
-from api.indicator.serializers import IndicatorSerializer#, IndicatorDataSerializer, IndicatorCategorySerializer
+
 #from api.indicator.filters import IndicatorFilter#, IndicatorDataFilter, IndicatorCategoryDataFilter, SearchFilter
 #from api.aggregation.views import AggregationView, Aggregation, GroupBy
 #from api.generics.views import DynamicListView
 
-from rest_framework import serializers
-import numpy as np
-import urllib
-import datetime
 
 '''
 #Better solution needed here!

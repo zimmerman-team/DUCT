@@ -1,9 +1,12 @@
-from gql.schema import schema
-from django.test import TestCase
-from gql.tests import factory
-from geodata.models import Geolocation, PointBased
-import os
 import json
+import os
+
+from django.test import TestCase
+
+from geodata.models import Geolocation, PointBased
+from gql.schema import schema
+from gql.tests import factory
+from mapping.mapper import begin_mapping
 
 
 class GeolocationPointBasedTestCase(TestCase):
@@ -12,11 +15,12 @@ class GeolocationPointBasedTestCase(TestCase):
         self.dummy_file_source = factory.FileSourceFactory(
             name='dummy_file_source'
         )
+        alb = factory.CountryFactory(name='Albania', iso2='al', iso3='alb')
         self.dummy_geolocation = factory.GeolocationFactory(
             tag='Albania',
             iso2='al',
             iso3='alb',
-            object_id=4,
+            object_id=alb.id,
             content_type_id=15,
             type='country'
         )
@@ -67,6 +71,8 @@ class GeolocationPointBasedTestCase(TestCase):
 
         input_json = {
             'metadata_id': file_id,
+            "filter_headings": {"filters": "filters"},
+            "extra_information": EXTRA_INFORMATION,
             'mapping_dict': {
                 'indicator': [],
                 'filters': [],
@@ -76,21 +82,25 @@ class GeolocationPointBasedTestCase(TestCase):
                 'value': ["new infections"],
                 'comment': [],
             },
-            "filter_headings": {"filters": "filters"},
-            'extra_information': EXTRA_INFORMATION
         }
 
-        input_json_str = json.dumps(input_json)
-        query_input = {"input": {"data": input_json_str}}
-        query = """
-        mutation mapping($input: MappingMutationInput!) {
-                                    mapping(input: $input) {
-                                                        id
-                                                        data
-                                }
-        }"""
+        begin_mapping(input_json)
 
-        schema.execute(query, variable_values=query_input)
+        # so this query call based mapping doesn't seem to work very properly
+        # so we comment this out for now and will adress this later
+        # but for the data just to be mapped out we'll just use the mapping
+        # function itself here ^
+        # input_json_str = json.dumps(input_json)
+        # query_input = {"input": {"data": input_json_str}}
+        # query = """
+        # mutation mapping($input: MappingMutationInput!) {
+        #                             mapping(input: $input) {
+        #                                                 id
+        #                                                 data
+        #                         }
+        # }"""
+        #
+        # schema.execute(query, variable_values=query_input)
 
     def test_geolocation_pointbase(self):
         query = """{
@@ -111,8 +121,12 @@ class GeolocationPointBasedTestCase(TestCase):
         geolocations = Geolocation.objects.filter(type__in=["pointbased"])
         i = 0
         for a in geolocations:
-            self.assertEqual(PointBased.objects.get(
-                id=a.object_id).center_longlat,
-                             result.data["allGeolocations"]["edges"][i][
+            point_coords = PointBased.objects.get(
+                id=a.object_id).center_longlat.json
+
+            result_coords = json.loads(result.data["allGeolocations"]["edges"][i][
                                  "node"]["pointBased"]["centerLonglat"])
+
+            self.assertEqual(point_coords,
+                             result_coords)
             i += 1

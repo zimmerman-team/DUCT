@@ -12,9 +12,8 @@ from rest_framework.views import APIView
 
 from api.metadata.serializers import FileSerializer, FileSourceSerializer
 from geodata.models import Geolocation
-from metadata.models import File, FileSource
-
 from gql.views import requires_scope
+from metadata.models import File, FileSource
 
 
 class FileListView(ListCreateAPIView):
@@ -170,9 +169,16 @@ class FileUploadView(APIView):
             old_name = location + filename
             new_name = location + filename + '.new.csv'
 
-            old_file = open(old_name, encoding="ascii", errors="ignore")
-            new_file = open(new_name, "w")
-            new_file.write(old_file.read())
+            old_file = open(old_name, encoding='utf8', errors="ignore")
+
+            text = old_file.read()
+
+            # okay and here we replace apostrophe with single quote
+            # cause apostrophe's are annoying
+            text = text.replace("’", "'")
+
+            new_file = open(new_name, "w", encoding='utf8')
+            new_file.write(text)
 
             file_url = '{dataset_url}{filename}'.format(
                 dataset_url=settings.DATASETS_URL,

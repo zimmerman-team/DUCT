@@ -1,9 +1,11 @@
-from gql.schema import schema
-from django.test import TestCase
-from gql.tests import factory
-from geodata.importer.country import CountryImport
-import os
 import json
+import os
+
+from django.test import TestCase
+
+from geodata.importer.country import CountryImport
+from gql.schema import schema
+from gql.tests import factory
 
 
 class MappingTestCase(TestCase):
