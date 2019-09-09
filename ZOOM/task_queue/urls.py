@@ -1,4 +1,5 @@
 from django.conf.urls import url
+
 from task_queue.views import *
 
 urlpatterns = [

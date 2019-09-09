@@ -1,25 +1,22 @@
-import os
-import jwt
 import json
+import logging
+import os
 from functools import wraps
 
-from django.http import JsonResponse
-from django.http import HttpResponseForbidden
-
-from six.moves.urllib import request as req
-from cryptography.x509 import load_pem_x509_certificate
-from cryptography.hazmat.backends import default_backend
-
-from graphene_django.views import GraphQLView, HttpError
-
+import jwt
 import rest_framework
+from cryptography.hazmat.backends import default_backend
+from cryptography.x509 import load_pem_x509_certificate
+from django.http import HttpResponseForbidden, JsonResponse
+from graphene_django.views import GraphQLView, HttpError
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.decorators import (api_view, authentication_classes,
+                                       permission_classes)
 from rest_framework.permissions import AllowAny
-from rest_framework.decorators import (
-    authentication_classes,
-    permission_classes,
-    api_view
-)
+from six.moves.urllib import request as req
+
+import gql.utils
+from gql.utils import set_session_email
 
 
 def get_token_auth_header(cls):
@@ -62,10 +59,17 @@ def requires_scope():
                 )
 
                 if decoded.get("email_verified"):
+                    # Save user email for the auto messaging
+                    # And set session as global variable
+                    # function set_user_email will return session key
+                    gql.utils.email_session_key = set_session_email(
+                        decoded.get('email')
+                    )
+
                     return f(*args, **kwargs)
 
             except Exception as e:
-                pass
+                logging.exception(e)
 
             response = JsonResponse(
                 {'message': 'You don\'t have access to this resource'}

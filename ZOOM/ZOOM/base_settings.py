@@ -1,6 +1,8 @@
-import sys
 import os
-from dotenv import load_dotenv, find_dotenv
+import sys
+
+from celery.schedules import crontab
+from dotenv import find_dotenv, load_dotenv
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -121,6 +123,7 @@ INSTALLED_APPS = [
     'validate',
     'lib',
     'error_correction',
+    'general_tasks',
     'mapping',
     'indicator',
     'geodata',
@@ -237,6 +240,20 @@ CELERY_BROKER_URL = 'amqp://localhost'
 CELERY_RESULT_BACKEND = 'amqp://localhost'
 CELERY_ALWAYS_EAGER = True
 CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
+CELERY_BEAT_SCHEDULE = {
+    'mapping-iati-data': {
+        'task': 'mapping.tasks.mapping_iati_data',
+        'schedule': crontab(minute=0, hour=0)
+    },
+    'cleaning-temp-jsons': {
+        'task': 'general_tasks.tasks.clean_temp_geo_jsons',
+        'schedule': crontab(minute=0, hour=0)
+    },
+    'delete-garbage-uploaded-files': {
+        'task': 'general_tasks.tasks.delete_garbage_uploaded_files',
+        'schedule': crontab(minute=0, hour=0)
+    }
+}
 
 # TASKS CONFIG
 
@@ -246,6 +263,14 @@ ZOOM_TASK_EMAIL_SENDER = 'devops-zz@zimmermanzimmerman.nl'
 ZOOM_TASK_EMAIL_RECEIVER = 'devops-zz@zimmermanzimmerman.nl'
 ZOOM_TASK_EMAIL_MAPPING_SUCCESS_SUBJECT = 'ZOOM Mapping Success!'
 ZOOM_TASK_EMAIL_MAPPING_FAILED_SUBJECT = 'ZOOM Mapping Failed!'
+
+# this variable very much is dependant on your machine
+# and its used to process huge layer data
+# IMPORTANT THIS DEPENDS ON THE CORE COUNT ON YOUR MACHINE!
+# ALSO NOTE: that using to many workers might be slower,
+# than using a little less, because of tasks that need to be
+# done before the processes are initiated
+POCESS_WORKER_AMOUNT = 2
 
 # LOAD .env FILE
 

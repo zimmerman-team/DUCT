@@ -1,6 +1,13 @@
-from rest_framework.generics import RetrieveAPIView, GenericAPIView, ListAPIView
-from api.generics.serializers import DynamicFieldsModelSerializer
+import os
+
+from django.conf import settings
 from django.db.models.fields.related import ForeignKey, OneToOneField
+from django.http.response import HttpResponse
+from rest_framework.generics import (GenericAPIView, ListAPIView,
+                                     RetrieveAPIView)
+
+from api.generics.serializers import DynamicFieldsModelSerializer
+
 
 class DynamicView(GenericAPIView):
             
@@ -67,7 +74,6 @@ class DynamicView(GenericAPIView):
     def check(self):
         return Response("Hello")
 
-
     def get_serializer(self, *args, **kwargs):
         """
         Apply 'fields' to dynamic fields serializer
@@ -76,12 +82,26 @@ class DynamicView(GenericAPIView):
         kwargs['context'] = self.get_serializer_context()
         return super(DynamicView, self).get_serializer(fields=fields, *args, **kwargs)
 
+
 class DynamicListView(DynamicView, ListAPIView):
     """
     List view with dynamic properties
     """
 
+
 class DynamicDetailView(DynamicView, RetrieveAPIView):
     """
     List view with dynamic properties
     """
+
+
+def remove_geo_json(request):
+    print('remove file request made')
+    if request.method == 'DELETE':
+        # so we will remove the previous geojson and generate a new one
+        file_name = request.GET['fileName']
+        file_url = 'static/temp_geo_jsons/' + file_name
+        full_path_to_file = os.path.join(settings.BASE_DIR, file_url)
+        if os.path.exists(full_path_to_file):
+            os.remove(full_path_to_file)
+        return HttpResponse('FILE REMOVED!')

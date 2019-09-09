@@ -1,6 +1,6 @@
 from django.db import models
 
-from geodata.models import Geolocation, Country
+from geodata.models import Country, Geolocation
 from metadata.models import File, FileSource
 
 MAPPING_HEADINGS = {  # Main mapping information
@@ -71,7 +71,7 @@ class ValueFormat(models.Model):
 
 class Indicator(models.Model):
     id = models.AutoField(primary_key=True, editable=False)
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=1000)
     description = models.TextField(null=True, blank=True)
     last_data_year = models.CharField(max_length=200, default='2005')
     file_source = models.ForeignKey(FileSource, on_delete=models.CASCADE)
@@ -80,10 +80,13 @@ class Indicator(models.Model):
         Country, on_delete=models.CASCADE, blank=True, null=True
     )
 
+    def __str__(self):
+        return str(self.id)
+
 
 class FilterHeadings(models.Model):
     id = models.AutoField(primary_key=True, editable=False)
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=1000)
     description = models.TextField(null=True, blank=True)
     # Allow aggregation on a column within ZOOM
     aggregation_allowed = models.BooleanField(default=False)
@@ -108,7 +111,7 @@ class Datapoints(models.Model):
 
 class Filters(models.Model):
     id = models.AutoField(primary_key=True, editable=False)
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=1000)
     description = models.TextField(null=True, blank=True)
 
     heading = models.ForeignKey(FilterHeadings, on_delete=models.CASCADE)

@@ -9,6 +9,9 @@ DUCT has been build as part of Zoom, a Data platform for data informed
 strategy in combating the AIDS epidemic in cooperation with Aidsfonds that
 works towards ending AIDS in a world where all people affected by HIV/AIDS have access to prevention, treatment, care and support and HumanityX who are supporting organisations in the peace, justice and humanitarian sectors to adopt digital innovations in order to increase their impact on society.
 
+#### Auth0
+DUCT uses <a href="https://auth0.com" >auth0</a> for authenticated access to certain endpoints and certain data.
+
 
 ## Requirements
 
@@ -16,24 +19,63 @@ works towards ending AIDS in a world where all people affected by HIV/AIDS have 
 | ---                    | ---       |
 | Python                 | 3.6.5     |
 | PostgreSQL             | 10.5      |
-| Redis                  | 4.0.x     |
+| virtualenv | 16.1 |
+| pip | 8.1 | 
+| python-dev | -- |
+| python3.6-dev | -- |
+| libpython-dev | -- |
+| libpython3.6-dev | -- |
+| rabbitmq | 3.7 |
+| Supervisor (for deployment) | 3.2 |
+| nginx (for deployment) | 1.14 |
 | PostGIS                | See: <a href="https://docs.djangoproject.com/en/2.0/ref/contrib/gis/install/postgis/">installing PostGIS</a> |
 | Ubuntu (Documentation only covers Ubuntu) | (16.04)   |
 
-## Quick start
+
+## Set up
 -------
-```
-git clone https://github.com/zimmerman-zimmerman/DUCT.git;
-cd DUCT
-sudo sh bin/setup/install_dependencies.sh
-pip install -r ZOOM/requirements.txt;
-sudo sh bin/setup/sync_db.sh
-sudo sh bin/setup/create_django_user.sh
-cd ZOOM/scripts
-./setup_project.sh
-cd ..
-python manage.py runserver
-```
+
+ * ```git clone https://github.com/zimmerman-zimmerman/DUCT.git```
+ * ```cd DUCT```
+ * ```sudo sh bin/setup/install_dependencies.sh```
+ * Run ```virtualenv <name> -p python3``` to create a virtual environment
+ * Run ```source env/bin/activate``` to activate the virtual environment
+ * ```pip install -r ZOOM/requirements.txt```
+ * ```sudo sh bin/setup/sync_db.sh```
+ * ```sudo sh bin/setup/create_django_user.sh```
+ * ```cd ZOOM/scripts```
+ * If you want to have geolocations for Netherlands PC4 digit areas in your DUCT please download it here <a href="https://drive.google.com/file/d/1UndI3jQJPY7psdi-IgdZ3eYi5B4DkMxS/view?usp=sharing">PC4 geo json</a> and add it to your 'DUCT/ZOOM/geodata/data_backup' folder. Note it might take up to 30mins more for the set up project script to finish if you have this file.
+ * If you want to have geolocations for Netherlands PC6 digit areas in your DUCT please download it here <a href="https://drive.google.com/file/d/1Ad2Eb3RD427UtMB2pM_HZqmyZI8u6Ll6/view?usp=sharing">PC6 geo json</a> and add it to your 'DUCT/ZOOM/geodata/data_backup' folder. Note it might take up to 1 day or more for the set up project script to finish if you have this file.
+ * ```./setup_project.sh```
+ * ```cd ..```
+ * Create a file called 'local_settings.py' in the folder 'DUCT/ZOOM/ZOOM' and add these variables to it(Note: these are   basically used for sending email, after data mapping is done):
+      ```
+        # SEND EMAIL CONFIG
+
+        EMAIL_HOST = your_email_host
+        EMAIL_PORT = your_email_host_port
+        EMAIL_HOST_USER = your_email_host_user
+        EMAIL_HOST_PASSWORD = your_email_host_password
+        EMAIL_USE_TLS = True
+
+        # TASKS
+
+        ZOOM_TASK_EMAIL_CONFIRMATION_ENABLE = True
+        ZOOM_TASK_EMAIL_SENDER = your_email_sender
+        ZOOM_TASK_EMAIL_RECEIVER = your_default_email_receiver
+       ```
+ * Also in your local_settings.py ^ you can add this variable 'POCESS_WORKER_AMOUNT=' and specify a number of desired process workers. Basically this is used for big geodata processing, data that contains more than 40000 data points. Of course the amount of process workers to be used would very much be dependant on your machine, it should never exceed the amount of cores your machine has, and of course if you use to many process workers(like 20) it might work slower in comparison to using less process workers(like 4) because of pre process initiation tasks. The default of this variable is already set to 2.
+ * In 'DUCT/ZOOM' folder create a file called '.env' and add these variables to it(mainly used for specific DUCT endpoints that can only be accessed with a user signed in via auth0 api): 
+   ```
+    AUTH0_DOMAIN=your_auth_domain
+    API_IDENTIFIER=your_auth_api_identifier
+   ```
+ * In 'DUCT/ZOOM' folder create a folder called 'media' and inside that one create a folder called 'tmpfiles'(If these were not already created) 
+ * Start your rabbitmq service
+ * ```python manage.py runserver```
+ * Reactivate your virtual environment if it was deactivated, then in the folder 'DUCT/ZOOM' run the celery worker ``` -A ZOOM worker -l info ```
+  * Reactivate your virtual environment if it was deactivated, then in the folder 'DUCT/ZOOM' run the celery beat ``` -A ZOOM beat -l info ```
+ 
 or
 
 If you have Docker installed, run:
@@ -159,6 +201,9 @@ Eventually, you could add your modifications to the Django configuration in a ne
 |fileSource|gql.metadata.mutation.Mutation|
 |file|gql.metadata.mutation.Mutation|
 
+#### Postman sample
+To quickly add data, you can use Postman and import the file bin/API Sample.postman_collection.json to add data to your server. https://www.getpostman.com/
+
 ## About the project
 --------
 
@@ -166,7 +211,6 @@ Eventually, you could add your modifications to the Django configuration in a ne
 * License:          <a href="https://github.com/zimmerman-zimmerman/DUCT/blob/master/LICENSE.MD" target="_blank">github.com/zimmerman-zimmerman/DUCT/</a>
 * Github Repo:      <a href="https://github.com/zimmerman-zimmerman/DUCT/" target="_blank">github.com/zimmerman-zimmerman/DUCT/</a>
 * Bug Tracker:     <a href="https://github.com/zimmerman-zimmerman/DUCT/issues" target="_blank">github.com/zimmerman-zimmerman/DUCT/issues</a>
-
 
 ## Can I contribute?
 --------

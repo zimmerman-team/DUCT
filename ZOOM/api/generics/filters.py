@@ -1,6 +1,6 @@
-from django_filters import CharFilter
-from django_filters import Filter, FilterSet, BooleanFilter
+from django_filters import BooleanFilter, CharFilter, Filter, FilterSet
 from rest_framework import filters
+
 
 class CommaSeparatedCharFilter(CharFilter):
 
@@ -44,4 +44,3 @@ class CommaSeparatedDateRangeFilter(Filter):
         values = value.split(',')
 
         return super(CommaSeparatedDateRangeFilter, self).filter(qs, values)
-

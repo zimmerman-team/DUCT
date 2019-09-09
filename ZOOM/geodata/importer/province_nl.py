@@ -1,7 +1,7 @@
 import json
 
 from geodata.importer.common import get_json_data
-from geodata.models import Province, Country, Geolocation
+from geodata.models import Country, Geolocation, Province
 
 
 class ProvinceNL(object):

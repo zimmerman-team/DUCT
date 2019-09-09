@@ -1,10 +1,8 @@
 from django.db.models import signals
 from django.dispatch import receiver
 
-from geodata.models import (
-    Geolocation, Country, City, Region,
-    SubNational, PointBased, Province, PostCode
-)
+from geodata.models import (City, Country, Geolocation, PointBased, PostCode,
+                            Province, Region, SubNational)
 
 
 @receiver(signals.post_save, sender=Geolocation)

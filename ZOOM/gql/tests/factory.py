@@ -1,5 +1,6 @@
-from django.contrib.gis.geos import Point,GEOSGeometry
 import factory
+from django.contrib.gis.geos import GEOSGeometry, Point
+
 from geodata import models
 from metadata import models as metadata_models
 
@@ -35,6 +36,7 @@ class CountryFactory(NoDatabaseFactory):
 class GeolocationFactory(NoDatabaseFactory):
     class Meta:
         model = models.Geolocation
+        django_get_or_create = ('iso2',)
 
 
     tag = 'asia'
@@ -49,7 +51,6 @@ class RegionFactory(NoDatabaseFactory):
     class Meta:
         model = models.Region
 
-    id = 4
     name = 'asia'
     center_longlat = Point(1, 5)
     polygons = GEOSGeometry('{ "type": "MultiPolygon","coordinates": '
@@ -61,15 +62,11 @@ class RegionFactory(NoDatabaseFactory):
                             ' [100.2, 0.8], [100.2, 0.2]]]]}')
 
 
-
-
 class CityFactory(NoDatabaseFactory):
     class Meta:
         model = models.City
 
-    geoname_id = 1000
     name = 'london'
-    location = Point(5, 23)
 
 
 class FileSourceFactory(NoDatabaseFactory):
@@ -82,5 +79,3 @@ class FileSourceFactory(NoDatabaseFactory):
 class FileFactory(NoDatabaseFactory):
     class Meta:
         model = metadata_models.File
-
-

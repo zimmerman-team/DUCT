@@ -1,9 +1,8 @@
 from dateutil import parser
-
 from django.db.models import signals
 from django.dispatch import receiver
 
-from indicator.models import Indicator, Datapoints
+from indicator.models import Datapoints, Indicator
 
 
 @receiver(signals.pre_save, sender=Indicator)

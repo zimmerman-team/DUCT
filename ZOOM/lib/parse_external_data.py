@@ -1,10 +1,11 @@
-import pandas as pd
-import numpy as np
-import os
-import math
 import json
+import math
+import os
 import sys
-from django.test import RequestFactory, Client
+
+import numpy as np
+import pandas as pd
+from django.test import Client, RequestFactory
 from rest_framework.test import APIClient
 
 URL = "http://127.0.0.1:8000/api/"
@@ -16,7 +17,6 @@ file_dict = {
         "tag": WB,
         "source": WB,
         "description": "Indicator data from WB (upload done through automation).",
-        "file_tags": ["WB"],
         "mapping": {
             'indicator': [DEFAULT_INDICATOR_COLUMN],
             'unit_of_measure': [],
@@ -181,7 +181,6 @@ file_dict = {
         "tag": CRS,
         "source": CRS,
         "description": "Aggregated CRS from OECD (upload done through automation).",
-        "file_tags": ["Finance", "CRS"],
         "mapping": {
             'indicator': ['Flow Name'],
             'unit_of_measure': [],
@@ -299,7 +298,6 @@ def start_mapping(file_choice):
             'title': file_name,
             'description': file_name + " " + file_dict[file_choice]["description"],
             'file_name': file_name,
-            "tags": file_dict[file_choice]["file_tags"],
             "data_source": file_choice,
             "authorised": 1,
             "status": 1

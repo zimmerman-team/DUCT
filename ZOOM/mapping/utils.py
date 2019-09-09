@@ -1,9 +1,14 @@
+import logging
+
+from django.conf import settings
+from django.contrib.sessions.backends.db import SessionStore
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
-from django.conf import settings
 
-from indicator.models import Indicator
+import gql.utils
 from geodata.models import COUNTRY_RELATION_TYPES
+from indicator.models import Indicator
+from mapping.models import Mapping
 
 
 def update_country_on_indicator(file):
@@ -28,9 +33,7 @@ def update_country_on_indicator(file):
                     indicator.save()
 
 
-def send_confirmation_email(
-        status, file_id, mapping_id,email=None,
-        error_message=None):
+def send_confirmation_email(status, file_id, mapping_id, error_message=None):
 
     if status:
         template = render_to_string('mapping/status_success.txt', {
@@ -46,7 +49,18 @@ def send_confirmation_email(
         })
         subject = settings.ZOOM_TASK_EMAIL_MAPPING_FAILED_SUBJECT
 
-    receiver = email if email else settings.ZOOM_TASK_EMAIL_RECEIVER
+    # Default receiver if ZZ email
+    receiver = settings.ZOOM_TASK_EMAIL_RECEIVER
+
+    try:
+        mapping = Mapping.objects.get(id=mapping_id)
+
+        # User email or ZZ email
+        receiver = mapping.session_email \
+            if mapping.session_email else settings.ZOOM_TASK_EMAIL_RECEIVER
+
+    except Mapping.DoesNotExist:
+        pass
 
     send_mail(
         subject,
