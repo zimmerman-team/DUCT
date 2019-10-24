@@ -57,7 +57,7 @@ def begin_mapping(data):
         else:
             point_based = False
 
-        # Reformat dataframe for dates or categories
+        # Reformat dataframe for dates, categories or indicators
         if len(data_model_dict['value']) > 1:
             df_data, dtypes_dict, data_model_dict = convert_df(
                 df_data, multi_entry_dict, data_model_dict,

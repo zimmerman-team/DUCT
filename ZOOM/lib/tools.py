@@ -408,6 +408,10 @@ def convert_df(df_data, multi_entry_dict, data_model_dict,
             data_model_dict['date'] = ['date']
             dtypes_dict[relationship_dict[col]] = [
                 'date'] * len(tmp_df[tmp_df.columns[0]])
+        elif relationship_dict[col] == 'indicator':
+            data_model_dict['indicator'] = ['indicator']
+            dtypes_dict[relationship_dict[col]] = [
+                'text'] * len(tmp_df[tmp_df.columns[0]])
         else:
             if 'filters' not in data_model_dict['filters']:
                 data_model_dict['filters'].append('filters')
