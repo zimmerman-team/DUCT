@@ -249,10 +249,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'general_tasks.tasks.clean_temp_geo_jsons',
         'schedule': crontab(minute=0, hour=0)
     },
-    'delete-garbage-uploaded-files': {
-        'task': 'general_tasks.tasks.delete_garbage_uploaded_files',
-        'schedule': crontab(minute=0, hour=0)
-    }
+    # 'delete-garbage-uploaded-files': {
+    #     'task': 'general_tasks.tasks.delete_garbage_uploaded_files',
+    #     'schedule': crontab(minute=0, hour=0)
+    # }
 }
 
 # TASKS CONFIG
