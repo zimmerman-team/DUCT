@@ -272,6 +272,9 @@ ZOOM_TASK_EMAIL_MAPPING_FAILED_SUBJECT = 'ZOOM Mapping Failed!'
 # done before the processes are initiated
 POCESS_WORKER_AMOUNT = 2
 
+# variable for tippecanoe directory
+TIPPECANOE_DIR = '/usr/local/bin/'
+
 # LOAD .env FILE
 
 ENV_FILE = find_dotenv()

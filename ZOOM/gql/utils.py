@@ -10,6 +10,7 @@ import django_filters
 
 import graphene
 import pydash
+import togeojsontiles
 from django.conf import settings
 from django.contrib.gis.geos import MultiPolygon, Point, Polygon
 from django.contrib.postgres.aggregates import ArrayAgg, JSONBAgg
@@ -124,7 +125,7 @@ class AggregationNode(graphene.ObjectType):
         for field in missing_fields:
             missing_field_aggr[field] = ArrayAgg(field, distinct=True)
 
-        if 'geoJsonUrl' in kwargs and kwargs['geoJsonUrl'] and 'filters__name' in groups:
+        if 'tileUrl' in kwargs and kwargs['tileUrl'] and 'filters__name' in groups:
             # so if the data for geojson needs to be dissagregated by sub-indicators(filters)
             # we'll apply a different aggregation logic for geojsons feature processing
             # to work faster in when using multiprocessing parallel
@@ -187,9 +188,9 @@ class AggregationNode(graphene.ObjectType):
         max_value = 0
 
         result_count = results.count()
-        # so if a geoJsonUrl was requested(mainly used for the geoJson layers for the map)
+        # so if a tileUrl was requested(mainly used for the geoJson layers for the map)
         # we will form a json object and save it to a file
-        if 'geoJsonUrl' in kwargs and kwargs['geoJsonUrl'] and result_count > 0:
+        if 'tileUrl' in kwargs and kwargs['tileUrl'] and result_count > 0:
             process_amount = 1
             if result_count > 40000:
                 process_amount = settings.POCESS_WORKER_AMOUNT
@@ -217,7 +218,7 @@ class AggregationNode(graphene.ObjectType):
                 # else we form the nodes normally
                 nodes.append(node)
 
-        if 'geoJsonUrl' in kwargs and kwargs['geoJsonUrl'] and len(country_layers['features']) > 0:
+        if 'tileUrl' in kwargs and kwargs['tileUrl'] and len(country_layers['features']) > 0:
             unique_count = 0
             # so after we're done forming the geoJson we update
             # the percentiles of the properties
@@ -240,9 +241,9 @@ class AggregationNode(graphene.ObjectType):
             # and add the unique layer node to the nodes
             # response
 
-            if 'currentGeoJson' in kwargs and kwargs['currentGeoJson'] is not None:
+            if 'currentTiles' in kwargs and kwargs['currentTiles'] is not None:
                 # so we will remove the previous geojson and generate a new one
-                file_name = kwargs['currentGeoJson']
+                file_name = kwargs['currentTiles']
                 file_url = 'static/temp_geo_jsons/' + file_name
                 full_path_to_file = os.path.join(settings.BASE_DIR, file_url)
                 if os.path.exists(full_path_to_file):
@@ -256,15 +257,55 @@ class AggregationNode(graphene.ObjectType):
 
             file_name = 'geo_json{file_key}.json'.format(file_key=file_key)
 
+            tile_name = 'geo_{file_key}.mbtiles'.format(file_key=file_key)
+
             file_url = 'static/temp_geo_jsons/' + file_name
 
+            tile_url = 'static/temp_mbtiles/' + tile_name
+
             full_path_to_file = os.path.join(settings.BASE_DIR, file_url)
+
+            full_path_to_tiles = os.path.join(settings.BASE_DIR, tile_url)
 
             with open(full_path_to_file, 'w') as json_file:
                 json.dump(country_layers, json_file)
 
-            node = self.__class__(geoJsonUrl=file_url, uniqCount=unique_count,
-                                  minValue=min_value, maxValue=max_value)
+            # here we will select an appropriate zoom level
+            # based on the data used
+            zoom = 6
+            geoType='none'
+            pcType = 0
+
+            if country_layers['features'] and country_layers['features'][0]:
+                geoType = country_layers['features'][0]['properties']['geolocationType']
+
+            if geoType == 'postcode':
+                pcType = len(country_layers['features'][0]['properties']['name'])
+
+            if result_count > 100000:
+                zoom = 10
+            elif geoType == 'postcode':
+                if result_count < 100000 and pcType == 6:
+                    zoom = 11
+                elif pcType == 2:
+                    zoom = 6
+                elif pcType == 3 or pcType == 4:
+                    zoom = 8
+
+            # and here we convert the geojson file to mbtiles
+            togeojsontiles.geojson_to_mbtiles(
+                filepaths=[full_path_to_file],
+                tippecanoe_dir=settings.TIPPECANOE_DIR,
+                mbtiles_file=full_path_to_tiles,
+                maxzoom=zoom
+            )
+
+            # and after we've created the tile url we delete the
+            # geo json file
+            os.remove(full_path_to_file)
+
+            node = self.__class__(tileUrl=tile_url, uniqCount=unique_count,
+                                  minValue=min_value, maxValue=max_value, zoom=zoom)
 
             nodes.append(node)
 

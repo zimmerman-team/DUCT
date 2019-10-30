@@ -91,6 +91,7 @@ class BigFeatureGenerator:
                     local_min_value = sum_value
 
                 features.append({
+                    "type": "Feature",
                     "geometry": ast.literal_eval(result['geolocation__polygons'].json),
                     "properties": {
                         "indName": result['indicator__name'],

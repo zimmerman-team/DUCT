@@ -95,12 +95,12 @@ class DynamicDetailView(DynamicView, RetrieveAPIView):
     """
 
 
-def remove_geo_json(request):
+def remove_tiles(request):
     print('remove file request made')
     if request.method == 'DELETE':
         # so we will remove the previous geojson and generate a new one
         file_name = request.GET['fileName']
-        file_url = 'static/temp_geo_jsons/' + file_name
+        file_url = 'static/temp_mbtiles/' + file_name
         full_path_to_file = os.path.join(settings.BASE_DIR, file_url)
         if os.path.exists(full_path_to_file):
             os.remove(full_path_to_file)
