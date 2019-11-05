@@ -125,6 +125,7 @@ class DatapointsAggregationNode(AggregationNode):
     geolocationCenterLongLat = graphene.JSONString()
     geolocationPolygons = graphene.JSONString()
     tileUrl = graphene.String()
+    tileName = graphene.String()
     zoom = graphene.Int()
     uniqCount = graphene.Int()
     minValue = graphene.Int()

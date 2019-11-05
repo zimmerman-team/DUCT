@@ -244,7 +244,7 @@ class AggregationNode(graphene.ObjectType):
             if 'currentTiles' in kwargs and kwargs['currentTiles'] is not None:
                 # so we will remove the previous geojson and generate a new one
                 file_name = kwargs['currentTiles']
-                file_url = 'static/temp_geo_jsons/' + file_name
+                file_url = 'static/temp_mbtiles/' + file_name
                 full_path_to_file = os.path.join(settings.BASE_DIR, file_url)
                 if os.path.exists(full_path_to_file):
                     os.remove(full_path_to_file)
@@ -255,11 +255,13 @@ class AggregationNode(graphene.ObjectType):
             letters = string.ascii_lowercase
             file_key = ''.join(random.choice(letters) for i in range(50))
 
-            file_name = 'geo_json{file_key}.json'.format(file_key=file_key)
+            tile_file_name = 'geo_json{file_key}'.format(file_key=file_key)
+
+            file_name_ext = tile_file_name + '.json'
 
             tile_name = 'geo_{file_key}.mbtiles'.format(file_key=file_key)
 
-            file_url = 'static/temp_geo_jsons/' + file_name
+            file_url = 'static/temp_geo_jsons/' + file_name_ext
 
             tile_url = 'static/temp_mbtiles/' + tile_name
 
@@ -305,7 +307,7 @@ class AggregationNode(graphene.ObjectType):
             os.remove(full_path_to_file)
 
             node = self.__class__(tileUrl=tile_url, uniqCount=unique_count,
-                                  minValue=min_value, maxValue=max_value, zoom=zoom)
+                                  minValue=min_value, maxValue=max_value, zoom=zoom, tileName=tile_file_name)
 
             nodes.append(node)
 
