@@ -29,3 +29,11 @@ ZOOM/supervisord.pid
 
 .vagrant
 .vscode
+
+# exception to the rule
+!ZOOM/static/temp_mbtiles
+
+ZOOM/static/temp_mbtiles/*
+
+# exception to the rule
+!ZOOM/static/temp_mbtiles/.gitkeep

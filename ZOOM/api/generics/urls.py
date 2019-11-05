@@ -1,8 +1,8 @@
 from django.conf.urls import url
 
-from api.generics.views import remove_geo_json
+from api.generics.views import remove_tiles
 
 app_name = 'generic'
 urlpatterns = [
-    url(r'^removeGeo/$', remove_geo_json, name='remove-geo'),
+    url(r'^removeTiles/$', remove_tiles, name='remove-tiles'),
 ]
