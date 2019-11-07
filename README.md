@@ -26,6 +26,8 @@ DUCT uses <a href="https://auth0.com" >auth0</a> for authenticated access to cer
 | libpython-dev | -- |
 | libpython3.6-dev | -- |
 | rabbitmq | 3.7 |
+| libsqlite3-dev | -- |
+| tippecanoe | 1.34.6 |
 | Supervisor (for deployment) | 3.2 |
 | nginx (for deployment) | 1.14 |
 | PostGIS                | See: <a href="https://docs.djangoproject.com/en/2.0/ref/contrib/gis/install/postgis/">installing PostGIS</a> |
@@ -90,6 +92,9 @@ docker-compose up
 This will start a **development** environment (using Django's development server) for DUCT.
 
 Note, that DUCT Docker image will be pulled from Docker HUB and not built locally.
+
+## Extra Info
+ * Make sure that your tippecanoe executable is in '/usr/local/bin/tippecanoe' OR if you have it somewhere else, make sure to add the variable 'TIPPECANOE_DIR' to your local_settings.py pointing to the directory containing tippecanoe executable. For the recommended/default case it would look like `TIPPECANOE_DIR = '/usr/local/bin/'`
 
 
 ## Documentation
