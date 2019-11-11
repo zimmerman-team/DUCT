@@ -81,6 +81,7 @@ class MappingTestCase(TestCase):
 
         input_json = {
             'metadata_id': file_id,
+            'test': True,
             'mapping_dict': {
                 'indicator': [],
                 'geolocation': ["Subnational"],
