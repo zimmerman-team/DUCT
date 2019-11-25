@@ -14,7 +14,6 @@ from rest_framework.decorators import (api_view, authentication_classes,
                                        permission_classes)
 from rest_framework.permissions import AllowAny
 from six.moves.urllib import request as req
-from django.conf import settings
 
 import gql.utils
 from gql.utils import set_session_email
@@ -36,9 +35,6 @@ def requires_scope():
     Determines if the required scope is present in the access token
     """
     def require_scope(f):
-        if settings.UNIT_TEST:
-            return f
-
         @wraps(f)
         def decorated(*args, **kwargs):
             try:
