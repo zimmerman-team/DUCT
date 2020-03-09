@@ -277,8 +277,6 @@ TIPPECANOE_DIR = '/usr/local/bin/'
 
 # LOAD .env FILE
 
-UNIT_TEST = False
-
 ENV_FILE = find_dotenv()
 if ENV_FILE:
     load_dotenv(ENV_FILE)
