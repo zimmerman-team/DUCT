@@ -59,7 +59,7 @@ WORKDIR /
 RUN rm -rf /tmp/tippecanoe-src \
     && apt-get -y remove --purge build-essential && apt-get -y autoremove
 
-RUN chmod 777 /src/ZOOM/logs/*
+RUN chmod -R 777 /src/ZOOM/logs
 
 # run
 CMD ["sh","-c","nginx -g 'daemon off;'"]
