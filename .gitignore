@@ -14,6 +14,8 @@ ZOOM/scripts/formatters/CRS/*
 ZOOM/scripts/formatters/World_Bank/*
 logs/
 sql_backups/
+env
+.data
 
 *.pyc
 *.swp

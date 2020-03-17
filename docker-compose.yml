@@ -1,22 +1,35 @@
 version: "3"
 services:
-
   db:
     #FIXME: this is using latest (not particular) Postgres version:
     image: kartoza/postgis
+    volumes:
+      - ./.data/postgis:/var/lib/postgresql
+      - ./bin/dump.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
       POSTGRES_DB: zoom
       POSTGRES_USER: zoom
-      POSTGRES_PASSWORD: zoom
+      POSTGRES_PASS: zoom
+      DESTROY_DATABASE_ON_RESTART: "False"
+
+  rabbitmq:
+    image: rabbitmq:3.7
 
   app:
-    #build: .
+    build: .
     # Pull thic image from Docker hub:
-    image: zimmermanzimmerman/duct
+    # image: zimmermanzimmerman/duct
     depends_on:
       - db
     #see: https://docs.docker.com/compose/startup-order/
-    command: ["./src/docker-entrypoint.sh", "/usr/bin/python3.6", "/src/ZOOM/manage.py", "runserver", "0.0.0.0:8000"]
+    command:
+      [
+        "./src/docker-entrypoint.sh",
+        "/usr/bin/python3.6",
+        "/src/ZOOM/manage.py",
+        "runserver",
+        "0.0.0.0:8000",
+      ]
     ports:
       - "8000:8000"
     environment:
@@ -26,3 +39,10 @@ services:
       POSTGRES_HOST: db
       POSTGRES_USER: zoom
       POSTGRES_PASSWORD: zoom
+
+  nginx:
+    build: ./nginx
+    ports:
+      - "1337:80"
+    depends_on:
+      - app
