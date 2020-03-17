@@ -12,7 +12,7 @@ ZOOM/media/
 ZOOM/static_served/*
 ZOOM/scripts/formatters/CRS/*
 ZOOM/scripts/formatters/World_Bank/*
-logs/
+# logs/
 sql_backups/
 env
 .data
