@@ -1,6 +1,6 @@
 
 *.sqlite3
-bin/
+# bin/
 ZOOM/.cache
 
 .idea/
