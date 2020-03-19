@@ -107,7 +107,7 @@ venv.bak/
 .idea
 local_settings.py
 *.sqlite3
-media/
+# media/
 .DS_Store
 samples/datasets
 
