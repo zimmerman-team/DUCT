@@ -1,8 +1,5 @@
 from ZOOM.settings import *  # NOQA: F403
 
-# Use Docker database service name from docker-compose:
-# DATABASES['default']['HOST'] = 'db'  # NOQA: F405
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
@@ -15,17 +12,17 @@ DATABASES = {
 
 # SEND EMAIL CONFIG
 
-EMAIL_HOST = 'your_email_host'
-EMAIL_PORT = 'your_email_host_port'
-EMAIL_HOST_USER = 'your_email_host_user'
-EMAIL_HOST_PASSWORD = 'your_email_host_password'
+EMAIL_HOST = 'smtp.postmarkapp.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'eb6520ea-eb38-4a11-b1f3-328cdee3ca57'
+EMAIL_HOST_PASSWORD = 'eb6520ea-eb38-4a11-b1f3-328cdee3ca57'
 EMAIL_USE_TLS = True
 
 # TASKS
 
 ZOOM_TASK_EMAIL_CONFIRMATION_ENABLE = True
-ZOOM_TASK_EMAIL_SENDER = 'your_email_sender'
-ZOOM_TASK_EMAIL_RECEIVER = 'your_default_email_receiver'
+ZOOM_TASK_EMAIL_SENDER = 'devops-zz@zimmermanzimmerman.nl'
+ZOOM_TASK_EMAIL_RECEIVER = 'devops-zz@zimmermanzimmerman.nl'
 
 # DOCKER RABBIT MQ
 

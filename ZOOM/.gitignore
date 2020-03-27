@@ -106,6 +106,7 @@ venv.bak/
 #Local Development
 .idea
 local_settings.py
+docker_settings.py
 *.sqlite3
 # media/
 .DS_Store
