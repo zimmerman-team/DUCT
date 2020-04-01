@@ -38,6 +38,51 @@ DUCT uses <a href="https://auth0.com" >auth0</a> for authenticated access to cer
 
 - `git clone https://github.com/zimmerman-zimmerman/DUCT.git`
 - `cd DUCT`
+
+If you have Docker installed:
+
+- Create a file called 'docker_settings.py' in the folder 'DUCT/ZOOM/ZOOM' and add these variables to it(Note: these are basically used for sending email, after data mapping is done):
+
+  ```
+    from ZOOM.settings import *
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'NAME': 'zoom',
+            'USER': 'zoom',
+            'PASSWORD': 'zoom',
+            'HOST': 'db',
+        },
+    }
+
+    # SEND EMAIL CONFIG
+
+    EMAIL_HOST = 'your_email_host'
+    EMAIL_PORT = 'your_email_host_port'
+    EMAIL_HOST_USER = 'your_email_host_user'
+    EMAIL_HOST_PASSWORD = 'your_email_host_password'
+    EMAIL_USE_TLS = True
+
+    # TASKS
+
+    ZOOM_TASK_EMAIL_CONFIRMATION_ENABLE = True
+    ZOOM_TASK_EMAIL_SENDER = 'your_email_sender'
+    ZOOM_TASK_EMAIL_RECEIVER = 'your_default_email_receiver'
+
+    # DOCKER RABBIT MQ
+
+    CELERY_BROKER_URL = 'amqp://rabbitmq'
+    CELERY_RESULT_BACKEND = 'amqp://rabbitmq'
+  ```
+
+then run:
+
+`docker-compose build`
+`docker-compose up`
+
+or you can manually install by:
+
 - `sudo sh bin/setup/install_dependencies.sh`
 - Run `virtualenv <name> -p python3` to create a virtual environment
 - Run `source env/bin/activate` to activate the virtual environment
@@ -79,50 +124,6 @@ DUCT uses <a href="https://auth0.com" >auth0</a> for authenticated access to cer
 - `python manage.py runserver`
 - Reactivate your virtual environment if it was deactivated, then in the folder 'DUCT/ZOOM' run the celery worker `-A ZOOM worker -l info`
 - Reactivate your virtual environment if it was deactivated, then in the folder 'DUCT/ZOOM' run the celery beat `-A ZOOM beat -l info`
-
-or
-
-If you have Docker installed:
-
-- Create a file called 'docker_settings.py' in the folder 'DUCT/ZOOM/ZOOM' and add these variables to it(Note: these are basically used for sending email, after data mapping is done):
-
-  ```
-    from ZOOM.settings import *
-
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.contrib.gis.db.backends.postgis',
-            'NAME': 'zoom',
-            'USER': 'zoom',
-            'PASSWORD': 'zoom',
-            'HOST': 'db',
-        },
-    }
-
-    # SEND EMAIL CONFIG
-
-    EMAIL_HOST = 'your_email_host'
-    EMAIL_PORT = 'your_email_host_port'
-    EMAIL_HOST_USER = 'your_email_host_user'
-    EMAIL_HOST_PASSWORD = 'your_email_host_password'
-    EMAIL_USE_TLS = True
-
-    # TASKS
-
-    ZOOM_TASK_EMAIL_CONFIRMATION_ENABLE = True
-    ZOOM_TASK_EMAIL_SENDER = 'your_email_sender'
-    ZOOM_TASK_EMAIL_RECEIVER = 'your_default_email_receiver'
-
-    # DOCKER RABBIT MQ
-
-    CELERY_BROKER_URL = 'amqp://rabbitmq'
-    CELERY_RESULT_BACKEND = 'amqp://rabbitmq'
-  ```
-
-```
-docker-compose build
-docker-compose up
-```
 
 ...and visit `0.0.0.0:8000`.
 
