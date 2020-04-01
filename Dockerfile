@@ -1,11 +1,11 @@
-FROM ubuntu:16.04
+FROM ubuntu:16.04 as build
 
 RUN apt-get -y update
 
 RUN apt-get install -y software-properties-common
-RUN add-apt-repository ppa:jonathonf/python-3.6
+RUN add-apt-repository ppa:deadsnakes/ppa
 
-RUN apt-get update --fix-missing
+RUN apt-get -y update --fix-missing
 
 RUN apt-get -y install \
     #Python installs:
@@ -32,11 +32,17 @@ RUN apt-get -y install \
     libgeos-dev \
     #Spatialite:
     libsqlite3-mod-spatialite \
-    vim
+    vim \
+    git
 
 RUN python3.6 -m pip install pip --upgrade
 
 ENV PYTHONPATH="$PYTHONPATH:/usr/local/lib/python3.6/dist-packages"
+
+# Create a directory and copy in all files
+RUN mkdir -p /tmp/tippecanoe-src
+RUN git clone https://github.com/mapbox/tippecanoe.git /tmp/tippecanoe-src
+WORKDIR /tmp/tippecanoe-src
 
 ADD . /src/
 
@@ -44,4 +50,16 @@ RUN ["chmod", "+x", "/src/docker-entrypoint.sh"]
 
 RUN pip install -r /src/ZOOM/requirements.txt
 
-RUN chmod 777 /src/ZOOM/logs/*.log*
+# Build tippecanoe
+RUN make \
+    && make install
+
+# Remove the temp directory and unneeded packages
+WORKDIR /
+RUN rm -rf /tmp/tippecanoe-src \
+    && apt-get -y remove --purge build-essential && apt-get -y autoremove
+
+RUN chmod -R 777 /src/ZOOM/logs
+
+# run
+CMD ["sh","-c","nginx -g 'daemon off;'"]

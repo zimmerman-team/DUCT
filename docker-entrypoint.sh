@@ -15,8 +15,22 @@ until PGPASSWORD=$POSTGRES_PASSWORD psql -h $POSTGRES_HOST -U $POSTGRES_USER -c 
   sleep 1
 done
 
->&2 echo "Running migrations . . ."
-/usr/bin/python3.6 /src/ZOOM/manage.py migrate
+# We need this when Docker containers are *resumed*, because stuff happens too
+# quickly (when database container is already built) and the above psql check
+# can not even detect it:
+>&2 echo "Caution sleeping for 5 secs . . ."
+sleep 5
+
+# >&2 echo "Running migrations . . ."
+# /usr/bin/python3.6 /src/ZOOM/manage.py migrate
 
 >&2 echo "Postgres is up - executing command . . ."
+
+cd /src/ZOOM
+
+/usr/local/bin/celery -A ZOOM worker -l info &
+/usr/local/bin/celery -A ZOOM beat -l info &
+
+cd
+
 exec $cmd

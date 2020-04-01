@@ -51,9 +51,9 @@ jobs:
             - ./env
           key: v1-dependencies-{{ checksum "ZOOM/requirements.txt" }}
 
-      - run:
-          name: Creating log folder for pytest
-          command: mkdir ZOOM/logs
+      # - run:
+      #     name: Creating log folder for pytest
+      #     command: mkdir ZOOM/logs
 
       - run:
           name: Run Pytest tests
@@ -65,11 +65,11 @@ jobs:
           path: test-reports
           destination: test-reports
 
-#      - run:
-#          name: Run pep8 code style checks
-#          command: |
-#            . env/bin/activate
-#            flake8 ZOOM
+      #      - run:
+      #          name: Run pep8 code style checks
+      #          command: |
+      #            . env/bin/activate
+      #            flake8 ZOOM
 
       - run:
           name: Add target host to known_hosts files

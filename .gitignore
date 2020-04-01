@@ -1,6 +1,6 @@
 
 *.sqlite3
-bin/
+# bin/
 ZOOM/.cache
 
 .idea/
@@ -8,12 +8,14 @@ ZOOM/.cache
 
 ZOOM/ZOOM/local_settings.py
 ZOOM/ZOOM/local_settings.pyc
-ZOOM/media/
+# ZOOM/media/
 ZOOM/static_served/*
 ZOOM/scripts/formatters/CRS/*
 ZOOM/scripts/formatters/World_Bank/*
-logs/
+# logs/
 sql_backups/
+env
+.data
 
 *.pyc
 *.swp
