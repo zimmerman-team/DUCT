@@ -93,7 +93,7 @@ pycparser==2.19
 pydash==4.7.5
 pyflakes==1.6.0
 Pygments==2.2.0
-PyJWT==1.7.1
+PyJWT==2.4.0
 pyparsing==2.2.0
 pytest==3.5.0
 pytest-cov==2.5.1
